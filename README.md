@@ -1,0 +1,1 @@
+# scalecube-configuration-service
