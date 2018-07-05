@@ -4,7 +4,7 @@
 
 	<parent>
 		<groupId>io.scalecube</groupId>
-		<artifactId>configuration-parent</artifactId>
+		<artifactId>scalecube-configuration-service</artifactId>
 		<version>0.0.6-SNAPSHOT</version>
 	</parent>
 
@@ -22,7 +22,7 @@
 
 		<dependency>
 			<groupId>io.scalecube</groupId>
-			<artifactId>scalecube-account-api</artifactId>
+			<artifactId>scalecube-organization-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
