@@ -1,12 +1,12 @@
-package io.scalecube.configuration;
+package io.scalecube.configuration.repository;
+
 
 public class Document {
+  private final String id;
 
-  private String key;
+  private final String key;
 
-  private Object value;
-
-  public Document() {}
+  private final Object value;
 
   public static final class Builder {
     private String id;
@@ -31,7 +31,7 @@ public class Document {
     }
 
     public Document build() {
-      return new Document(key, value);
+      return new Document(id, key, value);
     }
 
   }
@@ -40,7 +40,8 @@ public class Document {
     return new Builder();
   }
 
-  public Document(String key, Object value) {
+  public Document(String id, String key, Object value) {
+    this.id = id;
     this.key = key;
     this.value = value;
   }

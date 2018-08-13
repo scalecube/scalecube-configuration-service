@@ -1,20 +1,20 @@
 package io.scalecube.server;
 
-import io.scalecube.configuration.RedisConfigurationService;
-import io.scalecube.packages.utils.Logo;
-import io.scalecube.packages.utils.PackageInfo;
-import io.scalecube.services.Microservices;
+//import io.scalecube.configuration.RedisConfigurationService;
+//import io.scalecube.packages.utils.Logo;
+//import io.scalecube.packages.utils.PackageInfo;
+//import io.scalecube.services.Microservices;
 
-public class Main {
+public class ConfigurationServiceRunner {
 
   /**
-   * Main Redis configuration main.
+   * ConfigurationServiceRunner Redis configuration main.
    * 
    * @param args application params.
    */
   public static void main(String[] args) {
 
-    PackageInfo info = new PackageInfo();
+/*    PackageInfo info = new PackageInfo();
 
     RedisConfigurationService service = RedisConfigurationService.builder()
         .redisson(info.redisClient())
@@ -33,7 +33,7 @@ public class Main {
         .javaVersion(info.java())
         .osType(info.os())
         .pid(info.pid())
-        .website().draw();
+        .website().draw();*/
   }
 
 }

@@ -1,17 +1,16 @@
 package io.scalecube.configuration;
 
-import static org.junit.Assert.assertEquals;
+import static junit.framework.TestCase.assertEquals;
 
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.User;
+import io.scalecube.configuration.Await.AwaitLatch;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.DeleteRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.SaveRequest;
-import io.scalecube.configuration.db.redis.MockAccountService;
-import io.scalecube.test.utils.Await;
-import io.scalecube.test.utils.Await.AwaitLatch;
+import io.scalecube.configuration.repository.redis.MockAccountService;
 import io.scalecube.testlib.BaseTest;
 
 import com.fasterxml.jackson.databind.JsonNode;

@@ -16,9 +16,18 @@ import reactor.core.publisher.Mono;
 public interface ConfigurationService {
 
   /**
+   * Request to create a configuration repository and requires a write level permissions.
+   *
+   * @param request includes the repository and key of the requested object.
+   * @return Acknowledgment upon repository creation.
+   */
+  @ServiceMethod
+  Mono<Acknowledgment> createRepository(CreateRepositoryRequest request);
+
+  /**
    * Fetch request requires read level permissions to get entry object from the store.
    * 
-   * @param request includes the collection and key of the requested object.
+   * @param request includes the repository and key of the requested object.
    * @return json object from the store.
    */
   @ServiceMethod
@@ -27,8 +36,8 @@ public interface ConfigurationService {
   /**
    * Entries request requires read level permissions to list all entries objects from the store.
    * 
-   * @param request includes the name of the collection to list.
-   * @return list of FetchReponses per each entry in the collection.
+   * @param request includes the name of the repository to list.
+   * @return list of FetchReponses per each entry in the repository.
    */
   @ServiceMethod
   Mono<Entries<FetchResponse>> entries(FetchRequest request);
@@ -37,7 +46,7 @@ public interface ConfigurationService {
   /**
    * Save request requires write level permissions to save (create or update) entry to the store.
    * 
-   * @param request includes the name of the collection, key, value to save.
+   * @param request includes the name of the repository, key, value to save.
    * @return acknowledgement when saved.
    */
   @ServiceMethod
@@ -46,7 +55,7 @@ public interface ConfigurationService {
   /**
    * delete request requires write level permissions to delete entry from the store.
    * 
-   * @param request includes the name of the collection, key to delete.
+   * @param request includes the name of the repository, key to delete.
    * @return acknowledgement when deleted.
    */
   @ServiceMethod

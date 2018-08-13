@@ -1,44 +1,42 @@
 package io.scalecube.configuration.api;
 
-import io.scalecube.account.api.Token;
-
 public class FetchRequest implements AccessRequest {
 
-  protected String collection;
+  protected String repository;
   protected String key;
-  private Token token;
+  private Object token;
 
   /**
    * @deprecated only for serialization/deserialization
    */
   FetchRequest() {}
 
-  public FetchRequest(String collection, String key) {
-    this.collection = collection;
+  public FetchRequest(String repository, String key) {
+    this.repository = repository;
     this.key = key;
   }
 
-  public FetchRequest(Token token, String collection, String key) {
+  public FetchRequest(Object token, String repository, String key) {
     this.token = token;
-    this.collection = collection;
+    this.repository = repository;
     this.key = key;
   }
 
-  public String collection() {
-    return collection;
+  public String repository() {
+    return repository;
   }
 
   public String key() {
     return key;
   }
 
-  public Token token() {
+  public Object token() {
     return this.token;
   }
 
   @Override
   public String toString() {
-    return "FetchRequest [collection=" + collection + ", key=" + key + ", token=" + token + "]";
+    return "FetchRequest [repository=" + repository + ", key=" + key + ", token=" + token + "]";
   }
 
 }

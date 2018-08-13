@@ -1,10 +1,8 @@
 package io.scalecube.configuration.api;
 
-import io.scalecube.account.api.Token;
-
 public class DeleteRequest implements AccessRequest {
 
-  private Token token;
+  private Object token;
   private String collection;
   private String key;
 
@@ -13,17 +11,17 @@ public class DeleteRequest implements AccessRequest {
    */
   DeleteRequest() {}
 
-  public DeleteRequest(Token token, String collection, String key) {
+  public DeleteRequest(Object token, String collection, String key) {
     this.token = token;
     this.collection = collection;
     this.key = key;
   }
 
-  public Token token() {
+  public Object token() {
     return token;
   }
 
-  public String collection() {
+  public String repository() {
     return collection;
   }
 

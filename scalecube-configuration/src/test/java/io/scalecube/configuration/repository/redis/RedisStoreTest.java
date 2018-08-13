@@ -1,18 +1,15 @@
-package io.scalecube.configuration.db.redis;
+package io.scalecube.configuration.repository.redis;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
-import io.scalecube.testlib.BaseTest;
-
-import org.junit.Test;
-import org.redisson.Redisson;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
+import org.junit.jupiter.api.Test;
 
-public class RedisStoreTest extends BaseTest {
+public class RedisStoreTest {
 
-  private final RedisStore<String> store = new RedisStore<>(Redisson.create());
+  private final RedisStore<String> store = new RedisStore<>();
 
   @Test
   public void test_put_get() {

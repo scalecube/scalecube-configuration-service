@@ -1,4 +1,4 @@
-package io.scalecube.configuration.db.redis;
+package io.scalecube.configuration.repository.redis;
 
 import static org.junit.Assert.assertEquals;
 

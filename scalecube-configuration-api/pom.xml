@@ -4,8 +4,8 @@
 
 	<parent>
 		<groupId>io.scalecube</groupId>
-		<artifactId>scalecube-configuration-service</artifactId>
-        <version>0.0.6-SNAPSHOT</version>
+		<artifactId>scalecube-configuration-parent</artifactId>
+		<version>2.0.12-SNAPSHOT</version>
 	</parent>
 	<artifactId>scalecube-configuration-api</artifactId>
 	<name>scalecube-configuration-api</name>
@@ -16,17 +16,10 @@
 	</properties>
 
 	<dependencies>
-
 		<dependency>
-			<groupId>io.scalecube</groupId>
-			<artifactId>scalecube-organization-api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit.jupiter.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
