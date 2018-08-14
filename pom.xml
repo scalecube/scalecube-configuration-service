@@ -74,6 +74,7 @@
 		<jackson-databind.version>2.7.6</jackson-databind.version>
 		<junit.jupiter.version>5.1.0</junit.jupiter.version>
 		<scalecube-security-jwt.version>1.0.2-SNAPSHOT</scalecube-security-jwt.version>
+		<couchbase-client-version>2.6.0</couchbase-client-version>
 	</properties>
 
 	<modules>

@@ -22,7 +22,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   private final ConfigurationDataAccess<Document> dataAccess;
   private TokenVerifier tokenVerifier;
 
-  private ConfigurationServiceImpl(ConfigurationDataAccess dataAccess) {
+  private ConfigurationServiceImpl(ConfigurationDataAccess<Document>  dataAccess) {
     this.dataAccess = dataAccess;
   }
 
@@ -187,23 +187,26 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     });
   }
 
+  public static Builder builder() {
+    return new Builder();
+  }
 
 
-  static class Builder {
-
+  public static class Builder {
     private ConfigurationDataAccess dataAccess;
 
-    Builder dataAccess(ConfigurationDataAccess dataAccess) {
+    public Builder dataAccess(ConfigurationDataAccess dataAccess) {
       this.dataAccess = dataAccess;
       return this;
     }
 
-    ConfigurationService build() {
+    public ConfigurationService build() {
+      Objects.requireNonNull(dataAccess, "Data access cannot be null");
       return new ConfigurationServiceImpl(dataAccess);
     }
   }
 
-  Role getRole(String role) {
+  private Role getRole(String role) {
     return Enum.valueOf(Role.class, role);
   }
 }

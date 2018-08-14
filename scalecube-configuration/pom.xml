@@ -20,6 +20,11 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>com.couchbase.client</groupId>
+			<artifactId>java-client</artifactId>
+			<version>${couchbase-client-version}</version>
+		</dependency>
+		<dependency>
 			<groupId>io.scalecube</groupId>
 			<artifactId>scalecube-configuration-api</artifactId>
 			<version>${project.version}</version>

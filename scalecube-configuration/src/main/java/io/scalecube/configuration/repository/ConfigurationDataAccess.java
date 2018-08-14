@@ -1,5 +1,6 @@
 package io.scalecube.configuration.repository;
 
+import io.scalecube.configuration.repository.exception.DataAccessException;
 import java.util.Collection;
 
 public interface ConfigurationDataAccess<T> {

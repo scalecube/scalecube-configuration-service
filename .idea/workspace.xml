@@ -2,38 +2,24 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="de3e9358-116b-4aa6-9b7b-319833ab7606" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/eran.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/CreateRepositoryRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/InvalidAuthenticationToken.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/AppSettings.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/AppSettingsException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/Role.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/ConfigurationDataAccess.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/DataAccessException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/tokens/InvalidAuthenticationException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/tokens/TokenVerifier.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/resources/settings.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/test/java/io/scalecube/configuration/Await.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/DataAccessFactory.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/couchbase/CouchbaseSettings.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/exception/DataAccessException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/exception/DataAccessResourceFailureException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/exception/KeyNotFoundException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/exception/NameAlreadyInUseException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/exception/RepositoryNotFoundException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/inmem/InMemoryDataAccess.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/resources/couchbase-settings.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scalecube-configuration-api/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration-api/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/AccessRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/AccessRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/Acknowledgment.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/Acknowledgment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/ConfigurationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/ConfigurationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/DeleteRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/DeleteRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/FetchRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/FetchRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/SaveRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/SaveRequest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scalecube-configuration/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/Document.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/Document.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/RedisConfigurationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/RedisConfigurationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/db/redis/RedisStore.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/redis/RedisStore.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/server/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/server/ConfigurationServiceRunner.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scalecube-configuration/src/test/java/io/scalecube/configuration/RedisConfigurationServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration/src/test/java/io/scalecube/configuration/RedisConfigurationServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scalecube-configuration/src/test/java/io/scalecube/configuration/db/redis/MockAccountService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration/src/test/java/io/scalecube/configuration/repository/redis/MockAccountService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scalecube-configuration/src/test/java/io/scalecube/configuration/db/redis/RedisConfigurationServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration/src/test/java/io/scalecube/configuration/repository/redis/RedisConfigurationServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scalecube-configuration/src/test/java/io/scalecube/configuration/db/redis/RedisStoreTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration/src/test/java/io/scalecube/configuration/repository/redis/RedisStoreTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scalecube-webapp-example/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-webapp-example/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scalecube-webapp-example/src/main/java/io/scalecube/webapp/example/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-webapp-example/src/main/java/io/scalecube/webapp/example/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/ConfigurationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/ConfigurationServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/ConfigurationDataAccess.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/ConfigurationDataAccess.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/DataAccessException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/couchbase/Configutration.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/couchbase/CouchbaseDataAccess.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/couchbase/ConfnigurationRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/server/ConfigurationServiceRunner.java" beforeDir="false" afterPath="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/server/ConfigurationServiceRunner.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/scalecube-webapp-example/target/" />
     <ignored path="$PROJECT_DIR$/scalecube-configuration/target/" />
@@ -48,44 +34,123 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="ConfigurationService.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/ConfigurationService.java">
+      <file leaf-file-name="ConfigurationServiceRunner.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/server/ConfigurationServiceRunner.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="827">
-              <caret line="52" column="23" selection-start-line="52" selection-start-column="23" selection-end-line="52" selection-end-column="23" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ConfigurationServiceImpl.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/ConfigurationServiceImpl.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="650">
-              <caret line="101" column="7" selection-start-line="101" selection-start-column="7" selection-end-line="101" selection-end-column="7" />
+            <state relative-caret-position="452">
+              <caret line="38" column="12" selection-start-line="38" selection-start-column="12" selection-end-line="38" selection-end-column="12" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="method#save#0;class#ConfigurationServiceImpl#0" />
-                <element signature="e#6236#6237#0" expanded="true" />
-                <element signature="e#6283#6284#0" expanded="true" />
+                <element signature="method#stringListValue#0;class#ConfigurationServiceRunner#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ConfigurationDataAccess.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/ConfigurationDataAccess.java">
+      <file leaf-file-name="CouchbaseDataAccess.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/couchbase/CouchbaseDataAccess.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="242">
-              <caret line="11" column="61" selection-start-line="11" selection-start-column="61" selection-end-line="11" selection-end-column="61" />
+            <state relative-caret-position="88">
+              <caret line="4" selection-start-line="4" selection-end-line="4" />
+              <folding>
+                <element signature="e#545#546#0" expanded="true" />
+                <element signature="e#566#567#0" expanded="true" />
+                <element signature="e#776#777#0" expanded="true" />
+                <element signature="e#797#798#0" expanded="true" />
+                <element signature="e#887#888#0" expanded="true" />
+                <element signature="e#908#909#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RedisConfigurationService.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/RedisConfigurationService.java">
+      <file leaf-file-name="CouchbaseSettings.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/couchbase/CouchbaseSettings.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="356">
-              <caret line="106" selection-start-line="106" selection-end-line="114" selection-end-column="9" />
+            <state relative-caret-position="131">
+              <caret line="15" column="46" selection-start-line="15" selection-start-column="46" selection-end-line="15" selection-end-column="46" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#1598#1599#0" expanded="true" />
+                <element signature="e#1671#1672#0" expanded="true" />
+                <element signature="e#1697#1698#0" expanded="true" />
+                <element signature="e#1756#1757#0" expanded="true" />
+                <element signature="e#1785#1786#0" expanded="true" />
+                <element signature="e#1847#1848#0" expanded="true" />
+                <element signature="e#1885#1886#0" expanded="true" />
+                <element signature="e#1953#1954#0" expanded="true" />
+                <element signature="e#1989#1990#0" expanded="true" />
+                <element signature="e#2055#2056#0" expanded="true" />
+                <element signature="e#2087#2088#0" expanded="true" />
+                <element signature="e#2132#2133#0" expanded="true" />
+                <element signature="e#2172#2173#0" expanded="true" />
+                <element signature="e#2226#2227#0" expanded="true" />
+                <element signature="e#2645#2646#0" expanded="true" />
+                <element signature="e#2688#2689#0" expanded="true" />
+                <element signature="e#2706#2707#0" expanded="true" />
+                <element signature="e#2748#2749#0" expanded="true" />
+                <element signature="e#2813#2814#0" expanded="true" />
+                <element signature="e#2857#2858#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="couchbase-settings.properties" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/resources/couchbase-settings.properties">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="44">
+              <caret line="2" column="24" lean-forward="true" selection-start-line="2" selection-start-column="24" selection-end-line="2" selection-end-column="24" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scalecube-configuration/pom.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="232">
+              <caret line="25" column="17" selection-start-line="25" selection-start-column="17" selection-end-line="25" selection-end-column="17" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DataAccessResourceFailureException.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/exception/DataAccessResourceFailureException.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="110">
+              <caret line="5" column="24" selection-start-line="5" selection-start-column="24" selection-end-line="5" selection-end-column="24" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pom.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="205">
+              <caret line="76" column="62" selection-start-line="76" selection-start-column="62" selection-end-line="76" selection-end-column="62" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DataAccessFactory.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/DataAccessFactory.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="154">
+              <caret line="7" column="36" selection-start-line="7" selection-start-column="36" selection-end-line="7" selection-end-column="36" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#294#295#0" expanded="true" />
+                <element signature="e#334#335#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="InMemoryDataAccess.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/inmem/InMemoryDataAccess.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="220">
+              <caret line="10" column="13" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -93,13 +158,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RedisStore.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/redis/RedisStore.java">
+      <file leaf-file-name="DataAccessException.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/exception/DataAccessException.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="550">
-              <caret line="28" column="9" selection-start-line="28" selection-start-column="9" selection-end-line="28" selection-end-column="30" />
+            <state relative-caret-position="44">
+              <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
               <folding>
-                <element signature="imports" expanded="true" />
+                <element signature="e#154#155#0" expanded="true" />
+                <element signature="e#178#179#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -114,6 +180,14 @@
         <option value="Class" />
       </list>
     </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>throws DataAccessException</find>
+      <find>OrgMembers</find>
+      <find>org.members.</find>
+      <find>profiles.bucket</find>
+    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -141,23 +215,34 @@
         <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/AppSettings.java" />
         <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/AppSettingsException.java" />
         <option value="$PROJECT_DIR$/scalecube-configuration/src/main/resources/settings.properties" />
-        <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/tokens/TokenVerifier.java" />
         <option value="$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/InvalidAuthenticationToken.java" />
         <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/CongifurationDataAccess.java" />
         <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/ConfigurationDataAccess.java" />
         <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/DataAccessExcetion.java" />
         <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/DataAccessException.java" />
-        <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/DataAccessException.java" />
         <option value="$PROJECT_DIR$/scalecube-configuration-api/pom.xml" />
         <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/Document.java" />
         <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/RedisConfigurationService.java" />
-        <option value="$PROJECT_DIR$/scalecube-configuration/pom.xml" />
         <option value="$PROJECT_DIR$/scalecube-configuration/src/test/java/io/scalecube/configuration/repository/redis/RedisStoreTest.java" />
         <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/redis/RedisStore.java" />
         <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/Role.java" />
         <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/ConfigurationDataAccess.java" />
         <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/ConfigurationServiceImpl.java" />
+        <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/exception/KeyNotFoundException.java" />
+        <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/DataAccessException.java" />
+        <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/exception/RepositoryNotFoundException.java" />
+        <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/exception/NameAlreadyInUseException.java" />
+        <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/InMemoryDataAccess.java" />
+        <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/RepositoryFactory.java" />
+        <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/DataAccessFactory.java" />
+        <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/server/ConfigurationServiceRunner.java" />
+        <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/couchbase/CouchbaseDataAccess.java" />
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/exception/DataAccessResourceFailureException.java" />
+        <option value="$PROJECT_DIR$/scalecube-configuration/pom.xml" />
+        <option value="$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/couchbase/CouchbaseSettings.java" />
+        <option value="$PROJECT_DIR$/scalecube-configuration/src/main/resources/couchbase-settings.properties" />
       </list>
     </option>
   </component>
@@ -201,8 +286,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="PackagesPane" />
       <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
@@ -216,150 +299,33 @@
               <item name="scalecube-configuration-service" type="462c0819:PsiDirectoryNode" />
               <item name="scalecube-configuration" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="scalecube-configuration-service" type="b2602c69:ProjectViewProjectNode" />
-              <item name="scalecube-configuration-service" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube-configuration" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="scalecube-configuration-service" type="b2602c69:ProjectViewProjectNode" />
-              <item name="scalecube-configuration-service" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube-configuration" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="scalecube-configuration-service" type="b2602c69:ProjectViewProjectNode" />
-              <item name="scalecube-configuration-service" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube-configuration" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="scalecube-configuration-service" type="b2602c69:ProjectViewProjectNode" />
-              <item name="scalecube-configuration-service" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube-configuration" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="scalecube-configuration-service" type="b2602c69:ProjectViewProjectNode" />
-              <item name="scalecube-configuration-service" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube-configuration" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube" type="462c0819:PsiDirectoryNode" />
-              <item name="configuration" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="scalecube-configuration-service" type="b2602c69:ProjectViewProjectNode" />
-              <item name="scalecube-configuration-service" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube-configuration" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube" type="462c0819:PsiDirectoryNode" />
-              <item name="configuration" type="462c0819:PsiDirectoryNode" />
-              <item name="repository" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="scalecube-configuration-service" type="b2602c69:ProjectViewProjectNode" />
-              <item name="scalecube-configuration-service" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube-configuration" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube" type="462c0819:PsiDirectoryNode" />
-              <item name="configuration" type="462c0819:PsiDirectoryNode" />
-              <item name="repository" type="462c0819:PsiDirectoryNode" />
-              <item name="redis" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="scalecube-configuration-service" type="b2602c69:ProjectViewProjectNode" />
-              <item name="scalecube-configuration-service" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube-configuration" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube" type="462c0819:PsiDirectoryNode" />
-              <item name="configuration" type="462c0819:PsiDirectoryNode" />
-              <item name="tokens" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="scalecube-configuration-service" type="b2602c69:ProjectViewProjectNode" />
-              <item name="scalecube-configuration-service" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube-configuration" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube" type="462c0819:PsiDirectoryNode" />
-              <item name="server" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="scalecube-configuration-service" type="b2602c69:ProjectViewProjectNode" />
-              <item name="scalecube-configuration-service" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube-configuration" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="scalecube-configuration-service" type="b2602c69:ProjectViewProjectNode" />
-              <item name="scalecube-configuration-service" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube-configuration-api" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="scalecube-configuration-service" type="b2602c69:ProjectViewProjectNode" />
-              <item name="scalecube-configuration-service" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube-configuration-api" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="scalecube-configuration-service" type="b2602c69:ProjectViewProjectNode" />
-              <item name="scalecube-configuration-service" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube-configuration-api" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="scalecube-configuration-service" type="b2602c69:ProjectViewProjectNode" />
-              <item name="scalecube-configuration-service" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube-configuration-api" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="scalecube-configuration-service" type="b2602c69:ProjectViewProjectNode" />
-              <item name="scalecube-configuration-service" type="462c0819:PsiDirectoryNode" />
-              <item name="scalecube-configuration-api" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="api" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="extract.method.default.visibility" value="private" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../scalecube-microservices" />
     <property name="settings.editor.selected.configurable" value="reference.settings.ide.settings.file-colors" />
   </component>
   <component name="RecentsManager">
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
       <recent name="io.scalecube.configuration.repository" />
     </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\dev\git\scalecube-configuration-service\scalecube-configuration\src\main\resources" />
+    </key>
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="io.scalecube.configuration.repository.couchbase" />
+      <recent name="io.scalecube.configuration.repository.exception" />
       <recent name="io.scalecube.configuration" />
     </key>
     <key name="CreateClassDialog.RecentsKey">
+      <recent name="io.scalecube.configuration.repository.exception" />
       <recent name="io.scalecube.configuration" />
       <recent name="io.scalecube.configuration.tokens" />
       <recent name="io.scalecube.configuration.api" />
@@ -446,7 +412,7 @@
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.22547974" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.32782516" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32897604" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -480,84 +446,10 @@
     <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/server/ConfigurationServiceRunner.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="264">
-          <caret line="12" column="36" selection-start-line="12" selection-start-column="36" selection-end-line="12" selection-end-column="36" />
-          <folding>
-            <marker date="1533649550363" expanded="true" signature="435:1069" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/couchbase/Configutration.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="44">
-          <caret line="2" column="27" selection-start-line="2" selection-start-column="27" selection-end-line="2" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/ConfigurationService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="15" column="17" selection-start-line="15" selection-start-column="17" selection-end-line="15" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/redis/RedisStore.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="88">
-          <caret line="7" column="18" selection-start-line="7" selection-start-column="18" selection-end-line="7" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/RedisConfigurationService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1012">
-          <caret line="72" column="51" selection-start-line="72" selection-start-column="51" selection-end-line="72" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/Document.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="418">
-          <caret line="19" column="34" lean-forward="true" selection-start-line="18" selection-end-line="19" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/couchbase/ConfnigurationRepository.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="88">
-          <caret line="5" column="41" selection-start-line="5" selection-start-column="17" selection-end-line="5" selection-end-column="41" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/ConfigurationServiceImpl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="132">
-          <caret line="8" column="20" selection-start-line="8" selection-start-column="20" selection-end-line="8" selection-end-column="20" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="method#save#0;class#ConfigurationServiceImpl#0" />
-            <element signature="e#6236#6237#0" expanded="true" />
-            <element signature="e#6283#6284#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scalecube-configuration/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="748">
-          <caret line="34" selection-start-line="34" selection-end-line="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/server/ConfigurationServiceRunner.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
           <caret line="12" column="36" lean-forward="true" selection-start-line="12" selection-start-column="36" selection-end-line="12" selection-end-column="36" />
           <folding>
-            <marker date="1533649550363" expanded="true" signature="435:1069" ph="..." />
+            <element signature="imports" expanded="true" />
+            <element signature="method#stringListValue#0;class#ConfigurationServiceRunner#0" />
           </folding>
         </state>
       </provider>
@@ -590,20 +482,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/couchbase/Configutration.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="44">
-          <caret line="2" column="27" selection-start-line="2" selection-start-column="27" selection-end-line="2" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/couchbase/ConfnigurationRepository.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="110">
           <caret line="5" column="41" selection-start-line="5" selection-start-column="17" selection-end-line="5" selection-end-column="41" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -659,16 +541,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/server/ConfigurationServiceRunner.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="12" column="36" selection-start-line="12" selection-start-column="36" selection-end-line="12" selection-end-column="36" />
-          <folding>
-            <marker date="1533649550363" expanded="true" signature="435:1069" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/DeleteRequest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="132">
@@ -717,18 +589,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/AppSettings.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="15" column="21" selection-start-line="15" selection-start-column="21" selection-end-line="15" selection-end-column="21" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#586#587#0" expanded="true" />
-            <element signature="e#628#629#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/AppSettingsException.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="88">
@@ -761,24 +621,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/DataAccessException.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="110">
-          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/scalecube-configuration-api/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="374">
           <caret line="17" column="16" selection-start-line="17" selection-start-column="16" selection-end-line="17" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scalecube-configuration/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="496">
-          <caret line="37" selection-start-line="37" selection-end-line="37" />
         </state>
       </provider>
     </entry>
@@ -806,13 +652,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="513">
-          <caret line="90" selection-start-line="90" selection-end-line="90" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/Document.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="242">
@@ -835,7 +674,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/scalecube-configuration-api/src/main/java/io/scalecube/configuration/api/ConfigurationService.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="827">
+        <state relative-caret-position="1078">
           <caret line="52" column="23" selection-start-line="52" selection-start-column="23" selection-end-line="52" selection-end-column="23" />
         </state>
       </provider>
@@ -849,7 +688,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/RedisConfigurationService.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="356">
+        <state relative-caret-position="1738">
           <caret line="106" selection-start-line="106" selection-end-line="114" selection-end-column="9" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -859,7 +698,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/redis/RedisStore.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="550">
+        <state relative-caret-position="594">
           <caret line="28" column="9" selection-start-line="28" selection-start-column="9" selection-end-line="28" selection-end-column="30" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -874,16 +713,167 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/AppSettings.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="15" column="21" selection-start-line="15" selection-start-column="21" selection-end-line="15" selection-end-column="21" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/ConfigurationServiceImpl.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="650">
-          <caret line="101" column="7" selection-start-line="101" selection-start-column="7" selection-end-line="101" selection-end-column="7" />
+        <state relative-caret-position="521">
+          <caret line="197" column="11" selection-start-line="197" selection-start-column="11" selection-end-line="197" selection-end-column="11" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="method#save#0;class#ConfigurationServiceImpl#0" />
-            <element signature="e#6236#6237#0" expanded="true" />
-            <element signature="e#6283#6284#0" expanded="true" />
+            <element signature="e#6514#6515#0" expanded="true" />
+            <element signature="e#6543#6544#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/exception/KeyNotFoundException.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="110">
+          <caret line="5" column="18" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="18" />
+          <folding>
+            <element signature="e#236#237#0" expanded="true" />
+            <element signature="e#250#251#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/exception/RepositoryNotFoundException.java">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/exception/NameAlreadyInUseException.java">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/exception/DataAccessException.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="44">
+          <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
+          <folding>
+            <element signature="e#154#155#0" expanded="true" />
+            <element signature="e#178#179#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/couchbase/Configutration.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="44">
+          <caret line="2" column="27" selection-start-line="2" selection-start-column="27" selection-end-line="2" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/inmem/InMemoryDataAccess.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="220">
+          <caret line="10" column="13" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/DataAccessFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="154">
+          <caret line="7" column="36" selection-start-line="7" selection-start-column="36" selection-end-line="7" selection-end-column="36" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#294#295#0" expanded="true" />
+            <element signature="e#334#335#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/server/ConfigurationServiceRunner.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="452">
+          <caret line="38" column="12" selection-start-line="38" selection-start-column="12" selection-end-line="38" selection-end-column="12" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#stringListValue#0;class#ConfigurationServiceRunner#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/couchbase/CouchbaseDataAccess.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="88">
+          <caret line="4" selection-start-line="4" selection-end-line="4" />
+          <folding>
+            <element signature="e#545#546#0" expanded="true" />
+            <element signature="e#566#567#0" expanded="true" />
+            <element signature="e#776#777#0" expanded="true" />
+            <element signature="e#797#798#0" expanded="true" />
+            <element signature="e#887#888#0" expanded="true" />
+            <element signature="e#908#909#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/exception/DataAccessResourceFailureException.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="110">
+          <caret line="5" column="24" selection-start-line="5" selection-start-column="24" selection-end-line="5" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="205">
+          <caret line="76" column="62" selection-start-line="76" selection-start-column="62" selection-end-line="76" selection-end-column="62" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scalecube-configuration/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="232">
+          <caret line="25" column="17" selection-start-line="25" selection-start-column="17" selection-end-line="25" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/java/io/scalecube/configuration/repository/couchbase/CouchbaseSettings.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="131">
+          <caret line="15" column="46" selection-start-line="15" selection-start-column="46" selection-end-line="15" selection-end-column="46" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1598#1599#0" expanded="true" />
+            <element signature="e#1671#1672#0" expanded="true" />
+            <element signature="e#1697#1698#0" expanded="true" />
+            <element signature="e#1756#1757#0" expanded="true" />
+            <element signature="e#1785#1786#0" expanded="true" />
+            <element signature="e#1847#1848#0" expanded="true" />
+            <element signature="e#1885#1886#0" expanded="true" />
+            <element signature="e#1953#1954#0" expanded="true" />
+            <element signature="e#1989#1990#0" expanded="true" />
+            <element signature="e#2055#2056#0" expanded="true" />
+            <element signature="e#2087#2088#0" expanded="true" />
+            <element signature="e#2132#2133#0" expanded="true" />
+            <element signature="e#2172#2173#0" expanded="true" />
+            <element signature="e#2226#2227#0" expanded="true" />
+            <element signature="e#2645#2646#0" expanded="true" />
+            <element signature="e#2688#2689#0" expanded="true" />
+            <element signature="e#2706#2707#0" expanded="true" />
+            <element signature="e#2748#2749#0" expanded="true" />
+            <element signature="e#2813#2814#0" expanded="true" />
+            <element signature="e#2857#2858#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scalecube-configuration/src/main/resources/couchbase-settings.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="44">
+          <caret line="2" column="24" lean-forward="true" selection-start-line="2" selection-start-column="24" selection-end-line="2" selection-end-column="24" />
         </state>
       </provider>
     </entry>
