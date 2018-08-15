@@ -5,18 +5,19 @@ public class FetchResponse {
   private Object value;
   private String key;
 
-  public static Builder builder() {
-    return new Builder();
-  }
-
   /**
-   * @deprecated only for serialization/deserialization
+   * @deprecated only for serialization/deserialization.
    */
-  FetchResponse() {}
+  FetchResponse() {
+  }
 
   public FetchResponse(String key, Object value) {
     this.value = value;
     this.key = key;
+  }
+
+  public static Builder builder() {
+    return new Builder();
   }
 
   public Object value() {
@@ -29,6 +30,7 @@ public class FetchResponse {
   }
 
   public static class Builder {
+
     private Object value;
     private String key;
 

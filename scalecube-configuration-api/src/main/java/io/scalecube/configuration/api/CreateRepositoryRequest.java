@@ -6,9 +6,10 @@ public class CreateRepositoryRequest implements AccessRequest {
   private String repository;
 
   /**
-   * @deprecated only for serialization/deserialization
+   * @deprecated only for serialization/deserialization.
    */
-  CreateRepositoryRequest() {}
+  CreateRepositoryRequest() {
+  }
 
   public CreateRepositoryRequest(Object token, String repository) {
     this.repository = repository;

@@ -7,9 +7,10 @@ public class DeleteRequest implements AccessRequest {
   private String key;
 
   /**
-   * @deprecated only for serialization/deserialization
+   * @deprecated only for serialization/deserialization.
    */
-  DeleteRequest() {}
+  DeleteRequest() {
+  }
 
   public DeleteRequest(Object token, String collection, String key) {
     this.token = token;

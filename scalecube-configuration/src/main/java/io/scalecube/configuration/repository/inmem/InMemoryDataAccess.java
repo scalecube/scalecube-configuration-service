@@ -4,11 +4,13 @@ import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.NameAlreadyInUseException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public class InMemoryDataAccess implements ConfigurationDataAccess<Object> {
+
   private final HashMap<String, HashMap<String, HashMap<String, Object>>> map = new HashMap<>();
 
   @Override

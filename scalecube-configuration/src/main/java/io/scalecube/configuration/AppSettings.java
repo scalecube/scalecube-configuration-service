@@ -26,6 +26,7 @@ public class AppSettings {
   }
 
   public static class Builder {
+
     public AppSettings build() {
       return new AppSettings();
     }

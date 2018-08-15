@@ -1,8 +1,12 @@
 package io.scalecube.configuration.repository.couchbase;
 
-import com.couchbase.client.java.bucket.BucketType;
 import io.scalecube.configuration.repository.exception.DataAccessResourceFailureException;
+
+import com.couchbase.client.java.bucket.BucketType;
+
 import java.io.IOException;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -16,12 +20,14 @@ final class CouchbaseSettings {
   private static final String NEW_BUCKET_NAME_FORMAT = "bucket.name.format";
   private static final String BUCKET_TYPE = "bucket.type";
   private static final String BUCKET_QUOTA = "bucket.quota";
+  private static final String BUCKET_ROLES = "bucket.roles";
   private static final String BUCKET_REPLICAS = "bucket.replicas";
   private static final String BUCKET_INDEX_REPLICAS =
       "bucket.indexReplicas";
   private static final String BUCKET_ENABLE_FLUSH = "bucket.enableFlush";
   private final Properties settings;
   private List<String> clusterNodes;
+  private List<String> roles;
 
   private CouchbaseSettings() {
     settings = new Properties();
@@ -66,16 +72,20 @@ final class CouchbaseSettings {
     return clusterNodes;
   }
 
+  List<String> bucketsRoles() {
+    roles = getList(BUCKET_ROLES, roles);
+    return roles;
+  }
 
   private List<String> getList(String key, List<String> list) {
     if (list == null) {
       String value = getProperty(key);
-      list = value.length() > 0 ? Arrays.asList(value.split(",")) : Collections.EMPTY_LIST;
+      list = value.length() > 0 ? Arrays.asList(value.split(",")) : new ArrayList<>();
     }
     return list;
   }
 
-  String bucketSuffix() {
+  String bucketNamePattern() {
     return getProperty(NEW_BUCKET_NAME_FORMAT);
   }
 
@@ -85,6 +95,7 @@ final class CouchbaseSettings {
   }
 
   static class Builder {
+
     public CouchbaseSettings build() {
       return new CouchbaseSettings();
     }

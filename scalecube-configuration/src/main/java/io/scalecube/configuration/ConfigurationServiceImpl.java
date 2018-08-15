@@ -14,16 +14,22 @@ import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.tokens.TokenVerifier;
 import io.scalecube.security.Profile;
-import java.util.Objects;
+
 import reactor.core.publisher.Mono;
+
+import java.util.Objects;
 
 public class ConfigurationServiceImpl implements ConfigurationService {
 
   private final ConfigurationDataAccess<Document> dataAccess;
   private TokenVerifier tokenVerifier;
 
-  private ConfigurationServiceImpl(ConfigurationDataAccess<Document>  dataAccess) {
+  private ConfigurationServiceImpl(ConfigurationDataAccess<Document> dataAccess) {
     this.dataAccess = dataAccess;
+  }
+
+  public static Builder builder() {
+    return new Builder();
   }
 
   @Override
@@ -87,11 +93,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
           FetchResponse[] fetchResponses = dataAccess.entries(
               profile.getClaims().get("org").toString(),
               request.repository())
-               .stream()
-               .map(doc -> FetchResponse.builder()
-                   .key(doc.key())
-                   .value(doc.value())
-                   .build()).toArray(FetchResponse[]::new);
+              .stream()
+              .map(doc -> FetchResponse.builder()
+                  .key(doc.key())
+                  .value(doc.value())
+                  .build()).toArray(FetchResponse[]::new);
           result.success(new Entries<>(fetchResponses));
         } else {
           result.error(new InvalidAuthenticationToken());
@@ -129,14 +135,14 @@ public class ConfigurationServiceImpl implements ConfigurationService {
           }
 
           Document doc = Document.builder()
-                .key(request.key())
-                .value(request.value())
-                .build();
+              .key(request.key())
+              .value(request.value())
+              .build();
           dataAccess.put(profile.getClaims().get("org").toString(),
               request.repository(),
               request.key(),
               doc
-              );
+          );
           result.success(new Acknowledgment());
         } else {
           result.error(new InvalidAuthenticationToken());
@@ -187,15 +193,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     });
   }
 
-  public static Builder builder() {
-    return new Builder();
+  private Role getRole(String role) {
+    return Enum.valueOf(Role.class, role);
   }
 
-
   public static class Builder {
-    private ConfigurationDataAccess dataAccess;
 
-    public Builder dataAccess(ConfigurationDataAccess dataAccess) {
+    private ConfigurationDataAccess<Document> dataAccess;
+
+    public Builder dataAccess(ConfigurationDataAccess<Document> dataAccess) {
       this.dataAccess = dataAccess;
       return this;
     }
@@ -204,9 +210,5 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       Objects.requireNonNull(dataAccess, "Data access cannot be null");
       return new ConfigurationServiceImpl(dataAccess);
     }
-  }
-
-  private Role getRole(String role) {
-    return Enum.valueOf(Role.class, role);
   }
 }

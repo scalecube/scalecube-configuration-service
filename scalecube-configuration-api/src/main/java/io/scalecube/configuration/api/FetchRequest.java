@@ -7,9 +7,10 @@ public class FetchRequest implements AccessRequest {
   private Object token;
 
   /**
-   * @deprecated only for serialization/deserialization
+   * @deprecated only for serialization/deserialization.
    */
-  FetchRequest() {}
+  FetchRequest() {
+  }
 
   public FetchRequest(String repository, String key) {
     this.repository = repository;

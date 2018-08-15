@@ -11,9 +11,10 @@ public class SaveRequest implements AccessRequest {
   private JsonNode value;
 
   /**
-   * @deprecated only for serialization/deserialization
+   * @deprecated only for serialization/deserialization.
    */
-  SaveRequest() {}
+  SaveRequest() {
+  }
 
   public SaveRequest(String collection, String key, JsonNode value) {
     this.collection = collection;
