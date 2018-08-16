@@ -1,18 +1,34 @@
 package io.scalecube.configuration.repository.couchbase;
 
+import static com.couchbase.client.java.query.Select.select;
+import static com.couchbase.client.java.query.dsl.Expression.i;
+
+import com.couchbase.client.java.Bucket;
+import com.couchbase.client.java.Cluster;
+import com.couchbase.client.java.CouchbaseCluster;
+import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.document.RawJsonDocument;
+import com.couchbase.client.java.query.N1qlQuery;
+import com.couchbase.client.java.query.SimpleN1qlQuery;
 import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.exception.DataAccessException;
 import io.scalecube.configuration.repository.exception.DataAccessResourceFailureException;
+import io.scalecube.configuration.repository.exception.DataRetrievalFailureException;
 import io.scalecube.configuration.repository.exception.DuplicateRepositoryException;
-import io.scalecube.configuration.repository.exception.InvalidRepositoryNameException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
+import io.scalecube.configuration.repository.exception.EntityNotFoundException;
+import io.scalecube.configuration.repository.exception.OperationInterruptedException;
+import io.scalecube.configuration.repository.exception.QueryTimeoutException;
+import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import rx.Observable;
+import rx.functions.Func1;
 
 
 public class CouchbaseDataAccess extends CouchbaseOperations
@@ -20,71 +36,286 @@ public class CouchbaseDataAccess extends CouchbaseOperations
 
   private static Logger logger = LoggerFactory.getLogger(CouchbaseDataAccess.class);
   private final CouchbaseAdmin couchbaseAdmin;
+  private Cluster cluster;
+  private final TranslationService translationService = new JacksonTranslationService();
 
   public CouchbaseDataAccess() {
     couchbaseAdmin = new CouchbaseAdmin();
   }
 
   @Override
-  public void createRepository(String namespace, String repository) {
-    logger.debug("enter: createRepository -> namespace = [ {} ], repository = [{}]",
+  public boolean createRepository(String namespace, String repository) {
+    return execute(() -> createRepository0(namespace, repository));
+  }
+
+  private boolean createRepository0(String namespace, String repository) {
+    logger.debug("enter: createBucket -> namespace = [ {} ], repository = [{}]",
         namespace, repository);
-    Objects.requireNonNull(namespace, "namespace");
-    Objects.requireNonNull(repository, "repository");
-    String repositoryName = getRepositoryName(namespace, repository);
-    validateNewBucket(repositoryName);
+    String bucket = null;
 
     try {
-      couchbaseAdmin.createRepository(repositoryName);
+      bucket = ConfigurationBucketName.from(namespace, repository).name();
+      ensureBucketNameIsNotInUse(bucket);
+      couchbaseAdmin.createBucket(bucket);
     } catch (Throwable ex) {
-      logger.error("Failed to create repository", ex);
-      if (ex instanceof DataAccessException) {
-        throw ex;
-      }
-      throw new DataAccessResourceFailureException("Failed to create repository", ex);
-    } finally {
-      logger.debug("exit: createRepository -> namespace = [ {} ], repository = [{}]",
+      String message = String.format("Failed to create repository: '%s'", bucket);
+      handleException(ex, message);
+    }
+
+    logger.debug("exit: createBucket -> namespace = [ {} ], repository = [{}]",
           namespace, repository);
+    return true;
+  }
+
+  private void ensureBucketNameIsNotInUse(String name) {
+    if (couchbaseAdmin.isBucketExists(name)) {
+      throw new DuplicateRepositoryException("repository with name: '" + name + " already exists.");
+    }
+  }
+
+  public boolean deleteRepository(String namespace, String repository) {
+    return execute(()->deleteRepository0(namespace, repository));
+  }
+
+  private boolean deleteRepository0(String namespace, String repository) {
+    logger.debug("enter: deleteRepository0 -> namespace = [ {} ], repository = [{}]",
+        namespace, repository);
+    String bucket = null;
+
+    try {
+      bucket = ConfigurationBucketName.from(namespace, repository).name();
+      ensureBucketExists(bucket);
+      couchbaseAdmin.deleteBucket(bucket);
+    } catch (Throwable ex) {
+      String message = String.format("Failed to create repository: '%s'", bucket);
+      handleException(ex, message);
+    }
+
+    logger.debug("exit: deleteRepository0 -> namespace = [ {} ], repository = [{}]",
+        namespace, repository);
+    return true;
+  }
+
+  private void ensureBucketExists(String name) {
+    if (!couchbaseAdmin.isBucketExists(name)) {
+      throw new RepositoryNotFoundException(name);
     }
   }
 
   @Override
   public Document get(String namespace, String repository, String key) {
-    return null;
+    return execute(()->get0(namespace, repository, key));
+  }
+
+  private Document get0(String namespace, String repository, String key) {
+    logger.debug("enter: get -> namespace = [ {} ], repository = [{}], key = [{}]",
+        namespace, repository, key);
+    String bucketName = null;
+    Bucket bucket;
+    Document document = null;
+
+    try {
+      bucketName = ConfigurationBucketName.from(namespace, repository).name();
+      bucket = openBucket(bucketName);
+      document = getDocument(bucket, key);
+    } catch (Throwable ex) {
+      String message = String.format("Failed to get key: '%s' value from repository: '%s'",
+          key, bucketName);
+      handleException(ex, message);
+    }
+
+    logger.debug("exit: get -> [ {} ] return -> [ {} ]",
+        bucketName + "/" + key,
+        document != null ? document.value() : null);
+    return document;
+  }
+
+
+  private Document getDocument(Bucket bucket, String id) {
+    logger.debug("enter: getDocument -> bucket = [ {} ], [ {} ]", bucket.name(), id);
+    Document document;
+    try {
+      document = toEntity(id, bucket.name(), bucket.get(id))
+          .orElseThrow(() -> new EntityNotFoundException(
+          bucket.name() + "/" + id));
+    } catch (Throwable throwable) {
+      logger.error("Failed to get document with id: '{}' from bucket: '{}'", id, bucket.name());
+      throw new DataAccessResourceFailureException(
+          String.format("Failed to get document with id: '%s' from bucket: '%s'",
+              id, bucket.name()),
+          throwable);
+    }
+    logger.debug("exit: getDocument -> bucket = [ {} ], [ {} ]", bucket.name(), document.key());
+    return document;
+  }
+
+  private Optional<Document> toEntity(String id, String bucket, JsonDocument document) {
+    logger.debug("enter: toEntity -> bucket = [ {} ] id = [ {} ], document = [ {} ]",
+        bucket, id, document);
+    Document entity = null;
+
+    try {
+      if (document != null) {
+        entity = translationService.decode(document.content().toString(), Document.class);
+      }
+    } catch (Throwable throwable) {
+      logger.error(
+          "Failed to decode json document bucket = '%s', id = '%s', document = %s",
+          bucket, id, document);
+      throw new DataAccessResourceFailureException(
+          String.format("Failed to Failed to decode json document bucket = '%s', id = '%s'",
+              bucket, id),
+          throwable);
+    }
+
+    logger.debug("exit: toEntity -> bucket = [ {} ] id = [ {} ], return = [ {} ]",
+        bucket, id, entity);
+
+    return Optional.ofNullable(entity);
   }
 
   @Override
-  public Document put(String namespace, String repository, String key, Document doc) {
-    return null;
+  public Document put(String namespace, String repository, String key, Document document) {
+    return put0(namespace, repository, key, document);
+  }
+
+  private Document put0(String namespace, String repository, String key, Document document) {
+    logger.debug("enter: put -> namespace = [ {} ], repository = [{}], key = [{}], document = [{}]",
+        namespace, repository, key, document);
+
+    Objects.requireNonNull(key);
+    Objects.requireNonNull(document);
+    String bucketName = null;
+
+    try {
+      bucketName = ConfigurationBucketName.from(namespace, repository).name();
+      Bucket bucket = openBucket(bucketName);
+      bucket.upsert(RawJsonDocument.create(key, translationService.encode(document)));
+    } catch (Throwable throwable) {
+      String message = String.format("Failed to put key: '%s' value in repository: '%s'",
+          key, bucketName);
+      handleException(throwable, message);
+    }
+
+    logger.debug("exit: put -> namespace = [ {} ], repository = [{}], key = [{}], document = [{}]",
+        namespace, repository, key, document);
+
+    return document;
   }
 
   @Override
-  public Document remove(String namespace, String repository, String key) {
-    return null;
+  public String remove(String namespace, String repository, String key) {
+    return execute(()->remove0(namespace, repository, key));
+  }
+
+  private String remove0(String namespace, String repository, String key) {
+    logger.debug("enter: remove -> namespace = [ {} ], repository = [{}], key = [{}]",
+        namespace, repository, key);
+
+    Objects.requireNonNull(key);
+    String bucketName = null;
+    String id = null;
+
+    try {
+      bucketName = ConfigurationBucketName.from(namespace, repository).name();
+      Bucket bucket = openBucket(bucketName);
+      id = bucket.remove(key).id();
+    } catch (Throwable throwable) {
+      String message = String.format("Failed to remove key: '%s' from repository: '%s'",
+          key, bucketName);
+      handleException(throwable, message);
+    }
+
+    logger.debug("exit: remove -> namespace = [ {} ], repository = [{}], key = [{}]",
+        namespace, repository, key);
+    return id;
   }
 
   @Override
   public Collection<Document> entries(String namespace, String repository) {
+    logger.debug("enter: entries -> namespace = [ {} ], repository = [{}]",
+        namespace, repository);
+    Collection<Document> entries;
+    String bucketName = null;
+
+    try {
+      bucketName = ConfigurationBucketName.from(namespace, repository).name();
+      final Bucket bucket = openBucket(bucketName);
+      final SimpleN1qlQuery query = N1qlQuery.simple(select("*").from(i(bucket.name())));
+      entries = executeAsync(bucket.async().query(query))
+          .flatMap(result -> result.rows()
+              .mergeWith(
+                  result
+                      .errors()
+                      .flatMap(
+                          error -> Observable.error(new DataRetrievalFailureException(
+                              "N1QL error: " + error.toString())))
+              )
+              .flatMap(row ->
+                  Observable.just(translationService.decode(
+                      row.value().get(bucket.name()).toString(), Document.class)))
+              .toList()
+          )
+          .toBlocking()
+          .single();
+    } catch (Throwable throwable) {
+      String message = String.format("Failed to get entries from repository: '%s'",
+          bucketName);
+      return handleException(throwable, message);
+    }
+    logger.debug("exit: entries -> namespace = [ {} ], repository = [{}], return = [ {} ] entries",
+        namespace, repository, entries.size());
+    return entries;
+  }
+
+  private Collection<Document> handleException(Throwable throwable, String message) {
+    logger.error(message, throwable);
+    if (throwable instanceof DataAccessException) {
+      throw (DataAccessException)throwable;
+    }
+    throw new DataAccessResourceFailureException(message, throwable);
+  }
+
+  private Collection<Document> entries0(String namespace, String repository) {
     return null;
   }
 
-  private String getRepositoryName(String namespace, String repository) {
-    return String.format(settings.bucketNamePattern(), namespace, repository);
+  private <R> Observable<R> executeAsync(Observable<R> asyncAction) {
+    return asyncAction
+        .onErrorResumeNext((Func1<Throwable, Observable<R>>) e -> {
+          if (e instanceof RuntimeException) {
+            return Observable
+                .error(exceptionTranslator.translateExceptionIfPossible((RuntimeException) e));
+          } else if (e instanceof TimeoutException) {
+            return Observable.error(new QueryTimeoutException(e.getMessage(), e));
+          } else if (e instanceof InterruptedException) {
+            return Observable.error(new OperationInterruptedException(e.getMessage(), e));
+          } else if (e instanceof ExecutionException) {
+            return Observable.error(new OperationInterruptedException(e.getMessage(), e));
+          } else {
+            return Observable.error(e);
+          }
+        });
   }
 
-  private void validateNewBucket(String name) {
-    if (name == null || name.length() == 0) {
-      throw new InvalidRepositoryNameException("name be empty");
+  private Bucket openBucket(String name) {
+    logger.debug("enter: openBucket -> name = [ {} ]", name);
+    Bucket bucket;
+    try {
+      bucket = cluster().openBucket(name, PasswordGenerator.md5Hash(name));
+    } catch (Throwable throwable) {
+      logger.error("Failed to open bucket: '{}'", name);
+      throw new DataAccessResourceFailureException(
+          String.format("Failed to open bucket: '%s'", name), throwable);
     }
+    logger.debug("exit: openBucket -> name = [ {} ]", bucket.name());
+    return bucket;
+  }
 
-    if (!name.matches("^[.%a-zA-Z0-9_-]*$")) {
-      throw new InvalidRepositoryNameException(
-          "name can only contain characters in range A-Z, a-z, 0-9 as well as "
-              + "underscore, period, dash & percent.");
+  private Cluster cluster() {
+    if (cluster == null) {
+      cluster = CouchbaseCluster.create(settings.couchbaseClusterNodes());
     }
-
-    if (couchbaseAdmin.isBucketExists(name)) {
-      throw new DuplicateRepositoryException("repository with name: '" + name + " already exists.");
-    }
+    return cluster;
   }
 }

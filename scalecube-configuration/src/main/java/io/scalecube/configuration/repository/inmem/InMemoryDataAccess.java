@@ -14,11 +14,12 @@ public class InMemoryDataAccess implements ConfigurationDataAccess<Object> {
   private final HashMap<String, HashMap<String, HashMap<String, Object>>> map = new HashMap<>();
 
   @Override
-  public void createRepository(String namespace, String repository) {
+  public boolean createRepository(String namespace, String repository) {
     if (map.containsKey(namespace) && map.get(namespace).containsKey(repository)) {
       throw new NameAlreadyInUseException(repository);
     }
     map.get(namespace).put(repository, new HashMap<>());
+    return true;
   }
 
 
@@ -38,8 +39,9 @@ public class InMemoryDataAccess implements ConfigurationDataAccess<Object> {
   }
 
   @Override
-  public Object remove(String namespace, String repository, String key) {
-    return getRepository(namespace, repository).remove(key);
+  public String remove(String namespace, String repository, String key) {
+    getRepository(namespace, repository).remove(key);
+    return key;
   }
 
   @Override

@@ -12,9 +12,9 @@ import java.util.concurrent.TimeoutException;
 abstract class CouchbaseOperations {
 
   protected final CouchbaseSettings settings;
-  private final CouchbaseExceptionTranslator exceptionTranslator;
+  protected final CouchbaseExceptionTranslator exceptionTranslator;
 
-  public CouchbaseOperations() {
+  protected CouchbaseOperations() {
     settings = new Builder().build();
     exceptionTranslator = new CouchbaseExceptionTranslator();
   }
@@ -33,6 +33,7 @@ abstract class CouchbaseOperations {
       throw new OperationInterruptedException(ex.getMessage(), ex);
     }
   }
+
 
 
 }

@@ -3,11 +3,14 @@ package io.scalecube.configuration.repository;
 
 public class Document {
 
-  private final String id;
+  private String id;
 
-  private final String key;
+  private String key;
 
-  private final Object value;
+  private Object value;
+
+  public Document() {
+  }
 
   public Document(String id, String key, Object value) {
     this.id = id;

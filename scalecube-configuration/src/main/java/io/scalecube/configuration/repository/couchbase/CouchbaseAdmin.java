@@ -28,14 +28,14 @@ class CouchbaseAdmin extends CouchbaseOperations {
     cluster = cluster();
   }
 
-  boolean isBucketExists(String name) {
+  protected boolean isBucketExists(String name) {
     return execute(() -> cluster.clusterManager()
         .getBuckets()
         .stream()
         .anyMatch(bucketSettings -> Objects.equals(bucketSettings.name(), name)));
   }
 
-  void createRepository(String name) {
+  protected void createBucket(String name) {
     execute(() -> {
       BucketSettings bucketSettings = insertBucket(name);
       try {
@@ -86,6 +86,15 @@ class CouchbaseAdmin extends CouchbaseOperations {
                 .collect(Collectors.toList())));
   }
 
+
+  protected void deleteBucket(String bucket) {
+    execute(()->{
+      cluster.clusterManager().removeBucket(bucket);
+      cluster.clusterManager().removeUser(AuthDomain.LOCAL, bucket);
+      return true;
+    });
+  }
+
   private Cluster cluster() {
     List<String> nodes = settings.couchbaseClusterNodes();
 
@@ -96,4 +105,5 @@ class CouchbaseAdmin extends CouchbaseOperations {
     cluster.authenticate(settings.couchbaseAdmin(), settings.couchbaseAdminPassword());
     return cluster;
   }
+
 }
