@@ -32,7 +32,7 @@ import rx.functions.Func1;
 
 
 public class CouchbaseDataAccess extends CouchbaseOperations
-    implements ConfigurationDataAccess<Document> {
+    implements ConfigurationDataAccess {
 
   private static Logger logger = LoggerFactory.getLogger(CouchbaseDataAccess.class);
   private final CouchbaseAdmin couchbaseAdmin;

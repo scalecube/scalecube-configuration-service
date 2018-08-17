@@ -21,6 +21,12 @@
 
   <dependencies>
     <dependency>
+      <groupId>io.projectreactor.addons</groupId>
+      <artifactId>reactor-test</artifactId>
+      <version>3.0.7.RELEASE</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.couchbase.client</groupId>
       <artifactId>java-client</artifactId>
       <version>${couchbase-client-version}</version>
