@@ -2,14 +2,13 @@ package io.scalecube.configuration.repository.inmem;
 
 import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.repository.Document;
+import io.scalecube.configuration.repository.exception.DuplicateRepositoryException;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
-import io.scalecube.configuration.repository.exception.NameAlreadyInUseException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import javax.print.Doc;
 
 public class InMemoryDataAccess implements ConfigurationDataAccess {
 
@@ -18,7 +17,7 @@ public class InMemoryDataAccess implements ConfigurationDataAccess {
   @Override
   public boolean createRepository(String namespace, String repository) {
     if (map.containsKey(namespace) && map.get(namespace).containsKey(repository)) {
-      throw new NameAlreadyInUseException(repository);
+      throw new DuplicateRepositoryException(repository);
     }
     map.putIfAbsent(namespace, new HashMap<>());
     map.get(namespace).put(repository, new HashMap<>());

@@ -20,10 +20,11 @@
   </properties>
 
   <dependencies>
+    <!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-test -->
     <dependency>
-      <groupId>io.projectreactor.addons</groupId>
+      <groupId>io.projectreactor</groupId>
       <artifactId>reactor-test</artifactId>
-      <version>3.0.7.RELEASE</version>
+      <version>3.1.8.RELEASE</version>
       <scope>test</scope>
     </dependency>
     <dependency>

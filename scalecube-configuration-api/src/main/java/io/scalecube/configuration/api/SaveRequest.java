@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class SaveRequest implements AccessRequest {
 
   private Object token;
-  private String collection;
+  private String repository;
   private String key;
   private JsonNode value;
 
@@ -16,15 +16,15 @@ public class SaveRequest implements AccessRequest {
   SaveRequest() {
   }
 
-  public SaveRequest(String collection, String key, JsonNode value) {
-    this.collection = collection;
+  public SaveRequest(String repository, String key, JsonNode value) {
+    this.repository = repository;
     this.key = key;
     this.value = value;
   }
 
-  public SaveRequest(Object token, String collection, String key, JsonNode value) {
+  public SaveRequest(Object token, String repository, String key, JsonNode value) {
     this.token = token;
-    this.collection = collection;
+    this.repository = repository;
     this.key = key;
     this.value = value;
   }
@@ -42,6 +42,6 @@ public class SaveRequest implements AccessRequest {
   }
 
   public String repository() {
-    return this.collection;
+    return this.repository;
   }
 }

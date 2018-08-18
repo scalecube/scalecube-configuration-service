@@ -13,7 +13,6 @@ import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 
-
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -84,15 +83,6 @@ class CouchbaseAdmin extends CouchbaseOperations {
                 .stream()
                 .map(role -> new UserRole(role, name))
                 .collect(Collectors.toList())));
-  }
-
-
-  protected void deleteBucket(String bucket) {
-    execute(()->{
-      cluster.clusterManager().removeBucket(bucket);
-      cluster.clusterManager().removeUser(AuthDomain.LOCAL, bucket);
-      return true;
-    });
   }
 
   private Cluster cluster() {

@@ -3,13 +3,6 @@ package io.scalecube.configuration.repository.couchbase;
 import static com.couchbase.client.java.query.Select.select;
 import static com.couchbase.client.java.query.dsl.Expression.i;
 
-import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.Cluster;
-import com.couchbase.client.java.CouchbaseCluster;
-import com.couchbase.client.java.document.JsonDocument;
-import com.couchbase.client.java.document.RawJsonDocument;
-import com.couchbase.client.java.query.N1qlQuery;
-import com.couchbase.client.java.query.SimpleN1qlQuery;
 import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.exception.DataAccessException;
@@ -20,15 +13,26 @@ import io.scalecube.configuration.repository.exception.EntityNotFoundException;
 import io.scalecube.configuration.repository.exception.OperationInterruptedException;
 import io.scalecube.configuration.repository.exception.QueryTimeoutException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
+
+import com.couchbase.client.java.Bucket;
+import com.couchbase.client.java.Cluster;
+import com.couchbase.client.java.CouchbaseCluster;
+import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.document.RawJsonDocument;
+import com.couchbase.client.java.query.N1qlQuery;
+import com.couchbase.client.java.query.SimpleN1qlQuery;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import rx.Observable;
+import rx.functions.Func1;
+
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.functions.Func1;
+
 
 
 public class CouchbaseDataAccess extends CouchbaseOperations
@@ -73,28 +77,6 @@ public class CouchbaseDataAccess extends CouchbaseOperations
     }
   }
 
-  public boolean deleteRepository(String namespace, String repository) {
-    return execute(()->deleteRepository0(namespace, repository));
-  }
-
-  private boolean deleteRepository0(String namespace, String repository) {
-    logger.debug("enter: deleteRepository0 -> namespace = [ {} ], repository = [{}]",
-        namespace, repository);
-    String bucket = null;
-
-    try {
-      bucket = ConfigurationBucketName.from(namespace, repository).name();
-      ensureBucketExists(bucket);
-      couchbaseAdmin.deleteBucket(bucket);
-    } catch (Throwable ex) {
-      String message = String.format("Failed to create repository: '%s'", bucket);
-      handleException(ex, message);
-    }
-
-    logger.debug("exit: deleteRepository0 -> namespace = [ {} ], repository = [{}]",
-        namespace, repository);
-    return true;
-  }
 
   private void ensureBucketExists(String name) {
     if (!couchbaseAdmin.isBucketExists(name)) {

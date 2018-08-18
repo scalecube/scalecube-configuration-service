@@ -1,6 +1,7 @@
 package io.scalecube.configuration.repository.couchbase;
 
 import io.scalecube.configuration.repository.exception.InvalidRepositoryNameException;
+
 import java.util.Objects;
 
 class ConfigurationBucketName {
