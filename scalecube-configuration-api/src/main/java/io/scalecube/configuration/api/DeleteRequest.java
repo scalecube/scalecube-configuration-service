@@ -3,7 +3,7 @@ package io.scalecube.configuration.api;
 public class DeleteRequest implements AccessRequest {
 
   private Object token;
-  private String collection;
+  private String repository;
   private String key;
 
   /**
@@ -12,9 +12,9 @@ public class DeleteRequest implements AccessRequest {
   DeleteRequest() {
   }
 
-  public DeleteRequest(Object token, String collection, String key) {
+  public DeleteRequest(Object token, String repository, String key) {
     this.token = token;
-    this.collection = collection;
+    this.repository = repository;
     this.key = key;
   }
 
@@ -23,7 +23,7 @@ public class DeleteRequest implements AccessRequest {
   }
 
   public String repository() {
-    return collection;
+    return repository;
   }
 
   public String key() {

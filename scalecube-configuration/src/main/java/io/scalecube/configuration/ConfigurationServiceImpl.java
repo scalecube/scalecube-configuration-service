@@ -143,39 +143,25 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> delete(DeleteRequest request) {
-    Objects.requireNonNull(request, "request is a required argument");
 
     return Mono.create(result -> {
       try {
+        validateRequest(request);
         Profile profile = tokenVerifier.verify(request.token());
-        if (profile != null) {
-          if (!profile.getClaims().containsKey("org")) {
-            result.error(new InvalidAuthenticationToken("missing org claim"));
-            return;
-          }
+        validateProfile(profile);
+        Role role = getRole(profile);
 
-          if (!profile.getClaims().containsKey("role")) {
-            result.error(new InvalidAuthenticationToken("missing role claim"));
-            return;
-          }
-
-          Role role = getRole(profile.getClaims().get("role").toString());
-
-          if (role == Role.Member) {
-            result.error(new InvalidPermissionsException(
-                "invalid permissions-level save request requires write access"));
-            return;
-          }
-
-          dataAccess.remove(profile.getClaims().get("org").toString(),
+        if (role != Role.Member) {
+          dataAccess.remove(profile.getTenant(),
               request.repository(),
               request.key()
           );
           result.success(new Acknowledgment());
         } else {
-          result.error(new InvalidAuthenticationToken());
+        result.error(new InvalidPermissionsException(
+            "invalid permissions-level save request requires write access"));
         }
-      } catch (Exception ex) {
+      } catch (Throwable ex) {
         result.error(ex);
       }
     });
@@ -207,6 +193,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     if (request.repository() == null || request.repository().length() == 0) {
       throw new BadRequest("Repository name is a required argument");
     }
+
+    if (request.key() == null || request.key().length() == 0) {
+      throw new BadRequest("Key name is a required argument");
+    }
   }
 
   private void validateRequest(SaveRequest request) throws BadRequest {
@@ -222,8 +212,30 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       throw new BadRequest("Repository name is a required argument");
     }
 
+    if (request.key() == null) {
+      throw new BadRequest("Key is a required argument");
+    }
+
     if (request.value() == null) {
       throw new BadRequest("Value is a required argument");
+    }
+  }
+
+  private void validateRequest(DeleteRequest request) throws BadRequest {
+    if (request == null) {
+      throw new BadRequest("Request is a required argument");
+    }
+
+    if (request.token() == null || request.token().toString().length() == 0) {
+      throw new BadRequest("Token is a required argument");
+    }
+
+    if (request.repository() == null || request.repository().length() == 0) {
+      throw new BadRequest("Repository name is a required argument");
+    }
+
+    if (request.key() == null || request.key().length() == 0) {
+      throw new BadRequest("Key is a required argument");
     }
   }
 
@@ -253,10 +265,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       throw new InvalidAuthenticationToken("Invalid role: " + role);
     }
     return Enum.valueOf(Role.class, role.toString());
-  }
-
-  private Role getRole(String role) {
-    return Enum.valueOf(Role.class, role);
   }
 
   public static class Builder {

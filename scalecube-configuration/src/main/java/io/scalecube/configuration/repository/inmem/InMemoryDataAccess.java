@@ -42,8 +42,12 @@ public class InMemoryDataAccess implements ConfigurationDataAccess {
 
   @Override
   public String remove(String namespace, String repository, String key) {
-    getRepository(namespace, repository).remove(key);
-    return key;
+    Map<String, Document> map = getRepository(namespace, repository);
+    if (map.containsKey(key)) {
+      map.remove(key);
+      return key;
+    }
+    throw new KeyNotFoundException(key);
   }
 
   @Override
