@@ -1,35 +1,35 @@
 package io.scalecube.configuration.api;
 
-import io.scalecube.account.api.Token;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class SaveRequest implements AccessRequest {
 
-  private Token token;
-  private String collection;
+  private Object token;
+  private String repository;
   private String key;
   private JsonNode value;
 
   /**
-   * @deprecated only for serialization/deserialization
+   * @deprecated only for serialization/deserialization.
    */
-  SaveRequest() {}
+  SaveRequest() {
+  }
 
-  public SaveRequest(String collection, String key, JsonNode value) {
-    this.collection = collection;
+  public SaveRequest(String repository, String key, JsonNode value) {
+    this.repository = repository;
     this.key = key;
     this.value = value;
   }
 
-  public SaveRequest(Token token, String collection, String key, JsonNode value) {
+  public SaveRequest(Object token, String repository, String key, JsonNode value) {
     this.token = token;
-    this.collection = collection;
+    this.repository = repository;
     this.key = key;
     this.value = value;
   }
 
-  public Token token() {
+  public Object token() {
     return this.token;
   }
 
@@ -41,7 +41,7 @@ public class SaveRequest implements AccessRequest {
     return this.key;
   }
 
-  public String collection() {
-    return this.collection;
+  public String repository() {
+    return this.repository;
   }
 }

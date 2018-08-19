@@ -8,8 +8,10 @@
         <outputRelativeToContentRoot value="true" />
         <module name="scalecube-configuration" />
         <module name="scalecube-configuration-api" />
-        <module name="scalecube-webapp-example" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="scalecube-webapp-example" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>
