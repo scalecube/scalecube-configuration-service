@@ -11,6 +11,7 @@ import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
 import io.scalecube.configuration.api.InvalidPermissionsException;
 import io.scalecube.configuration.api.SaveRequest;
+//import io.scalecube.configuration.repository.couchbase.CouchbaseDataAccess;
 import io.scalecube.configuration.repository.exception.DuplicateRepositoryException;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
@@ -18,9 +19,11 @@ import io.scalecube.configuration.repository.inmem.InMemoryDataAccess;
 import io.scalecube.security.Profile;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.util.Objects;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -28,6 +31,16 @@ import reactor.test.StepVerifier;
 
 class ConfigurationServiceImplTest {
   private final ObjectMapper mapper = new ObjectMapper();
+//  private final CouchbaseDataAccess dataAccess = new CouchbaseDataAccess();
+
+//  @AfterEach
+//  void deleteBucket() {
+//    try {
+//      dataAccess.deleteRepository("myorg", "myrepo");
+//    } catch (Throwable t) {
+//      t.printStackTrace();
+//    }
+//  }
 
   @Test
   void create_repository_null_request_should_fail_withBadRequest() {
@@ -301,7 +314,6 @@ class ConfigurationServiceImplTest {
     assertNotNull(duration);
   }
 
-
   @Test
   void fetch_should_fail_with_KeyNotFoundException() {
     ConfigurationService service = createService();
@@ -327,6 +339,136 @@ class ConfigurationServiceImplTest {
 
   @Test
   void entries() {
+    ConfigurationService service = createService();
+    createRepository(service);
+    StepVerifier
+        .create(
+            service.save(new SaveRequest(new Object(), "myrepo", "mykey",
+                mapper.valueToTree(1))))
+        .expectSubscription()
+        .assertNext(Assertions::assertNotNull)
+        .verifyComplete();
+
+    StepVerifier
+        .create(
+            service.save(new SaveRequest(new Object(), "myrepo", "mykey2",
+                mapper.valueToTree(2))))
+        .expectSubscription()
+        .assertNext(Assertions::assertNotNull)
+        .verifyComplete();
+
+    assertNotNull(StepVerifier
+        .create(
+            service.entries(new FetchRequest(new Object()  , "myrepo", null)))
+        .expectSubscription()
+        .assertNext(r -> {
+          assertEquals(2, r.entries().length);
+          assertTrue(Arrays.stream(r.entries()).anyMatch(i->Objects.equals(i.value().toString(),
+              "1")));
+          assertTrue(Arrays.stream(r.entries()).anyMatch(i->Objects.equals(i.value().toString(),
+              "2")));
+        })
+        .verifyComplete());
+  }
+
+  @Test
+  void entries_fetch_null_request_should_fail_withBadRequest() {
+    ConfigurationService service = createService(new ProfileBuilder().build());
+    Duration duration = StepVerifier
+        .create(
+            service.entries(null))
+        .expectSubscription()
+        .expectError(BadRequest.class)
+        .verify();
+    assertNotNull(duration);
+  }
+
+  @Test
+  void entries_null_repository_should_fail_withBadRequest() {
+    ConfigurationService service = createService(new ProfileBuilder().build());
+    Duration duration = StepVerifier
+        .create(
+            service.entries(new FetchRequest(new Object()  , null, "mykey")))
+        .expectSubscription()
+        .expectError(BadRequest.class)
+        .verify();
+    assertNotNull(duration);
+  }
+
+  @Test
+  void entries_null_token_should_fail_withBadRequest() {
+    ConfigurationService service = createService(new ProfileBuilder().build());
+    Duration duration = StepVerifier
+        .create(
+            service.entries(new FetchRequest(null, "myrepo", "mykey")))
+        .expectSubscription()
+        .expectError(BadRequest.class)
+        .verify();
+    assertNotNull(duration);
+  }
+
+  @Test
+  void entries_null_profile_should_fail_with_InvalidAuthenticationToken() {
+    ConfigurationService service = createService(null);
+    Duration duration = StepVerifier
+        .create(
+            service.entries(new FetchRequest(new Object()  , "myrepo", "mykey")))
+        .expectSubscription()
+        .expectError(InvalidAuthenticationToken.class)
+        .verify();
+    assertNotNull(duration);
+  }
+
+  @Test
+  void entries_null_tenant_should_fail_with_InvalidAuthenticationToken() {
+    ConfigurationService service = createService(new ProfileBuilder().build());
+    Duration duration = StepVerifier
+        .create(
+            service.entries(new FetchRequest(new Object()  , "myrepo", "mykey")))
+        .expectSubscription()
+        .expectError(InvalidAuthenticationToken.class)
+        .verify();
+    assertNotNull(duration);
+  }
+
+  @Test
+  void entries_null_claims_should_fail_with_InvalidAuthenticationToken() {
+    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg").build());
+    Duration duration = StepVerifier
+        .create(
+            service.entries(new FetchRequest(new Object()  , "myrepo", "mykey")))
+        .expectSubscription()
+        .expectError(InvalidAuthenticationToken.class)
+        .verify();
+    assertNotNull(duration);
+  }
+
+  @Test
+  void entries_null_role_should_fail_with_InvalidAuthenticationToken() {
+    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg")
+        .claims(new HashMap<>()).build());
+    Duration duration = StepVerifier
+        .create(
+            service.entries(new FetchRequest(new Object()  , "myrepo", "mykey")))
+        .expectSubscription()
+        .expectError(InvalidAuthenticationToken.class)
+        .verify();
+    assertNotNull(duration);
+  }
+
+  @Test
+  void entries_should_fail_with_RepositoryNotFoundException() {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("role", Role.Member);
+    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg")
+        .claims(claims).build());
+    Duration duration = StepVerifier
+        .create(
+            service.entries(new FetchRequest(new Object()  , "myrepo", "mykey")))
+        .expectSubscription()
+        .expectError(RepositoryNotFoundException.class)
+        .verify();
+    assertNotNull(duration);
   }
 
   @Test

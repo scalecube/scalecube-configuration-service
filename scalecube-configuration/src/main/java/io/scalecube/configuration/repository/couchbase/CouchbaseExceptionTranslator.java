@@ -6,6 +6,7 @@ import io.scalecube.configuration.repository.exception.DataIntegrityViolationExc
 import io.scalecube.configuration.repository.exception.DataRetrievalFailureException;
 import io.scalecube.configuration.repository.exception.DuplicateKeyException;
 import io.scalecube.configuration.repository.exception.InvalidDataAccessResourceUsageException;
+import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.OperationCancellationException;
 import io.scalecube.configuration.repository.exception.QueryTimeoutException;
 import io.scalecube.configuration.repository.exception.TransientDataAccessResourceException;
@@ -56,7 +57,7 @@ final class CouchbaseExceptionTranslator {
     }
 
     if (ex instanceof DocumentDoesNotExistException) {
-      return new DataRetrievalFailureException(ex.getMessage(), ex);
+      return new KeyNotFoundException(ex.getMessage(), ex);
     }
 
     if (ex instanceof CASMismatchException

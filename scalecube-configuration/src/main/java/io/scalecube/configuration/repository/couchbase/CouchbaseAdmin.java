@@ -96,4 +96,13 @@ class CouchbaseAdmin extends CouchbaseOperations {
     return cluster;
   }
 
+//  void deleteBucket(String name) {
+//    execute(() -> {
+//      if (isBucketExists(name)) {
+//        cluster.clusterManager().removeBucket(name);
+//        cluster.clusterManager().removeUser(AuthDomain.LOCAL, name);
+//      }
+//      return true;
+//    });
+//  }
 }

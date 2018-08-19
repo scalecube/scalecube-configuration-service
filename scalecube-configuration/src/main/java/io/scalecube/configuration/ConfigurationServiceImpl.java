@@ -88,24 +88,21 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   public Mono<Entries<FetchResponse>> entries(FetchRequest request) {
     return Mono.create(result -> {
       try {
+        validateEntriesRequest(request);
         Profile profile = tokenVerifier.verify(request.token());
-        if (profile != null) {
-          if (!profile.getClaims().containsKey("org")) {
-            result.error(new InvalidAuthenticationToken("missing org claim"));
-          }
-          FetchResponse[] fetchResponses = dataAccess.entries(
-              profile.getClaims().get("org").toString(),
-              request.repository())
-              .stream()
-              .map(doc -> FetchResponse.builder()
-                  .key(doc.key())
-                  .value(doc.value())
-                  .build()).toArray(FetchResponse[]::new);
-          result.success(new Entries<>(fetchResponses));
-        } else {
-          result.error(new InvalidAuthenticationToken());
-        }
-      } catch (Exception ex) {
+        validateProfile(profile);
+        getRole(profile);
+
+        FetchResponse[] fetchResponses = dataAccess.entries(
+            profile.getTenant(),
+            request.repository())
+            .stream()
+            .map(doc -> FetchResponse.builder()
+                .key(doc.key())
+                .value(doc.value())
+                .build()).toArray(FetchResponse[]::new);
+        result.success(new Entries<>(fetchResponses));
+      } catch (Throwable ex) {
         result.error(ex);
       }
     });
@@ -158,7 +155,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
           );
           result.success(new Acknowledgment());
         } else {
-        result.error(new InvalidPermissionsException(
+          result.error(new InvalidPermissionsException(
             "invalid permissions-level save request requires write access"));
         }
       } catch (Throwable ex) {
@@ -255,6 +252,20 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
   }
 
+  private void validateEntriesRequest(FetchRequest request) throws BadRequest {
+    if (request == null) {
+      throw new BadRequest("Request is a required argument");
+    }
+
+    if (request.token() == null || request.token().toString().length() == 0) {
+      throw new BadRequest("Token is a required argument");
+    }
+
+    if (request.repository() == null || request.repository().length() == 0) {
+      throw new BadRequest("Repository name is a required argument");
+    }
+  }
+
   private Role getRole(Profile profile) throws InvalidAuthenticationToken {
     Objects.requireNonNull(profile, "profile");
     Objects.requireNonNull(profile.getClaims(), "profile.claims");
@@ -280,7 +291,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       this.tokenVerifier = tokenVerifier;
       return this;
     }
-
 
     public ConfigurationService build() {
       Objects.requireNonNull(dataAccess, "Data access cannot be null");
