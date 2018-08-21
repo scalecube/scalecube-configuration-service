@@ -11,14 +11,16 @@ import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
 import io.scalecube.configuration.api.InvalidPermissionsException;
 import io.scalecube.configuration.api.SaveRequest;
+
 import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.tokens.TokenVerifier;
+
 import io.scalecube.security.Profile;
 
-import reactor.core.publisher.Mono;
-
 import java.util.Objects;
+
+import reactor.core.publisher.Mono;
 
 public class ConfigurationServiceImpl implements ConfigurationService {
 
@@ -156,7 +158,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
           result.success(new Acknowledgment());
         } else {
           result.error(new InvalidPermissionsException(
-            "invalid permissions-level save request requires write access"));
+              "invalid permissions-level save request requires write access"));
         }
       } catch (Throwable ex) {
         result.error(ex);
@@ -278,6 +280,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return Enum.valueOf(Role.class, role.toString());
   }
 
+  /**
+   * Service builder class.
+   */
   public static class Builder {
     private ConfigurationDataAccess dataAccess;
     private TokenVerifier tokenVerifier;
@@ -292,9 +297,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       return this;
     }
 
+    /**
+     * Constructs a ConfigurationService object.
+     * @return a instance of ConfigurationService
+     */
     public ConfigurationService build() {
       Objects.requireNonNull(dataAccess, "Data access cannot be null");
-      Objects.requireNonNull(tokenVerifier, "Data access cannot be null");
+      Objects.requireNonNull(tokenVerifier, "Token verifier cannot be null");
       return new ConfigurationServiceImpl(dataAccess, tokenVerifier);
     }
   }

@@ -1,7 +1,12 @@
 package io.scalecube.configuration.tokens;
 
-public class TokenVerificationExcpetion extends Throwable {
+public class TokenVerificationException extends RuntimeException   {
 
-  public TokenVerificationExcpetion(String failed_to_get_public_key, Exception ex) {
+  public TokenVerificationException(String message, Exception cause) {
+    super(message, cause);
+  }
+
+  public TokenVerificationException(Exception cause) {
+    super(cause);
   }
 }

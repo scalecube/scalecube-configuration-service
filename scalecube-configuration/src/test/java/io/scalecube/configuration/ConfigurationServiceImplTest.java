@@ -11,7 +11,6 @@ import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
 import io.scalecube.configuration.api.InvalidPermissionsException;
 import io.scalecube.configuration.api.SaveRequest;
-//import io.scalecube.configuration.repository.couchbase.CouchbaseDataAccess;
 import io.scalecube.configuration.repository.exception.DuplicateRepositoryException;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
@@ -29,18 +28,8 @@ import org.junit.jupiter.api.Test;
 
 import reactor.test.StepVerifier;
 
-class ConfigurationServiceImplTest {
+public class ConfigurationServiceImplTest {
   private final ObjectMapper mapper = new ObjectMapper();
-//  private final CouchbaseDataAccess dataAccess = new CouchbaseDataAccess();
-
-//  @AfterEach
-//  void deleteBucket() {
-//    try {
-//      dataAccess.deleteRepository("myorg", "myrepo");
-//    } catch (Throwable t) {
-//      t.printStackTrace();
-//    }
-//  }
 
   @Test
   void create_repository_null_request_should_fail_withBadRequest() {

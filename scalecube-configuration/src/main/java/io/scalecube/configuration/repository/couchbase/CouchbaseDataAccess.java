@@ -3,6 +3,13 @@ package io.scalecube.configuration.repository.couchbase;
 import static com.couchbase.client.java.query.Select.select;
 import static com.couchbase.client.java.query.dsl.Expression.i;
 
+import com.couchbase.client.java.Bucket;
+import com.couchbase.client.java.Cluster;
+import com.couchbase.client.java.CouchbaseCluster;
+import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.document.RawJsonDocument;
+import com.couchbase.client.java.query.N1qlQuery;
+import com.couchbase.client.java.query.SimpleN1qlQuery;
 import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.exception.DataAccessException;
@@ -13,27 +20,18 @@ import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.OperationInterruptedException;
 import io.scalecube.configuration.repository.exception.QueryTimeoutException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
-
-import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.Cluster;
-import com.couchbase.client.java.CouchbaseCluster;
-import com.couchbase.client.java.document.JsonDocument;
-import com.couchbase.client.java.document.RawJsonDocument;
-import com.couchbase.client.java.query.N1qlQuery;
-import com.couchbase.client.java.query.SimpleN1qlQuery;
-
+import java.util.Collection;
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.functions.Func1;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-
-
-
+/**
+ * Couschbase based implementation of ConfigurationDataAccess interface.
+ */
 public class CouchbaseDataAccess extends CouchbaseOperations
     implements ConfigurationDataAccess {
 
@@ -66,7 +64,7 @@ public class CouchbaseDataAccess extends CouchbaseOperations
     }
 
     logger.debug("exit: createBucket -> namespace = [ {} ], repository = [{}]",
-          namespace, repository);
+        namespace, repository);
     return true;
   }
 
@@ -76,32 +74,9 @@ public class CouchbaseDataAccess extends CouchbaseOperations
     }
   }
 
-
-//  public boolean deleteRepository(String namespace, String repository) {
-//    return execute(() -> deleteRepository0(namespace, repository));
-//  }
-
-//  private boolean deleteRepository0(String namespace, String repository) {
-//    logger.debug("enter: createBucket -> namespace = [ {} ], repository = [{}]",
-//        namespace, repository);
-//    String bucket = null;
-//
-//    try {
-//      bucket = ConfigurationBucketName.from(namespace, repository).name();
-//      couchbaseAdmin.deleteBucket(bucket);
-//    } catch (Throwable ex) {
-//      String message = String.format("Failed to create repository: '%s'", bucket);
-//      handleException(ex, message);
-//    }
-//
-//    logger.debug("exit: createBucket -> namespace = [ {} ], repository = [{}]",
-//        namespace, repository);
-//    return true;
-//  }
-
   @Override
   public Document get(String namespace, String repository, String key) {
-    return execute(()->get0(namespace, repository, key));
+    return execute(() -> get0(namespace, repository, key));
   }
 
   private Document get0(String namespace, String repository, String key) {
@@ -130,6 +105,7 @@ public class CouchbaseDataAccess extends CouchbaseOperations
 
   private Document getDocument(Bucket bucket, String id) {
     logger.debug("enter: getDocument -> bucket = [ {} ], [ {} ]", bucket.name(), id);
+
     Document document;
     JsonDocument jsonDocument = bucket.get(id);
 
@@ -208,7 +184,7 @@ public class CouchbaseDataAccess extends CouchbaseOperations
 
   @Override
   public String remove(String namespace, String repository, String key) {
-    return execute(()->remove0(namespace, repository, key));
+    return execute(() -> remove0(namespace, repository, key));
   }
 
   private String remove0(String namespace, String repository, String key) {
@@ -274,7 +250,7 @@ public class CouchbaseDataAccess extends CouchbaseOperations
   private Collection<Document> handleException(Throwable throwable, String message) {
     logger.error(message, throwable);
     if (throwable instanceof DataAccessException) {
-      throw (DataAccessException)throwable;
+      throw (DataAccessException) throwable;
     } else if (throwable instanceof RuntimeException) {
       throw exceptionTranslator.translateExceptionIfPossible((RuntimeException) throwable);
     }

@@ -1,7 +1,5 @@
 package io.scalecube.configuration.repository.couchbase;
 
-import io.scalecube.configuration.repository.exception.CreatePrimaryIndexException;
-
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.cluster.AuthDomain;
@@ -12,6 +10,8 @@ import com.couchbase.client.java.cluster.UserSettings;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
+
+import io.scalecube.configuration.repository.exception.CreatePrimaryIndexException;
 
 import java.util.List;
 import java.util.Objects;
@@ -95,14 +95,4 @@ class CouchbaseAdmin extends CouchbaseOperations {
     cluster.authenticate(settings.couchbaseAdmin(), settings.couchbaseAdminPassword());
     return cluster;
   }
-
-//  void deleteBucket(String name) {
-//    execute(() -> {
-//      if (isBucketExists(name)) {
-//        cluster.clusterManager().removeBucket(name);
-//        cluster.clusterManager().removeUser(AuthDomain.LOCAL, name);
-//      }
-//      return true;
-//    });
-//  }
 }

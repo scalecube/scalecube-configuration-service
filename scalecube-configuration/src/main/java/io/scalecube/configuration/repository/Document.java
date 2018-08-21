@@ -1,6 +1,8 @@
 package io.scalecube.configuration.repository;
 
-
+/**
+ * Represents a repository data entity.
+ */
 public class Document {
 
   private String id;
@@ -12,6 +14,12 @@ public class Document {
   public Document() {
   }
 
+  /**
+   * Concstructs a document object.
+   * @param id document id
+   * @param key entry key
+   * @param value entry value
+   */
   public Document(String id, String key, Object value) {
     this.id = id;
     this.key = key;

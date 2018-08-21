@@ -60,7 +60,6 @@
     </module>
     <module name="NeedBraces"/>
     <module name="LeftCurly">
-      <property name="maxLineLength" value="140"/>
     </module>
     <module name="RightCurly"/>
     <module name="RightCurly">
