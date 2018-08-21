@@ -1,6 +1,5 @@
 package io.scalecube.configuration.repository;
 
-
 import java.util.Collection;
 
 public interface ConfigurationDataAccess {

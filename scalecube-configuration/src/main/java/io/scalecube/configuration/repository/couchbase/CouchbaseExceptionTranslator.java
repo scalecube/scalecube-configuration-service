@@ -1,16 +1,5 @@
 package io.scalecube.configuration.repository.couchbase;
 
-import io.scalecube.configuration.repository.exception.DataAccessException;
-import io.scalecube.configuration.repository.exception.DataAccessResourceFailureException;
-import io.scalecube.configuration.repository.exception.DataIntegrityViolationException;
-import io.scalecube.configuration.repository.exception.DataRetrievalFailureException;
-import io.scalecube.configuration.repository.exception.DuplicateKeyException;
-import io.scalecube.configuration.repository.exception.InvalidDataAccessResourceUsageException;
-import io.scalecube.configuration.repository.exception.KeyNotFoundException;
-import io.scalecube.configuration.repository.exception.OperationCancellationException;
-import io.scalecube.configuration.repository.exception.QueryTimeoutException;
-import io.scalecube.configuration.repository.exception.TransientDataAccessResourceException;
-
 import com.couchbase.client.core.BackpressureException;
 import com.couchbase.client.core.BucketClosedException;
 import com.couchbase.client.core.DocumentConcurrentlyModifiedException;
@@ -34,6 +23,17 @@ import com.couchbase.client.java.error.TemporaryFailureException;
 import com.couchbase.client.java.error.TemporaryLockFailureException;
 import com.couchbase.client.java.error.TranscodingException;
 import com.couchbase.client.java.error.ViewDoesNotExistException;
+
+import io.scalecube.configuration.repository.exception.DataAccessException;
+import io.scalecube.configuration.repository.exception.DataAccessResourceFailureException;
+import io.scalecube.configuration.repository.exception.DataIntegrityViolationException;
+import io.scalecube.configuration.repository.exception.DataRetrievalFailureException;
+import io.scalecube.configuration.repository.exception.DuplicateKeyException;
+import io.scalecube.configuration.repository.exception.InvalidDataAccessResourceUsageException;
+import io.scalecube.configuration.repository.exception.KeyNotFoundException;
+import io.scalecube.configuration.repository.exception.OperationCancellationException;
+import io.scalecube.configuration.repository.exception.QueryTimeoutException;
+import io.scalecube.configuration.repository.exception.TransientDataAccessResourceException;
 
 import java.util.concurrent.TimeoutException;
 

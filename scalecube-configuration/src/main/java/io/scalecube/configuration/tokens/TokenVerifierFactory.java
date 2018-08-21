@@ -1,5 +1,7 @@
 package io.scalecube.configuration.tokens;
 
-public class TokenVerifierFactory {
-
+public abstract class TokenVerifierFactory {
+  public static TokenVerifier tokenVerifier() {
+    return new TokenVerifierImpl();
+  }
 }

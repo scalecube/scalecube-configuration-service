@@ -4,6 +4,7 @@ import io.scalecube.configuration.AppSettings;
 import io.scalecube.configuration.ConfigurationServiceImpl;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.repository.DataAccessFactory;
+import io.scalecube.configuration.tokens.TokenVerifierFactory;
 import io.scalecube.services.Microservices;
 import io.scalecube.transport.Address;
 
@@ -35,7 +36,8 @@ public class ConfigurationServiceRunner {
 
   private static ConfigurationService createConfigurationService() {
     return ConfigurationServiceImpl.builder()
-        .dataAccess(DataAccessFactory.getDataAccess())
+        .dataAccess(DataAccessFactory.dataAccess())
+        .tokenVerifier(TokenVerifierFactory.tokenVerifier())
         .build();
   }
 
