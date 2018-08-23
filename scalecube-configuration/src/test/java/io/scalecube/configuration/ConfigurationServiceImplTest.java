@@ -34,23 +34,6 @@ public class ConfigurationServiceImplTest {
   String token = "eyJraWQiOiIzZjhiZTEzNS1kZjdhLTQ0ODQtYjEwZC01ZjlkYTZjNWZiNjMiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJPUkctNUYzRDAyNDQzNjFEMzE5MjRFOUQiLCJpYXQiOjE1MzUwMzU5MjgsInN1YiI6Ik9SRy01RjNEMDI0NDM2MUQzMTkyNEU5RCIsImlzcyI6InNjYWxlY3ViZS5pbyIsImF1ZCI6Im15VGVzdE9yZzUiLCJyb2xlIjoiT3duZXIiLCJleHAiOjMwNzI3NTAyNTZ9.kKlBJZZeM5YctGS-WlFHATLofQYOu4P0igh8tVYZtH8";
 
   @Test
-  void testRealToken() {
-    ConfigurationService service = createService(new ProfileBuilder().build());
-    Duration duration = StepVerifier
-        .create(
-            ConfigurationServiceImpl.builder()
-                .dataAccess(new InMemoryDataAccess())
-                .tokenVerifier(TokenVerifierFactory.tokenVerifier())
-                .build().createRepository(new CreateRepositoryRequest(
-              token, "myrepo"
-            )))
-        .expectSubscription()
-        .assertNext(Assertions::assertNotNull)
-        .verifyComplete();
-    assertNotNull(duration);
-  }
-
-  @Test
   void create_repository_null_request_should_fail_withBadRequest() {
     ConfigurationService service = createService(new ProfileBuilder().build());
     Duration duration = StepVerifier
