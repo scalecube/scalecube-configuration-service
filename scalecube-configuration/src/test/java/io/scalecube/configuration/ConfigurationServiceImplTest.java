@@ -15,6 +15,7 @@ import io.scalecube.configuration.repository.exception.DuplicateRepositoryExcept
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
 import io.scalecube.configuration.repository.inmem.InMemoryDataAccess;
+import io.scalecube.configuration.tokens.TokenVerifierFactory;
 import io.scalecube.security.Profile;
 
 import java.time.Duration;
@@ -30,6 +31,24 @@ import reactor.test.StepVerifier;
 
 public class ConfigurationServiceImplTest {
   private final ObjectMapper mapper = new ObjectMapper();
+  String token = "eyJraWQiOiIzZjhiZTEzNS1kZjdhLTQ0ODQtYjEwZC01ZjlkYTZjNWZiNjMiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJPUkctNUYzRDAyNDQzNjFEMzE5MjRFOUQiLCJpYXQiOjE1MzUwMzU5MjgsInN1YiI6Ik9SRy01RjNEMDI0NDM2MUQzMTkyNEU5RCIsImlzcyI6InNjYWxlY3ViZS5pbyIsImF1ZCI6Im15VGVzdE9yZzUiLCJyb2xlIjoiT3duZXIiLCJleHAiOjMwNzI3NTAyNTZ9.kKlBJZZeM5YctGS-WlFHATLofQYOu4P0igh8tVYZtH8";
+
+  @Test
+  void testRealToken() {
+    ConfigurationService service = createService(new ProfileBuilder().build());
+    Duration duration = StepVerifier
+        .create(
+            ConfigurationServiceImpl.builder()
+                .dataAccess(new InMemoryDataAccess())
+                .tokenVerifier(TokenVerifierFactory.tokenVerifier())
+                .build().createRepository(new CreateRepositoryRequest(
+              token, "myrepo"
+            )))
+        .expectSubscription()
+        .assertNext(Assertions::assertNotNull)
+        .verifyComplete();
+    assertNotNull(duration);
+  }
 
   @Test
   void create_repository_null_request_should_fail_withBadRequest() {
