@@ -31,7 +31,6 @@ import reactor.test.StepVerifier;
 
 public class ConfigurationServiceImplTest {
   private final ObjectMapper mapper = new ObjectMapper();
-  String token = "eyJraWQiOiIzZjhiZTEzNS1kZjdhLTQ0ODQtYjEwZC01ZjlkYTZjNWZiNjMiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJPUkctNUYzRDAyNDQzNjFEMzE5MjRFOUQiLCJpYXQiOjE1MzUwMzU5MjgsInN1YiI6Ik9SRy01RjNEMDI0NDM2MUQzMTkyNEU5RCIsImlzcyI6InNjYWxlY3ViZS5pbyIsImF1ZCI6Im15VGVzdE9yZzUiLCJyb2xlIjoiT3duZXIiLCJleHAiOjMwNzI3NTAyNTZ9.kKlBJZZeM5YctGS-WlFHATLofQYOu4P0igh8tVYZtH8";
 
   @Test
   void create_repository_null_request_should_fail_withBadRequest() {
