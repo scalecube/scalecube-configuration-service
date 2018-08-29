@@ -8,7 +8,7 @@ public class KeyProviderException extends Exception {
     super(message);
   }
 
-  public KeyProviderException(IOException cause) {
+  public KeyProviderException(Exception cause) {
     super(cause);
   }
 }

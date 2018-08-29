@@ -43,7 +43,7 @@ final class TokenVerifierImpl implements TokenVerifier {
   private JwtAuthenticator getTokenAuthenticator(String keyAlias) {
     if (authenticator == null) {
       try {
-        Key key = new KeyProviderImpl().get(keyAlias);
+        Key key = KeyProviderFactory.keyProvider().get(keyAlias);
 
         authenticator = new JwtAuthenticatorImpl
             .Builder()

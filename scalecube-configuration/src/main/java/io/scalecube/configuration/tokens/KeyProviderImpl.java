@@ -26,12 +26,12 @@ public class KeyProviderImpl implements KeyProvider {
     }
 
     if (!properties.containsKey(alias)) {
-      throw new KeyProviderException("Key with alias: '"+alias+"' not found");
+      throw new KeyProviderException(String.format("Key with alias: '%s' not found", alias));
     }
     // decode the base64 encoded string
     byte[] decodedKey = Base64.getDecoder().decode(properties.get(alias).toString().getBytes());
     // rebuild key using SecretKeySpec
-    return new SecretKeySpec(decodedKey, 0, decodedKey.length, "HMAC");
+    return new SecretKeySpec(decodedKey, 0, decodedKey.length, "HmacSHA256");
 
   }
 }
