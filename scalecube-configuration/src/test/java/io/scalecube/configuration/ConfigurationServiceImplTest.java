@@ -15,6 +15,7 @@ import io.scalecube.configuration.repository.exception.DuplicateRepositoryExcept
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
 import io.scalecube.configuration.repository.inmem.InMemoryDataAccess;
+import io.scalecube.configuration.tokens.InvalidAuthenticationException;
 import io.scalecube.security.Profile;
 
 import java.time.Duration;
@@ -74,7 +75,7 @@ public class ConfigurationServiceImplTest {
         .create(
             service.createRepository(new CreateRepositoryRequest(new Object(), "myrepo")))
         .expectSubscription()
-        .expectError(InvalidAuthenticationToken.class)
+        .expectError(InvalidAuthenticationException.class)
         .verify();
     assertNotNull(duration);
   }
@@ -149,18 +150,18 @@ public class ConfigurationServiceImplTest {
     assertNotNull(duration);
   }
 
-  private ConfigurationService createService() {
-    Map<String, Object> claims = new HashMap<>();
-    claims.put("role", Role.Owner);
-    return createService(new ProfileBuilder().tenant("myorg")
-        .claims(claims).build());
-  }
-
   @Test
   void createRepository() {
     ConfigurationService service = createService();
     Duration duration = createRepository(service);
     assertNotNull(duration);
+  }
+
+  private ConfigurationService createService() {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("role", Role.Owner);
+    return createService(new ProfileBuilder().tenant("myorg")
+        .claims(claims).build());
   }
 
   private ConfigurationService createService(Profile profile) {
@@ -233,7 +234,7 @@ public class ConfigurationServiceImplTest {
         .create(
             service.fetch(new FetchRequest(new Object()  , "myrepo", "mykey")))
         .expectSubscription()
-        .expectError(InvalidAuthenticationToken.class)
+        .expectError(InvalidAuthenticationException.class)
         .verify();
     assertNotNull(duration);
   }
@@ -403,7 +404,7 @@ public class ConfigurationServiceImplTest {
         .create(
             service.entries(new FetchRequest(new Object()  , "myrepo", "mykey")))
         .expectSubscription()
-        .expectError(InvalidAuthenticationToken.class)
+        .expectError(InvalidAuthenticationException.class)
         .verify();
     assertNotNull(duration);
   }
@@ -539,7 +540,7 @@ public class ConfigurationServiceImplTest {
             service.save(new SaveRequest(new Object()  , "myrepo", "mykey",
                 mapper.valueToTree(1))))
         .expectSubscription()
-        .expectError(InvalidAuthenticationToken.class)
+        .expectError(InvalidAuthenticationException.class)
         .verify();
     assertNotNull(duration);
   }
@@ -701,7 +702,7 @@ public class ConfigurationServiceImplTest {
         .create(
             service.delete(new DeleteRequest(new Object()  , "myrepo", "mykey")))
         .expectSubscription()
-        .expectError(InvalidAuthenticationToken.class)
+        .expectError(InvalidAuthenticationException.class)
         .verify();
     assertNotNull(duration);
   }

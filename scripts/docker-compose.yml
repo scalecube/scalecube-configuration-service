@@ -52,8 +52,8 @@ services:
     environment:
       - COUCHBASE_USERNAME=${COUCHBASE_USERNAME}
       - COUCHBASE_PASSWORD=${COUCHBASE_PASSWORD}
-  instruments-service:
-    image: "scalecube/scalecube-organization:${BRANCH:-latest}"
+  configuration-service:
+    image: "scalecube/scalecube-configuration:${BRANCH:-latest}"
     depends_on:
 #      - seed
       gateway:

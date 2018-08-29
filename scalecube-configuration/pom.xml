@@ -20,6 +20,16 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>io.scalecube</groupId>
+      <artifactId>config</artifactId>
+      <version>${scalecube.config.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.scalecube</groupId>
+      <artifactId>config-vault</artifactId>
+      <version>${scalecube.config.version}</version>
+    </dependency>
     <!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-test -->
     <dependency>
       <groupId>io.projectreactor</groupId>

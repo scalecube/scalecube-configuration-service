@@ -14,6 +14,7 @@ import io.scalecube.configuration.api.SaveRequest;
 
 import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.repository.Document;
+import io.scalecube.configuration.tokens.InvalidAuthenticationException;
 import io.scalecube.configuration.tokens.TokenVerifier;
 
 import io.scalecube.security.Profile;
@@ -44,7 +45,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return Mono.create(result -> {
       try {
         validateRequest(request);
-        Profile profile = tokenVerifier.verify(request.token());
+        Profile profile = verifyToken(request.token());
         validateProfile(profile);
         Role role = getRole(profile);
 
@@ -65,13 +66,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     });
   }
 
+
+
   @Override
   public Mono<FetchResponse> fetch(FetchRequest request) {
 
     return Mono.create(result -> {
       try {
         validateRequest(request);
-        Profile profile = tokenVerifier.verify(request.token());
+        Profile profile = verifyToken(request.token());
         validateProfile(profile);
         getRole(profile);
 
@@ -91,7 +94,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return Mono.create(result -> {
       try {
         validateEntriesRequest(request);
-        Profile profile = tokenVerifier.verify(request.token());
+        Profile profile = verifyToken(request.token());
         validateProfile(profile);
         getRole(profile);
 
@@ -115,7 +118,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return Mono.create(result -> {
       try {
         validateRequest(request);
-        Profile profile = tokenVerifier.verify(request.token());
+        Profile profile = verifyToken(request.token());
         validateProfile(profile);
         Role role = getRole(profile);
 
@@ -146,7 +149,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return Mono.create(result -> {
       try {
         validateRequest(request);
-        Profile profile = tokenVerifier.verify(request.token());
+        Profile profile = verifyToken(request.token());
         validateProfile(profile);
         Role role = getRole(profile);
 
@@ -238,7 +241,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
   }
 
-  private void validateProfile(Profile profile) throws InvalidAuthenticationToken {
+  private void  validateProfile(Profile profile) throws InvalidAuthenticationToken {
     if (profile == null) {
       throw new InvalidAuthenticationToken();
     }
@@ -306,5 +309,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       Objects.requireNonNull(tokenVerifier, "Token verifier cannot be null");
       return new ConfigurationServiceImpl(dataAccess, tokenVerifier);
     }
+  }
+
+  private Profile verifyToken(Object token) throws InvalidAuthenticationException {
+    Profile profile = tokenVerifier.verify(token);
+    if (profile == null) {
+      throw new InvalidAuthenticationException();
+    }
+    return profile;
   }
 }

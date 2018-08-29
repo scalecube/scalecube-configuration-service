@@ -2,12 +2,14 @@ package io.scalecube.configuration.repository.couchbase;
 
 import com.couchbase.client.java.bucket.BucketType;
 
+import io.scalecube.configuration.ConfigRegistryConfiguration;
 import io.scalecube.configuration.repository.exception.DataAccessResourceFailureException;
 
 import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -25,14 +27,18 @@ final class CouchbaseSettings {
       "bucket.indexReplicas";
   private static final String BUCKET_ENABLE_FLUSH = "bucket.enableFlush";
   private final Properties settings;
+  private final CouchbaseProperties couchbaseProperties;
   private List<String> clusterNodes;
   private List<String> roles;
+
 
   private CouchbaseSettings() {
     settings = new Properties();
 
     try {
       settings.load(getClass().getResourceAsStream("/couchbase-settings.properties"));
+      couchbaseProperties = ConfigRegistryConfiguration.configRegistry()
+          .objectProperty("couchbase", CouchbaseProperties.class).value().get();
     } catch (IOException ex) {
       throw new DataAccessResourceFailureException("Failed to initialize", ex);
     }
@@ -59,16 +65,17 @@ final class CouchbaseSettings {
   }
 
   String couchbaseAdmin() {
-    return getProperty(COUCHBASE_ADMIN);
+    return couchbaseProperties.username();
   }
 
   String couchbaseAdminPassword() {
-    return getProperty(COUCHBASE_ADMIN_PASSWORD);
+    return couchbaseProperties.password();
   }
 
   List<String> couchbaseClusterNodes() {
-    clusterNodes = getList(COUCHBASE_CLUSTER_NODES, clusterNodes);
-    return clusterNodes;
+    return couchbaseProperties.hosts() == null
+        ? Collections.EMPTY_LIST
+        : couchbaseProperties.hosts();
   }
 
   List<String> bucketsRoles() {
