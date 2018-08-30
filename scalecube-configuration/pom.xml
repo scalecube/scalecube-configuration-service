@@ -30,11 +30,10 @@
       <artifactId>config-vault</artifactId>
       <version>${scalecube.config.version}</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-test -->
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-test</artifactId>
-      <version>3.1.8.RELEASE</version>
+      <version>${reactor-test.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

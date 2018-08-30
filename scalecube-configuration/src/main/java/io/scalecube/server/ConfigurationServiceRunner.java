@@ -1,6 +1,8 @@
 package io.scalecube.server;
 
+import io.scalecube.config.ConfigRegistry;
 import io.scalecube.configuration.AppSettings;
+import io.scalecube.configuration.ConfigRegistryConfiguration;
 import io.scalecube.configuration.ConfigurationServiceImpl;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.repository.DataAccessFactory;
@@ -42,20 +44,12 @@ public class ConfigurationServiceRunner {
   }
 
   private static Address[] seeds() throws Exception {
-    AppSettings settings = AppSettings.builder().build();
+    ConfigRegistry configRegistry = ConfigRegistryConfiguration.configRegistry();
     try {
-      return stringListValue(settings.getProperty(SEEDS))
-          .stream().map(Address::from).toArray(Address[]::new);
+      return configRegistry.stringListValue(SEEDS, DEFAULT_SEEDS)
+        .stream().map(Address::from).toArray(Address[]::new);
     } catch (Throwable ex) {
       throw new Exception("Failed to parse seeds from settings", ex);
-    }
-  }
-
-  private static List<String> stringListValue(String seeds) {
-    if (seeds == null || seeds.length() == 0) {
-      return DEFAULT_SEEDS;
-    } else {
-      return Arrays.asList(seeds.split(","));
     }
   }
 }
