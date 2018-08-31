@@ -1,17 +1,10 @@
 package io.scalecube.configuration.repository.couchbase;
 
 import com.couchbase.client.java.bucket.BucketType;
-
+import io.scalecube.config.ConfigRegistry;
 import io.scalecube.configuration.ConfigRegistryConfiguration;
-import io.scalecube.configuration.repository.exception.DataAccessResourceFailureException;
-
-import java.io.IOException;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 final class CouchbaseSettings {
 
@@ -26,42 +19,40 @@ final class CouchbaseSettings {
   private static final String BUCKET_INDEX_REPLICAS =
       "bucket.indexReplicas";
   private static final String BUCKET_ENABLE_FLUSH = "bucket.enableFlush";
-  private final Properties settings;
   private final CouchbaseProperties couchbaseProperties;
   private List<String> clusterNodes;
   private List<String> roles;
 
+  private ConfigRegistry configRegistry = ConfigRegistryConfiguration.configRegistry();
+
+  public static void main(String[] args) {
+    ConfigRegistry configRegistry = ConfigRegistryConfiguration.configRegistry();
+    configRegistry.allProperties();
+  }
 
   private CouchbaseSettings() {
-    settings = new Properties();
-
-    try {
-      settings.load(getClass().getResourceAsStream("/couchbase-settings.properties"));
-      couchbaseProperties = ConfigRegistryConfiguration.configRegistry()
-          .objectProperty("couchbase", CouchbaseProperties.class).value().get();
-    } catch (Exception ex) {
-      throw new DataAccessResourceFailureException("Failed to initialize Couchbase settings", ex);
-    }
+    couchbaseProperties = configRegistry
+        .objectProperty("couchbase", CouchbaseProperties.class).value().get();
   }
 
   BucketType bucketType() {
-    return Enum.valueOf(BucketType.class, getProperty(BUCKET_TYPE));
+    return Enum.valueOf(BucketType.class, configRegistry.stringValue(BUCKET_REPLICAS, null));
   }
 
   int bucketQuota() {
-    return Integer.valueOf(getProperty(BUCKET_QUOTA));
+    return configRegistry.intValue(BUCKET_REPLICAS, 0);
   }
 
   int bucketReplicas() {
-    return Integer.valueOf(getProperty(BUCKET_REPLICAS));
+    return configRegistry.intValue(BUCKET_REPLICAS, 1);
   }
 
   boolean bucketIndexReplicas() {
-    return Boolean.valueOf(getProperty(BUCKET_INDEX_REPLICAS));
+    return configRegistry.booleanValue(BUCKET_INDEX_REPLICAS, false);
   }
 
   boolean bucketEnableFlush() {
-    return Boolean.valueOf(getProperty(BUCKET_ENABLE_FLUSH));
+    return configRegistry.booleanValue(BUCKET_ENABLE_FLUSH, false);
   }
 
   String couchbaseAdmin() {
@@ -79,25 +70,11 @@ final class CouchbaseSettings {
   }
 
   List<String> bucketsRoles() {
-    roles = getList(BUCKET_ROLES, roles);
-    return roles;
-  }
-
-  private List<String> getList(String key, List<String> list) {
-    if (list == null) {
-      String value = getProperty(key);
-      list = value.length() > 0 ? Arrays.asList(value.split(",")) : new ArrayList<>();
-    }
-    return list;
+    return configRegistry.stringListValue(BUCKET_ROLES, Collections.emptyList());
   }
 
   String bucketNamePattern() {
-    return getProperty(NEW_BUCKET_NAME_FORMAT);
-  }
-
-
-  private String getProperty(String key) {
-    return settings.getProperty(key);
+    return configRegistry.stringValue(NEW_BUCKET_NAME_FORMAT, null);
   }
 
   static class Builder {

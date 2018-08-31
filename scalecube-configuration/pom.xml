@@ -49,6 +49,16 @@
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
+      <artifactId>rsocket-services-transport</artifactId>
+      <version>${scalecube-services.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.scalecube</groupId>
+      <artifactId>scalecube-services-jackson</artifactId>
+      <version>${scalecube-services.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.scalecube</groupId>
       <artifactId>scalecube-services</artifactId>
       <version>${scalecube-services.version}</version>
     </dependency>
@@ -57,6 +67,21 @@
       <artifactId>java-client</artifactId>
       <version>${couchbase-client-version}</version>
     </dependency>
+
+    <!-- Loggers -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-test</artifactId>
