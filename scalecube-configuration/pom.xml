@@ -17,9 +17,16 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <serviceName>${project.artifactId}</serviceName>
+    <mainClass>io.scalecube.server.ConfigurationServiceRunner</mainClass>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>io.scalecube</groupId>
+      <artifactId>scalecube-configuration-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>config</artifactId>
@@ -31,10 +38,19 @@
       <version>${scalecube.config.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.projectreactor</groupId>
-      <artifactId>reactor-test</artifactId>
-      <version>${reactor-test.version}</version>
-      <scope>test</scope>
+      <groupId>io.scalecube</groupId>
+      <artifactId>scalecube-security-jwt</artifactId>
+      <version>${scalecube-security-jwt.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.scalecube</groupId>
+      <artifactId>scalecube-services-discovery</artifactId>
+      <version>${scalecube-services.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.scalecube</groupId>
+      <artifactId>scalecube-services</artifactId>
+      <version>${scalecube-services.version}</version>
     </dependency>
     <dependency>
       <groupId>com.couchbase.client</groupId>
@@ -42,14 +58,10 @@
       <version>${couchbase-client-version}</version>
     </dependency>
     <dependency>
-      <groupId>io.scalecube</groupId>
-      <artifactId>scalecube-configuration-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.scalecube</groupId>
-      <artifactId>scalecube-security-jwt</artifactId>
-      <version>${scalecube-security-jwt.version}</version>
+      <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-test</artifactId>
+      <version>${reactor-test.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -58,82 +70,21 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
   <build>
-
     <plugins>
-      <!-- Copy Maven dependencies into target/lib/ -->
-      <!-- Maven Assembly Plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.4.1</version>
-        <configuration>
-          <finalName>server</finalName>
-          <!-- get all project dependencies -->
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-          <!-- MainClass in mainfest make a executable jar -->
-          <archive>
-            <manifest>
-              <mainClass>io.scalecube.server.ConfigurationServiceRunner</mainClass>
-            </manifest>
-          </archive>
-
-        </configuration>
-        <executions>
-          <execution>
-            <id>make-assembly</id>
-            <!-- bind to the packaging phase -->
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
+        <artifactId>maven-shade-plugin</artifactId>
       </plugin>
-
-      <!-- Use Java 8 -->
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.7.0</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
+        <groupId>com.spotify</groupId>
+        <artifactId>dockerfile-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
-  <profiles>
-    <profile>
-      <id>build-docker</id>
-      <activation>
-        <property>
-          <name>env.TRAVIS</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.spotify</groupId>
-            <artifactId>dockerfile-maven-plugin</artifactId>
-            <version>${dockerfile-maven.version}</version>
-            <configuration>
-              <repository>${project.docker.repository}</repository>
-              <tag>${project.artifactId}-${project.version}</tag>
-            </configuration>
-            <executions>
-              <execution>
-                <id>default</id>
-                <goals>
-                  <goal>build</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
+
 </project>
