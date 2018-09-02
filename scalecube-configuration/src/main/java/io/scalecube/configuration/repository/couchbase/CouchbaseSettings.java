@@ -39,8 +39,8 @@ final class CouchbaseSettings {
       settings.load(getClass().getResourceAsStream("/couchbase-settings.properties"));
       couchbaseProperties = ConfigRegistryConfiguration.configRegistry()
           .objectProperty("couchbase", CouchbaseProperties.class).value().get();
-    } catch (IOException ex) {
-      throw new DataAccessResourceFailureException("Failed to initialize", ex);
+    } catch (Exception ex) {
+      throw new DataAccessResourceFailureException("Failed to initialize Couchbase settings", ex);
     }
   }
 
