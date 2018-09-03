@@ -36,11 +36,11 @@ final class CouchbaseSettings {
   }
 
   BucketType bucketType() {
-    return Enum.valueOf(BucketType.class, configRegistry.stringValue(BUCKET_REPLICAS, null));
+    return Enum.valueOf(BucketType.class, configRegistry.stringValue(BUCKET_TYPE, null));
   }
 
   int bucketQuota() {
-    return configRegistry.intValue(BUCKET_REPLICAS, 0);
+    return configRegistry.intValue(BUCKET_QUOTA, 0);
   }
 
   int bucketReplicas() {
