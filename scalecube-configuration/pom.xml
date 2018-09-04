@@ -30,27 +30,22 @@
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>config</artifactId>
-      <version>${scalecube.config.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>config-vault</artifactId>
-      <version>${scalecube.config.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-security-jwt</artifactId>
-      <version>${scalecube-security-jwt.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-services-discovery</artifactId>
-      <version>${scalecube-services.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>rsocket-services-transport</artifactId>
-      <version>${scalecube-services.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
@@ -60,12 +55,10 @@
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-services</artifactId>
-      <version>${scalecube-services.version}</version>
     </dependency>
     <dependency>
       <groupId>com.couchbase.client</groupId>
       <artifactId>java-client</artifactId>
-      <version>${couchbase-client-version}</version>
     </dependency>
 
     <!-- Loggers -->

@@ -26,7 +26,6 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.functions.Func1;
 
 public class CouchbaseDataAccess extends CouchbaseOperations implements ConfigurationDataAccess {
 
@@ -36,6 +35,13 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
   private final CouchbaseAdmin couchbaseAdmin;
   private final TranslationService translationService = new JacksonTranslationService();
 
+  /**
+   * Create couchbase data access operations instance.
+   *
+   * @param settings couchbase settings
+   * @param cluster couchbase cluster
+   * @param couchbaseAdmin couchbase operations with admin permissions
+   */
   public CouchbaseDataAccess(
       CouchbaseSettings settings, Cluster cluster, CouchbaseAdmin couchbaseAdmin) {
     super(settings);
@@ -284,21 +290,20 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
 
   private <R> Observable<R> executeAsync(Observable<R> asyncAction) {
     return asyncAction.onErrorResumeNext(
-        (Func1<Throwable, Observable<R>>)
-            e -> {
-              if (e instanceof RuntimeException) {
-                return Observable.error(
-                    exceptionTranslator.translateExceptionIfPossible((RuntimeException) e));
-              } else if (e instanceof TimeoutException) {
-                return Observable.error(new QueryTimeoutException(e.getMessage(), e));
-              } else if (e instanceof InterruptedException) {
-                return Observable.error(new OperationInterruptedException(e.getMessage(), e));
-              } else if (e instanceof ExecutionException) {
-                return Observable.error(new OperationInterruptedException(e.getMessage(), e));
-              } else {
-                return Observable.error(e);
-              }
-            });
+        e -> {
+          if (e instanceof RuntimeException) {
+            return Observable.error(
+                exceptionTranslator.translateExceptionIfPossible((RuntimeException) e));
+          } else if (e instanceof TimeoutException) {
+            return Observable.error(new QueryTimeoutException(e.getMessage(), e));
+          } else if (e instanceof InterruptedException) {
+            return Observable.error(new OperationInterruptedException(e.getMessage(), e));
+          } else if (e instanceof ExecutionException) {
+            return Observable.error(new OperationInterruptedException(e.getMessage(), e));
+          } else {
+            return Observable.error(e);
+          }
+        });
   }
 
   private Bucket openBucket(String name) {
