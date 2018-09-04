@@ -5,7 +5,6 @@ import static com.couchbase.client.java.query.dsl.Expression.i;
 
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
-import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.RawJsonDocument;
 import com.couchbase.client.java.query.N1qlQuery;
@@ -27,21 +26,27 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.functions.Func1;
 
-/**
- * Couschbase based implementation of ConfigurationDataAccess interface.
- */
-public class CouchbaseDataAccess extends CouchbaseOperations
-    implements ConfigurationDataAccess {
+public class CouchbaseDataAccess extends CouchbaseOperations implements ConfigurationDataAccess {
 
   private static Logger logger = LoggerFactory.getLogger(CouchbaseDataAccess.class);
+
+  private final Cluster cluster;
   private final CouchbaseAdmin couchbaseAdmin;
-  private Cluster cluster;
   private final TranslationService translationService = new JacksonTranslationService();
 
-  public CouchbaseDataAccess() {
-    couchbaseAdmin = new CouchbaseAdmin();
+  /**
+   * Create couchbase data access operations instance.
+   *
+   * @param settings couchbase settings
+   * @param cluster couchbase cluster
+   * @param couchbaseAdmin couchbase operations with admin permissions
+   */
+  public CouchbaseDataAccess(
+      CouchbaseSettings settings, Cluster cluster, CouchbaseAdmin couchbaseAdmin) {
+    super(settings);
+    this.cluster = cluster;
+    this.couchbaseAdmin = couchbaseAdmin;
   }
 
   @Override
@@ -50,12 +55,12 @@ public class CouchbaseDataAccess extends CouchbaseOperations
   }
 
   private boolean createRepository0(String namespace, String repository) {
-    logger.debug("enter: createBucket -> namespace = [ {} ], repository = [{}]",
-        namespace, repository);
+    logger.debug(
+        "enter: createBucket -> namespace = [ {} ], repository = [{}]", namespace, repository);
     String bucket = null;
 
     try {
-      bucket = ConfigurationBucketName.from(namespace, repository).name();
+      bucket = ConfigurationBucketName.from(namespace, repository, settings).name();
       ensureBucketNameIsNotInUse(bucket);
       couchbaseAdmin.createBucket(bucket);
     } catch (Throwable ex) {
@@ -63,8 +68,8 @@ public class CouchbaseDataAccess extends CouchbaseOperations
       handleException(ex, message);
     }
 
-    logger.debug("exit: createBucket -> namespace = [ {} ], repository = [{}]",
-        namespace, repository);
+    logger.debug(
+        "exit: createBucket -> namespace = [ {} ], repository = [{}]", namespace, repository);
     return true;
   }
 
@@ -80,28 +85,31 @@ public class CouchbaseDataAccess extends CouchbaseOperations
   }
 
   private Document get0(String namespace, String repository, String key) {
-    logger.debug("enter: get -> namespace = [ {} ], repository = [{}], key = [{}]",
-        namespace, repository, key);
+    logger.debug(
+        "enter: get -> namespace = [ {} ], repository = [{}], key = [{}]",
+        namespace,
+        repository,
+        key);
     String bucketName = null;
     Bucket bucket;
     Document document = null;
 
     try {
-      bucketName = ConfigurationBucketName.from(namespace, repository).name();
+      bucketName = ConfigurationBucketName.from(namespace, repository, settings).name();
       bucket = openBucket(bucketName);
       document = getDocument(bucket, key);
     } catch (Throwable ex) {
-      String message = String.format("Failed to get key: '%s' value from repository: '%s'",
-          key, bucketName);
+      String message =
+          String.format("Failed to get key: '%s' value from repository: '%s'", key, bucketName);
       handleException(ex, message);
     }
 
-    logger.debug("exit: get -> [ {} ] return -> [ {} ]",
+    logger.debug(
+        "exit: get -> [ {} ] return -> [ {} ]",
         bucketName + "/" + key,
         document != null ? document.value() : null);
     return document;
   }
-
 
   private Document getDocument(Bucket bucket, String id) {
     logger.debug("enter: getDocument -> bucket = [ {} ], [ {} ]", bucket.name(), id);
@@ -117,8 +125,9 @@ public class CouchbaseDataAccess extends CouchbaseOperations
       document = toEntity(id, bucket.name(), jsonDocument);
     } catch (Throwable throwable) {
       logger.error("Failed to get document with id: '{}' from bucket: '{}'", id, bucket.name());
-      String message = String.format("Failed to get document with id: '%s' from bucket: '%s'",
-          id, bucket.name());
+      String message =
+          String.format(
+              "Failed to get document with id: '%s' from bucket: '%s'", id, bucket.name());
       if (throwable instanceof DataAccessException) {
         throw throwable;
       }
@@ -129,8 +138,8 @@ public class CouchbaseDataAccess extends CouchbaseOperations
   }
 
   private Document toEntity(String id, String bucket, JsonDocument document) {
-    logger.debug("enter: toEntity -> bucket = [ {} ] id = [ {} ], document = [ {} ]",
-        bucket, id, document);
+    logger.debug(
+        "enter: toEntity -> bucket = [ {} ] id = [ {} ], document = [ {} ]", bucket, id, document);
     Document entity = null;
 
     try {
@@ -142,13 +151,13 @@ public class CouchbaseDataAccess extends CouchbaseOperations
           "Failed to decode json document bucket = '%s', id = '%s', document = %s",
           bucket, id, document);
       throw new DataAccessResourceFailureException(
-          String.format("Failed to Failed to decode json document bucket = '%s', id = '%s'",
-              bucket, id),
+          String.format(
+              "Failed to Failed to decode json document bucket = '%s', id = '%s'", bucket, id),
           throwable);
     }
 
-    logger.debug("exit: toEntity -> bucket = [ {} ] id = [ {} ], return = [ {} ]",
-        bucket, id, entity);
+    logger.debug(
+        "exit: toEntity -> bucket = [ {} ] id = [ {} ], return = [ {} ]", bucket, id, entity);
 
     return entity;
   }
@@ -159,25 +168,33 @@ public class CouchbaseDataAccess extends CouchbaseOperations
   }
 
   private Document put0(String namespace, String repository, String key, Document document) {
-    logger.debug("enter: put -> namespace = [ {} ], repository = [{}], key = [{}], document = [{}]",
-        namespace, repository, key, document);
+    logger.debug(
+        "enter: put -> namespace = [ {} ], repository = [{}], key = [{}], document = [{}]",
+        namespace,
+        repository,
+        key,
+        document);
 
     Objects.requireNonNull(key);
     Objects.requireNonNull(document);
     String bucketName = null;
 
     try {
-      bucketName = ConfigurationBucketName.from(namespace, repository).name();
+      bucketName = ConfigurationBucketName.from(namespace, repository, settings).name();
       Bucket bucket = openBucket(bucketName);
       bucket.upsert(RawJsonDocument.create(key, translationService.encode(document)));
     } catch (Throwable throwable) {
-      String message = String.format("Failed to put key: '%s' value in repository: '%s'",
-          key, bucketName);
+      String message =
+          String.format("Failed to put key: '%s' value in repository: '%s'", key, bucketName);
       handleException(throwable, message);
     }
 
-    logger.debug("exit: put -> namespace = [ {} ], repository = [{}], key = [{}], document = [{}]",
-        namespace, repository, key, document);
+    logger.debug(
+        "exit: put -> namespace = [ {} ], repository = [{}], key = [{}], document = [{}]",
+        namespace,
+        repository,
+        key,
+        document);
 
     return document;
   }
@@ -188,62 +205,76 @@ public class CouchbaseDataAccess extends CouchbaseOperations
   }
 
   private String remove0(String namespace, String repository, String key) {
-    logger.debug("enter: remove -> namespace = [ {} ], repository = [{}], key = [{}]",
-        namespace, repository, key);
+    logger.debug(
+        "enter: remove -> namespace = [ {} ], repository = [{}], key = [{}]",
+        namespace,
+        repository,
+        key);
 
     Objects.requireNonNull(key);
     String bucketName = null;
     String id = null;
 
     try {
-      bucketName = ConfigurationBucketName.from(namespace, repository).name();
+      bucketName = ConfigurationBucketName.from(namespace, repository, settings).name();
       Bucket bucket = openBucket(bucketName);
       id = bucket.remove(key).id();
     } catch (Throwable throwable) {
-      String message = String.format("Failed to remove key: '%s' from repository: '%s'",
-          key, bucketName);
+      String message =
+          String.format("Failed to remove key: '%s' from repository: '%s'", key, bucketName);
       handleException(throwable, message);
     }
 
-    logger.debug("exit: remove -> namespace = [ {} ], repository = [{}], key = [{}]",
-        namespace, repository, key);
+    logger.debug(
+        "exit: remove -> namespace = [ {} ], repository = [{}], key = [{}]",
+        namespace,
+        repository,
+        key);
     return id;
   }
 
   @Override
   public Collection<Document> entries(String namespace, String repository) {
-    logger.debug("enter: entries -> namespace = [ {} ], repository = [{}]",
-        namespace, repository);
+    logger.debug("enter: entries -> namespace = [ {} ], repository = [{}]", namespace, repository);
     Collection<Document> entries;
     String bucketName = null;
 
     try {
-      bucketName = ConfigurationBucketName.from(namespace, repository).name();
+      bucketName = ConfigurationBucketName.from(namespace, repository, settings).name();
       final Bucket bucket = openBucket(bucketName);
       final SimpleN1qlQuery query = N1qlQuery.simple(select("*").from(i(bucket.name())));
-      entries = executeAsync(bucket.async().query(query))
-          .flatMap(result -> result.rows()
-              .mergeWith(
-                  result
-                      .errors()
-                      .flatMap(
-                          error -> Observable.error(new DataRetrievalFailureException(
-                              "N1QL error: " + error.toString())))
-              )
-              .flatMap(row ->
-                  Observable.just(translationService.decode(
-                      row.value().get(bucket.name()).toString(), Document.class)))
-              .toList()
-          )
-          .toBlocking()
-          .single();
+      entries =
+          executeAsync(bucket.async().query(query))
+              .flatMap(
+                  result ->
+                      result
+                          .rows()
+                          .mergeWith(
+                              result
+                                  .errors()
+                                  .flatMap(
+                                      error ->
+                                          Observable.error(
+                                              new DataRetrievalFailureException(
+                                                  "N1QL error: " + error.toString()))))
+                          .flatMap(
+                              row ->
+                                  Observable.just(
+                                      translationService.decode(
+                                          row.value().get(bucket.name()).toString(),
+                                          Document.class)))
+                          .toList())
+              .toBlocking()
+              .single();
     } catch (Throwable throwable) {
-      String message = String.format("Failed to get entries from repository: '%s'",
-          bucketName);
+      String message = String.format("Failed to get entries from repository: '%s'", bucketName);
       return handleException(throwable, message);
     }
-    logger.debug("exit: entries -> namespace = [ {} ], repository = [{}], return = [ {} ] entries",
-        namespace, repository, entries.size());
+    logger.debug(
+        "exit: entries -> namespace = [ {} ], repository = [{}], return = [ {} ] entries",
+        namespace,
+        repository,
+        entries.size());
     return entries;
   }
 
@@ -258,11 +289,11 @@ public class CouchbaseDataAccess extends CouchbaseOperations
   }
 
   private <R> Observable<R> executeAsync(Observable<R> asyncAction) {
-    return asyncAction
-        .onErrorResumeNext((Func1<Throwable, Observable<R>>) e -> {
+    return asyncAction.onErrorResumeNext(
+        e -> {
           if (e instanceof RuntimeException) {
-            return Observable
-                .error(exceptionTranslator.translateExceptionIfPossible((RuntimeException) e));
+            return Observable.error(
+                exceptionTranslator.translateExceptionIfPossible((RuntimeException) e));
           } else if (e instanceof TimeoutException) {
             return Observable.error(new QueryTimeoutException(e.getMessage(), e));
           } else if (e instanceof InterruptedException) {
@@ -279,7 +310,7 @@ public class CouchbaseDataAccess extends CouchbaseOperations
     logger.debug("enter: openBucket -> name = [ {} ]", name);
     Bucket bucket;
     try {
-      bucket = cluster().openBucket(name, PasswordGenerator.md5Hash(name));
+      bucket = cluster.openBucket(name, PasswordGenerator.md5Hash(name));
     } catch (Throwable throwable) {
       logger.error("Failed to open bucket: '{}'", name);
       throw new RepositoryNotFoundException(
@@ -287,12 +318,5 @@ public class CouchbaseDataAccess extends CouchbaseOperations
     }
     logger.debug("exit: openBucket -> name = [ {} ]", bucket.name());
     return bucket;
-  }
-
-  private Cluster cluster() {
-    if (cluster == null) {
-      cluster = CouchbaseCluster.create(settings.couchbaseClusterNodes());
-    }
-    return cluster;
   }
 }

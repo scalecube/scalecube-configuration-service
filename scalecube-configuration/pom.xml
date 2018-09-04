@@ -30,33 +30,51 @@
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>config</artifactId>
-      <version>${scalecube.config.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>config-vault</artifactId>
-      <version>${scalecube.config.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-security-jwt</artifactId>
-      <version>${scalecube-security-jwt.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-services-discovery</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.scalecube</groupId>
+      <artifactId>rsocket-services-transport</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.scalecube</groupId>
+      <artifactId>scalecube-services-jackson</artifactId>
       <version>${scalecube-services.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-services</artifactId>
-      <version>${scalecube-services.version}</version>
     </dependency>
     <dependency>
       <groupId>com.couchbase.client</groupId>
       <artifactId>java-client</artifactId>
-      <version>${couchbase-client-version}</version>
     </dependency>
+
+    <!-- Loggers -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-test</artifactId>

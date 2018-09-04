@@ -5,6 +5,7 @@ import io.scalecube.config.ConfigRegistry;
 import io.scalecube.config.ConfigRegistrySettings;
 import io.scalecube.config.ConfigRegistrySettings.Builder;
 import io.scalecube.config.audit.Slf4JConfigEventListener;
+import io.scalecube.config.source.ClassPathConfigSource;
 import io.scalecube.config.source.SystemEnvironmentConfigSource;
 import io.scalecube.config.source.SystemPropertiesConfigSource;
 import io.scalecube.config.vault.VaultConfigSource;
@@ -28,6 +29,8 @@ public class ConfigRegistryConfiguration {
     ConfigRegistrySettings.Builder builder = ConfigRegistrySettings.builder()
         .reloadIntervalSec(RELOAD_INTERVAL_SEC)
         .addListener(new Slf4JConfigEventListener())
+        .addLastSource("classpath", new ClassPathConfigSource(
+            path -> path.toString().endsWith(".props")))
         .addLastSource("sys_prop", new SystemPropertiesConfigSource())
         .addLastSource("env_var", new SystemEnvironmentConfigSource());
 

@@ -1,0 +1,13 @@
+couchbase.hosts=localhost:8091
+couchbase.username=Administrator
+couchbase.password=123456
+
+couchbase.bucketNamePattern=%s-%s
+couchbase.bucketRoles=data_reader,data_writer,query_select
+couchbase.bucketType=COUCHBASE
+
+# quota in megabytes
+couchbase.bucketQuota=100
+couchbase.bucketReplicas=0
+couchbase.bucketIndexReplicas=false
+couchbase.bucketEnableFlush=false

@@ -1,109 +1,68 @@
 package io.scalecube.configuration.repository.couchbase;
 
 import com.couchbase.client.java.bucket.BucketType;
-
-import io.scalecube.configuration.ConfigRegistryConfiguration;
-import io.scalecube.configuration.repository.exception.DataAccessResourceFailureException;
-
-import java.io.IOException;
-
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
-final class CouchbaseSettings {
+public final class CouchbaseSettings {
 
-  private static final String COUCHBASE_ADMIN = "couchbase.admin.user";
-  private static final String COUCHBASE_ADMIN_PASSWORD = "couchbase.admin.password";
-  private static final String COUCHBASE_CLUSTER_NODES = "couchbase.cluster.nodes";
-  private static final String NEW_BUCKET_NAME_FORMAT = "bucket.name.format";
-  private static final String BUCKET_TYPE = "bucket.type";
-  private static final String BUCKET_QUOTA = "bucket.quota";
-  private static final String BUCKET_ROLES = "bucket.roles";
-  private static final String BUCKET_REPLICAS = "bucket.replicas";
-  private static final String BUCKET_INDEX_REPLICAS =
-      "bucket.indexReplicas";
-  private static final String BUCKET_ENABLE_FLUSH = "bucket.enableFlush";
-  private final Properties settings;
-  private final CouchbaseProperties couchbaseProperties;
-  private List<String> clusterNodes;
-  private List<String> roles;
+  public static final String BUCKET_NAME_FORMAT = "%s-%s";
+  public static final List<String> BUCKET_ROLES =
+      Arrays.asList("data_reader", "data_writer", "query_select");
+  public static final String BUCKET_TYPE = "COUCHBASE";
+  public static final int BUCKET_QUOTA = 100;
+  public static final int BUCKET_REPLICAS = 0;
+  public static final boolean BUCKET_INDEX_REPLICAS = false;
+  public static final boolean BUCKET_ENABLE_FLUSH = false;
 
+  private List<String> hosts;
+  private String username;
+  private String password;
+  private String bucketNamePattern = BUCKET_NAME_FORMAT;
+  private List<String> bucketRoles = BUCKET_ROLES;
+  private String bucketType = BUCKET_TYPE;
+  private int bucketQuota = BUCKET_QUOTA; // quota in megabytes
+  private int bucketReplicas = BUCKET_REPLICAS;
+  private boolean bucketIndexReplicas = BUCKET_INDEX_REPLICAS;
+  private boolean bucketEnableFlush = BUCKET_ENABLE_FLUSH;
 
-  private CouchbaseSettings() {
-    settings = new Properties();
-
-    try {
-      settings.load(getClass().getResourceAsStream("/couchbase-settings.properties"));
-      couchbaseProperties = ConfigRegistryConfiguration.configRegistry()
-          .objectProperty("couchbase", CouchbaseProperties.class).value().get();
-    } catch (Exception ex) {
-      throw new DataAccessResourceFailureException("Failed to initialize Couchbase settings", ex);
-    }
+  public List<String> hosts() {
+    return hosts;
   }
 
-  BucketType bucketType() {
-    return Enum.valueOf(BucketType.class, getProperty(BUCKET_TYPE));
+  public String username() {
+    return username;
   }
 
-  int bucketQuota() {
-    return Integer.valueOf(getProperty(BUCKET_QUOTA));
+  public String password() {
+    return password;
   }
 
-  int bucketReplicas() {
-    return Integer.valueOf(getProperty(BUCKET_REPLICAS));
+  public String bucketNamePattern() {
+    return bucketNamePattern;
   }
 
-  boolean bucketIndexReplicas() {
-    return Boolean.valueOf(getProperty(BUCKET_INDEX_REPLICAS));
+  public List<String> bucketRoles() {
+    return bucketRoles;
   }
 
-  boolean bucketEnableFlush() {
-    return Boolean.valueOf(getProperty(BUCKET_ENABLE_FLUSH));
+  public BucketType bucketType() {
+    return BucketType.valueOf(bucketType);
   }
 
-  String couchbaseAdmin() {
-    return couchbaseProperties.username();
+  public int bucketQuota() {
+    return bucketQuota;
   }
 
-  String couchbaseAdminPassword() {
-    return couchbaseProperties.password();
+  public int bucketReplicas() {
+    return bucketReplicas;
   }
 
-  List<String> couchbaseClusterNodes() {
-    return couchbaseProperties.hosts() == null
-        ? Collections.EMPTY_LIST
-        : couchbaseProperties.hosts();
+  public boolean bucketIndexReplicas() {
+    return bucketIndexReplicas;
   }
 
-  List<String> bucketsRoles() {
-    roles = getList(BUCKET_ROLES, roles);
-    return roles;
-  }
-
-  private List<String> getList(String key, List<String> list) {
-    if (list == null) {
-      String value = getProperty(key);
-      list = value.length() > 0 ? Arrays.asList(value.split(",")) : new ArrayList<>();
-    }
-    return list;
-  }
-
-  String bucketNamePattern() {
-    return getProperty(NEW_BUCKET_NAME_FORMAT);
-  }
-
-
-  private String getProperty(String key) {
-    return settings.getProperty(key);
-  }
-
-  static class Builder {
-
-    public CouchbaseSettings build() {
-      return new CouchbaseSettings();
-    }
+  public boolean bucketEnableFlush() {
+    return bucketEnableFlush;
   }
 }
