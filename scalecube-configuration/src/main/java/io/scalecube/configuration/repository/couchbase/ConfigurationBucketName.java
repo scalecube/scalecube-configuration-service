@@ -1,11 +1,9 @@
 package io.scalecube.configuration.repository.couchbase;
 
 import io.scalecube.configuration.repository.exception.InvalidRepositoryNameException;
-
 import java.util.Objects;
 
 class ConfigurationBucketName {
-  private static final CouchbaseSettings settings = new CouchbaseSettings.Builder().build();
   private final String name;
 
   private ConfigurationBucketName(String name) {
@@ -16,8 +14,8 @@ class ConfigurationBucketName {
     return name;
   }
 
-  static ConfigurationBucketName from(String namespace, String name) {
-    String bucketName = getBucketName(namespace, name);
+  static ConfigurationBucketName from(String namespace, String name, CouchbaseSettings settings) {
+    String bucketName = getBucketName(namespace, name, settings);
     validateBucketName(bucketName);
     return new ConfigurationBucketName(bucketName);
   }
@@ -34,7 +32,8 @@ class ConfigurationBucketName {
     }
   }
 
-  private static String getBucketName(String namespace, String repository) {
+  private static String getBucketName(
+      String namespace, String repository, CouchbaseSettings settings) {
     Objects.requireNonNull(namespace, "namespace");
     Objects.requireNonNull(repository, "repository");
     return String.format(settings.bucketNamePattern(), namespace, repository);

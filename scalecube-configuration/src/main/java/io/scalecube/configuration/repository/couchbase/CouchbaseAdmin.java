@@ -1,7 +1,6 @@
 package io.scalecube.configuration.repository.couchbase;
 
 import com.couchbase.client.java.Cluster;
-import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.cluster.AuthDomain;
 import com.couchbase.client.java.cluster.BucketSettings;
 import com.couchbase.client.java.cluster.DefaultBucketSettings.Builder;
@@ -10,54 +9,60 @@ import com.couchbase.client.java.cluster.UserSettings;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
-
 import io.scalecube.configuration.repository.exception.CreatePrimaryIndexException;
-
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-class CouchbaseAdmin extends CouchbaseOperations {
+public class CouchbaseAdmin extends CouchbaseOperations {
 
-  private static final String CREATE_PRIMARY_INDEX
-      = "CREATE PRIMARY INDEX `%s-primary-idx` ON `%s`";
+  private static final String CREATE_PRIMARY_INDEX =
+      "CREATE PRIMARY INDEX `%s-primary-idx` ON `%s`";
+
   private final Cluster cluster;
 
-  CouchbaseAdmin() {
-    cluster = cluster();
+  public CouchbaseAdmin(CouchbaseSettings settings, Cluster cluster) {
+    super(settings);
+    this.cluster = cluster;
   }
 
   protected boolean isBucketExists(String name) {
-    return execute(() -> cluster.clusterManager()
-        .getBuckets()
-        .stream()
-        .anyMatch(bucketSettings -> Objects.equals(bucketSettings.name(), name)));
+    return execute(
+        () ->
+            cluster
+                .clusterManager()
+                .getBuckets()
+                .stream()
+                .anyMatch(bucketSettings -> Objects.equals(bucketSettings.name(), name)));
   }
 
   protected void createBucket(String name) {
-    execute(() -> {
-      BucketSettings bucketSettings = insertBucket(name);
-      try {
-        createPrimaryIndex(name);
-        insertUser(name);
-      } catch (Throwable throwable) {
-        // rollback
-        cluster.clusterManager().removeBucket(name);
-        throw throwable;
-      }
-      return bucketSettings;
-    });
+    execute(
+        () -> {
+          BucketSettings bucketSettings = insertBucket(name);
+          try {
+            createPrimaryIndex(name);
+            insertUser(name);
+          } catch (Throwable throwable) {
+            // rollback
+            cluster.clusterManager().removeBucket(name);
+            throw throwable;
+          }
+          return bucketSettings;
+        });
   }
 
   private BucketSettings insertBucket(String name) {
-    return cluster.clusterManager().insertBucket(new Builder()
-        .type(settings.bucketType())
-        .name(name)
-        .quota(settings.bucketQuota()) // megabytes
-        .replicas(settings.bucketReplicas())
-        .indexReplicas(settings.bucketIndexReplicas())
-        .enableFlush(settings.bucketEnableFlush())
-        .build());
+    return cluster
+        .clusterManager()
+        .insertBucket(
+            new Builder()
+                .type(settings.bucketType())
+                .name(name)
+                .quota(settings.bucketQuota()) // megabytes
+                .replicas(settings.bucketReplicas())
+                .indexReplicas(settings.bucketIndexReplicas())
+                .enableFlush(settings.bucketEnableFlush())
+                .build());
   }
 
   private void createPrimaryIndex(String name) {
@@ -74,25 +79,19 @@ class CouchbaseAdmin extends CouchbaseOperations {
   }
 
   private void insertUser(String name) {
-    cluster.clusterManager().upsertUser(AuthDomain.LOCAL,
-        name,
-        UserSettings.build()
-            .password(PasswordGenerator.md5Hash(name))
-            .name(name)
-            .roles(settings.bucketsRoles()
-                .stream()
-                .map(role -> new UserRole(role, name))
-                .collect(Collectors.toList())));
-  }
-
-  private Cluster cluster() {
-    List<String> nodes = settings.couchbaseClusterNodes();
-
-    Cluster cluster = nodes.isEmpty()
-        ? CouchbaseCluster.create()
-        : CouchbaseCluster.create(nodes);
-
-    cluster.authenticate(settings.couchbaseAdmin(), settings.couchbaseAdminPassword());
-    return cluster;
+    cluster
+        .clusterManager()
+        .upsertUser(
+            AuthDomain.LOCAL,
+            name,
+            UserSettings.build()
+                .password(PasswordGenerator.md5Hash(name))
+                .name(name)
+                .roles(
+                    settings
+                        .bucketRoles()
+                        .stream()
+                        .map(role -> new UserRole(role, name))
+                        .collect(Collectors.toList())));
   }
 }
