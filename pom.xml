@@ -17,7 +17,7 @@
   <name>ScaleCube Configuration Service</name>
   <scm>
     <url>https://github.com/scalecube/scalecube-configation-service</url>
-    <connection>scm:git:git@github.com:scalecube/scalecube-configation-service.git</connection>
+    <connection>scm:git:git@github.com:scalecube/scalecube-configuration-service.git</connection>
     <developerConnection>scm:git:git@github.com:scalecube/scalecube.git
     </developerConnection>
     <tag>HEAD</tag>
