@@ -12,14 +12,21 @@ import io.scalecube.configuration.repository.couchbase.CouchbaseDataAccess;
 import io.scalecube.configuration.repository.couchbase.CouchbaseSettings;
 import io.scalecube.configuration.tokens.TokenVerifierFactory;
 import io.scalecube.services.Microservices;
+import io.scalecube.services.discovery.api.DiscoveryConfig;
 import io.scalecube.transport.Address;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigurationServiceRunner {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationServiceRunner.class);
+
   private static final List<String> DEFAULT_SEEDS = Collections.singletonList("seed:4802");
   private static final String SEEDS = "seeds";
+  private static final String CLUSTER_MEMBER_DNS_NAME = "io.scalecube.cluster.member.dns.name";
 
   /**
    * Application main entry.
@@ -33,7 +40,14 @@ public class ConfigurationServiceRunner {
 
   private static void start() throws Exception {
 
-    Microservices.builder().seeds(seeds()).services(createConfigurationService()).startAwait();
+    String memberHost = memberHost();
+    Address[] seeds = seeds();
+    LOGGER.info("seeds={}, memberHost={}", Arrays.toString(seeds), memberHost);
+
+    Microservices.builder()
+        .discoveryConfig(DiscoveryConfig.builder().seeds(seeds).memberHost(memberHost))
+        .services(createConfigurationService())
+        .startAwait();
   }
 
   private static ConfigurationService createConfigurationService() {
@@ -75,5 +89,10 @@ public class ConfigurationServiceRunner {
     Cluster cluster = nodes.isEmpty() ? CouchbaseCluster.create() : CouchbaseCluster.create(nodes);
     cluster.authenticate(settings.username(), settings.password());
     return cluster;
+  }
+
+  private static String memberHost() {
+    ConfigRegistry configRegistry = ConfigRegistryConfiguration.configRegistry();
+    return configRegistry.stringValue(CLUSTER_MEMBER_DNS_NAME, null);
   }
 }
