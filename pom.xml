@@ -26,7 +26,7 @@
   <properties>
     <scalecube-cluster.version>2.0.0</scalecube-cluster.version>
     <scalecube.config.version>0.3.6</scalecube.config.version>
-    <scalecube-services.version>2.1.30-SNAPSHOT</scalecube-services.version>
+    <scalecube-services.version>2.1.30</scalecube-services.version>
     <scalecube-gateway.version>2.0.11</scalecube-gateway.version>
     <scalecube-testlib.version>1.0.9</scalecube-testlib.version>
     <scalecube-security-jwt.version>1.0.2</scalecube-security-jwt.version>

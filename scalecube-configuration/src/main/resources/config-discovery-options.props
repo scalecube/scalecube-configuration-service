@@ -1,0 +1,5 @@
+io.scalecube.configuration.seeds=localhost:4801,localhost:4802
+#io.scalecube.configuration.servicePort=5801
+#io.scalecube.configuration.discoveryPort=4801
+#io.scalecube.configuration.memberHost=organization
+#io.scalecube.configuration.memberPort=4801
