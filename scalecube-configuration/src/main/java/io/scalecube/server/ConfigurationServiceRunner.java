@@ -12,7 +12,6 @@ import io.scalecube.configuration.repository.couchbase.CouchbaseDataAccess;
 import io.scalecube.configuration.repository.couchbase.CouchbaseSettings;
 import io.scalecube.configuration.tokens.TokenVerifierFactory;
 import io.scalecube.services.Microservices;
-import io.scalecube.services.discovery.api.DiscoveryConfig;
 import io.scalecube.transport.Address;
 import java.util.List;
 import java.util.Optional;
@@ -38,12 +37,13 @@ public class ConfigurationServiceRunner {
     LOGGER.info("Starting configuration service on {}", discoveryOptions);
 
     Microservices.builder()
-        .discoveryConfig(
-            DiscoveryConfig.builder()
-                .seeds(discoveryOptions.seeds())
-                .port(discoveryOptions.discoveryPort())
-                .memberHost(discoveryOptions.memberHost())
-                .memberPort(discoveryOptions.memberPort()))
+        .discovery(
+            options ->
+                options
+                    .seeds(discoveryOptions.seeds())
+                    .port(discoveryOptions.discoveryPort())
+                    .memberHost(discoveryOptions.memberHost())
+                    .memberPort(discoveryOptions.memberPort()))
         .servicePort(discoveryOptions.servicePort())
         .services(createConfigurationService())
         .startAwait();
