@@ -13,13 +13,14 @@ import io.scalecube.configuration.repository.couchbase.CouchbaseSettings;
 import io.scalecube.configuration.tokens.TokenVerifierFactory;
 import io.scalecube.services.Microservices;
 import io.scalecube.transport.Address;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigurationServiceRunner {
 
-  private static final List<String> DEFAULT_SEEDS = Collections.singletonList("seed:4802");
-  private static final String SEEDS = "seeds";
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationServiceRunner.class);
 
   /**
    * Application main entry.
@@ -31,9 +32,21 @@ public class ConfigurationServiceRunner {
     Thread.currentThread().join();
   }
 
-  private static void start() throws Exception {
+  private static void start() {
+    DiscoveryOptions discoveryOptions = discoveryOptions();
+    LOGGER.info("Starting configuration service on {}", discoveryOptions);
 
-    Microservices.builder().seeds(seeds()).services(createConfigurationService()).startAwait();
+    Microservices.builder()
+        .discovery(
+            options ->
+                options
+                    .seeds(discoveryOptions.seeds())
+                    .port(discoveryOptions.discoveryPort())
+                    .memberHost(discoveryOptions.memberHost())
+                    .memberPort(discoveryOptions.memberPort()))
+        .servicePort(discoveryOptions.servicePort())
+        .services(createConfigurationService())
+        .startAwait();
   }
 
   private static ConfigurationService createConfigurationService() {
@@ -53,19 +66,6 @@ public class ConfigurationServiceRunner {
         .build();
   }
 
-  private static Address[] seeds() throws Exception {
-    ConfigRegistry configRegistry = ConfigRegistryConfiguration.configRegistry();
-    try {
-      return configRegistry
-          .stringListValue(SEEDS, DEFAULT_SEEDS)
-          .stream()
-          .map(Address::from)
-          .toArray(Address[]::new);
-    } catch (Throwable ex) {
-      throw new Exception("Failed to parse seeds from settings", ex);
-    }
-  }
-
   private static Cluster couchbaseDataAccessCluster(CouchbaseSettings settings) {
     return CouchbaseCluster.create(settings.hosts());
   }
@@ -75,5 +75,61 @@ public class ConfigurationServiceRunner {
     Cluster cluster = nodes.isEmpty() ? CouchbaseCluster.create() : CouchbaseCluster.create(nodes);
     cluster.authenticate(settings.username(), settings.password());
     return cluster;
+  }
+
+  private static DiscoveryOptions discoveryOptions() {
+    ConfigRegistry configRegistry = ConfigRegistryConfiguration.configRegistry();
+    return configRegistry
+        .objectProperty("io.scalecube.configuration", DiscoveryOptions.class)
+        .value()
+        .orElseThrow(() -> new IllegalStateException("Couldn't load discovery options"));
+  }
+
+  public static class DiscoveryOptions {
+
+    private List<String> seeds;
+    private Integer servicePort;
+    private Integer discoveryPort;
+    private String memberHost;
+    private Integer memberPort;
+
+    public int servicePort() {
+      return servicePort != null ? servicePort : 0;
+    }
+
+    public Integer discoveryPort() {
+      return discoveryPort;
+    }
+
+    /**
+     * Returns seeds as an {@link Address}'s array.
+     *
+     * @return {@link Address}'s array
+     */
+    public Address[] seeds() {
+      return Optional.ofNullable(seeds)
+          .map(seeds -> seeds.stream().map(Address::from).toArray(Address[]::new))
+          .orElse(new Address[0]);
+    }
+
+    public String memberHost() {
+      return memberHost;
+    }
+
+    public Integer memberPort() {
+      return memberPort;
+    }
+
+    @Override
+    public String toString() {
+      final StringBuilder sb = new StringBuilder("DiscoveryOptions{");
+      sb.append("seeds=").append(seeds);
+      sb.append(", servicePort=").append(servicePort);
+      sb.append(", discoveryPort=").append(discoveryPort);
+      sb.append(", memberHost=").append(memberHost);
+      sb.append(", memberPort=").append(memberPort);
+      sb.append('}');
+      return sb.toString();
+    }
   }
 }
