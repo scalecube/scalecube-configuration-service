@@ -10,15 +10,14 @@ import io.scalecube.config.source.SystemEnvironmentConfigSource;
 import io.scalecube.config.source.SystemPropertiesConfigSource;
 import io.scalecube.config.vault.VaultConfigSource;
 
-/**
- * Configures the ConfigRegistry with sources.
- */
+/** Configures the ConfigRegistry with sources. */
 public class ConfigRegistryConfiguration {
   private static final int RELOAD_INTERVAL_SEC = 300;
   private static ConfigRegistry configRegistry;
 
   /**
    * Builds a ConfigRegistry.
+   *
    * @return ConfigRegistry
    */
   public static ConfigRegistry configRegistry() {
@@ -26,13 +25,14 @@ public class ConfigRegistryConfiguration {
       return configRegistry;
     }
 
-    ConfigRegistrySettings.Builder builder = ConfigRegistrySettings.builder()
-        .reloadIntervalSec(RELOAD_INTERVAL_SEC)
-        .addListener(new Slf4JConfigEventListener())
-        .addLastSource("classpath", new ClassPathConfigSource(
-            path -> path.toString().endsWith(".props")))
-        .addLastSource("sys_prop", new SystemPropertiesConfigSource())
-        .addLastSource("env_var", new SystemEnvironmentConfigSource());
+    ConfigRegistrySettings.Builder builder =
+        ConfigRegistrySettings.builder()
+            .reloadIntervalSec(RELOAD_INTERVAL_SEC)
+            .addListener(new Slf4JConfigEventListener())
+            .addLastSource("sys_prop", new SystemPropertiesConfigSource())
+            .addLastSource("env_var", new SystemEnvironmentConfigSource())
+            .addLastSource(
+                "classpath", new ClassPathConfigSource(path -> path.toString().endsWith(".props")));
 
     // for test purposes without vault access
     if (System.getenv().get("VAULT_ADDR") != null) {
