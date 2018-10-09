@@ -5,12 +5,16 @@ import io.jsonwebtoken.Jwts;
 import io.scalecube.security.JwtAuthenticator;
 import io.scalecube.security.JwtAuthenticatorImpl;
 import io.scalecube.security.Profile;
-
 import java.security.Key;
 import java.util.Objects;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class TokenVerifierImpl implements TokenVerifier {
+
+  private final Logger logger = LoggerFactory.getLogger(TokenVerifierImpl.class);
+
   private JwtAuthenticator authenticator;
 
   @Override
@@ -19,6 +23,7 @@ final class TokenVerifierImpl implements TokenVerifier {
     try {
       return getTokenAuthenticator(getKeyId(token.toString())).authenticate(token.toString());
     } catch (Exception ex) {
+      logger.warn("Token verification failed, reason: {}", ex);
       throw new InvalidAuthenticationException("Token verification failed", ex);
     }
   }
