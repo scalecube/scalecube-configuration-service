@@ -34,29 +34,7 @@ public class ConfigRegistryConfiguration {
             .addLastSource(
                 "classpath", new ClassPathConfigSource(path -> path.toString().endsWith(".props")));
 
-    // for test purposes without vault access
-    if (System.getenv().get("VAULT_ADDR") != null) {
-      builder.addLastSource("vault", VaultConfigSource.builder().build());
-      addVaultApiKeysPath(builder);
-    }
-
     configRegistry = ConfigRegistry.create(builder.build());
     return configRegistry;
-  }
-
-  private static void addVaultApiKeysPath(Builder builder) {
-    EnvironmentLoader environmentLoader = new EnvironmentLoader();
-    String adiKeysSecretPathPattern = AppSettings.builder()
-        .build().getProperty("vault.secret.path");
-    builder.addLastSource("vault-api-keys",
-        VaultConfigSource
-            .builder(
-                environmentLoader.loadVariable("VAULT_ADDR"),
-                environmentLoader.loadVariable("VAULT_TOKEN"),
-                String.format(
-                    adiKeysSecretPathPattern,
-                    environmentLoader.loadVariable("VAULT_SECRETS_PATH"))
-                )
-            .build());
   }
 }
