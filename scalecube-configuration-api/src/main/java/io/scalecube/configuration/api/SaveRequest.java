@@ -2,9 +2,7 @@ package io.scalecube.configuration.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-/**
- * Represents a request to save an entry in a repository.
- */
+/** Represents a request to save an entry in a repository. */
 public class SaveRequest implements AccessRequest {
 
   private Object token;
@@ -14,13 +12,14 @@ public class SaveRequest implements AccessRequest {
 
   /**
    * Default constructor.
+   *
    * @deprecated only for serialization/deserialization.
    */
-  SaveRequest() {
-  }
+  SaveRequest() {}
 
   /**
    * Constructs a save request object.
+   *
    * @param token the request token
    * @param repository the repository name
    * @param key the entry key
@@ -47,5 +46,21 @@ public class SaveRequest implements AccessRequest {
 
   public String repository() {
     return this.repository;
+  }
+
+  @Override
+  public String toString() {
+    return "SaveRequest{"
+        + "token="
+        + token
+        + ", repository='"
+        + repository
+        + '\''
+        + ", key='"
+        + key
+        + '\''
+        + ", value="
+        + value
+        + '}';
   }
 }

@@ -21,7 +21,9 @@ final class TokenVerifierImpl implements TokenVerifier {
   public Profile verify(Object token) throws InvalidAuthenticationException {
     Objects.requireNonNull(token, "Token is a required argument");
     try {
-      return getTokenAuthenticator(getKeyId(token.toString())).authenticate(token.toString());
+      String keyId = getKeyId(token.toString());
+      JwtAuthenticator tokenAuthenticator = getTokenAuthenticator(keyId);
+      return tokenAuthenticator.authenticate(token.toString());
     } catch (Exception ex) {
       logger.warn("Token verification failed, reason: {}", ex);
       throw new InvalidAuthenticationException("Token verification failed", ex);
@@ -46,18 +48,12 @@ final class TokenVerifierImpl implements TokenVerifier {
   }
 
   private JwtAuthenticator getTokenAuthenticator(String keyAlias) {
-    if (authenticator == null) {
-      try {
-        Key key = KeyProviderFactory.keyProvider().get(keyAlias);
-
-        authenticator = new JwtAuthenticatorImpl
-            .Builder()
-            .keyResolver(map -> Optional.of(key))
-            .build();
-      } catch (Exception ex) {
-        throw new TokenVerificationException(ex);
-      }
+    try {
+      Key key = KeyProviderFactory.keyProvider().get(keyAlias);
+      // todo propose a good solution for it or just refactor security library
+      return new JwtAuthenticatorImpl.Builder().keyResolver(map -> Optional.of(key)).build();
+    } catch (Exception ex) {
+      throw new TokenVerificationException(ex);
     }
-    return authenticator;
   }
 }
