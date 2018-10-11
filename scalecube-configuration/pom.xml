@@ -19,9 +19,15 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <serviceName>${project.artifactId}</serviceName>
     <mainClass>io.scalecube.server.ConfigurationServiceRunner</mainClass>
+    <vault-java-driver.version>3.1.0</vault-java-driver.version>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.bettercloud</groupId>
+      <artifactId>vault-java-driver</artifactId>
+      <version>${vault-java-driver.version}</version>
+    </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-configuration-api</artifactId>

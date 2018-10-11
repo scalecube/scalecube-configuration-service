@@ -1,1 +1,1 @@
-vault.secret.path=%s/api-keys
+vault.secret.path=%s/api-keys/

@@ -1,14 +1,17 @@
 package io.scalecube.configuration.tokens;
 
-import java.io.IOException;
 
 public class KeyProviderException extends Exception {
 
-  public KeyProviderException(String message) {
-    super(message);
+  KeyProviderException(String message) {
+    this(message, null);
   }
 
-  public KeyProviderException(Exception cause) {
-    super(cause);
+  KeyProviderException(Exception cause) {
+    this(null, cause);
+  }
+
+  KeyProviderException(String message, Exception ex) {
+    super(message, ex);
   }
 }

@@ -1,9 +1,7 @@
 package io.scalecube.configuration;
 
-import com.bettercloud.vault.EnvironmentLoader;
 import io.scalecube.config.ConfigRegistry;
 import io.scalecube.config.ConfigRegistrySettings;
-import io.scalecube.config.ConfigRegistrySettings.Builder;
 import io.scalecube.config.audit.Slf4JConfigEventListener;
 import io.scalecube.config.source.ClassPathConfigSource;
 import io.scalecube.config.source.SystemEnvironmentConfigSource;
@@ -11,8 +9,15 @@ import io.scalecube.config.source.SystemPropertiesConfigSource;
 import io.scalecube.config.vault.VaultConfigSource;
 
 /** Configures the ConfigRegistry with sources. */
-public class ConfigRegistryConfiguration {
+public final class ConfigRegistryConfiguration {
+
   private static final int RELOAD_INTERVAL_SEC = 300;
+  private static final String VAULT_ADDR_ENV_VAR = "VAULT_ADDR";
+  private static final String VAULT = "vault";
+  private static final String SYS_PROP = "sys_prop";
+  private static final String ENV_VAR = "env_var";
+  private static final String CLASSPATH = "classpath";
+  private static final String PROPS_FILE_EXT = ".props";
   private static ConfigRegistry configRegistry;
 
   /**
@@ -29,34 +34,19 @@ public class ConfigRegistryConfiguration {
         ConfigRegistrySettings.builder()
             .reloadIntervalSec(RELOAD_INTERVAL_SEC)
             .addListener(new Slf4JConfigEventListener())
-            .addLastSource("sys_prop", new SystemPropertiesConfigSource())
-            .addLastSource("env_var", new SystemEnvironmentConfigSource())
+            .addLastSource(SYS_PROP, new SystemPropertiesConfigSource())
+            .addLastSource(ENV_VAR, new SystemEnvironmentConfigSource())
             .addLastSource(
-                "classpath", new ClassPathConfigSource(path -> path.toString().endsWith(".props")));
+                CLASSPATH, new ClassPathConfigSource(path -> path.toString().endsWith(
+                    PROPS_FILE_EXT)));
 
     // for test purposes without vault access
-    if (System.getenv().get("VAULT_ADDR") != null) {
-      builder.addLastSource("vault", VaultConfigSource.builder().build());
-      addVaultApiKeysPath(builder);
+    boolean isVaultAccessible = System.getenv().get(VAULT_ADDR_ENV_VAR) != null;
+    if (isVaultAccessible) {
+      builder.addLastSource(VAULT, VaultConfigSource.builder().build());
     }
 
     configRegistry = ConfigRegistry.create(builder.build());
     return configRegistry;
-  }
-
-  private static void addVaultApiKeysPath(Builder builder) {
-    EnvironmentLoader environmentLoader = new EnvironmentLoader();
-    String adiKeysSecretPathPattern = AppSettings.builder()
-        .build().getProperty("vault.secret.path");
-    builder.addLastSource("vault-api-keys",
-        VaultConfigSource
-            .builder(
-                environmentLoader.loadVariable("VAULT_ADDR"),
-                environmentLoader.loadVariable("VAULT_TOKEN"),
-                String.format(
-                    adiKeysSecretPathPattern,
-                    environmentLoader.loadVariable("VAULT_SECRETS_PATH"))
-                )
-            .build());
   }
 }
