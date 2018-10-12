@@ -18,8 +18,8 @@ public class VaultKeyProvider implements KeyProvider {
   private static final String VAULT_ENTRY_KEY = "key";
   private static final int HTTP_STATUS_NOT_FOUND = 404;
   private static final int MAX_RETRIES = 5;
-  private static final String VAULT_RETRY_INTERVAL_MILLISECONDS
-      = "vault.retry.interval.milliseconds";
+  private static final String VAULT_RETRY_INTERVAL_MILLISECONDS =
+      "vault.retry.interval.milliseconds";
   private final int maxRetries;
   private static final int RETRY_INTERVAL_MILLISECONDS = 1000;
   private final int retryIntervalMilliseconds;
@@ -31,9 +31,7 @@ public class VaultKeyProvider implements KeyProvider {
   private final VaultPathBuilder vaultPathBuilder = new VaultPathBuilder();
   private final Vault vault;
 
-  /**
-   * Construct an instance of VaultKeyProvider.
-   */
+  /** Construct an instance of VaultKeyProvider. */
   VaultKeyProvider() {
     try {
       vault = new Vault(new VaultConfig().build());
@@ -41,8 +39,8 @@ public class VaultKeyProvider implements KeyProvider {
       ConfigRegistry configRegistry = ConfigRegistryConfiguration.configRegistry();
       algorithm = configRegistry.stringValue(JWT_ALGORITHM, DEFAULT_JWT_ALGORITHM);
       maxRetries = configRegistry.intValue(VAULT_MAX_RETRIES_KEY, MAX_RETRIES);
-      retryIntervalMilliseconds = configRegistry.intValue(VAULT_RETRY_INTERVAL_MILLISECONDS,
-          RETRY_INTERVAL_MILLISECONDS);
+      retryIntervalMilliseconds =
+          configRegistry.intValue(VAULT_RETRY_INTERVAL_MILLISECONDS, RETRY_INTERVAL_MILLISECONDS);
     } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
@@ -53,15 +51,14 @@ public class VaultKeyProvider implements KeyProvider {
     return getSecretKey(alias);
   }
 
-  private Key getSecretKey(String alias)  throws KeyProviderException {
+  private Key getSecretKey(String alias) throws KeyProviderException {
     try {
       String vaultEntry = getVaultEntryValue(alias);
-      return new SecretKeySpec(
-          DatatypeConverter.parseBase64Binary(vaultEntry), algorithm);
+      return new SecretKeySpec(DatatypeConverter.parseBase64Binary(vaultEntry), algorithm);
     } catch (Exception ex) {
       LOGGER.error(String.format("Error creating key for alias: '%s'", alias), ex);
       if (ex instanceof KeyProviderException) {
-        throw (KeyProviderException)ex;
+        throw (KeyProviderException) ex;
       } else {
         throw new KeyProviderException(ex);
       }
@@ -74,17 +71,15 @@ public class VaultKeyProvider implements KeyProvider {
     Map<String, String> data = null;
 
     try {
-      response = vault.withRetries(maxRetries, retryIntervalMilliseconds)
-          .logical()
-          .read(path);
+      response = vault.withRetries(maxRetries, retryIntervalMilliseconds).logical().read(path);
       data = response.getData();
     } catch (VaultException ex) {
       handleVaultException(ex, alias);
     }
 
     if (data == null || data.isEmpty() || !data.containsKey(VAULT_ENTRY_KEY)) {
-      throw new KeyProviderException(String.format("'%s' was expected under secret '%s'",
-          VAULT_ENTRY_KEY, path));
+      throw new KeyProviderException(
+          String.format("'%s' was expected under secret '%s'", VAULT_ENTRY_KEY, path));
     }
 
     return data.get(VAULT_ENTRY_KEY);

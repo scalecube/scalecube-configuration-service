@@ -21,9 +21,13 @@ import io.scalecube.security.Profile;
 
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 public class ConfigurationServiceImpl implements ConfigurationService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
 
   private final ConfigurationDataAccess dataAccess;
   private TokenVerifier tokenVerifier;
@@ -41,6 +45,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> createRepository(CreateRepositoryRequest request) {
+    LOGGER.info("Processing {}", request);
 
     return Mono.create(result -> {
       try {
@@ -70,7 +75,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<FetchResponse> fetch(FetchRequest request) {
-
+    LOGGER.info("Processing {}", request);
     return Mono.create(result -> {
       try {
         validateRequest(request);
@@ -91,6 +96,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Entries<FetchResponse>> entries(FetchRequest request) {
+    LOGGER.info("Processing {}", request);
     return Mono.create(result -> {
       try {
         validateEntriesRequest(request);
@@ -115,6 +121,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> save(SaveRequest request) {
+    LOGGER.info("Processing {}", request);
     return Mono.create(result -> {
       try {
         validateRequest(request);
@@ -145,7 +152,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> delete(DeleteRequest request) {
-
+    LOGGER.info("Processing {}", request);
     return Mono.create(result -> {
       try {
         validateRequest(request);
