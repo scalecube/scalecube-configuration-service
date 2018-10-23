@@ -21,13 +21,14 @@ import io.scalecube.security.Profile;
 
 import java.util.Objects;
 
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 public class ConfigurationServiceImpl implements ConfigurationService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
+  private static final Logger logger = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
 
   private final ConfigurationDataAccess dataAccess;
   private TokenVerifier tokenVerifier;
@@ -45,50 +46,63 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> createRepository(CreateRepositoryRequest request) {
-    LOGGER.info("Processing {}", request);
 
     return Mono.create(result -> {
       try {
+        logger.debug("createRepository: enter: request: {}", request);
+
         validateRequest(request);
+
         Profile profile = verifyToken(request.token());
         validateProfile(profile);
+        logger.debug("createRepository: profile: {}", profile);
+
         Role role = getRole(profile);
 
         if (role == Role.Owner) {
           dataAccess.createRepository(profile.getTenant(), request.repository());
+          logger.debug("createRepository: exit: request: {}", request);
           result.success(new Acknowledgment());
         } else {
-          result.error(
-              new InvalidPermissionsException(
-                String.format(
+          Throwable invalidPermissionsException = new InvalidPermissionsException(
+              String.format(
                   "Role '%s' has insufficient permissions for the requested operation", role)
-                )
+          );
+          logger.error("createRepository: request: {}, error: {}", request,
+              invalidPermissionsException);
+          result.error(
+              invalidPermissionsException
           );
         }
       } catch (Throwable ex) {
+        logger.error("createRepository: request: {}, error: {}", request, ex);
         result.error(ex);
       }
     });
   }
 
-
-
   @Override
   public Mono<FetchResponse> fetch(FetchRequest request) {
-    LOGGER.info("Processing {}", request);
     return Mono.create(result -> {
       try {
+        logger.debug("fetch: enter: request: {}", request);
         validateRequest(request);
+
         Profile profile = verifyToken(request.token());
         validateProfile(profile);
+        logger.debug("fetch: profile: {}", profile);
+
         getRole(profile);
 
         Document entry = dataAccess.get(
             profile.getTenant(),
             request.repository(),
             request.key());
-        result.success(new FetchResponse(request.key(), entry.value()));
+        FetchResponse response = new FetchResponse(request.key(), entry.value());
+        logger.debug("fetch: exit: request: {}, response: {}", request, response);
+        result.success(response);
       } catch (Throwable ex) {
+        logger.debug("fetch: exit: request: {}, error: {}", request, ex);
         result.error(ex);
       }
     });
@@ -96,12 +110,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Entries<FetchResponse>> entries(FetchRequest request) {
-    LOGGER.info("Processing {}", request);
     return Mono.create(result -> {
       try {
+        logger.debug("entries: enter: request: {}", request);
         validateEntriesRequest(request);
+
         Profile profile = verifyToken(request.token());
         validateProfile(profile);
+        logger.debug("entries: profile: {}", profile);
+
         getRole(profile);
 
         FetchResponse[] fetchResponses = dataAccess.entries(
@@ -112,8 +129,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 .key(doc.key())
                 .value(doc.value())
                 .build()).toArray(FetchResponse[]::new);
+        logger.debug("entries: exit: request: {}, return {} entries", request,
+            fetchResponses.length);
         result.success(new Entries<>(fetchResponses));
       } catch (Throwable ex) {
+        logger.debug("entries: request: {}, error: {}", request, ex);
         result.error(ex);
       }
     });
@@ -121,16 +141,20 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> save(SaveRequest request) {
-    LOGGER.info("Processing {}", request);
     return Mono.create(result -> {
       try {
+        logger.debug("save: enter: request: {}", request);
+
         validateRequest(request);
         Profile profile = verifyToken(request.token());
         validateProfile(profile);
+        logger.debug("save: profile: {}", profile);
+
         Role role = getRole(profile);
 
         if (role == Role.Admin || role == Role.Owner) {
           Document doc = Document.builder()
+              .id(UUID.randomUUID().toString())
               .key(request.key())
               .value(request.value())
               .build();
@@ -139,12 +163,16 @@ public class ConfigurationServiceImpl implements ConfigurationService {
               request.key(),
               doc
           );
+          logger.debug("save: exit: request: {}", request);
           result.success(new Acknowledgment());
         } else {
-          result.error(new InvalidPermissionsException(
-              "invalid permissions-level save request requires write access"));
+          InvalidPermissionsException invalidPermissionsException = new InvalidPermissionsException(
+              "invalid permissions-level save request requires write access");
+          logger.error("save: request: {}, error: {}", request, invalidPermissionsException);
+          result.error(invalidPermissionsException);
         }
       } catch (Throwable ex) {
+        logger.error("save: request: {}, error: {}", request, ex);
         result.error(ex);
       }
     });
@@ -152,12 +180,14 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> delete(DeleteRequest request) {
-    LOGGER.info("Processing {}", request);
     return Mono.create(result -> {
       try {
+        logger.debug("delete: enter: request: {}", request);
         validateRequest(request);
         Profile profile = verifyToken(request.token());
         validateProfile(profile);
+        logger.debug("delete: profile: {}", profile);
+
         Role role = getRole(profile);
 
         if (role != Role.Member) {
@@ -165,12 +195,16 @@ public class ConfigurationServiceImpl implements ConfigurationService {
               request.repository(),
               request.key()
           );
+          logger.debug("delete: exit: request: {}", request);
           result.success(new Acknowledgment());
         } else {
-          result.error(new InvalidPermissionsException(
-              "invalid permissions-level save request requires write access"));
+          InvalidPermissionsException invalidPermissionsException = new InvalidPermissionsException(
+              "invalid permissions-level save request requires write access");
+          logger.debug("delete: request: {}, error: {}", request, invalidPermissionsException);
+          result.error(invalidPermissionsException);
         }
       } catch (Throwable ex) {
+        logger.debug("delete: request: {}, error: {}", request, ex);
         result.error(ex);
       }
     });
