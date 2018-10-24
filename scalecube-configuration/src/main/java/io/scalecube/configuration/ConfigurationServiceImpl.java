@@ -55,7 +55,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         Profile profile = verifyToken(request.token());
         validateProfile(profile);
-        logger.debug("createRepository: profile: {}", profile);
+        logger.debug("createRepository: profile tenant: {}", profile.getTenant());
 
         Role role = getRole(profile);
 
@@ -90,7 +90,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         Profile profile = verifyToken(request.token());
         validateProfile(profile);
-        logger.debug("fetch: profile: {}", profile);
+        logger.debug("fetch: profile tenant: {}", profile.getTenant());
 
         getRole(profile);
 
@@ -117,7 +117,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         Profile profile = verifyToken(request.token());
         validateProfile(profile);
-        logger.debug("entries: profile: {}", profile);
+        logger.debug("entries: profile tenant: {}", profile.getTenant());
 
         getRole(profile);
 
@@ -148,7 +148,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         validateRequest(request);
         Profile profile = verifyToken(request.token());
         validateProfile(profile);
-        logger.debug("save: profile: {}", profile);
+        logger.debug("save: profile tenant: {}", profile.getTenant());
 
         Role role = getRole(profile);
 
@@ -186,7 +186,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         validateRequest(request);
         Profile profile = verifyToken(request.token());
         validateProfile(profile);
-        logger.debug("delete: profile: {}", profile);
+        logger.debug("delete: profile tenant: {}", profile.getTenant());
 
         Role role = getRole(profile);
 
