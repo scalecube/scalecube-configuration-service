@@ -24,7 +24,7 @@
   </Appenders>
 
   <Loggers>
-    <Root level="DEBUG">
+    <Root level="${env:logLevel:-info}">
       <AppenderRef ref="FILE"/>
       <AppenderRef ref="STDOUT"/>
     </Root>
