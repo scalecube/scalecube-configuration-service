@@ -1,5 +1,6 @@
 package io.scalecube.configuration;
 
+import io.scalecube.configuration.api.AccessRequest;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.BadRequest;
 import io.scalecube.configuration.api.ConfigurationService;
@@ -14,6 +15,8 @@ import io.scalecube.configuration.api.SaveRequest;
 
 import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.repository.Document;
+import io.scalecube.configuration.repository.Repository;
+import io.scalecube.configuration.repository.RepositoryEntryKey;
 import io.scalecube.configuration.tokens.InvalidAuthenticationException;
 import io.scalecube.configuration.tokens.TokenVerifier;
 
@@ -55,12 +58,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         Profile profile = verifyToken(request.token());
         validateProfile(profile);
-        logger.debug("createRepository: profile tenant: {}", profile.getTenant());
 
         Role role = getRole(profile);
 
         if (role == Role.Owner) {
-          dataAccess.createRepository(profile.getTenant(), request.repository());
+          Repository repository = repository(profile, request);
+          dataAccess.createRepository(repository);
           logger.debug("createRepository: exit: request: {}", request);
           result.success(new Acknowledgment());
         } else {
@@ -81,6 +84,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     });
   }
 
+
+
   @Override
   public Mono<FetchResponse> fetch(FetchRequest request) {
     return Mono.create(result -> {
@@ -90,14 +95,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         Profile profile = verifyToken(request.token());
         validateProfile(profile);
-        logger.debug("fetch: profile tenant: {}", profile.getTenant());
 
         getRole(profile);
 
-        Document entry = dataAccess.get(
-            profile.getTenant(),
-            request.repository(),
-            request.key());
+        Document entry = dataAccess.get(key(profile, request, request.key()));
         FetchResponse response = new FetchResponse(request.key(), entry.value());
         logger.debug("fetch: exit: request: {}, response: {}", request, response);
         result.success(response);
@@ -107,6 +108,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       }
     });
   }
+
+
+
 
   @Override
   public Mono<Entries<FetchResponse>> entries(FetchRequest request) {
@@ -121,9 +125,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         getRole(profile);
 
-        FetchResponse[] fetchResponses = dataAccess.entries(
-            profile.getTenant(),
-            request.repository())
+        Repository repository = repository(
+            profile,
+            request);
+        FetchResponse[] fetchResponses = dataAccess.entries(repository)
             .stream()
             .map(doc -> FetchResponse.builder()
                 .key(doc.key())
@@ -139,6 +144,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     });
   }
 
+
+
+
   @Override
   public Mono<Acknowledgment> save(SaveRequest request) {
     return Mono.create(result -> {
@@ -153,16 +161,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Role role = getRole(profile);
 
         if (role == Role.Admin || role == Role.Owner) {
-          Document doc = Document.builder()
+          Document document = Document.builder()
               .id(UUID.randomUUID().toString())
               .key(request.key())
               .value(request.value())
               .build();
-          dataAccess.put(profile.getTenant(),
-              request.repository(),
-              request.key(),
-              doc
-          );
+          RepositoryEntryKey key = key(profile, request, request.key());
+          dataAccess.put(key, document);
           logger.debug("save: exit: request: {}", request);
           result.success(new Acknowledgment());
         } else {
@@ -178,6 +183,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     });
   }
 
+
+
   @Override
   public Mono<Acknowledgment> delete(DeleteRequest request) {
     return Mono.create(result -> {
@@ -191,10 +198,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Role role = getRole(profile);
 
         if (role != Role.Member) {
-          dataAccess.remove(profile.getTenant(),
-              request.repository(),
-              request.key()
-          );
+          RepositoryEntryKey key = key(profile, request, request.key());
+          dataAccess.remove(key);
           logger.debug("delete: exit: request: {}", request);
           result.success(new Acknowledgment());
         } else {
@@ -209,6 +214,22 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       }
     });
   }
+
+  private static RepositoryEntryKey key(Profile profile, AccessRequest request, String key) {
+    Repository repository = repository(profile, request);
+    return RepositoryEntryKey.builder()
+        .repository(repository)
+        .key(key)
+        .build();
+  }
+
+  private static Repository repository(Profile profile, AccessRequest request) {
+    return Repository.builder()
+        .namespace(profile.getTenant())
+        .name(request.repository())
+        .build();
+  }
+
 
   private void validateRequest(CreateRepositoryRequest request) throws BadRequest {
     if (request == null) {
