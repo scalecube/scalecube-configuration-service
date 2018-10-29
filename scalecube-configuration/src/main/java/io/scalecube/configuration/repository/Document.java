@@ -1,7 +1,7 @@
 package io.scalecube.configuration.repository;
 
 /**
- * Represents a name data entity.
+ * Represents a repository data entity.
  */
 public class Document {
 
@@ -15,7 +15,7 @@ public class Document {
   }
 
   /**
-   * Concstructs a document object.
+   * Constructs a document object.
    * @param id document id
    * @param key entry key
    * @param value entry value
@@ -40,7 +40,7 @@ public class Document {
 
   @Override
   public String toString() {
-    return "Document [key=" + key + ", value=" + value + "]";
+    return super.toString() + String.format(" [id =%s, key=%s, value=%s]", id, key, value);
   }
 
   public static final class Builder {

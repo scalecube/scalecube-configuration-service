@@ -66,7 +66,7 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
       ensureBucketNameIsNotInUse(bucket);
       couchbaseAdmin.createBucket(bucket);
     } catch (Throwable ex) {
-      String message = String.format("Failed to create name: '%s'", bucket);
+      String message = String.format("Failed to create repository: '%s'", bucket);
       handleException(ex, message);
     }
 
@@ -77,7 +77,7 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
 
   private void ensureBucketNameIsNotInUse(String name) {
     if (couchbaseAdmin.isBucketExists(name)) {
-      throw new DuplicateRepositoryException("name with name: '" + name + " already exists.");
+      throw new DuplicateRepositoryException("Repository with name: '" + name + " already exists.");
     }
   }
 
@@ -98,7 +98,7 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
       document = getDocument(bucket, key.key());
     } catch (Throwable ex) {
       String message =
-          String.format("Failed to get key: '%s' value from name: '%s'", key, bucketName);
+          String.format("Failed to get key: '%s' value from repository: '%s'", key, bucketName);
       handleException(ex, message);
     }
 
@@ -181,7 +181,7 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
       bucket.upsert(RawJsonDocument.create(key.key(), translationService.encode(document)));
     } catch (Throwable throwable) {
       String message =
-          String.format("Failed to put key: '%s' value in name: '%s'", key, bucketName);
+          String.format("Failed to put key: '%s' value in repository: '%s'", key, bucketName);
       handleException(throwable, message);
     }
 
@@ -213,7 +213,7 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
       id = bucket.remove(key.key()).id();
     } catch (Throwable throwable) {
       String message =
-          String.format("Failed to remove key: '%s' from name: '%s'", key, bucketName);
+          String.format("Failed to remove key: '%s' from repository: '%s'", key, bucketName);
       handleException(throwable, message);
     }
 
@@ -257,7 +257,7 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
               .toBlocking()
               .single();
     } catch (Throwable throwable) {
-      String message = String.format("Failed to get entries from name: '%s'", bucketName);
+      String message = String.format("Failed to get entries from repository: '%s'", bucketName);
       return handleException(throwable, message);
     }
     logger.debug(
@@ -301,7 +301,7 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
     try {
       bucket = cluster.openBucket(name, PasswordGenerator.md5Hash(name));
     } catch (Throwable throwable) {
-      logger.error("Failed to open bucket: '{}'", name);
+      logger.error("Failed to open bucket: '{}', error: {}", name, throwable);
       throw new RepositoryNotFoundException(
           String.format("Failed to open bucket: '%s'", name), throwable);
     }

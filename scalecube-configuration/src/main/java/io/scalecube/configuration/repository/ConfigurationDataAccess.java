@@ -40,8 +40,8 @@ public interface ConfigurationDataAccess {
 
   /**
    * Returns all the entries in the name.
-   * @param repositoryInfo Repository info
+   * @param repository Repository info
    * @return Collection of documents
    */
-  Collection<Document> entries(Repository repositoryInfo);
+  Collection<Document> entries(Repository repository);
 }
