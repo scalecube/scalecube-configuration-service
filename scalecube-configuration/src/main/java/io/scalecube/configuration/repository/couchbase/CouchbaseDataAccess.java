@@ -11,6 +11,8 @@ import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.SimpleN1qlQuery;
 import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.repository.Document;
+import io.scalecube.configuration.repository.Repository;
+import io.scalecube.configuration.repository.RepositoryEntryKey;
 import io.scalecube.configuration.repository.exception.DataAccessException;
 import io.scalecube.configuration.repository.exception.DataAccessResourceFailureException;
 import io.scalecube.configuration.repository.exception.DataRetrievalFailureException;
@@ -50,63 +52,59 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
   }
 
   @Override
-  public boolean createRepository(String namespace, String repository) {
-    return execute(() -> createRepository0(namespace, repository));
+  public boolean createRepository(Repository repository) {
+    return execute(() -> createRepository0(repository));
   }
 
-  private boolean createRepository0(String namespace, String repository) {
+  private boolean createRepository0(Repository repository) {
     logger.debug(
-        "enter: createBucket -> namespace = [ {} ], repository = [{}]", namespace, repository);
+        "enter: createBucket -> repository = [ {} ]", repository);
     String bucket = null;
 
     try {
-      bucket = ConfigurationBucketName.from(namespace, repository, settings).name();
+      bucket = ConfigurationBucketName.from(repository, settings).name();
       ensureBucketNameIsNotInUse(bucket);
       couchbaseAdmin.createBucket(bucket);
     } catch (Throwable ex) {
-      String message = String.format("Failed to create repository: '%s'", bucket);
+      String message = String.format("Failed to create name: '%s'", bucket);
       handleException(ex, message);
     }
 
     logger.debug(
-        "exit: createBucket -> namespace = [ {} ], repository = [{}]", namespace, repository);
+        "exit: createBucket -> repository = [ {} ]", repository);
     return true;
   }
 
   private void ensureBucketNameIsNotInUse(String name) {
     if (couchbaseAdmin.isBucketExists(name)) {
-      throw new DuplicateRepositoryException("repository with name: '" + name + " already exists.");
+      throw new DuplicateRepositoryException("name with name: '" + name + " already exists.");
     }
   }
 
   @Override
-  public Document get(String namespace, String repository, String key) {
-    return execute(() -> get0(namespace, repository, key));
+  public Document get(RepositoryEntryKey key) {
+    return execute(() -> get0(key));
   }
 
-  private Document get0(String namespace, String repository, String key) {
-    logger.debug(
-        "enter: get -> namespace = [ {} ], repository = [{}], key = [{}]",
-        namespace,
-        repository,
-        key);
+  private Document get0(RepositoryEntryKey key) {
+    logger.debug("enter: get -> key = [{}]", key);
     String bucketName = null;
     Bucket bucket;
     Document document = null;
 
     try {
-      bucketName = ConfigurationBucketName.from(namespace, repository, settings).name();
+      bucketName = ConfigurationBucketName.from(key.repository(), settings).name();
       bucket = openBucket(bucketName);
-      document = getDocument(bucket, key);
+      document = getDocument(bucket, key.key());
     } catch (Throwable ex) {
       String message =
-          String.format("Failed to get key: '%s' value from repository: '%s'", key, bucketName);
+          String.format("Failed to get key: '%s' value from name: '%s'", key, bucketName);
       handleException(ex, message);
     }
 
     logger.debug(
         "exit: get -> [ {} ] return -> [ {} ]",
-        bucketName + "/" + key,
+        bucketName + "/" + key.key(),
         document != null ? document.value() : null);
     return document;
   }
@@ -163,15 +161,13 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
   }
 
   @Override
-  public Document put(String namespace, String repository, String key, Document document) {
-    return put0(namespace, repository, key, document);
+  public Document put(RepositoryEntryKey key, Document document) {
+    return put0(key, document);
   }
 
-  private Document put0(String namespace, String repository, String key, Document document) {
+  private Document put0(RepositoryEntryKey key, Document document) {
     logger.debug(
-        "enter: put -> namespace = [ {} ], repository = [{}], key = [{}], document = [{}]",
-        namespace,
-        repository,
+        "enter: put -> key = [{}], document = [{}]",
         key,
         document);
 
@@ -180,19 +176,17 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
     String bucketName = null;
 
     try {
-      bucketName = ConfigurationBucketName.from(namespace, repository, settings).name();
+      bucketName = ConfigurationBucketName.from(key.repository(), settings).name();
       Bucket bucket = openBucket(bucketName);
-      bucket.upsert(RawJsonDocument.create(key, translationService.encode(document)));
+      bucket.upsert(RawJsonDocument.create(key.key(), translationService.encode(document)));
     } catch (Throwable throwable) {
       String message =
-          String.format("Failed to put key: '%s' value in repository: '%s'", key, bucketName);
+          String.format("Failed to put key: '%s' value in name: '%s'", key, bucketName);
       handleException(throwable, message);
     }
 
     logger.debug(
-        "exit: put -> namespace = [ {} ], repository = [{}], key = [{}], document = [{}]",
-        namespace,
-        repository,
+        "exit: put -> key = [{}], document = [{}]",
         key,
         document);
 
@@ -200,15 +194,13 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
   }
 
   @Override
-  public String remove(String namespace, String repository, String key) {
-    return execute(() -> remove0(namespace, repository, key));
+  public String remove(RepositoryEntryKey key) {
+    return execute(() -> remove0(key));
   }
 
-  private String remove0(String namespace, String repository, String key) {
+  private String remove0(RepositoryEntryKey key) {
     logger.debug(
-        "enter: remove -> namespace = [ {} ], repository = [{}], key = [{}]",
-        namespace,
-        repository,
+        "enter: remove -> key = [{}]",
         key);
 
     Objects.requireNonNull(key);
@@ -216,31 +208,29 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
     String id = null;
 
     try {
-      bucketName = ConfigurationBucketName.from(namespace, repository, settings).name();
+      bucketName = ConfigurationBucketName.from(key.repository(), settings).name();
       Bucket bucket = openBucket(bucketName);
-      id = bucket.remove(key).id();
+      id = bucket.remove(key.key()).id();
     } catch (Throwable throwable) {
       String message =
-          String.format("Failed to remove key: '%s' from repository: '%s'", key, bucketName);
+          String.format("Failed to remove key: '%s' from name: '%s'", key, bucketName);
       handleException(throwable, message);
     }
 
     logger.debug(
-        "exit: remove -> namespace = [ {} ], repository = [{}], key = [{}]",
-        namespace,
-        repository,
+        "exit: remove -> key = [{}]",
         key);
     return id;
   }
 
   @Override
-  public Collection<Document> entries(String namespace, String repository) {
-    logger.debug("enter: entries -> namespace = [ {} ], repository = [{}]", namespace, repository);
+  public Collection<Document> entries(Repository repository) {
+    logger.debug("enter: entries -> repository = [ {} ]", repository);
     Collection<Document> entries;
     String bucketName = null;
 
     try {
-      bucketName = ConfigurationBucketName.from(namespace, repository, settings).name();
+      bucketName = ConfigurationBucketName.from(repository, settings).name();
       final Bucket bucket = openBucket(bucketName);
       final SimpleN1qlQuery query = N1qlQuery.simple(select("*").from(i(bucket.name())));
       entries =
@@ -267,12 +257,11 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
               .toBlocking()
               .single();
     } catch (Throwable throwable) {
-      String message = String.format("Failed to get entries from repository: '%s'", bucketName);
+      String message = String.format("Failed to get entries from name: '%s'", bucketName);
       return handleException(throwable, message);
     }
     logger.debug(
-        "exit: entries -> namespace = [ {} ], repository = [{}], return = [ {} ] entries",
-        namespace,
+        "exit: entries -> repository = [ {} ], return = [ {} ] entries",
         repository,
         entries.size());
     return entries;

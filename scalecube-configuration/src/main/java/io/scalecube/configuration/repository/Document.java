@@ -1,7 +1,7 @@
 package io.scalecube.configuration.repository;
 
 /**
- * Represents a repository data entity.
+ * Represents a name data entity.
  */
 public class Document {
 
