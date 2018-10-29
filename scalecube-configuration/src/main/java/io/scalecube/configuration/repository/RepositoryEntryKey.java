@@ -12,14 +12,26 @@ public class RepositoryEntryKey {
     this.key = builder.key;
   }
 
+  /**
+   * Returns the repository of this {@link RepositoryEntryKey}.
+   * @return the repository of this {@link RepositoryEntryKey}
+   */
   public Repository repository() {
     return repository;
   }
 
+  /**
+   * Returns the key of this {@link RepositoryEntryKey}.
+   * @return the key of this {@link RepositoryEntryKey}.
+   */
   public String key() {
     return key;
   }
 
+  /**
+   * Returns a Builder instance of this {@link RepositoryEntryKey}.
+   * @return a Builder instance of this {@link RepositoryEntryKey}
+   */
   public static Builder builder() {
     return new Builder();
   }

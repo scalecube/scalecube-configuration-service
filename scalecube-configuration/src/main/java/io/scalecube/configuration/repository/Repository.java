@@ -1,7 +1,7 @@
 package io.scalecube.configuration.repository;
 
 /**
- * Represents a name.
+ * Represents a configuration data repository.
  */
 public class Repository {
   private final String namespace;
@@ -12,14 +12,27 @@ public class Repository {
     this.name = builder.name;
   }
 
+  /**
+   * Returns the namespace of the repository.
+   * There could be multiple repositories under a certain namespace.
+   * @return the repository namespace in string format
+   */
   public String namespace() {
     return namespace;
   }
 
+  /**
+   * Returns the name of this repository. This value is unique under the namespace.
+   * @return the repository name in string format
+   */
   public String name() {
     return name;
   }
 
+  /**
+   * Returns a builder instance of this {@link Repository}.
+   * @return A Builder instance of this class
+   */
   public static Builder builder() {
     return new Builder();
   }
