@@ -8,7 +8,12 @@ public class PasswordGenerator {
 
   private static final String salt = "DGE$5SGr@3VsHYUMas2323E4d57vfBfFSTRU@!DSH(*%FDSdfg13sgfsg";
 
-  static String md5Hash(String message) {
+  /**
+   * Returns a digest string form of the message argument.
+   * @param message the message to digest
+   * @return a digest string
+   */
+  public static String md5Hash(String message) {
     String md5 = "";
     if (null == message) {
       return null;
