@@ -9,15 +9,15 @@ import java.security.PublicKey;
 import java.security.cert.CertificateException;
 
 /**
- * Public key provider abstraction. Public key is used to verify signed JWT tokens.
+ * Public cluster provider abstraction. Public cluster is used to verify signed JWT tokens.
  */
 public interface KeyProvider {
 
   /**
-   * Returns a key corresponding to the <code>alias</code> argument.
+   * Returns a cluster corresponding to the <code>alias</code> argument.
    *
-   * @return a key
-   * @throws KeyProviderException in case of an error while acquiring the key.
+   * @return a cluster
+   * @throws KeyProviderException in case of an error while acquiring the cluster.
    */
   Key get(String alias) throws KeyProviderException;
 }

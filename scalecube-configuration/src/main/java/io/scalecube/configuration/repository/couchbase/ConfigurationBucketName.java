@@ -4,18 +4,31 @@ import io.scalecube.configuration.repository.Repository;
 import io.scalecube.configuration.repository.exception.InvalidRepositoryNameException;
 import java.util.Objects;
 
-class ConfigurationBucketName {
+/**
+ * Utility class to validate and format a configuration bucket name.
+ */
+public class ConfigurationBucketName {
   private final String name;
 
   private ConfigurationBucketName(String name) {
     this.name = name;
   }
 
-  String name() {
+  /**
+   * Returns the name of this configuration bucket.
+   * @return
+   */
+  public String name() {
     return name;
   }
 
-  static ConfigurationBucketName from(Repository repository, CouchbaseSettings settings) {
+  /**
+   * Constructs an instance of {@link ConfigurationBucketName} using the arguments.
+   * @param repository repository info
+   * @param settings app settings
+   * @return an instance if {@link ConfigurationBucketName}
+   */
+  public static ConfigurationBucketName from(Repository repository, CouchbaseSettings settings) {
     String bucketName = getBucketName(repository.namespace(), repository.name(), settings);
     validateBucketName(bucketName);
     return new ConfigurationBucketName(bucketName);

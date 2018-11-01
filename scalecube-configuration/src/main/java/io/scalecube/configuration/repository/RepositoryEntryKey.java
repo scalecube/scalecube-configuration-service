@@ -1,7 +1,7 @@
 package io.scalecube.configuration.repository;
 
 /**
- * Represents a composite entry key.
+ * Represents a composite entry cluster.
  */
 public class RepositoryEntryKey {
   private final Repository repository;
@@ -21,8 +21,8 @@ public class RepositoryEntryKey {
   }
 
   /**
-   * Returns the key of this {@link RepositoryEntryKey}.
-   * @return the key of this {@link RepositoryEntryKey}.
+   * Returns the cluster of this {@link RepositoryEntryKey}.
+   * @return the cluster of this {@link RepositoryEntryKey}.
    */
   public String key() {
     return key;

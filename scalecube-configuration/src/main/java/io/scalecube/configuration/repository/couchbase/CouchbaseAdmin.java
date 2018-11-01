@@ -8,16 +8,30 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Represents a class of couchbase admin operations.
+ */
 public class CouchbaseAdmin extends CouchbaseOperations {
   private static final Logger logger = LoggerFactory.getLogger(CouchbaseAdmin.class);
   private final Cluster cluster;
 
+  /**
+   * Constructs a {@link CouchbaseAdmin} using the given arguments.
+   * @param settings app settings
+   * @param cluster Couchbase cluster
+   */
   public CouchbaseAdmin(CouchbaseSettings settings, Cluster cluster) {
     super(settings);
     this.cluster = cluster;
   }
 
-  protected boolean isBucketExists(String name) {
+
+  /**
+   * Returns true if a bucket matching to the name argument exists.
+   * @param name candidate for test
+   * @return true if bucket by the name argument exists; false otherwise
+   */
+  public boolean isBucketExists(String name) {
     logger.debug("isBucketExists: enter: name: {}", name);
     boolean bucketExists = execute(
         () -> AdminOperationsFactory
@@ -29,9 +43,11 @@ public class CouchbaseAdmin extends CouchbaseOperations {
     return bucketExists;
   }
 
-
-
-  protected void createBucket(String name) {
+  /**
+   * Creates a bucket with the name argument.
+   * @param name the bucket name
+   */
+  public void createBucket(String name) {
     execute(
         () -> {
           logger.debug("createBucket: enter: name: {}", name);
