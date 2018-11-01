@@ -23,7 +23,7 @@ final class PutEntryOperation extends EntryOperation {
     Objects.requireNonNull(context.document());
 
     logger.debug(
-        "enter: put -> cluster = [{}], document = [{}]",
+        "enter: put -> key = [{}], document = [{}]",
         context.key(),
         context.document());
 
@@ -35,12 +35,12 @@ final class PutEntryOperation extends EntryOperation {
       bucket.upsert(RawJsonDocument.create(key.key(), encode(document)));
     } catch (Throwable throwable) {
       String message =
-          String.format("Failed to put cluster: '%s'", key);
+          String.format("Failed to put key: '%s'", key);
       handleException(throwable, message);
     }
 
     logger.debug(
-        "exit: put -> cluster = [{}], document = [{}]",
+        "exit: put -> key = [{}], document = [{}]",
         key,
         document);
 

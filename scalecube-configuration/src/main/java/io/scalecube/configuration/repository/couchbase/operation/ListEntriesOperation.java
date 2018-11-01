@@ -4,7 +4,6 @@ import static com.couchbase.client.java.query.Select.select;
 import static com.couchbase.client.java.query.dsl.Expression.i;
 
 import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.SimpleN1qlQuery;
 import io.scalecube.configuration.repository.Document;
@@ -13,6 +12,7 @@ import io.scalecube.configuration.repository.exception.OperationInterruptedExcep
 import io.scalecube.configuration.repository.exception.QueryTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import rx.Observable;
@@ -28,6 +28,7 @@ final class ListEntriesOperation extends EntryOperation {
   }
 
   private List<Document> entries(OperationContext context) {
+    Objects.requireNonNull(context.repository());
     logger.debug("enter: entries -> repository = [ {} ]", context.repository());
     List<Document> entries = new ArrayList<>();
 

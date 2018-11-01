@@ -5,6 +5,7 @@ import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.RepositoryEntryKey;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 final class GetEntryOperation extends EntryOperation {
 
@@ -17,6 +18,7 @@ final class GetEntryOperation extends EntryOperation {
   }
 
   private Document get(OperationContext context) {
+    Objects.requireNonNull(context.key());
     logger.debug("enter: get -> key = [{}]", context.key());
 
     RepositoryEntryKey key = context.key();
@@ -29,12 +31,12 @@ final class GetEntryOperation extends EntryOperation {
       document = getDocument(bucket, key.key());
     } catch (Throwable ex) {
       String message =
-          String.format("Failed to get cluster: '%s'", key);
+          String.format("Failed to get key: '%s'", key);
       handleException(ex, message);
     }
 
     logger.debug(
-        "exit: get -> [ {} ] return -> [ {} ]",
+        "exit: get key -> [ {} ], return -> [ {} ]",
         key,
         document != null ? document.value() : null);
 
