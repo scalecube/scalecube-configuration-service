@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 public class VaultKeyProvider implements KeyProvider {
 
-  private static final String VAULT_ENTRY_KEY = "key";
+  private static final String VAULT_ENTRY_KEY = "cluster";
   private static final int HTTP_STATUS_NOT_FOUND = 404;
   private static final int MAX_RETRIES = 5;
   private static final String VAULT_RETRY_INTERVAL_MILLISECONDS =
@@ -56,7 +56,7 @@ public class VaultKeyProvider implements KeyProvider {
       String vaultEntry = getVaultEntryValue(alias);
       return new SecretKeySpec(DatatypeConverter.parseBase64Binary(vaultEntry), algorithm);
     } catch (Exception ex) {
-      LOGGER.error(String.format("Error creating key for alias: '%s'", alias), ex);
+      LOGGER.error(String.format("Error creating cluster for alias: '%s'", alias), ex);
       if (ex instanceof KeyProviderException) {
         throw (KeyProviderException) ex;
       } else {

@@ -30,7 +30,7 @@ public class KeyProviderImpl implements KeyProvider {
     }
     // decode the base64 encoded string
     byte[] decodedKey = Base64.getDecoder().decode(properties.get(alias).toString().getBytes());
-    // rebuild key using SecretKeySpec
+    // rebuild cluster using SecretKeySpec
     return new SecretKeySpec(decodedKey, 0, decodedKey.length, "HmacSHA256");
 
   }

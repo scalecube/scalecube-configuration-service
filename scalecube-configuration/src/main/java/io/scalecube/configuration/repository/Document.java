@@ -17,7 +17,7 @@ public class Document {
   /**
    * Constructs a document object.
    * @param id document id
-   * @param key entry key
+   * @param key entry cluster
    * @param value entry value
    */
   public Document(String id, String key, Object value) {
@@ -28,6 +28,10 @@ public class Document {
 
   public static Builder builder() {
     return new Builder();
+  }
+
+  public String id() {
+    return id;
   }
 
   public String key() {

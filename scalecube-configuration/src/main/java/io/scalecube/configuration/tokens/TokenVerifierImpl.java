@@ -37,11 +37,11 @@ final class TokenVerifierImpl implements TokenVerifier {
       String tokenWithoutSignature = token.substring(0, token.lastIndexOf('.') + 1);
       header = Jwts.parser().parseClaimsJwt(tokenWithoutSignature).getHeader();
     } catch (Throwable ex) {
-      throw new InvalidAuthenticationException("Failed to acquire token signing key id", ex);
+      throw new InvalidAuthenticationException("Failed to acquire token signing cluster id", ex);
     }
 
     if (header == null || !header.containsKey("kid")) {
-      throw new InvalidAuthenticationException("Missing key id in token header claim");
+      throw new InvalidAuthenticationException("Missing cluster id in token header claim");
     }
 
     return header.get("kid").toString();
