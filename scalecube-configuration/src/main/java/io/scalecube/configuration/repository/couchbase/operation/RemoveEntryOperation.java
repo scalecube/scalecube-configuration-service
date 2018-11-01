@@ -19,12 +19,12 @@ final class RemoveEntryOperation extends EntryOperation {
   }
 
   private Document remove(OperationContext context) {
+    Objects.requireNonNull(context.key());
     RepositoryEntryKey key = context.key();
     logger.debug(
         "enter: remove -> key = [{}]",
         key);
 
-    Objects.requireNonNull(key);
     Document document = null;
 
     try {
@@ -36,7 +36,7 @@ final class RemoveEntryOperation extends EntryOperation {
           .build();
     } catch (Throwable throwable) {
       String message =
-          String.format("Failed to remove cluster: '%s'", key);
+          String.format("Failed to remove key: '%s'", key);
       handleException(throwable, message);
     }
 

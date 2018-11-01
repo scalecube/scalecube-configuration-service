@@ -21,6 +21,9 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * An abstract base class of an entry CRUD operation in a couchbase bucket.
+ */
 public abstract class EntryOperation {
   protected static Logger logger;
   private final TranslationService translationService;
@@ -59,6 +62,11 @@ public abstract class EntryOperation {
     }
   }
 
+  /**
+   * Execute this {@link EntryOperation} using the {@link OperationContext} argument.
+   * @param context the operation context
+   * @return a list of document as result of the execution
+   */
   public abstract List<Document> execute(OperationContext context);
 
   protected Document getDocument(Bucket bucket, String id) {
