@@ -2,6 +2,7 @@ package io.scalecube.configuration.authorization;
 
 import io.scalecube.configuration.Role;
 import io.scalecube.configuration.api.InvalidPermissionsException;
+
 import java.util.Objects;
 
 /**
