@@ -10,9 +10,10 @@ import io.scalecube.configuration.api.Entries;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
-import io.scalecube.configuration.api.InvalidPermissionsException;
 import io.scalecube.configuration.api.SaveRequest;
 
+import io.scalecube.configuration.authorization.AuthorizationService;
+import io.scalecube.configuration.authorization.OperationType;
 import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.Repository;
@@ -35,12 +36,14 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   private final ConfigurationDataAccess dataAccess;
   private TokenVerifier tokenVerifier;
+  private final AuthorizationService authorizationService;
 
   private ConfigurationServiceImpl(
       ConfigurationDataAccess dataAccess,
       TokenVerifier tokenVerifier) {
     this.dataAccess = dataAccess;
     this.tokenVerifier = tokenVerifier;
+    authorizationService = AuthorizationService.builder().build();
   }
 
   public static Builder builder() {
@@ -53,30 +56,16 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return Mono.create(result -> {
       try {
         logger.debug("createRepository: enter: request: {}", request);
-
         validateRequest(request);
 
         Profile profile = verifyToken(request.token());
         validateProfile(profile);
+        authorizationService.authorize(getRole(profile), OperationType.CreateRepoitory);
 
-        Role role = getRole(profile);
-
-        if (role == Role.Owner) {
-          Repository repository = repository(profile, request);
-          dataAccess.createRepository(repository);
-          logger.debug("createRepository: exit: request: {}", request);
-          result.success(new Acknowledgment());
-        } else {
-          Throwable invalidPermissionsException = new InvalidPermissionsException(
-              String.format(
-                  "Role '%s' has insufficient permissions for the requested operation", role)
-          );
-          logger.error("createRepository: request: {}, error: {}", request,
-              invalidPermissionsException);
-          result.error(
-              invalidPermissionsException
-          );
-        }
+        Repository repository = repository(profile, request);
+        dataAccess.createRepository(repository);
+        logger.debug("createRepository: exit: request: {}", request);
+        result.success(new Acknowledgment());
       } catch (Throwable ex) {
         logger.error("createRepository: request: {}, error: {}", request, ex);
         result.error(ex);
@@ -110,8 +99,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
 
-
-
   @Override
   public Mono<Entries<FetchResponse>> entries(FetchRequest request) {
     return Mono.create(result -> {
@@ -121,8 +108,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         Profile profile = verifyToken(request.token());
         validateProfile(profile);
-        logger.debug("entries: profile tenant: {}", profile.getTenant());
-
         getRole(profile);
 
         Repository repository = repository(
@@ -145,8 +130,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
 
-
-
   @Override
   public Mono<Acknowledgment> save(SaveRequest request) {
     return Mono.create(result -> {
@@ -156,26 +139,17 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         validateRequest(request);
         Profile profile = verifyToken(request.token());
         validateProfile(profile);
-        logger.debug("save: profile tenant: {}", profile.getTenant());
+        authorizationService.authorize(getRole(profile), OperationType.Write);
 
-        Role role = getRole(profile);
-
-        if (role == Role.Admin || role == Role.Owner) {
-          Document document = Document.builder()
-              .id(UUID.randomUUID().toString())
-              .key(request.key())
-              .value(request.value())
-              .build();
-          RepositoryEntryKey key = key(profile, request, request.key());
-          dataAccess.put(key, document);
-          logger.debug("save: exit: request: {}", request);
-          result.success(new Acknowledgment());
-        } else {
-          InvalidPermissionsException invalidPermissionsException = new InvalidPermissionsException(
-              "invalid permissions-level save request requires write access");
-          logger.error("save: request: {}, error: {}", request, invalidPermissionsException);
-          result.error(invalidPermissionsException);
-        }
+        Document document = Document.builder()
+            .id(UUID.randomUUID().toString())
+            .key(request.key())
+            .value(request.value())
+            .build();
+        RepositoryEntryKey key = key(profile, request, request.key());
+        dataAccess.put(key, document);
+        logger.debug("save: exit: request: {}", request);
+        result.success(new Acknowledgment());
       } catch (Throwable ex) {
         logger.error("save: request: {}, error: {}", request, ex);
         result.error(ex);
@@ -193,21 +167,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         validateRequest(request);
         Profile profile = verifyToken(request.token());
         validateProfile(profile);
-        logger.debug("delete: profile tenant: {}", profile.getTenant());
+        authorizationService.authorize(getRole(profile), OperationType.Delete);
 
-        Role role = getRole(profile);
-
-        if (role != Role.Member) {
-          RepositoryEntryKey key = key(profile, request, request.key());
-          dataAccess.remove(key);
-          logger.debug("delete: exit: request: {}", request);
-          result.success(new Acknowledgment());
-        } else {
-          InvalidPermissionsException invalidPermissionsException = new InvalidPermissionsException(
-              "invalid permissions-level save request requires write access");
-          logger.debug("delete: request: {}, error: {}", request, invalidPermissionsException);
-          result.error(invalidPermissionsException);
-        }
+        RepositoryEntryKey key = key(profile, request, request.key());
+        dataAccess.remove(key);
+        logger.debug("delete: exit: request: {}", request);
+        result.success(new Acknowledgment());
       } catch (Throwable ex) {
         logger.debug("delete: request: {}, error: {}", request, ex);
         result.error(ex);
