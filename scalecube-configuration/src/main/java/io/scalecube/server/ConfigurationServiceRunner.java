@@ -12,7 +12,7 @@ import io.scalecube.configuration.repository.couchbase.CouchbaseDataAccess;
 import io.scalecube.configuration.repository.couchbase.CouchbaseSettings;
 import io.scalecube.configuration.tokens.TokenVerifierFactory;
 import io.scalecube.services.Microservices;
-import io.scalecube.transport.Address;
+import io.scalecube.services.transport.api.Address;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -44,7 +44,7 @@ public class ConfigurationServiceRunner {
                     .port(discoveryOptions.discoveryPort())
                     .memberHost(discoveryOptions.memberHost())
                     .memberPort(discoveryOptions.memberPort()))
-        .servicePort(discoveryOptions.servicePort())
+        .transport(options -> options.port(discoveryOptions.servicePort()))
         .services(createConfigurationService())
         .startAwait();
   }
