@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 public class VaultKeyProvider implements KeyProvider {
 
-  private static final String VAULT_ENTRY_KEY = "cluster";
+  private static final String VAULT_ENTRY_KEY = "key";
   private static final int HTTP_STATUS_NOT_FOUND = 404;
   private static final int MAX_RETRIES = 5;
   private static final String VAULT_RETRY_INTERVAL_MILLISECONDS =
