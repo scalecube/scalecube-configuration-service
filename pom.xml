@@ -10,7 +10,7 @@
   <parent>
     <groupId>io.scalecube</groupId>
     <artifactId>scalecube-parent-pom</artifactId>
-    <version>0.0.11</version>
+    <version>0.0.16</version>
   </parent>
   <packaging>pom</packaging>
 
@@ -24,18 +24,14 @@
   </scm>
 
   <properties>
-    <scalecube-cluster.version>2.0.0</scalecube-cluster.version>
+    <scalecube-cluster.version>2.1.12</scalecube-cluster.version>
     <scalecube.config.version>0.3.6</scalecube.config.version>
-    <scalecube-services.version>2.1.31</scalecube-services.version>
-    <scalecube-gateway.version>2.0.11</scalecube-gateway.version>
+    <scalecube-services.version>2.4.4-SNAPSHOT</scalecube-services.version>
     <scalecube-testlib.version>1.0.9</scalecube-testlib.version>
     <scalecube-security-jwt.version>1.0.2</scalecube-security-jwt.version>
     <jackson.version>2.9.6</jackson.version>
-    <junit.jupiter.version>5.1.0</junit.jupiter.version>
+    <junit.jupiter.version>5.3.0</junit.jupiter.version>
     <couchbase-client-version>2.6.0</couchbase-client-version>
-    <reactor.version>3.1.8.RELEASE</reactor.version>
-    <netty.version>4.1.25.Final</netty.version>
-    <reactor-netty.version>0.7.8.RELEASE</reactor-netty.version>
     <slf4j.version>1.7.7</slf4j.version>
     <log4j.version>2.11.1</log4j.version>
 
@@ -79,7 +75,7 @@
       </dependency>
       <dependency>
         <groupId>io.scalecube</groupId>
-        <artifactId>rsocket-services-transport</artifactId>
+        <artifactId>scalecube-services-transport-rsocket</artifactId>
         <version>${scalecube-services.version}</version>
       </dependency>
       <dependency>
@@ -120,27 +116,6 @@
         <version>${log4j.version}</version>
       </dependency>
 
-      <!-- Reactor -->
-      <dependency>
-        <groupId>io.projectreactor</groupId>
-        <artifactId>reactor-core</artifactId>
-        <version>${reactor.version}</version>
-      </dependency>
-
-      <!-- Reactor Netty -->
-      <dependency>
-        <groupId>io.projectreactor.ipc</groupId>
-        <artifactId>reactor-netty</artifactId>
-        <version>${reactor-netty.version}</version>
-      </dependency>
-
-      <!-- Netty -->
-      <dependency>
-        <groupId>io.netty</groupId>
-        <artifactId>netty-buffer</artifactId>
-        <version>${netty.version}</version>
-      </dependency>
-
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
@@ -164,7 +139,6 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
-          <version>${maven-shade-plugin.version}</version>
           <executions>
             <execution>
               <id>default</id>
