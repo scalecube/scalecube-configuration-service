@@ -24,9 +24,9 @@
   </scm>
 
   <properties>
-    <scalecube-cluster.version>2.1.12</scalecube-cluster.version>
+    <scalecube-cluster.version>2.1.13</scalecube-cluster.version>
     <scalecube.config.version>0.3.6</scalecube.config.version>
-    <scalecube-services.version>2.4.4-SNAPSHOT</scalecube-services.version>
+    <scalecube-services.version>2.4.6</scalecube-services.version>
     <scalecube-testlib.version>1.0.9</scalecube-testlib.version>
     <scalecube-security-jwt.version>1.0.2</scalecube-security-jwt.version>
     <jackson.version>2.9.6</jackson.version>
@@ -71,11 +71,6 @@
       <dependency>
         <groupId>io.scalecube</groupId>
         <artifactId>scalecube-services-discovery</artifactId>
-        <version>${scalecube-services.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.scalecube</groupId>
-        <artifactId>scalecube-services-transport-rsocket</artifactId>
         <version>${scalecube-services.version}</version>
       </dependency>
       <dependency>
@@ -197,7 +192,6 @@
         <plugin>
           <groupId>com.spotify</groupId>
           <artifactId>dockerfile-maven-plugin</artifactId>
-          <version>${dockerfile.maven.version}</version>
           <executions>
             <execution>
               <id>default</id>
