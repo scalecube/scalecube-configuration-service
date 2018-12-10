@@ -51,12 +51,11 @@
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
-      <artifactId>rsocket-services-transport</artifactId>
+      <artifactId>scalecube-services-transport-rsocket</artifactId>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
-      <artifactId>scalecube-services-jackson</artifactId>
-      <version>${scalecube-services.version}</version>
+      <artifactId>scalecube-services-transport-jackson</artifactId>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
@@ -84,13 +83,11 @@
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-test</artifactId>
-      <version>${reactor-test.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>${junit.jupiter.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
