@@ -6,8 +6,7 @@ ConfigurationService:
     * Object token: The request token
   * returns Acknowledgment
 * fetch(FetchRequest request)
-  * Fetch request
-    * requires read level permissions to get entry object from the store.
+  * Fetch request requires read level permissions to get entry object from the store.
   * param FetchRequest:
     * String repository: The repository name
     * Object token: The request token
@@ -16,5 +15,12 @@ ConfigurationService:
     * String key: fetch key
     * Object value: fetch value
 * entries(FetchRequest request)
-  * requires read level permissions to get entry object from the store.
-  * 
+  * Entries request requires read level permissions to get entry object from the store.
+  * param FetchRequest:
+    * String repository: The repository name
+    * Object token: The request token
+    * String key: The requested data keys (configuration settings)
+  * returns a collection of FetchResponse:
+    * entries (array)
+      * String key: fetch key
+      * Object value: fetch value
