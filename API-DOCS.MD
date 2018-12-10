@@ -1,4 +1,6 @@
-ConfigurationService:
+# API documentation for the Configuration Service
+## Getting a token is done via the Organization Service 
+# ConfigurationService:
 * createRepository(CreateRepositoryRequest request)
   * Request to create a configuration repository and requires a write level permissions.
   * param: CreateRepositoryRequest:
