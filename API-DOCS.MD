@@ -7,6 +7,16 @@
     * String repository: The repository name (custom the name of the created repository)
     * Object token: The request token (API key)
   * returns Acknowledgment
+
+* save(SaveRequest request)
+  * Request to save an entry in a repository repository and requires a write level permissions granted for owner and admin role only.
+  * param: CreateRepositoryRequest:
+    * String repository: The repository name (custom the name of the created repository)
+    * Object token: The request token (API key)
+    * String key: key name (customed configuration setting)
+    * Object value: node name (customed configuration node name in the repository)
+  * returns Acknowledgment
+
 * fetch(FetchRequest request)
   * Fetch request requires read level permissions to get entry object for a specific entity from the store which enabled for each of the accessible role (Member/Admin/Owner).
   * param FetchRequest:
@@ -16,6 +26,7 @@
   * returns FetchResponse:
     * String key: fetch key (already stored key name)
     * Object value: fetch value (already stored configuration node name in the repository)
+
 * entries(FetchRequest request)
   * Entries request requires read level permissions to get entry object for the all entities from the store which enabled for each of the accessible role (Member/Admin/Owner).
   * param FetchRequest:
@@ -26,3 +37,11 @@
     * entries (array)
       * String key: fetch key
       * Object value: fetch value
+
+* delete(DeleteRequest request)
+  * Request to delete a specified entry from a repository and requires a write level permissions granted for owner and admin role only.
+  * param: CreateRepositoryRequest:
+    * String repository: The repository name (already stored name of the created repository)
+    * Object token: The request token (API key)
+    * String key: key name (already stored configuration setting)
+  * returns Acknowledgment
