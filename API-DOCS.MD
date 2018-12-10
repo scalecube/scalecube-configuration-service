@@ -4,17 +4,17 @@
 * createRepository(CreateRepositoryRequest request)
   * Request to create a configuration repository and requires a write level permissions granted for owner role only.
   * param: CreateRepositoryRequest:
-    * String repository: The repository name (custom the name of the created repository)
+    * String repository: The repository name (customed name of the repository)
     * Object token: The request token (API key)
   * returns Acknowledgment
 
 * save(SaveRequest request)
-  * Request to save an entry in a repository repository and requires a write level permissions granted for owner and admin role only.
+  * Request to save an entry in a repository and requires a write level permissions granted for owner and admin role only.
   * param: CreateRepositoryRequest:
-    * String repository: The repository name (custom the name of the created repository)
+    * String repository: The repository name (already stored name of the created repository)
     * Object token: The request token (API key)
-    * String key: key name (customed configuration setting)
-    * Object value: node name (customed configuration node name in the repository)
+    * String key: key name (customed name for specified configuration setting in the repository)
+    * Object value: node name (customed name for specified configuration setting in the repository)
   * returns Acknowledgment
 
 * fetch(FetchRequest request)
@@ -24,13 +24,13 @@
     * Object token: The request token (API key)
     * String key: The requested data key (a configuration setting which is already stored as the key name for that purpose)
   * returns FetchResponse:
-    * String key: fetch key (already stored key name)
-    * Object value: fetch value (already stored configuration node name in the repository)
+    * String key: fetch key
+    * Object value: fetch value
 
 * entries(FetchRequest request)
   * Entries request requires read level permissions to get entry object for the all entities from the store which enabled for each of the accessible role (Member/Admin/Owner).
   * param FetchRequest:
-    * String repository: The repository name
+    * String repository: The repository name (already stored name of the created repository)
     * Object token: The request token (API key)
     * String key: The requested data keys (configuration settings which are already stored as the key names for that purpose)
   * returns a collection of FetchResponse:
@@ -39,9 +39,9 @@
       * Object value: fetch value
 
 * delete(DeleteRequest request)
-  * Request to delete a specified entry from a repository and requires a write level permissions granted for owner and admin role only.
+  * Request to delete a specified entry from the repository and requires a write level permissions granted for owner and admin role only.
   * param: CreateRepositoryRequest:
     * String repository: The repository name (already stored name of the created repository)
     * Object token: The request token (API key)
-    * String key: key name (already stored configuration setting)
+    * String key: key name The requested data key (a configuration setting which is already stored as the key name for that purpose)
   * returns Acknowledgment
