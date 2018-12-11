@@ -110,7 +110,7 @@ Feature: Basic CRUD tests for configuration service.
 
 
   #MPA-7103 (#3.1)
-  Scenario: Successful get the list of a the stored entities from the Repo
+  Scenario: Successful get the list of the stored entities from the Repo
     Given the users have got a valid "tokens" (API key) with "owner" and "admin" and "member" assigned roles
     And the relevant specified name "repository" with relevant (at least one) entities (keys and values) were created and stored in DB
     When each of these users requested to get the list of the existent entities (keys and values) which already exists in the relevant "repository" specified name
@@ -183,6 +183,19 @@ Feature: Basic CRUD tests for configuration service.
       | instrumentId | name | DecimalPrecision | Rounding | key                  |
       | JPY          | Yen  | 4                | down     | KEY-FOR-CURRENCY-999 |
     Then this new entity shouldn't be created and the user should get an error message: "role: permission denied"
+
+
+  #MPA-7103 (#5.2)
+  Scenario: Fail to save a duplicate of existent instrument instance entity
+    Given the user have been granted with valid "token" (API key) assigned by "admin" role
+    And the relevant specified name "repository" was created and stored in DB
+    And following "instrumentInstance" entity already stored in this "repository" name
+      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
+      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
+    When this user requested to save the "instrumentInstance" entity in the relevant "repository" name with following details
+      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
+      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
+    Then this new entity shouldn't be created and the user should get an error message like: "instrumentInstance" "instrumentId =  XAG already exists"
 
 
 
