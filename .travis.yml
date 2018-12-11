@@ -2,13 +2,21 @@ addons:
   apt:
     packages:
     - libxml-xpath-perl
+    - python3-pip
 sudo: required
+
 language: java
 jdk: openjdk8
+
 before_install:
 - "./src/main/scripts/ci/before-install.sh"
 - "./src/main/scripts/cd/before-deploy.sh"
+
+script:
+  - if [ "$TRAVIS_BRANCH" == "develop" ]; then pip3 install -r requirements.txt && python3 ./src/main/scripts/cd/travis_tests.py; fi;
+
 after_success: "./src/main/scripts/ci/after-success.sh"
+
 deploy:
 - provider: script
   script:
