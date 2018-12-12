@@ -142,14 +142,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .build();
   }
 
-  private static Repository repository(Profile profile, AccessRequest request) {
-    return Repository.builder()
-        .namespace(profile.getTenant())
-        .name(request.repository())
-        .build();
-  }
-
-
   /**
    * Service builder class.
    */
