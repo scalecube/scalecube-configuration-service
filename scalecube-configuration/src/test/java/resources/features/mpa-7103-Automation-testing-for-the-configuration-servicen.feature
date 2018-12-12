@@ -88,7 +88,6 @@ Feature: Basic CRUD tests for configuration service.
     Given a user have got a valid "token" (API key) with assigned "owner" or "admin" roles
     And "repository" with "specified" name already created and stored in DB
     When this user requested to save the same entity (key or value) which already exists with write permission for the relevant "repository" specified name
-    Then this new entity (key or value) shouldn't be created
     And the user should get one of the error messages: "key: "specified" key name already exists" or "value": "specified" value name already exists"
 
 
