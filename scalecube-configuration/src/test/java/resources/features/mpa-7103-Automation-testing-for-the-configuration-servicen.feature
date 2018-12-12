@@ -84,7 +84,7 @@ Feature: Basic CRUD tests for configuration service.
 
 
   #MPA-7103 (#2.2)
-  Scenario: Fail to save (edit) the write permission for specific entity which already exist (duplicate)
+  Scenario: Update (override - edit) the value for specific entity which already exist
     Given a user have got a valid "token" (API key) with assigned "owner" or "admin" roles
     And "repository" with "specified" name already created and stored in DB
     When this user requested to save the same entity (key or value) which already exists with write permission for the relevant "repository" specified name
