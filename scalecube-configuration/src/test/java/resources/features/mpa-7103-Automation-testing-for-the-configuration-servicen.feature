@@ -68,36 +68,35 @@ Feature: Basic CRUD tests for configuration service.
 
 
   #MPA-7103 (#2)
-  Scenario: Successful save (edit) the write permission for specific entity assigned by "Owner" and "Admin" roles
-    Given the users have got a valid "tokens" (API key) with "owner" and "admin" assigned roles
+  Scenario: Successful save (edit) the value for specific entity assigned by "Owner" either "Admin" roles
+    Given the users "A"and "B" have got a valid "tokens" (API key) with "owner" and "admin" assigned roles accordingly
     And the relevant specified name "repository" was created and stored in DB
-    When each of these users requested to save the "specific" entity (key and value) with write permission for the relevant "repository" specified name
+    When each of these users requested to save the "specific" entity (key and value) in the relevant "repository" specified name
     Then both new entities (keys and values) should be created and stored in the relevant "repository" of the DB
 
 
   #MPA-7103 (#2.1)
-  Scenario: Fail to save (edit) the write permission for specific entity assigned by "Member" role
-    Given a user have got a valid "token" (API key) with assigned "member" role
-    And the relevant specified name "repository" was created and stored in DB
-    When this user requested to save the "specific" entity (key and value) with write permission for the relevant "repository" specified name
-    Then this new entity (key and value) shouldn't be created and the user should get an error message: "role: permission denied"
+  Scenario: Successful update (override - edit) the value for specific entity which already exist
+    Given a user have got a valid "tokens" (API key) with assigned "admin" and "owner" roles
+    And relevant "repositories" with "specified" names "Repo1" and "Repo2" already created and stored in DB with some "specific" entities
+    When this user requested to save (update) the these "specific" entities (key or value) in the relevant "repositories" name "Repo1" and "Repo2" applying the "admin" and "owner" tokens
+    Then a new values should be set to the given keys and stored in the relevant "repositories" of the DB
 
 
   #MPA-7103 (#2.2)
-  Scenario: Fail to save (edit) the write permission for specific entity which already exist (duplicate)
-    Given a user have got a valid "token" (API key) with assigned "owner" or "admin" roles
-    And "repository" with "specified" name already created and stored in DB
-    When this user requested to save the same entity (key or value) which already exists with write permission for the relevant "repository" specified name
-    Then this new entity (key or value) shouldn't be created
-    And the user should get one of the error messages: "key: "specified" key name already exists" or "value": "specified" value name already exists"
+  Scenario: Fail to save (edit) the value for specific entity assigned by "Member" role
+    Given a user have got a valid "token" (API key) with assigned "member" role
+    And the relevant specified name "repository" was created and stored in DB
+    When this user requested to save the "specific" entity (key and value) in the relevant "repository" specified name
+    Then this new entity (key and value) shouldn't be created and the user should get an error message: "role: "userId" not in role Owner or Admin"
 
 
   #MPA-7103 (#2.3)
-  Scenario: Fail to save (edit) the write permission for specific entity upon the Repo doesn't exist
+  Scenario: Fail to save (edit) the value for specific entity upon the Repo doesn't exist
     Given a user have got a valid "token" (API key) with assigned "admin" role
-    And some relevant "repository" with "specified" name already created and stored in DB
+    And there is no "repository" created and stored in DB
     When this user requested to save the entity (key and value) to non-existent "repository" "specified" name
-    Then this new entity (key and value) shouldn't be created and the user should get the empty object
+    Then this new entity (key and value) shouldn't be created and the user should get the error message: "repository: "specified" repository doesn't exist"
 
 
 
@@ -118,25 +117,34 @@ Feature: Basic CRUD tests for configuration service.
 
 
   #MPA-7103 (#3.2)
+  Scenario: Successfully get nothing upon stored entity was deleted from the Repo
+    Given a user have got a valid "token" (API key) with assigned "Owner" role
+    And the relevant specified name "repository" with some entity was created and stored in DB
+    And this user deleted the "specific" entity (key and value) in the relevant "repository" specified name
+    When this user requested to get the recently deleted entity (key and value) from the relevant "repository" specified name
+    Then this user should receive successful response with empty object
+
+
+  #MPA-7103 (#3.3)
   Scenario: Fail to get a non-existent entity from the Repo
     Given the users have got a valid "token" (API key) with "member" assigned role
-    And the relevant specified name "repository" with relevant entity (key and value) were created and stored in DB
-    When this user requested to get the non-existent entity (key) from the relevant "repository" specified name
-    Then this user shouldn't receive any of the stored entities and get the empty object
+    And there is no "repository" created and stored in DB
+    When this user requested to get the non-existent entity (key) from non-existent "repository" specified name
+    Then this user shouldn't receive any of the stored entities and get the error message: "repository: "specified" repository doesn't exist"
 
 
 
 
   #MPA-7103 (#4)
-  Scenario: Successful delete (remove) of a specific entity from the Repo upon the write permission was granted
+  Scenario: Successful delete (remove) of a specific entity from the Repo upon Admin either Owner permission was granted
     Given the users have got a valid "tokens" (API key) with "owner" and "admin" assigned roles
-    And the relevant specified name "repository" with relevant entity (key and value) were created and stored in DB
-    When each of these users requested to delete the existent entity (key and value) which is stored in the relevant "repository" specified name
+    And the relevant specified name "repository" with relevant entities (keys and values) were created and stored in DB
+    When each of these users requested to delete some of the existent entities (key and value) which is stored in the relevant "repository" specified name
     Then each of these users should receive successful response with empty object
 
 
   #MPA-7103 (#4.1)
-  Scenario: Fail to delete (remove) a specific entity from the Repo upon the restricted write permission
+  Scenario: Fail to delete (remove) a specific entity from the Repo upon the restricted permission as Member
     Given the user have got a valid "token" (API key) with "member" assigned role
     And the relevant specified name "repository" with relevant entity (key and value) were created and stored in DB
     When this user requested to delete the existent entity (key and value) which is stored in the relevant "repository" specified name
@@ -148,7 +156,7 @@ Feature: Basic CRUD tests for configuration service.
     Given the user have got a valid "token" (API key) with "admin" assigned role
     And the relevant specified name "repository" with relevant entity (key and value) were created and stored in DB
     When this user requested to delete the non-existent entity (key and value)
-    Then any of the existent entity shouldn't be removed from the "repository" and this user should receive an empty object
+    Then any of the existent entity shouldn't be removed from the "repository" and this user should receive an error message: "role: "userId" not in role Owner or Admin"
 
 
   #___________________________________________________INSTANCE__________________________________________________________
@@ -175,18 +183,21 @@ Feature: Basic CRUD tests for configuration service.
     Then all new entities should be created and stored in the relevant "repository" of the DB
 
 
-  #MPA-7103 (#5.1)
-  Scenario: Fail to save a specific instrument instance entity
-    Given the user have been granted with valid "token" (API key) assigned by "member" role
-    And the relevant specified name "repository" was created and stored in DB
-    When this user requested to save the "instrumentInstance" entity in the relevant "repository" specified name with following details
-      | instrumentId | name | DecimalPrecision | Rounding | key                  |
-      | JPY          | Yen  | 4                | down     | KEY-FOR-CURRENCY-999 |
-    Then this new entity shouldn't be created and the user should get an error message: "role: permission denied"
+  #MPA-7103 (#5.3)
+  Scenario: Successful save the same instrument instance entity values for different Repos
+    Given  relevant "repositories" with "specified" names "Repo1" and "Repo2" already created and stored in DB without any entity
+    And the user have been granted with valid "tokens" (API key) with "owner" and "admin" assigned roles accordingly
+    When this user assigned by "admin" role requested to save the following "instrumentInstance" entity in "repository" name "Repo1"
+      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
+      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
+    And this user assigned by "owner" role requested to save the following "instrumentInstance" entity in "repository" name "Repo2"
+      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
+      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
+    Then all new entities should be created and stored in the relevant "repositories" of the DB
 
 
   #MPA-7103 (#5.2)
-  Scenario: Fail to save a duplicate of existent instrument instance entity
+  Scenario: Successful save/update (override - edit) the value for existent instrument instance entity in single Repo
     Given the user have been granted with valid "token" (API key) assigned by "admin" role
     And the relevant specified name "repository" was created and stored in DB
     And following "instrumentInstance" entity already stored in this "repository" name
@@ -195,34 +206,28 @@ Feature: Basic CRUD tests for configuration service.
     When this user requested to save the "instrumentInstance" entity in the relevant "repository" name with following details
       | instrumentId | name   | DecimalPrecision | Rounding | key                        |
       | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
-    Then this new entity shouldn't be created and the user should get an error message like: "instrumentInstance" "instrumentId =  XAG already exists"
+    Then existent entity values shouldn't be duplicated thus new values should be set to the given keys and stored in the relevant "repositories" of the DB
+
+
+  #MPA-7103 (#5.3)
+  Scenario: Fail to save a specific instrument instance entity upon the restricted permission for Member
+    Given the user have been granted with valid "token" (API key) assigned by "member" role
+    And the relevant specified name "repository" was created and stored in DB
+    When this user requested to save the "instrumentInstance" entity in the relevant "repository" specified name with following details
+      | instrumentId | name | DecimalPrecision | Rounding | key                  |
+      | JPY          | Yen  | 4                | down     | KEY-FOR-CURRENCY-999 |
+    Then this new entity shouldn't be created and the user should get an error message: "role: "userId" not in role Owner or Admin"
 
 
 
   #MPA-7103 (#6)
-  Scenario: Successful edit (save) the existent instrument instance entity
+  Scenario: Successful save the instrument instance entity with values that reach over a 1000 chars (no quantity validation for input)
     Given the user have been granted with one of the valid "tokens" (API key) assigned by "owner" either "admin" role
     And the relevant specified name "repository" was created and stored in DB
-    And specific "instrumentInstance" entity already stored in this "repository"
-      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
-      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
-    When this user requested to edit (save) this "instrumentInstance" entity in the relevant specified name "repository" with following details
-      | instrumentId | name     | DecimalPrecision | Rounding | key                        |
-      | XPT          | Platinum | 5                | up       | KEY-FOR-PRECIOUS-METAL-123 |
-    Then this user should receive successful response with relevant modified entity which is stored in the relevant specified name "repository" of the DB
-
-
-  #MPA-7103 (#6.1)
-  Scenario: Fail edit (save) the existent instrument instance entity
-    Given the user have been granted with valid "token" (API key) assigned by "member" role
-    And the relevant specified name "repository" was created and stored in DB
-    And specific "instrumentInstance" entity already stored in this "repository"
-      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
-      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
-    When this user requested to edit (save) this "instrumentInstance" entity in the relevant specified name "repository" with following details
-      | instrumentId | name  | DecimalPrecision | Rounding | key                        |
-      | CHF          | Frank | 4                | up       | KEY-FOR-PRECIOUS-METAL-123 |
-    Then this new entity shouldn't be modified and the user should get an error message: "role: permission denied"
+    When this user requested to save the "instrumentInstance" entity in the relevant specified name "repository" with following details
+      | instrumentId                                                                                           | name     | DecimalPrecision | Rounding | key                        |
+      | XPTTTTTTTTTTTTT(_OVER 1000 CHARS)TTTTTTTTXPTTTTTTTTTTTTTTTTTTTTTTTXPTTTTTTTTTTTTTTTTTTTTTTTXPTTTTT.... | Platinum | 5                | up       | KEY-FOR-PRECIOUS-METAL-123 |
+    Then new entitiy should be created and stored in the relevant "repository" of the DB
 
 
 
