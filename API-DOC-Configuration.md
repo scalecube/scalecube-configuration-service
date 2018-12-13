@@ -24,8 +24,8 @@
     * Object token: The request token (API key)
     * String key: The requested data key (a configuration setting which is already stored as the key name for that purpose)
   * returns FetchResponse:
-    * String key: fetch key
-    * Object value: fetch value
+    * String key: configuration entry key
+    * Object value: configuration entry value
 
 * entries(FetchRequest request)
   * Entries request requires read level permissions to get entry object for the all entities from the store which enabled for each of the accessible role (Member/Admin/Owner).
@@ -35,8 +35,8 @@
     * String key: The requested data keys (configuration settings which are already stored as the key names for that purpose)
   * returns a collection of FetchResponse:
     * entries (array)
-      * String key: fetch key
-      * Object value: fetch value
+      * String key: configuration entry key
+      * Object value: configuration entry value
 
 * delete(DeleteRequest request)
   * Request to delete a specified entry from the repository and requires a write level permissions granted for owner and admin role only.
