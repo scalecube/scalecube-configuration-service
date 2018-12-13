@@ -47,7 +47,7 @@ Feature: Basic CRUD tests for configuration service.
   Scenario: Fail to create the Repo upon access permission is restricted
     Given the users have got the valid "tokens" (API key) with "admin" and "member" assigned roles
     When each of these users requested to create the "repository" with "specified" name
-    Then any of repositories shouldn't be created and each of the user should get an error message: "not the owner"
+    Then any of repositories shouldn't be created and each of the user should get an error message: "role: "userId" not in role Owner"
 
 
   #MPA-7103 (#1.2)
@@ -62,7 +62,7 @@ Feature: Basic CRUD tests for configuration service.
     Given a user have got a valid "token" (API key) with assigned "owner" role
     And "repository" with "specified" name already created and stored in DB
     When this user requested to create the "repository" with the same "specified" name which already exists
-    Then new "repository" shouldn't be created and the user should get an error message: ""repository": "specified" name already exists"
+    Then new "repository" shouldn't be created and the user should get an error message: "repository": "specified" name already exists"
 
 
 

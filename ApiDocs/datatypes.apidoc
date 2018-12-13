@@ -1,0 +1,71 @@
+
+/**
+* @api {websocket} / Overview
+* @apiName Overview
+* @apiGroup Datatypes
+* @apiDescription This chapter will detail datatypes that require specific format for or support a specific set of values.
+<br> Our custom types specific values and format might not have validation at this point but the validation will be added soon.
+*/
+
+/**
+* @api {websocket} / Datetime
+* @apiName Datetime
+* @apiGroup Datatypes
+* @apiDescription Datetime are of type string and should be in the following format: "yyyy-MM-ddTHH:mm:ss.SSS"
+<br> All datatime should be in UTC
+*/
+
+
+/**
+* @api {websocket} / Boolean
+* @apiName Boolean
+* @apiGroup Datatypes
+* @apiDescription True / False
+*/
+
+/**
+* @api {websocket} / IP
+* @apiName IP
+* @apiGroup Datatypes
+* @apiDescription The data type is string. At this point there are no validation regarding the IP format In the future there will be added validation that the IP address is either IPv4 or IP6 address
+*/
+
+/**
+* @api {websocket} / Price
+* @apiName IP
+* @apiGroup Datatypes
+* @apiDescription The data type is BigDecimal, the price decimal precision is set according to relevant the instrument and we recommend to not do any change to the decimal precision.
+*/
+
+/**
+* @api {websocket} / orderType
+* @apiName orderType
+* @apiGroup Datatypes
+* @apiDescription Supported values:<br>
+                  1. Limit - An order placed on the user specific requested price
+                  <br> 2. Market - An order placed on the best offered price for the requested instrument instance and side. Coming soon...
+*/
+
+/**
+* @api {websocket} / orderSide
+* @apiName orderSide
+* @apiGroup Datatypes
+* @apiDescription Supported values:<br>
+                  1. Buy
+                  <br> 2. Sell
+*/
+
+
+/**
+* @api {websocket} / OrderStatus
+* @apiName OrderStatus
+* @apiGroup Datatypes
+* @apiDescription Supported values:<br>
+                  1. Accepted - When an order enter the system and before it's been validated.
+                  <br> 2.  Validated - After an order passed the validation process but need try and be matched with the orderbook.
+                  <br> 3.  New - The order is currently is in the orderbook and no match was found.
+                  <br> 4.  Partially Filled - The order is currently in the orderbook and was already partly matched.
+                  <br> 5.  Filled - The order was fully matched by the system.
+                  <br> 6.  Cancelled - The order remaining quantity was cancelled.
+                  <br> 7.  Rejected - An error happened during validating or processing an order.
+*/

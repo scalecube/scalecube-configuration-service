@@ -1,0 +1,22 @@
+{
+  "name": "Configuration service",
+  "version": "0.0.1-SNAPSHOT",
+  "description": "Configuration service API docs",
+  "title": "API documentation for the Configuration Service",
+  "url" : "wss://configuration-service-7070.genesis.om2.com",
+  "template": {
+    "forceLanguage" : "en"
+  },
+  "order": [
+    "Overview",
+    "GettingStarted",
+    "Datatypes",
+    "RepositoryCreation",
+    "SaveUpdateEntity",
+    "GetSingleEntity",
+    "GetAllEntities",
+    "DeleteEntity"
+
+
+  ]
+}
