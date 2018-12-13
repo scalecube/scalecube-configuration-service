@@ -31,7 +31,7 @@ import reactor.test.StepVerifier;
 
 public class ConfigurationServiceImplTest {
   private final ObjectMapper mapper = new ObjectMapper();
-
+  
   @Test
   void create_repository_null_request_should_fail_withBadRequest() {
     ConfigurationService service = createService(new ProfileBuilder().build());
@@ -150,12 +150,20 @@ public class ConfigurationServiceImplTest {
     assertNotNull(duration);
   }
 
+  /**
+ *   #MPA-7103 (#1)
+ *     Scenario: Successful Repo creation
+ *      Given a user have got a valid "token" (API key) with assigned "owner" role
+ *      When this user requested to create the "repository" with "specified" name
+ *      Then new "repository" should be created and stored in DB
+  */
   @Test
   void createRepository() {
     ConfigurationService service = createService();
     Duration duration = createRepository(service);
     assertNotNull(duration);
   }
+
 
   private ConfigurationService createService() {
     Map<String, Object> claims = new HashMap<>();
@@ -482,6 +490,38 @@ public class ConfigurationServiceImplTest {
         .verifyComplete();
     assertNotNull(duration);
   }
+  
+  
+  @Test
+  void update() {
+    ConfigurationService service = createService();
+    createRepository(service);
+    StepVerifier
+        .create(
+            service.save(new SaveRequest(new Object(), "myrepo", "mykey",
+                mapper.valueToTree(1))))
+        .expectSubscription()
+        .assertNext(Assertions::assertNotNull)
+        .verifyComplete();
+    
+    StepVerifier
+    .create(
+        service.save(new SaveRequest(new Object(), "myrepo", "mykey",
+            mapper.valueToTree(42))))
+    .expectSubscription()
+    .assertNext(Assertions::assertNotNull)
+    .verifyComplete();
+    
+    Duration duration = StepVerifier
+        .create(
+            service.fetch(new FetchRequest(new Object(), "myrepo", "mykey")))
+        .expectSubscription()
+        .assertNext(result -> assertEquals("42", String.valueOf(result.value())))
+        .verifyComplete();
+    
+    assertNotNull(duration);
+  }
+
 
   @Test
   void save_null_request_should_fail_withBadRequest() {
