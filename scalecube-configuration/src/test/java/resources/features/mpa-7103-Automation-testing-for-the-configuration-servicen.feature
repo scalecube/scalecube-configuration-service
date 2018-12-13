@@ -183,7 +183,7 @@ Feature: Basic CRUD tests for configuration service.
     Then all new entities should be created and stored in the relevant "repository" of the DB
 
 
-  #MPA-7103 (#5.3)
+  #MPA-7103 (#5.1)
   Scenario: Successful save the same instrument instance entity values for different Repos
     Given  relevant "repositories" with "specified" names "Repo1" and "Repo2" already created and stored in DB without any entity
     And the user have been granted with valid "tokens" (API key) with "owner" and "admin" assigned roles accordingly
@@ -209,18 +209,7 @@ Feature: Basic CRUD tests for configuration service.
     Then existent entity values shouldn't be duplicated thus new values should be set to the given keys and stored in the relevant "repositories" of the DB
 
 
-  #MPA-7103 (#5.3)
-  Scenario: Fail to save a specific instrument instance entity upon the restricted permission for Member
-    Given the user have been granted with valid "token" (API key) assigned by "member" role
-    And the relevant specified name "repository" was created and stored in DB
-    When this user requested to save the "instrumentInstance" entity in the relevant "repository" specified name with following details
-      | instrumentId | name | DecimalPrecision | Rounding | key                  |
-      | JPY          | Yen  | 4                | down     | KEY-FOR-CURRENCY-999 |
-    Then this new entity shouldn't be created and the user should get an error message: "role: "userId" not in role Owner or Admin"
-
-
-
-  #MPA-7103 (#6)
+ #MPA-7103 (#5.3)
   Scenario: Successful save the instrument instance entity with values that reach over a 1000 chars (no quantity validation for input)
     Given the user have been granted with one of the valid "tokens" (API key) assigned by "owner" either "admin" role
     And the relevant specified name "repository" was created and stored in DB
@@ -230,8 +219,41 @@ Feature: Basic CRUD tests for configuration service.
     Then new entitiy should be created and stored in the relevant "repository" of the DB
 
 
+ #MPA-7103 (#5.4)
+  Scenario: Successful save the instrument instance entity with values which chats are symbols (no chars validation for input)
+    Given the user have been granted with one of the valid "tokens" (API key) assigned by "owner" either "admin" role
+    And the relevant specified name "repository" was created and stored in DB
+    When this user requested to save the "instrumentInstance" entity in the relevant specified name "repository" with following details
+      | instrumentId | name     | DecimalPrecision | Rounding | key                        |
+      | #!=`~/.*     | #!=`~/.* | #!=`~/.*         | #!=`~/.* | KEY-FOR-PRECIOUS-METAL-123 |
+    Then new entitiy should be created and stored in the relevant "repository" of the DB
 
-  #MPA-7103 (#7)
+
+  #MPA-7103 (#5.5)
+  Scenario: Fail to save a specific instrument instance entity upon the restricted permission for Member
+    Given the user have been granted with valid "token" (API key) assigned by "member" role
+    And the relevant specified name "repository" was created and stored in DB
+    When this user requested to save the "instrumentInstance" entity in the relevant "repository" specified name with following details
+      | instrumentId | name | DecimalPrecision | Rounding | key                  |
+      | JPY          | Yen  | 4                | down     | KEY-FOR-CURRENCY-999 |
+    Then this new entity shouldn't be created and the user should get an error message: "role: "userId" not in role Owner or Admin"
+
+
+ #MPA-7103 (#5.6)
+  Scenario: Fail to update a non-existent instrument instance entity
+    Given the user have been granted with valid "token" (API key) assigned by "owner" either "admin" role
+    And the is no repository was created and stored in the DB
+    And only single specific "instrumentInstance" entity stored in this "repository"
+      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
+      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
+    When this user requested to delete non-existent "instrumentInstance" entity from the relevant specified name "repository"
+      | key          |
+      | NON-EXISTENT |
+    Then any of the existent entity shouldn't be removed from the "repository" and this user should get the error message: "key: "specified" name doesn't exist"
+
+
+ 
+  #MPA-7103 (#6)
   Scenario: Successful get of the existent instrument instance entity
     Given the user have been granted with one of the valid "tokens" (API key) assigned by "owner" either "admin" either "member" role
     And the relevant specified name "repository" was created and stored in DB
@@ -244,7 +266,7 @@ Feature: Basic CRUD tests for configuration service.
     Then this user should receive successful response with relevant entity which is stored in the relevant specified name "repository" of the DB
 
 
-  #MPA-7103 (#7.1)
+  #MPA-7103 (#6.1)
   Scenario: Fail to get the non-existent instrument instance entity
     Given the user have been granted with one of the valid "tokens" (API key) assigned by "owner" either "admin" either "member" role
     And the relevant specified name "repository" was created and stored in DB
@@ -254,10 +276,10 @@ Feature: Basic CRUD tests for configuration service.
     When this user requested to get non-existent "instrumentInstance" entity from the relevant specified name "repository"
       | key          |
       | NON-EXISTENT |
-    Then this user shouldn't receive any of the stored entities and get the empty object
+    Then this user shouldn't receive any of the stored entities and get the error message: "key: "specified" name doesn't exist"
 
 
-  #MPA-7103 (#8)
+  #MPA-7103 (#6.2)
   Scenario: Successful get of the all existent entities list
     Given the user have been granted with one of the valid "tokens" (API key) assigned by "owner" either "admin" either "member" role
     And the relevant specified name "repository" was created and stored in DB
@@ -271,7 +293,7 @@ Feature: Basic CRUD tests for configuration service.
 
 
 
-  #MPA-7103 (#9)
+  #MPA-7103 (#7)
   Scenario: Successful delete of the specific instrument instance entity
     Given the user have been granted with valid "token" (API key) assigned by "owner" either "admin" role
     And the relevant specified name "repository" was created and stored in DB
@@ -282,7 +304,7 @@ Feature: Basic CRUD tests for configuration service.
     Then this user should receive successful response with empty object
 
 
-  #MPA-7103 (#9.1)
+  #MPA-7103 (#7.1)
   Scenario: Fail to delete the specific instrument instance entity
     Given the user have got a valid "token" (API key) with "member" assigned role
     And the relevant specified name "repository" was created and stored in DB
@@ -290,10 +312,10 @@ Feature: Basic CRUD tests for configuration service.
       | instrumentId | name   | DecimalPrecision | Rounding | key                        |
       | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
     When this user requested to delete this specific "instrumentInstance" entity from the relevant specified name "repository"
-    Then this entity shouldn't be removed from the "repository" and this user should receive an error message: "role: permission denied"
+    Then this entity shouldn't be removed from the "repository" and this user should receive an error message: "role: "userId" not in role Owner or Admin"
 
 
-  #MPA-7103 (#9.2)
+  #MPA-7103 (#7.2)
   Scenario: Fail to delete a non-existent instrument instance entity
     Given the user have been granted with valid "token" (API key) assigned by "owner" either "admin" role
     And the relevant specified name "repository" was created and stored in DB
@@ -303,4 +325,4 @@ Feature: Basic CRUD tests for configuration service.
     When this user requested to delete non-existent "instrumentInstance" entity from the relevant specified name "repository"
       | key          |
       | NON-EXISTENT |
-    Then any of the existent entity shouldn't be removed from the "repository" and this user should receive an empty object
+    Then any of the existent entity shouldn't be removed from the "repository" and this user should get the error message: "key: "specified" name doesn't exist"
