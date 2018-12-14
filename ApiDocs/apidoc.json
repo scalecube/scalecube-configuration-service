@@ -16,7 +16,5 @@
     "GetSingleEntity",
     "GetAllEntities",
     "DeleteEntity"
-
-
   ]
 }

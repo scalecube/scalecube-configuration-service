@@ -6,17 +6,17 @@
 *
 * @apiDescription Configuration service enable you to integrate the API in order to create and manage the separate repositories purposed for entity collection and storage.
   <br> Configuration service is security protected and to handle with it there is necessity to get the API key (token) which is issued via the Organization Service API purposed
-  for organization managers who provide relevant permission level to potential costumers assigned by the granted role (Member/Admin/Owner) for the API key.
+  for organization managers who provide relevant permission level to potential costumers assigned by the relevant role (Member/Admin/Owner) for the API key.
 
 
 *
 *
-  <b>Getting Started</b>
+* <b>Getting Started</b>
 *
 * Integration URL: wss://configuration-service-7070.genesis.om2.com
 *
-  <br>All API endpoints are documented below.
-  <br> You can try out any query in realtime using our interactive API.<br>
+* <br>All API endpoints are documented below.
+* <br> You can try out any query in realtime using our interactive API.<br>
 * Most of the methods require API key authorization since they provide a specific permission level for the each user.
 * Thus, we recommend you first to be granted with valid API key assigned by relevant role (permission). You can use this API key across all service API endpoints.
 */
@@ -56,6 +56,6 @@
                  <li> 1. Enter to the sandbox: <a href="http://scalecube.io/api-sandbox/app/index.html">Scalecube sandbox</a> </li>
                  <li> 2. Click on the Settings button and enter the environment: wss://configuration-service-7070.genesis.om2.com </li>
                  <li> 3. Import the exchange.json file path <a href="https://raw.githubusercontent.com/PavloPetrina/JsonData/master/OrganizationServiceALL.json">Organization service contracts.json</a></li>
-                 <li> 4. Click on the Connect button (now you are connected to the environment) and push "Send".</li>
+                 <li> 4. Click on the Connect button (now you are connected to the environment) and push "Send"</li>
   </ul>
 */

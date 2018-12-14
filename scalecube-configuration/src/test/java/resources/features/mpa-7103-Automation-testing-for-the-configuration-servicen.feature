@@ -220,12 +220,12 @@ Feature: Basic CRUD tests for configuration service.
 
 
  #MPA-7103 (#5.4)
-  Scenario: Successful save the instrument instance entity with values which chats are symbols (no chars validation for input)
+  Scenario: Successful save the instrument instance entity with values which chats are symbols and spaces (no chars validation for input)
     Given the user have been granted with one of the valid "tokens" (API key) assigned by "owner" either "admin" role
     And the relevant specified name "repository" was created and stored in DB
     When this user requested to save the "instrumentInstance" entity in the relevant specified name "repository" with following details
-      | instrumentId | name     | DecimalPrecision | Rounding | key                        |
-      | #!=`~/.*     | #!=`~/.* | #!=`~/.*         | #!=`~/.* | KEY-FOR-PRECIOUS-METAL-123 |
+      | instrumentId | name        | DecimalPrecision | Rounding    | key                        |
+      | #!=`   ~/.*  | #!=   `~/.* | #!=`   ~/.*      | #!=`~   /.* | KEY-FOR-PRECIOUS-METAL-123 |
     Then new entitiy should be created and stored in the relevant "repository" of the DB
 
 
