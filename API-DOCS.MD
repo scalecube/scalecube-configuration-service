@@ -40,7 +40,7 @@
 
 * delete(DeleteRequest request)
   * Request to delete a specified entry from the repository and requires a write level permissions granted for owner and admin role only.
-  * param: CreateRepositoryRequest:
+  * param: DeleteRepositoryRequest:
     * String repository: The repository name (already stored name of the created repository)
     * Object token: The request token (API key)
     * String key: key name The requested data key (a configuration setting which is already stored as the key name for that purpose)
