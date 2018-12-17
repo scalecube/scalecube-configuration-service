@@ -13,7 +13,7 @@
   * param: CreateRepositoryRequest:
     * String repository: The repository name (already stored name of the created repository)
     * Object token: The request token (API key)
-    * String key: key name (customed name for specified configuration setting in the repository)
+    * String key: key name (customed value for specified configuration setting in the repository)
     * Object value: node name (customed name for specified configuration setting in the repository)
   * returns Acknowledgment
 
@@ -22,7 +22,7 @@
   * param FetchRequest:
     * String repository: The repository name (already stored name of the created repository)
     * Object token: The request token (API key)
-    * String key: The requested data key (a configuration setting which is already stored as the key name for that purpose)
+    * String key: The requested data key (a configuration setting which is already stored as the key value for that purpose)
   * returns FetchResponse:
     * String key: fetch key
     * Object value: fetch value
@@ -32,7 +32,7 @@
   * param FetchRequest:
     * String repository: The repository name (already stored name of the created repository)
     * Object token: The request token (API key)
-    * String key: The requested data keys (configuration settings which are already stored as the key names for that purpose)
+    * String key: The requested data keys (configuration settings which are already stored as the key values for that purpose)
   * returns a collection of FetchResponse:
     * entries (array)
       * String key: fetch key
@@ -43,5 +43,5 @@
   * param: DeleteRepositoryRequest:
     * String repository: The repository name (already stored name of the created repository)
     * Object token: The request token (API key)
-    * String key: key name The requested data key (a configuration setting which is already stored as the key name for that purpose)
+    * String key: The requested data key (a configuration setting which is already stored as the key value for that purpose)
   * returns Acknowledgment
