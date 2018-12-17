@@ -14,7 +14,7 @@
     * String repository: The repository name (already stored name of the created repository)
     * Object token: The request token (API key)
     * String key: key name (customed value for specified configuration setting in the repository)
-    * Object value: node name (customed name for specified configuration setting in the repository)
+    * Object value: node name (customed value for specified configuration settings in the repository)
   * returns Acknowledgment
 
 * fetch(FetchRequest request)
