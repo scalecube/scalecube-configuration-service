@@ -1,5 +1,7 @@
 couchbase.bucketNamePattern=%s-%s
-couchbase.bucketRoles=data_reader,data_writer,query_select
+# roles in enterprise version
+# couchbase.bucketRoles=data_reader,data_writer,query_select
+couchbase.bucketRoles=bucket_full_access
 couchbase.bucketType=COUCHBASE
 
 # quota in megabytes
