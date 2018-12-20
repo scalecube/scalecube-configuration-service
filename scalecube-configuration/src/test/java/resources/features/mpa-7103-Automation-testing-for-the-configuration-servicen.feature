@@ -36,7 +36,7 @@ Feature: Basic CRUD tests for configuration service.
 
   #_____________________________________________________CRUD____________________________________________________________
 
-  #MPA-7103 (#1)
+  #MPA-7103 (#1) - SHOULD WE RETURN THE REPO INFO INSTEAD OF PlAIN ACKNOWLEDGEMENT?
   Scenario: Successful Repo creation
     Given a user have got a valid "token" (API key) with assigned "owner" role
     When this user requested to create the "repository" with "specified" name
