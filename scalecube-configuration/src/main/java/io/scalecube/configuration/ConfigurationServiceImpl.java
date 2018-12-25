@@ -1,6 +1,5 @@
 package io.scalecube.configuration;
 
-import io.scalecube.configuration.api.AccessRequest;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
@@ -15,10 +14,7 @@ import io.scalecube.configuration.authorization.OperationType;
 import io.scalecube.configuration.operation.ServiceOperationContext;
 import io.scalecube.configuration.operation.ServiceOperationFactory;
 import io.scalecube.configuration.repository.ConfigurationDataAccess;
-import io.scalecube.configuration.repository.Repository;
 import io.scalecube.configuration.tokens.TokenVerifier;
-
-import io.scalecube.security.Profile;
 
 import java.util.Objects;
 
