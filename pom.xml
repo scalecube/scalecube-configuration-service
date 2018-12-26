@@ -24,9 +24,8 @@
   </scm>
 
   <properties>
-    <scalecube-cluster.version>2.1.13</scalecube-cluster.version>
     <scalecube.config.version>0.3.6</scalecube.config.version>
-    <scalecube-services.version>2.4.6</scalecube-services.version>
+    <scalecube-services.version>2.4.7</scalecube-services.version>
     <scalecube-testlib.version>1.0.9</scalecube-testlib.version>
     <scalecube-security-jwt.version>1.0.2</scalecube-security-jwt.version>
     <jackson.version>2.9.6</jackson.version>
@@ -49,11 +48,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>scalecube-utils</artifactId>
-        <version>${scalecube-cluster.version}</version>
-      </dependency>
       <dependency>
         <groupId>io.scalecube</groupId>
         <artifactId>config</artifactId>
