@@ -2,25 +2,22 @@ package io.scalecube.configuration.repository.couchbase;
 
 import static java.util.Objects.requireNonNull;
 
-import io.scalecube.configuration.repository.couchbase.CouchbaseSettings.Builder;
 import io.scalecube.configuration.repository.exception.OperationInterruptedException;
 import io.scalecube.configuration.repository.exception.QueryTimeoutException;
-
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-abstract class CouchbaseOperations {
+public abstract class CouchbaseOperations {
 
   protected final CouchbaseSettings settings;
   protected final CouchbaseExceptionTranslator exceptionTranslator;
 
-  protected CouchbaseOperations() {
-    settings = new Builder().build();
-    exceptionTranslator = new CouchbaseExceptionTranslator();
+  protected CouchbaseOperations(CouchbaseSettings settings) {
+    this.settings = settings;
+    this.exceptionTranslator = new CouchbaseExceptionTranslator();
   }
 
-
-  protected <R> R execute(CouchbaseCallback<R> action) {
+  protected final <R> R execute(CouchbaseCallback<R> action) {
     requireNonNull(action);
 
     try {
@@ -33,7 +30,4 @@ abstract class CouchbaseOperations {
       throw new OperationInterruptedException(ex.getMessage(), ex);
     }
   }
-
-
-
 }

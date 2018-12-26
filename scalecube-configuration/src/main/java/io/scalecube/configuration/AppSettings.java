@@ -11,7 +11,7 @@ public class AppSettings {
     settings = new Properties();
 
     try {
-      settings.load(getClass().getResourceAsStream("/settings.properties"));
+      settings.load(getClass().getResourceAsStream("/settings.props"));
     } catch (IOException ex) {
       throw new AppSettingsException("Failed to initialize", ex);
     }

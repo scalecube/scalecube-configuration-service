@@ -1,16 +1,5 @@
 package io.scalecube.configuration.repository.couchbase;
 
-import io.scalecube.configuration.repository.exception.DataAccessException;
-import io.scalecube.configuration.repository.exception.DataAccessResourceFailureException;
-import io.scalecube.configuration.repository.exception.DataIntegrityViolationException;
-import io.scalecube.configuration.repository.exception.DataRetrievalFailureException;
-import io.scalecube.configuration.repository.exception.DuplicateKeyException;
-import io.scalecube.configuration.repository.exception.InvalidDataAccessResourceUsageException;
-import io.scalecube.configuration.repository.exception.KeyNotFoundException;
-import io.scalecube.configuration.repository.exception.OperationCancellationException;
-import io.scalecube.configuration.repository.exception.QueryTimeoutException;
-import io.scalecube.configuration.repository.exception.TransientDataAccessResourceException;
-
 import com.couchbase.client.core.BackpressureException;
 import com.couchbase.client.core.BucketClosedException;
 import com.couchbase.client.core.DocumentConcurrentlyModifiedException;
@@ -35,11 +24,31 @@ import com.couchbase.client.java.error.TemporaryLockFailureException;
 import com.couchbase.client.java.error.TranscodingException;
 import com.couchbase.client.java.error.ViewDoesNotExistException;
 
+import io.scalecube.configuration.repository.exception.DataAccessException;
+import io.scalecube.configuration.repository.exception.DataAccessResourceFailureException;
+import io.scalecube.configuration.repository.exception.DataIntegrityViolationException;
+import io.scalecube.configuration.repository.exception.DataRetrievalFailureException;
+import io.scalecube.configuration.repository.exception.DuplicateKeyException;
+import io.scalecube.configuration.repository.exception.InvalidDataAccessResourceUsageException;
+import io.scalecube.configuration.repository.exception.KeyNotFoundException;
+import io.scalecube.configuration.repository.exception.OperationCancellationException;
+import io.scalecube.configuration.repository.exception.QueryTimeoutException;
+import io.scalecube.configuration.repository.exception.TransientDataAccessResourceException;
+
 import java.util.concurrent.TimeoutException;
 
-final class CouchbaseExceptionTranslator {
+/**
+ * Utility class used to translate runtime exception into a more meaningful exceptions.
+ */
+public final class CouchbaseExceptionTranslator {
 
-  DataAccessException translateExceptionIfPossible(RuntimeException ex) {
+  /**
+   * Return a translation os the ex argument into a {@link DataAccessException} if possible.
+   * @param ex the runtime exception to try and translate
+   * @return A {@link DataAccessException} translation of the ex argument if possible;
+   *     the ex argument otherwise
+   */
+  public DataAccessException translateExceptionIfPossible(RuntimeException ex) {
     if (ex instanceof InvalidPasswordException
         || ex instanceof NotConnectedException
         || ex instanceof ConfigurationException

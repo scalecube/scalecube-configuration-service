@@ -6,75 +6,39 @@
 
   <artifactId>scalecube-configuration-parent</artifactId>
   <version>2.0.12-SNAPSHOT</version>
-  <packaging>pom</packaging>
 
-  <name>ScaleCube Configuration Service</name>
   <parent>
     <groupId>io.scalecube</groupId>
     <artifactId>scalecube-parent-pom</artifactId>
-    <version>0.0.9</version>
+    <version>0.0.16</version>
   </parent>
+  <packaging>pom</packaging>
 
-  <description>
-    ScaleCube is a lightweight decentralized cluster membership, failure detection, messaging and
-    gossip protocol library for the Java VM.
-  </description>
-  <inceptionYear>2015</inceptionYear>
-  <url>http://scalecube.io</url>
-
-  <licenses>
-    <license>
-      <name>The Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-    </license>
-  </licenses>
-
-  <prerequisites>
-    <maven>3.5.0</maven>
-  </prerequisites>
-
+  <name>ScaleCube Configuration Service</name>
   <scm>
     <url>https://github.com/scalecube/scalecube-configation-service</url>
-    <connection>scm:git:git@github.com:scalecube/scalecube-configation-service.git</connection>
+    <connection>scm:git:git@github.com:scalecube/scalecube-configuration-service.git</connection>
     <developerConnection>scm:git:git@github.com:scalecube/scalecube.git
     </developerConnection>
     <tag>HEAD</tag>
   </scm>
 
-  <developers>
-    <developer>
-      <id>scalecube.io</id>
-      <name>The ScaleCube Project Contributors</name>
-      <email>info@scalecube.io</email>
-      <organization>The ScaleCube Project</organization>
-      <organizationUrl>http://scalecube.io/</organizationUrl>
-    </developer>
-  </developers>
-
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
-
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <dockerfile-maven.version>1.3.6</dockerfile-maven.version>
-    <project.docker.repository>scalecube/configuration</project.docker.repository>
-    <argLine>-Xms1024m -Xmx2048m</argLine>
-    <scalecube-services.version>2.1.12-SNAPSHOT</scalecube-services.version>
-    <scalecube-gateway.version>2.0.11</scalecube-gateway.version>
+    <scalecube.config.version>0.3.6</scalecube.config.version>
+    <scalecube-services.version>2.4.7</scalecube-services.version>
     <scalecube-testlib.version>1.0.9</scalecube-testlib.version>
-    <jackson-databind.version>2.7.6</jackson-databind.version>
-    <junit.jupiter.version>5.1.0</junit.jupiter.version>
-    <scalecube-security-jwt.version>1.0.2-SNAPSHOT</scalecube-security-jwt.version>
+    <scalecube-security-jwt.version>1.0.2</scalecube-security-jwt.version>
+    <jackson.version>2.9.6</jackson.version>
+    <netty.version>4.1.31.Final</netty.version>
+    <junit.jupiter.version>5.3.0</junit.jupiter.version>
     <couchbase-client-version>2.6.0</couchbase-client-version>
+    <slf4j.version>1.7.7</slf4j.version>
+    <log4j.version>2.11.1</log4j.version>
+
+    <dockerfile.maven.extension.version>1.3.7</dockerfile.maven.extension.version>
+    <dockerfile.maven.version>1.3.7</dockerfile.maven.version>
+    <dockerfile.repository>scalecube/${project.artifactId}</dockerfile.repository>
+    <dockerfile.useMavenSettingsForAuth>true</dockerfile.useMavenSettingsForAuth>
   </properties>
 
   <modules>
@@ -82,154 +46,314 @@
     <module>scalecube-configuration</module>
   </modules>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.scalecube</groupId>
+        <artifactId>config</artifactId>
+        <version>${scalecube.config.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.scalecube</groupId>
+        <artifactId>config-vault</artifactId>
+        <version>${scalecube.config.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.scalecube</groupId>
+        <artifactId>scalecube-security-jwt</artifactId>
+        <version>${scalecube-security-jwt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.scalecube</groupId>
+        <artifactId>scalecube-services-discovery</artifactId>
+        <version>${scalecube-services.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.scalecube</groupId>
+        <artifactId>scalecube-services-transport-jackson</artifactId>
+        <version>${scalecube-services.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.scalecube</groupId>
+        <artifactId>scalecube-services-transport-rsocket</artifactId>
+        <version>${scalecube-services.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.scalecube</groupId>
+        <artifactId>scalecube-services</artifactId>
+        <version>${scalecube-services.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.scalecube</groupId>
+        <artifactId>scalecube-services-api</artifactId>
+        <version>${scalecube-services.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.couchbase.client</groupId>
+        <artifactId>java-client</artifactId>
+        <version>${couchbase-client-version}</version>
+      </dependency>
 
-  <dependencies>
-    <dependency>
-      <groupId>io.scalecube</groupId>
-      <artifactId>scalecube-services</artifactId>
-      <version>${scalecube-services.version}</version>
-    </dependency>
-  </dependencies>
+      <!-- Netty -->
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-common</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-buffer</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-codec</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-codec-http</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-handler</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-handler-proxy</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-transport</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-transport-native-epoll</artifactId>
+        <classifier>linux-x86_64</classifier>
+        <version>${netty.version}</version>
+      </dependency>
 
+      <!-- Loggers -->
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-slf4j-impl</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
 
   <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.5</version>
-        <configuration>
-          <autoVersionSubmodules>true</autoVersionSubmodules>
-          <useReleaseProfile>false</useReleaseProfile>
-          <releaseProfiles>release</releaseProfiles>
-          <tagNameFormat>@{project.version}</tagNameFormat>
-          <goals>deploy</goals>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.6.3</version>
-        <extensions>true</extensions>
-        <configuration>
-          <serverId>ossrh</serverId>
-          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>true</autoReleaseAfterClose>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.6.0</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.18.1</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>2.17</version>
-        <executions>
-          <execution>
-            <id>checkstyle</id>
-            <phase>verify</phase>
-            <configuration>
-              <configLocation>checkstyle.xml</configLocation>
-              <encoding>UTF-8</encoding>
-              <consoleOutput>true</consoleOutput>
-              <violationSeverity>error</violationSeverity>
-              <failsOnError>true</failsOnError>
-              <maxAllowedViolations>0</maxAllowedViolations>
-              <suppressionsLocation>checkstyle-suppression.xml</suppressionsLocation>
-              <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
-            </configuration>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.7.7.201606060606</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>report</id>
-            <phase>test</phase>
-            <goals>
-              <goal>report</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+    <extensions>
+      <extension>
+        <groupId>com.spotify</groupId>
+        <artifactId>dockerfile-maven-extension</artifactId>
+        <version>${dockerfile.maven.extension.version}</version>
+      </extension>
+    </extensions>
 
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>default</id>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+              <configuration>
+                <transformers>
+                  <transformer
+                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                    <mainClass>${mainClass}</mainClass>
+                  </transformer>
+                  <transformer
+                    implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                </transformers>
+                <outputDirectory>${project.build.directory}</outputDirectory>
+                <createDependencyReducedPom>false</createDependencyReducedPom>
+                <shadedArtifactAttached>true</shadedArtifactAttached>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <configuration>
+            <archive>
+              <manifest>
+                <addClasspath>true</addClasspath>
+                <classpathPrefix>lib/</classpathPrefix>
+                <mainClass>${mainClass}</mainClass>
+              </manifest>
+            </archive>
+            <excludes>
+              <exclude>META-INF/*.SF</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>copy-dependencies</goal>
+              </goals>
+              <configuration>
+                <overWriteReleases>false</overWriteReleases>
+                <outputDirectory>${project.build.directory}/lib</outputDirectory>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>com.spotify</groupId>
+          <artifactId>dockerfile-maven-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>default</id>
+              <goals>
+                <goal>build</goal>
+              </goals>
+              <phase>install</phase>
+              <configuration>
+                <buildArgs>
+                  <EXECUTABLE_JAR>${project.build.finalName}</EXECUTABLE_JAR>
+                  <SERVICE_NAME>${project.artifactId}</SERVICE_NAME>
+                </buildArgs>
+                <tag>latest</tag>
+              </configuration>
+            </execution>
+            <execution>
+              <id>tag-version</id>
+              <goals>
+                <goal>tag</goal>
+              </goals>
+              <phase>install</phase>
+              <configuration>
+                <tag>${project.version}</tag>
+              </configuration>
+            </execution>
+            <execution>
+              <id>deployment</id>
+              <goals>
+                <goal>push</goal>
+              </goals>
+              <phase>deploy</phase>
+              <configuration>
+                <tag>latest</tag>
+              </configuration>
+            </execution>
+            <execution>
+              <id>tag-deployment</id>
+              <goals>
+                <goal>push</goal>
+              </goals>
+              <phase>deploy</phase>
+              <configuration>
+                <tag>${project.version}</tag>
+              </configuration>
+            </execution>
+            <execution>
+              <id>create-extra-tags</id>
+              <goals>
+                <goal>tag</goal>
+              </goals>
+              <phase>install</phase>
+              <configuration>
+                <tag>${extratags}</tag>
+                <skipTag>${noextratags}</skipTag>
+              </configuration>
+            </execution>
+            <execution>
+              <id>push-extra-tags</id>
+              <goals>
+                <goal>push</goal>
+              </goals>
+              <phase>deploy</phase>
+              <configuration>
+                <tag>${extratags}</tag>
+                <skip>${noextratags}</skip>
+              </configuration>
+            </execution>
+          </executions>
+          <configuration>
+            <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 
   <profiles>
     <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.5</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <version>2.2.1</version>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>jar-no-fork</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.9.1</version>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-                <configuration>
-                  <additionalparam>-Xdoclint:none</additionalparam>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
+      <id>no-extra-tags</id>
+      <properties>
+        <noextratags>true</noextratags>
+      </properties>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+    </profile>
+    <profile>
+      <id>extra-tags</id>
+      <properties>
+        <noextratags>false</noextratags>
+      </properties>
+      <activation>
+        <property>
+          <name>extratags</name>
+        </property>
+      </activation>
+    </profile>
+    <profile>
+      <id>SkipDockerGoals</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <dockerfile.skip>true</dockerfile.skip>
+      </properties>
+    </profile>
+    <profile>
+      <id>RunDockerGoals</id>
+      <activation>
+        <os>
+          <family>unix</family>
+        </os>
+        <file>
+          <exists>/usr/bin/docker</exists>
+        </file>
+      </activation>
+      <properties>
+        <dockerfile.skip>false</dockerfile.skip>
+      </properties>
     </profile>
   </profiles>
 

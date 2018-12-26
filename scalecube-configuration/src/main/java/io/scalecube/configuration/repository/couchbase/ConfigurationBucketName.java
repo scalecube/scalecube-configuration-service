@@ -1,23 +1,35 @@
 package io.scalecube.configuration.repository.couchbase;
 
+import io.scalecube.configuration.repository.Repository;
 import io.scalecube.configuration.repository.exception.InvalidRepositoryNameException;
-
 import java.util.Objects;
 
-class ConfigurationBucketName {
-  private static final CouchbaseSettings settings = new CouchbaseSettings.Builder().build();
+/**
+ * Utility class to validate and format a configuration bucket name.
+ */
+public class ConfigurationBucketName {
   private final String name;
 
   private ConfigurationBucketName(String name) {
     this.name = name;
   }
 
-  String name() {
+  /**
+   * Returns the name of this configuration bucket.
+   * @return
+   */
+  public String name() {
     return name;
   }
 
-  static ConfigurationBucketName from(String namespace, String name) {
-    String bucketName = getBucketName(namespace, name);
+  /**
+   * Constructs an instance of {@link ConfigurationBucketName} using the arguments.
+   * @param repository repository info
+   * @param settings app settings
+   * @return an instance if {@link ConfigurationBucketName}
+   */
+  public static ConfigurationBucketName from(Repository repository, CouchbaseSettings settings) {
+    String bucketName = getBucketName(repository.namespace(), repository.name(), settings);
     validateBucketName(bucketName);
     return new ConfigurationBucketName(bucketName);
   }
@@ -34,9 +46,10 @@ class ConfigurationBucketName {
     }
   }
 
-  private static String getBucketName(String namespace, String repository) {
+  private static String getBucketName(
+      String namespace, String repository, CouchbaseSettings settings) {
     Objects.requireNonNull(namespace, "namespace");
-    Objects.requireNonNull(repository, "repository");
+    Objects.requireNonNull(repository, "name");
     return String.format(settings.bucketNamePattern(), namespace, repository);
   }
 }

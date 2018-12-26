@@ -11,11 +11,11 @@ import java.io.Writer;
 /**
  * Default JSON implementation of <code>TranslationService</code>.
  */
-class JacksonTranslationService implements TranslationService {
+public class JacksonTranslationService implements TranslationService {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
-  JacksonTranslationService() {
+  public JacksonTranslationService() {
     objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
   }
 

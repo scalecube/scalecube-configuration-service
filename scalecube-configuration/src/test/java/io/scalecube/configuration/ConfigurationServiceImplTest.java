@@ -11,11 +11,11 @@ import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
 import io.scalecube.configuration.api.InvalidPermissionsException;
 import io.scalecube.configuration.api.SaveRequest;
-//import io.scalecube.configuration.repository.couchbase.CouchbaseDataAccess;
 import io.scalecube.configuration.repository.exception.DuplicateRepositoryException;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
 import io.scalecube.configuration.repository.inmem.InMemoryDataAccess;
+import io.scalecube.configuration.tokens.InvalidAuthenticationException;
 import io.scalecube.security.Profile;
 
 import java.time.Duration;
@@ -29,18 +29,8 @@ import org.junit.jupiter.api.Test;
 
 import reactor.test.StepVerifier;
 
-class ConfigurationServiceImplTest {
+public class ConfigurationServiceImplTest {
   private final ObjectMapper mapper = new ObjectMapper();
-//  private final CouchbaseDataAccess dataAccess = new CouchbaseDataAccess();
-
-//  @AfterEach
-//  void deleteBucket() {
-//    try {
-//      dataAccess.deleteRepository("myorg", "myrepo");
-//    } catch (Throwable t) {
-//      t.printStackTrace();
-//    }
-//  }
 
   @Test
   void create_repository_null_request_should_fail_withBadRequest() {
@@ -85,7 +75,7 @@ class ConfigurationServiceImplTest {
         .create(
             service.createRepository(new CreateRepositoryRequest(new Object(), "myrepo")))
         .expectSubscription()
-        .expectError(InvalidAuthenticationToken.class)
+        .expectError(InvalidAuthenticationException.class)
         .verify();
     assertNotNull(duration);
   }
@@ -160,18 +150,18 @@ class ConfigurationServiceImplTest {
     assertNotNull(duration);
   }
 
-  private ConfigurationService createService() {
-    Map<String, Object> claims = new HashMap<>();
-    claims.put("role", Role.Owner);
-    return createService(new ProfileBuilder().tenant("myorg")
-        .claims(claims).build());
-  }
-
   @Test
   void createRepository() {
     ConfigurationService service = createService();
     Duration duration = createRepository(service);
     assertNotNull(duration);
+  }
+
+  private ConfigurationService createService() {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("role", Role.Owner);
+    return createService(new ProfileBuilder().tenant("myorg")
+        .claims(claims).build());
   }
 
   private ConfigurationService createService(Profile profile) {
@@ -244,7 +234,7 @@ class ConfigurationServiceImplTest {
         .create(
             service.fetch(new FetchRequest(new Object()  , "myrepo", "mykey")))
         .expectSubscription()
-        .expectError(InvalidAuthenticationToken.class)
+        .expectError(InvalidAuthenticationException.class)
         .verify();
     assertNotNull(duration);
   }
@@ -357,6 +347,8 @@ class ConfigurationServiceImplTest {
         .assertNext(Assertions::assertNotNull)
         .verifyComplete();
 
+
+
     assertNotNull(StepVerifier
         .create(
             service.entries(new FetchRequest(new Object()  , "myrepo", null)))
@@ -414,7 +406,7 @@ class ConfigurationServiceImplTest {
         .create(
             service.entries(new FetchRequest(new Object()  , "myrepo", "mykey")))
         .expectSubscription()
-        .expectError(InvalidAuthenticationToken.class)
+        .expectError(InvalidAuthenticationException.class)
         .verify();
     assertNotNull(duration);
   }
@@ -550,7 +542,7 @@ class ConfigurationServiceImplTest {
             service.save(new SaveRequest(new Object()  , "myrepo", "mykey",
                 mapper.valueToTree(1))))
         .expectSubscription()
-        .expectError(InvalidAuthenticationToken.class)
+        .expectError(InvalidAuthenticationException.class)
         .verify();
     assertNotNull(duration);
   }
@@ -712,7 +704,7 @@ class ConfigurationServiceImplTest {
         .create(
             service.delete(new DeleteRequest(new Object()  , "myrepo", "mykey")))
         .expectSubscription()
-        .expectError(InvalidAuthenticationToken.class)
+        .expectError(InvalidAuthenticationException.class)
         .verify();
     assertNotNull(duration);
   }
