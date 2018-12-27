@@ -23,7 +23,7 @@
 
   <properties>
     <scalecube.config.version>0.3.6</scalecube.config.version>
-    <scalecube-services.version>2.4.7</scalecube-services.version>
+    <scalecube-services.version>2.4.9</scalecube-services.version>
     <scalecube-testlib.version>1.0.9</scalecube-testlib.version>
     <scalecube-security-jwt.version>1.0.2</scalecube-security-jwt.version>
     <jackson.version>2.9.6</jackson.version>
