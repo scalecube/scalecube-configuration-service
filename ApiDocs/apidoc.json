@@ -3,7 +3,7 @@
   "version": "0.0.1-SNAPSHOT",
   "description": "Configuration service API",
   "title": "API documentation for the Configuration Service",
-  "url" : " - Websocket: wss://configuration-service-7070.genesis.om2.com/io.scalecube.configuration.api.ConfigurationService/   - RSocket: wss://configuration-service-9090.genesis.om2.com/io.scalecube.configuration.api.ConfigurationService/   - HTTP: https://configuration-service-8080.genesis.om2.com/",
+  "url" : "Websocket: wss://configuration-service-7070.genesis.om2.com/io.scalecube.configuration.api.ConfigurationService/\nRSocket: wss://configuration-service-9090.genesis.om2.com/io.scalecube.configuration.api.ConfigurationService/\nHTTP: https://configuration-service-8080.genesis.om2.com/\n",
   "template": {
     "forceLanguage" : "en"
   },

@@ -1,5 +1,6 @@
 /**
  * @api {websocket} io.scalecube.configuration.api.ConfigurationService/createRepository Create new Repo
+ * @apiVersion 0.0.1-SNAPSHOT
  * @apiName CreateRepository
  * @apiGroup CreateRepository
  *
