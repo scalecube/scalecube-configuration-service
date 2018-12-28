@@ -56,7 +56,7 @@ public class VaultKeyProvider implements KeyProvider {
       String vaultEntry = getVaultEntryValue(alias);
       return new SecretKeySpec(DatatypeConverter.parseBase64Binary(vaultEntry), algorithm);
     } catch (Exception ex) {
-      LOGGER.error(String.format("Error creating cluster for alias: '%s'", alias), ex);
+      LOGGER.error(String.format("Error creating key for alias: '%s'", alias), ex);
       if (ex instanceof KeyProviderException) {
         throw (KeyProviderException) ex;
       } else {
