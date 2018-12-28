@@ -34,12 +34,9 @@ docker run -u $(id -u) \
 # copy newly created documentation to http://scalecube.io/
 cp -R /tmp/docs-generated/* $SCALECUBE_CFG_SERVICE_DOCS
 
-cd $SCALECUBE_CFG_SERVICE_DOCS && \
-    git add . && \
-    git commit -m "Feature: updated configuration-service documentation" && \
-    git push
-
-cd $SCALECUBE_CFG_SERVICE && \
+# commit documentation
+for project in $SCALECUBE_CFG_SERVICE $SCALECUBE_CFG_SERVICE_DOCS; do
+    cd $project && \
     git add . && \
     git commit -m "Feature: updated configuration-service documentation" && \
     git push
