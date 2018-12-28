@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
+# This script generates Release api documentation and saves it to develop branch
+
 SCALECUBE_CFG_SERVICE_DOCS='/tmp/scalecube-repo/configuration-service/'
-RELEASE=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec)
+RELEASE=$(cd $TRAVIS_BUILD_DIR && \
+          mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec)
 RELEASE_TEMPLATE='0.0.0-CURRENT'
 
 # clone needed repositories
@@ -15,7 +18,7 @@ docker build -t apidoc /tmp/apidoc-repo
 mkdir -p /tmp/docs-generated $SCALECUBE_CFG_SERVICE_DOCS && rm -rf $SCALECUBE_CFG_SERVICE_DOCS*
 
 # set release version to documentation
-for apidocument in $(find $TRAVIS_BUILD_DIR/ApiDocs -name '*.apidoc'); do
+for apidocument in $(find $TRAVIS_BUILD_DIR/ApiDocs -regex '.*\.\(apidoc\|json\)$'); do
     sed -i "s/$RELEASE_TEMPLATE/$RELEASE/g" $apidocument
     cat $apidocument >> /tmp/scalecube-cfg-service/ApiDocs/_apidoc.js
 done
@@ -26,8 +29,6 @@ docker run -u $(id -u) \
    -it apidoc -f ".*\\.apidoc$" -i "/apidoc/docs" -v -o "docs-generated"
 
 cp -R /tmp/docs-generated/* $SCALECUBE_CFG_SERVICE_DOCS
-
-RELEASE_EXEC_FILES=$(find $DIRNAME -name 'release-*.sh')
 
 cd $SCALECUBE_CFG_SERVICE_DOCS && \
     git add . && \
