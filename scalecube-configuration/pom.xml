@@ -15,7 +15,6 @@
   <name>scalecube-configuration</name>
 
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <mainClass>io.scalecube.server.ConfigurationServiceRunner</mainClass>
     <extratags>${env.TRAVIS_COMMIT}</extratags>
 

@@ -6,13 +6,10 @@
     <artifactId>scalecube-configuration-parent</artifactId>
     <version>2.0.14-SNAPSHOT</version>
   </parent>
-  <artifactId>scalecube-configuration-api</artifactId>
-  <name>scalecube-configuration-api</name>
-  <url>http://maven.apache.org</url>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+  <artifactId>scalecube-configuration-api</artifactId>
+
+  <name>scalecube-configuration-api</name>
 
   <dependencies>
     <dependency>
