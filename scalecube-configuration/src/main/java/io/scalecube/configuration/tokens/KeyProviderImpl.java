@@ -10,6 +10,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class KeyProviderImpl implements KeyProvider {
 
+  private static final String HMAC_SHA_256 = "HmacSHA256";
+
   @Override
   public Key get(String alias) throws KeyProviderException {
     return getKey0(alias);
@@ -30,8 +32,8 @@ public class KeyProviderImpl implements KeyProvider {
     }
     // decode the base64 encoded string
     byte[] decodedKey = Base64.getDecoder().decode(properties.get(alias).toString().getBytes());
-    // rebuild cluster using SecretKeySpec
-    return new SecretKeySpec(decodedKey, 0, decodedKey.length, "HmacSHA256");
+    // rebuild key using SecretKeySpec
+    return new SecretKeySpec(decodedKey, 0, decodedKey.length, HMAC_SHA_256);
 
   }
 }
