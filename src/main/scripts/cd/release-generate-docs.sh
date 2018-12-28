@@ -6,7 +6,7 @@ cd $TRAVIS_BUILD_DIR && git checkout master
 
 SCALECUBE_CFG_SERVICE='/tmp/scalecube-cfg-service'
 SCALECUBE_CFG_SERVICE_DOCS='/tmp/scalecube-repo/configuration-service/'
-RELEASE=$(mvn -q -Dexec.executable="echo" -Dexec.args="${project.version}" --non-recursive exec:exec)
+RELEASE=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec)
 RELEASE_TEMPLATE='0.0.0-CURRENT'
 
 # clone needed repositories
