@@ -2,7 +2,7 @@
 * @api {Transport protocols} / Getting Started
 * @apiName GettingStarted
 * @apiGroup Overview
-* @apiVersion 0.0.1-SNAPSHOT
+* @apiVersion 0.0.0-CURRENT
 * @apiDescription Configuration service enable you to integrate the API in order to create and manage the separate repositories purposed for entity collection and storage.
 *
 *
@@ -25,7 +25,7 @@
 * @api {API Gateway protocols} / General Definitions
 * @apiName GeneralDefinitions
 * @apiGroup Overview
-* @apiVersion 0.0.1-SNAPSHOT
+* @apiVersion 0.0.0-CURRENT
 * @apiDescription The request should contain the following structure upon the transport protocols are used:
                     <ul>
 								   <b>Websocket</b>
@@ -70,7 +70,7 @@
   * @api {Host addresses} / Interactive API Explorer
   * @apiName InteractiveAPIExplorer
   * @apiGroup Overview
-  * @apiVersion 0.0.1-SNAPSHOT
+  * @apiVersion 0.0.0-CURRENT
   * @apiDescription Please follow the steps below to connect and run commands via Sandbox:
   <ul>
                  <li> 1. Enter to the sandbox: <a href="http://scalecube.io/api-sandbox/app/index.html">Scalecube sandbox</a> </li>
