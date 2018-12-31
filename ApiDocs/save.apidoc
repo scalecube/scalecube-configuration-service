@@ -1,9 +1,9 @@
 /**
- * @api {websocket} io.scalecube.configuration.api.ConfigurationService/save SaveUpdate the entry
+ * @api {save endpoint} /io.scalecube.configuration.api.ConfigurationService/save SaveUpdate the entry
  * @apiName Save
  * @apiGroup Save
  * @apiVersion 0.0.0-CURRENT
- * @apiDescription This operation enable you to save either update (edit) a specified entity in the relevant Repository and requires a write level permission granted for owner either admin role only.
+ * @apiDescription This operation enable you to save either to update (edit) a specified entity in the relevant Repository and requires a write level permission granted for owner either admin role only.
  * Upon the specified entity is saved then it could be updated i.e. overwritten by the common method
  *
  * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)

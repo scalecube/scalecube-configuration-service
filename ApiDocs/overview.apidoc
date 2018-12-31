@@ -22,22 +22,23 @@
 */
 
 /**
-* @api {API Gateway protocols} / General Definitions
+* @api {Host addresses} / General Definitions
 * @apiName GeneralDefinitions
 * @apiGroup Overview
 * @apiVersion 0.0.0-CURRENT
 * @apiDescription The request should contain the following structure upon the transport protocols are used:
                     <ul>
 								   <b>Websocket</b>
-                                   <li> 1. "q": The query of the relevant service path </li>
-                                   <li> 2. "sid": The identifier of the stream id. </li>
-                                   <li> 3. "d": The request data (parameters and values). </li>
+                                   <li> "q": The query of the relevant service path </li>
+                                   <li> "sid": The identifier of the stream id. </li>
+                                   <li> "d": The request data (parameters and values). </li>
 								   <b>RSocket</b>
-								   <li> 1. "metadata" which contains object "q": The query of the relevant service path </li>
-                                   <li> 2. "data" object: The request data (parameters and values). </li>
+								   <li> "metadata" which contains object "q": The query of the relevant service path </li>
+                                   <li> "data" object: The request data (parameters and values). </li>
 								   <b>HTTP</b>
-								   <li> 1. "headers": Content-Type json </li>
-                                   <li> 2. "body" json object: The request data (parameters and values). </li>
+								   <li> add the "/io.scalecube.configuration.api.ServiceName/method_name" to the host </li>
+								   <li> "headers": Content-Type json </li>
+                                   <li> "body" json object: The request data (parameters and values). </li>
                     </ul>
 
 * @apiParamExample {json} Request-Example Websocket:
@@ -71,11 +72,11 @@
   * @apiName InteractiveAPIExplorer
   * @apiGroup Overview
   * @apiVersion 0.0.0-CURRENT
-  * @apiDescription Please follow the steps below to connect and run commands via Sandbox:
+  * @apiDescription For example <b>Websocket</b> connection is one of the accessible ways to use the API, so please follow the steps below to connect and run commands via Sandbox:
   <ul>
-                 <li> 1. Enter to the sandbox: <a href="http://scalecube.io/api-sandbox/app/index.html">Scalecube sandbox</a> </li>
-                 <li> 2. Click on the Settings button and enter the environment: wss://configuration-service-7070.genesis.om2.com </li>
-                 <li> 3. Import the exchange.json file path <a href="https://raw.githubusercontent.com/PavloPetrina/JsonData/master/OrganizationServiceALL.json">Organization service contracts.json</a></li>
-                 <li> 4. Click on the Connect button (now you are connected to the environment) and push "Send"</li>
+                 <li> Navigate to the sandbox: <a href="http://scalecube.io/api-sandbox/app/index.html">Scalecube sandbox</a> </li>
+                 <li> Click on the <b>Settings</b> button and choose the relevant <b>transort</b> and host <b>address</b>: wss://configuration-service-7070.genesis.om2.com </li>
+                 <li> Click on <b>Import icon</b> and copy-paste the exchange.json file path <a href="https://raw.githubusercontent.com/PavloPetrina/JsonData/master/ConfigurationServiceAll.json">Configuration service endpoints.json</a></li>
+                 <li> Click on the <b>Connect</b> button (now you are connected to the environment) and push <b>Send</b> button to make your request</li>
   </ul>
 */
