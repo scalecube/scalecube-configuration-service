@@ -3,7 +3,7 @@
  * @apiName Fetch
  * @apiGroup Fetch
  * @apiVersion 0.0.0-CURRENT
- * @apiDescription This operation enable you to get entry object (value) by retrieving specified entity (key) from the relevant Repository and enabled for each accessible permission level (read&write) granted for owner either admin or member role
+ * @apiDescription This operation enable you to get entry object (value) by retrieving specified entry (key) from the relevant Repository and enabled for each accessible permission level (read&write) granted for owner either admin or member role
  * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
  * @apiParam {String} repository Specified name of the repository
  * @apiParam {String} key Specified key name for relevant configuration setting in the repository
@@ -29,10 +29,10 @@
  *                 }
  *     }
  *
- * @apiError {String} field invalid repository name
+ * @apiError {String} field invalid or non-existent key name (entry in the repository)
  * @apiErrorExample {json} Error-Response:
  *     {
  *        errorCode":500,
- *        "errorMessage":"repository: "specified" name doesn't exist"
+ *        "errorMessage":"16562665EC17CDF08E97"
  *     }
  */

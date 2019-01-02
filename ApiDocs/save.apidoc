@@ -3,8 +3,8 @@
  * @apiName Save
  * @apiGroup Save
  * @apiVersion 0.0.0-CURRENT
- * @apiDescription This operation enable you to save either to update (edit) a specified entity in the relevant Repository and requires a write level permission granted for owner either admin role only.
- * Upon the specified entity is saved then it could be updated i.e. overwritten by the common method
+ * @apiDescription This operation enable you to save either to update (edit) a specified entry in the relevant Repository and requires a write level permission granted for owner either admin role only.
+ * Upon the specified entry is saved then it could be updated i.e. overwritten by the common method
  *
  * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
  * @apiParam {String} repository Specified name of the repository
@@ -31,10 +31,10 @@
  *
  *     }
  *
- * @apiError {String} field invalid key name
+ * @apiError {String} field invalid or non-existent repository name
  * @apiErrorExample {json} Error-Response:
  *     {
  *        errorCode":500,
- *        "errorMessage":"key: "specified" name doesn't exist"
+ *        "errorMessage":"Failed to open bucket: 'ORG-ACF8F702CE82DE56D737-Name'
  *     }
  */

@@ -3,7 +3,7 @@
 * @apiName GettingStarted
 * @apiGroup Overview
 * @apiVersion 0.0.0-CURRENT
-* @apiDescription Configuration service enable you to integrate the API in order to create and manage the separate repositories purposed for entity collection and storage.
+* @apiDescription Configuration service enable you to integrate the API in order to create and manage the separate repositories purposed for entries collection and storage.
 *
 *
 * <b>Getting Started</b>

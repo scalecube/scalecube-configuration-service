@@ -3,12 +3,12 @@
  * @apiName Entries
  * @apiGroup Entries
  * @apiVersion 0.0.0-CURRENT
- * @apiDescription This operation enable you to get all the entry objects (values) by retrieving all the entities (keys) from the relevant Repository and enabled for each accessible permission level (read&write) granted for owner either admin or member role
+ * @apiDescription This operation enable you to get all the entry objects (values) by retrieving all the entries (keys) from the relevant Repository and enabled for each accessible permission level (read&write) granted for owner either admin or member role
  * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
  * @apiParam {String} repository Specified name of the repository
  * @apiParam {String} key Specified key name for relevant configuration setting in the repository
  *
- * @apiSuccess {Array} entries List of all entities from the relevant configuration setting in the repository
+ * @apiSuccess {Array} entries List of all entries from the relevant configuration setting in the repository
  * @apiSuccess {String} key Specified key name for relevant configuration setting in the repository
  * @apiSuccess {Object} value Specified node name applied for relevant configuration settings in the repository
  *
