@@ -34,7 +34,7 @@ public interface ConfigurationDataAccess {
    * Removes a document corresponding to the <code>cluster</code> argument from the underlying
    *     data source.
    * @param key Document cluster
-   * @return The cluster of the removed document
+   * @return The key of the removed document
    */
   String remove(RepositoryEntryKey key);
 
