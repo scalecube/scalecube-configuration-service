@@ -3,7 +3,7 @@
   "version": "0.0.0-CURRENT",
   "description": "Configuration service API",
   "title": "API documentation for the Configuration Service",
-  "url" : "wss://configuration-service-7070.genesis.om2.com",
+  "url" : "wss://$FORMATTED_BRANCH_NAME.genesis.om2.com",
   "template": {
     "forceLanguage" : "en"
   },
