@@ -18,7 +18,7 @@
 
   }, {
     "id": "3",
-    "text": "saveUpdateEntity",
+    "text": "saveUpdateEntry",
     "backColor": "black",
     "data": {
       "q": "/io.scalecube.configuration.api.ConfigurationService/save",
@@ -33,7 +33,7 @@
   },
     {
       "id": "4",
-      "text": "fetchRepoEntitySingle",
+      "text": "fetchRepoEntrySingle",
       "backColor": "black",
       "data": {
         "q": "/io.scalecube.configuration.api.ConfigurationService/fetch",
@@ -47,21 +47,20 @@
     },
     {
       "id": "5",
-      "text": "fetchRepoEntityAll",
+      "text": "fetchRepoEntryAll",
       "backColor": "black",
       "data": {
         "q": "/io.scalecube.configuration.api.ConfigurationService/entries",
         "sid": 4,
         "d": {
           "token": "YOUR API KEY VALUE WHICH IS ASSIGNED WITH ROLE",
-          "repository": "NAME OF YOUR CREATED REPO",
-          "key": "SPECIFIED KEY NAMES FROM THE REPO BUCKET"
+          "repository": "NAME OF YOUR CREATED REPO"
         }
       }
     },
     {
       "id": "6",
-      "text": "deleteEntity",
+      "text": "deleteEntry",
       "backColor": "black",
       "data": {
         "q": "/io.scalecube.configuration.api.ConfigurationService/delete",
