@@ -72,11 +72,11 @@
   * @apiName InteractiveAPIExplorer
   * @apiGroup Overview
   * @apiVersion 0.0.0-CURRENT
-  * @apiDescription For example <b>Websocket</b> connection is one of the accessible ways to use the API, so please follow the steps below to connect and run commands via Sandbox:
+  * @apiDescription For example <b>Websocket</b> connection is one of the accessible ways to use the API, so please follow the steps below to connect and perform requests via Sandbox:
   <ul>
                  <li> Navigate to the sandbox: <a href="http://scalecube.io/api-sandbox/app/index.html">Scalecube sandbox</a> </li>
                  <li> Click on the <b>Settings</b> button and choose the relevant <b>transort</b> and host <b>address</b>: wss://configuration-service-7070.genesis.om2.com </li>
-                 <li> Click on <b>Import icon</b> and copy-paste the exchange.json file path <a href="https://raw.githubusercontent.com/PavloPetrina/JsonData/master/ConfigurationServiceAll.json">Configuration service endpoints.json</a></li>
+                 <li> Click on <b>Import icon</b> and copy-paste the template.json file path <a href="https://raw.githubusercontent.com/scalecube/scalecube-configuration-service/develop/API-Calls-examples.json">Configuration service endpoints.json</a></li>
                  <li> Click on the <b>Connect</b> button (now you are connected to the environment) and push <b>Send</b> button to make your request</li>
   </ul>
 */
