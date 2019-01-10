@@ -16,7 +16,7 @@
 
   <properties>
     <mainClass>io.scalecube.server.ConfigurationServiceRunner</mainClass>
-    <extratags>${env.TRAVIS_COMMIT}</extratags>
+    <!-- <extratags>${env.TRAVIS_COMMIT}</extratags> -->
 
     <vault-java-driver.version>3.1.0</vault-java-driver.version>
   </properties>
