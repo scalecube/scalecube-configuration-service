@@ -11,7 +11,7 @@
       "q": "/io.scalecube.configuration.api.ConfigurationService/createRepository",
       "sid": 1,
       "d": {
-        "token": "YOUR API KEY VALUE WHICH IS ASSIGNED WITH ROLE",
+        "token": "YOUR API KEY VALUE WHICH IS ASSIGNED WITH OWNER ROLE",
         "repository": "CUSTOM NAME OF YOU REPO"
       }
     }
@@ -24,10 +24,10 @@
       "q": "/io.scalecube.configuration.api.ConfigurationService/save",
       "sid": 2,
       "d": {
-        "token": "YOUR API KEY VALUE WHICH IS ASSIGNED WITH ROLE",
+        "token": "YOUR API KEY VALUE WHICH IS ASSIGNED WITH OWNER OR ADMIN ROLE",
         "repository": "NAME OF YOUR CREATED REPO",
         "key": "CUSTOM NAME OF THE SPECIFIED KEY IN THE REPO BUCKET",
-        "value": "CUSTOM NODE NAME"
+        "value": "CUSTOM NODE VALUES OBJECT OR SINGLE STRING"
       }
     }
   },
@@ -39,7 +39,7 @@
         "q": "/io.scalecube.configuration.api.ConfigurationService/fetch",
         "sid": 3,
         "d": {
-          "token": "YOUR API KEY VALUE WHICH IS ASSIGNED WITH ROLE",
+          "token": "YOUR API KEY VALUE WHICH IS ASSIGNED WITH OWNER/ADMIN/MEMBER ROLE",
           "repository": "NAME OF YOUR CREATED REPO",
           "key": "SPECIFIED KEY NAME FROM THE REPO BUCKET"
         }
@@ -66,9 +66,9 @@
         "q": "/io.scalecube.configuration.api.ConfigurationService/delete",
         "sid": 5,
         "d": {
-          "token": "YOUR API KEY VALUE WHICH IS ASSIGNED WITH ROLE",
+          "token": "YOUR API KEY VALUE WHICH IS ASSIGNED WITH OWNER OR ADMIN ROLE",
           "repository": "NAME OF YOUR CREATED REPO",
-          "key": "SPECIFIED KEY NAMES FROM THE REPO BUCKET"
+          "key": "SPECIFIED KEY NAME FROM THE REPO BUCKET"
         }
       }
     }
