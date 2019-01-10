@@ -40,3 +40,4 @@ for project in $SCALECUBE_CFG_SERVICE $SCALECUBE_CFG_SERVICE_DOCS; do
     git add . && \
     git commit -m "Feature: updated configuration-service documentation" && \
     git push
+done
