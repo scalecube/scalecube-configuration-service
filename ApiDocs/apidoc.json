@@ -10,7 +10,6 @@
   "order": [
     "Overview",
     "GettingStarted",
-    "Datatypes",
     "CreateRepository",
     "Save",
     "Fetch",

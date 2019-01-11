@@ -1,5 +1,5 @@
 /**
-* @api {Transport protocols} / Getting Started
+* @api {Endpoints} / Getting Started
 * @apiName GettingStarted
 * @apiGroup Overview
 * @apiVersion 0.0.0-CURRENT
@@ -9,12 +9,12 @@
 * <b>Getting Started</b>
 *
 *
-* All API endpoints are documented below.
-* <br> You can try out any query in realtime using our interactive API.
-* Actually all methods require API key authorization since they provide a specific permission level for the each user.
-* So there is a necessity to get the API key (token - assigned with relevant role Member/Admin/Owner) issued via Organization Service which is basically purposed for organization managers
-* who provide such kind permission level to potential costumers.
-* <br>Thus, we recommend you first to be granted with valid API key assigned with relevant role (permission level) to be able to use this API key across all service endpoints.
+* All API endpoints are documented below. You can try out any query in realtime using our interactive API.
+* <br>Configuration service is a provider for <a href=******"http://scalecube.io/organization-service/index.html************">Organization service</a> management.
+* Actually all methods require <a href="http://scalecube.io/organization-service/index.html#api-ApiKey-AddOrganizationApiKey*******">API key</a> authorization since
+* they provide a specific permission level (write or read ) for the each user. So there is a necessity to get the API key
+* (token - assigned with relevant role Member/Admin/Owner) which is basically purposed for organization managers who provide such kind permission level to potential costumers.
+* <br>Thus, we recommend you first to be granted with valid API key assigned with relevant role (permission level) to be able to make valid requests across all service endpoints.
 *
 * Validation for the object entities is handled by scalecube services and do the next upon the request object:
 * >~ ignores any excessive keys and values added besides the required parameters
@@ -22,7 +22,7 @@
 */
 
 /**
-* @api {Host addresses} / General Definitions
+* @api {Transport protocols} / General Definitions
 * @apiName GeneralDefinitions
 * @apiGroup Overview
 * @apiVersion 0.0.0-CURRENT
@@ -76,7 +76,17 @@
   <ul>
                  <li> Navigate to the sandbox: <a href="http://scalecube.io/api-sandbox/app/index.html">Scalecube sandbox</a> </li>
                  <li> Click on the <b>Settings</b> button and choose the relevant <b>transort</b> and host <b>address</b>: wss://configuration-service-7070.genesis.om2.com </li>
-                 <li> Click on <b>Import icon</b> and copy-paste the exchange.json file path <a href="https://raw.githubusercontent.com/scalecube/scalecube-configuration-service/develop/API-Calls-examples.json">Configuration service endpoints.json</a></li>
+                 <li> Click on <b>Import icon</b> and copy-paste the exchange.json file path <a href="https://raw.githubusercontent.com/scalecube/scalecube-configuration-service/master/API-Calls-examples.json">Configuration service endpoints.json</a></li>
                  <li> Click on the <b>Connect</b> button (now you are connected to the environment) and push <b>Send</b> button to make your request</li>
   </ul>
+*/
+
+/**
+* @api {} / Datatypes
+* @apiName DatatypesSummary
+* @apiVersion 0.0.0-CURRENT
+* @apiGroup Overview
+* @apiDescription This chapter will detail datatypes that require specific format for or support a specific set of values.
+<br> Currently the validation is implemented for specific parameters which value type is string and can only contain characters
+in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent. Appropriate validation will be added soon.
 */
