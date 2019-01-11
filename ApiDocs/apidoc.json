@@ -10,6 +10,8 @@
   "order": [
     "Overview",
     "GettingStarted",
+    "TransportProtocols",
+    "InteractiveAPIExplorer",
     "CreateRepository",
     "Save",
     "Fetch",
