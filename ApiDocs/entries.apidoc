@@ -8,9 +8,9 @@
  * @apiParam {String} repository Specified name of the repository
  * @apiParam {String} key Specified key name for relevant configuration setting in the repository
  *
- * @apiSuccess {Array} entries List of all entries from the relevant configuration setting in the repository
  * @apiSuccess {String} key Specified key name for relevant configuration setting in the repository
  * @apiSuccess {Object} value Specified node name applied for relevant configuration settings in the repository
+ * @apiSuccess {Object[]} value.entries List of all entries from the relevant configuration setting in the repository (Array of Objects)
  *
  * @apiParamExample {json} Request-Example:
  *     {

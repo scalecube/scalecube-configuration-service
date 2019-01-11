@@ -1,9 +1,10 @@
 /**
-* @api {Endpoints} / Getting Started
+* @api {Host address} / Getting Started
 * @apiName GettingStarted
 * @apiGroup Overview
 * @apiVersion 0.0.0-CURRENT
-* @apiDescription Configuration service enable you to integrate the API in order to create and manage the separate repositories purposed for entries collection and storage.
+* @apiDescription Configuration service enable you to integrate the API in order to create and manage the separate
+* repositories purposed for entries collection and storage.
 *
 *
 * <b>Getting Started</b>
@@ -14,38 +15,40 @@
 * Actually all methods require <a href="http://scalecube.io/organization-service/index.html#api-ApiKey-AddOrganizationApiKey">API key</a> authorization since
 * they provide a specific permission level (write or read ) for the each user. So there is a necessity to get the API key
 * (token - assigned with relevant role Member/Admin/Owner) which is basically purposed for organization managers who provide such kind permission level to potential costumers.
-* <br>Thus, we recommend you first to be granted with valid API key assigned with relevant role (permission level) to be able to make valid requests across all service endpoints.
+* <br>Thus, we recommend you first to be granted with valid API key assigned with relevant role (permission level) to be able to make valid requests across all service <b>endpoints</b>.
 *
 * <b>Validation</b> for the object entities is handled by <b>Scalecube</b> services and do the next upon the request object:
 * >~ ignores any excessive keys and values added besides the required parameters
 * ><br>~ doesn't ignore the keys duplicates and takes the last values which applied for each of the relevant key duplicate
-* <br>Contracts validation is implemented for specific parameters which value type is string and can only contain characters
+*
+* >Contracts validation is implemented for specific parameters which value type is string and can only contain characters
 * in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent. Appropriate validation will be added soon.
 */
 
 /**
-* @api {Endpoints} / Transport protocols
+* @api {Host address} / Transport protocols
 * @apiName TransportProtocols
 * @apiGroup Overview
 * @apiVersion 0.0.0-CURRENT
 * @apiDescription The request should contain the following structure upon the transport protocols are used:
                     <ul>
 								   <b>Websocket</b>
-                                   <li> "q": The query of the relevant service path </li>
-                                   <li> "sid": The identifier of the stream id. </li>
-                                   <li> "d": The request data (parameters and values). </li>
+                                    <li> "q": The query of the relevant service name and method used </li>
+                                    <li> "sid": The stream identifier (couldn't be duplicated in the current stream connection) </li>
+                                    <li> "d": The request data object (keys and values) </li>
 								   <b>RSocket</b>
-								   <li> "metadata" which contains object "q": The query of the relevant service path </li>
-                                   <li> "data" object: The request data (parameters and values). </li>
+								     <li> "metadata": object which contains "q": The query of the relevant service name and method used </li>
+                                    <li> "d": object: The request data (parameters and values) </li>
 								   <b>HTTP</b>
-								   <li> add the "/io.scalecube.configuration.api.ServiceName/method_name" to the host </li>
-								   <li> "headers": Content-Type json </li>
-                                   <li> "body" json object: The request data (parameters and values). </li>
+								     <li>  add the relevant service name and method used to the host address </li>
+								     <li> "headers": Content-Type application/json </li>
+                                    <li> "body" json: The request data object (parameters and values) </li>
+                                    <li>  request "method": POST </li>
                     </ul>
 
 * @apiParamExample {json} Request-Example Websocket:
                     {
-                        "q": "/io.scalecube.configuration.api.ServiceName/method_name",
+                        "q": "/io.scalecube.configuration.api.ConfigurationService/method_name",
                         "sid": 1,
                         "d": {
                                 "relevant request parameters and values"
@@ -55,22 +58,22 @@
 * @apiParamExample {json} Request-Example RSocket:
                     {
                         "metadata": {
-                            "q": "/io.scalecube.configuration.api.ServiceName/method_name",
+                            "q": "/io.scalecube.configuration.api.ConfigurationService/method_name",
                             }
                             "d": {
                                     "relevant request parameters and values"
-                            }
+                                 }
                     }
 
 * @apiParamExample {json} Request-Example HTTP:
                     {
-                                    "relevant request parameters and values"
+                            "relevant request parameters and values"
                     }
 
 */
 
 /**
-  * @api {Host addresses} / Interactive API Explorer
+  * @api {Host address} / Interactive API Explorer
   * @apiName InteractiveAPIExplorer
   * @apiGroup Overview
   * @apiVersion 0.0.0-CURRENT
