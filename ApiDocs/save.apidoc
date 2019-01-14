@@ -1,5 +1,5 @@
 /**
- * @api {save endpoint} /io.scalecube.configuration.api.ConfigurationService/save SaveUpdate the entry
+ * @api {endpoint / save} /io.scalecube.configuration.api.ConfigurationService/save SaveUpdate the entry
  * @apiName Save
  * @apiGroup Save
  * @apiVersion 0.0.0-CURRENT

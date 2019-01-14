@@ -1,5 +1,5 @@
 /**
- * @api {delete endpoint} /io.scalecube.configuration.api.ConfigurationService/delete Delete specified entry
+ * @api {endpoint / delete} /io.scalecube.configuration.api.ConfigurationService/delete Delete specified entry
  * @apiName Delete
  * @apiGroup Delete
  * @apiVersion 0.0.0-CURRENT

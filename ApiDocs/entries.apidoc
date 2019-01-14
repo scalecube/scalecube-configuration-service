@@ -1,5 +1,5 @@
 /**
- * @api {entries endpoint} /io.scalecube.configuration.api.ConfigurationService/entries Fetch (get) all entries
+ * @api {endpoint / entries} /io.scalecube.configuration.api.ConfigurationService/entries Fetch (get) all entries
  * @apiName Entries
  * @apiGroup Entries
  * @apiVersion 0.0.0-CURRENT

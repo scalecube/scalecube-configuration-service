@@ -9,13 +9,31 @@
  *
  * @apiSuccess Acknowledgment Empty object
  *
- * @apiParamExample {json} Request-Example:
+ * @apiParamExample {json} Request-Example (WS):
+ *
  *     {
  *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
  *         "repository": "specifiedRepoName"
  *     }
  *
- * @apiSuccessExample Success-Response:
+ * @apiParamExample {json} Request-Example (RS):
+ *     {
+ *          "metadata": {
+ *                          "q": "/io.scalecube.configuration.api.ConfigurationService/createRepository",
+ *                          "d": {
+ *                                 "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *                                 "repository": "specifiedRepoName"
+ *                               }
+ *                      }
+ *     }
+ *
+ * @apiParamExample {json} Request-Example (HTTP):
+ *     {
+ *          "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *          "repository": "specifiedRepoName"
+ *     }
+ *
+ * @apiSuccessExample Success-Response (WS/RS/HTTP):
  *     {
  *
  *     }
