@@ -26,15 +26,15 @@
 */
 
 /**
-* @api {Host address} / Transport protocols
+* @api {Host address} / Transport protocols API
 * @apiName TransportProtocols
 * @apiGroup Overview
 * @apiVersion 0.0.0-CURRENT
 * @apiDescription Upon relevant <b>host address</b> was set the <b>request</b> should contain the following structure according to transport protocol usage:
                     <ul>
-								   <b>Websocket (WS)</b>
+								   <b>Websocket (WS) <a href="http://scalecube.io/organization-service/index.html">Organization service</a>API</b>
                                     <li> "q": The query of the relevant service name and method used </li>
-                                    <li> "sid": The stream identifier int (couldn't be duplicated in the current stream connection) </li>
+                                    <li> "sid": The stream identifier (couldn't be duplicated in the current stream connection) </li>
                                     <li> "d": The request data object (keys and values) </li>
 								   <b>RSocket (RS)</b>
 								     <li> "metadata": object which contains "q": The query of the relevant service name and method used </li>
@@ -45,16 +45,6 @@
                                     <li> "body" json: The request data object (parameters and values) </li>
                                     <li>  request "method": POST </li>
                     </ul>
-* @apiDescription Each <b>Response</b> object should be lead by the following success or fail confirmation according to transport protocol usage:
-                    <ul>
-                                  <b>Websocket(WS)</b>
-                                    <li> sig":1 - Stream signal successfully completed </li>
-                                    <li> sig":2 - Stream signal error occurred </li>
-                                    <li> sig":3 - Stream signal not completed </li>
-                                  <b>RSocket (RS)</b>
-                                     <li> Stream signal successfully complete </li>
-                                  <b>HTTP</b>
-                                   	  <li> relevant codes of success (200) either error (500) </li>
 
 * @apiParamExample {json} Request-Example (WS):
                     {
@@ -67,12 +57,11 @@
 
 * @apiParamExample {json} Request-Example (RS):
                     {
-                        "metadata": {
-                            "q": "/io.scalecube.configuration.api.ConfigurationService/method_name",
-                            }
-                            "d": {
-                                    "relevant request parameters and values"
-                                 }
+                         "metadata": {
+                             "q": "/io.scalecube.configuration.api.ConfigurationService/method_name"},
+                             "data": {
+                                        "relevant request parameters and values"
+                                     }
                     }
 
 * @apiParamExample {json} Request-Example (HTTP):
