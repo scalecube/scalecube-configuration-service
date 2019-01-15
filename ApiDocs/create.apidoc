@@ -1,5 +1,5 @@
 /**
- * @api {endpoint / create} /io.scalecube.configuration.api.ConfigurationService/createRepository Create new Repo
+ * @api {endpoint / createRepository} /io.scalecube.configuration.api.ConfigurationService/createRepository Create new Repo
  * @apiName CreateRepository
  * @apiGroup CreateRepository
  * @apiVersion 0.0.0-CURRENT
@@ -32,15 +32,17 @@
  *          "repository": "specifiedRepoName"
  *     }
  *
- * @apiSuccessExample Success-Response (WS/RS/HTTP):
- *     {
- *
- *     }
- *
  * @apiError {String} field invalid permission level for specified API key
- * @apiErrorExample {json} Error-Response:
+ * @apiErrorExample {json} Error-Response (WS):
  *     {
  *        errorCode":500,
  *        "errorMessage":"Role 'Admin' has insufficient permissions for the requested operation: CreateRepoitory"
+ *     }
+ * @apiErrorExample {json} Error-Response (RS):
+ *     {
+ *        "data":{
+ *        "errorCode":500,
+ *        "errorMessage":"Role 'Member' has insufficient permissions for the requested operation: CreateRepoitory"},
+ *        "metadata":{"q":"/io.scalecube.services.error/500"}
  *     }
  */
