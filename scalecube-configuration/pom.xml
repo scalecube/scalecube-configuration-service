@@ -1,6 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -16,12 +15,15 @@
 
   <properties>
     <mainClass>io.scalecube.server.ConfigurationServiceRunner</mainClass>
-    <!-- <extratags>${env.TRAVIS_COMMIT}</extratags> -->
-
     <vault-java-driver.version>3.1.0</vault-java-driver.version>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>io.scalecube</groupId>
+      <artifactId>scalecube-app-utils</artifactId>
+      <version>0.0.4</version>
+    </dependency>
     <dependency>
       <groupId>com.bettercloud</groupId>
       <artifactId>vault-java-driver</artifactId>

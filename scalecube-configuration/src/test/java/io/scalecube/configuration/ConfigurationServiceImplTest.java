@@ -31,10 +31,10 @@ import reactor.test.StepVerifier;
 
 public class ConfigurationServiceImplTest {
   private final ObjectMapper mapper = new ObjectMapper();
-
+  
   @Test
   void create_repository_null_request_should_fail_withBadRequest() {
-    ConfigurationService service = createService(new ProfileBuilder().build());
+    ConfigurationService service = createService(Profile.builder().build());
     Duration duration = StepVerifier
         .create(
             service.createRepository(null))
@@ -82,7 +82,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void create_repository_null_tenant_should_fail_with_InvalidAuthenticationToken() {
-    ConfigurationService service = createService(new ProfileBuilder().build());
+    ConfigurationService service = createService(Profile.builder().build());
     Duration duration = StepVerifier
         .create(
             service.createRepository(new CreateRepositoryRequest(new Object(), "myrepo")))
@@ -94,7 +94,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void create_repository_null_claims_should_fail_with_InvalidAuthenticationToken() {
-    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg").build());
+    ConfigurationService service = createService(Profile.builder().tenant("myorg").build());
     Duration duration = StepVerifier
         .create(
             service.createRepository(new CreateRepositoryRequest(new Object(), "myrepo")))
@@ -106,7 +106,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void create_repository_null_role_should_fail_with_InvalidAuthenticationToken() {
-    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg")
+    ConfigurationService service = createService(Profile.builder().tenant("myorg")
         .claims(new HashMap<>()).build());
     Duration duration = StepVerifier
         .create(
@@ -121,7 +121,7 @@ public class ConfigurationServiceImplTest {
   void create_repository_member_role_should_fail_with_InvalidPermissionsException() {
     Map<String, Object> claims = new HashMap<>();
     claims.put("role", Role.Member);
-    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg")
+    ConfigurationService service = createService(Profile.builder().tenant("myorg")
         .claims(claims).build());
     Duration duration = StepVerifier
         .create(
@@ -150,6 +150,13 @@ public class ConfigurationServiceImplTest {
     assertNotNull(duration);
   }
 
+  /**
+ *   #MPA-7103 (#1)
+ *     Scenario: Successful Repo creation
+ *      Given a user have got a valid "token" (API key) with assigned "owner" role
+ *      When this user requested to create the "repository" with "specified" name
+ *      Then new "repository" should be created and stored in DB
+  */
   @Test
   void createRepository() {
     ConfigurationService service = createService();
@@ -157,10 +164,11 @@ public class ConfigurationServiceImplTest {
     assertNotNull(duration);
   }
 
+
   private ConfigurationService createService() {
     Map<String, Object> claims = new HashMap<>();
     claims.put("role", Role.Owner);
-    return createService(new ProfileBuilder().tenant("myorg")
+    return createService(Profile.builder().tenant("myorg")
         .claims(claims).build());
   }
 
@@ -193,7 +201,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void fetch_null_request_should_fail_withBadRequest() {
-    ConfigurationService service = createService(new ProfileBuilder().build());
+    ConfigurationService service = createService(Profile.builder().build());
     Duration duration = StepVerifier
         .create(
             service.fetch(null))
@@ -205,7 +213,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void fetch_null_repository_should_fail_withBadRequest() {
-    ConfigurationService service = createService(new ProfileBuilder().build());
+    ConfigurationService service = createService(Profile.builder().build());
     Duration duration = StepVerifier
         .create(
             service.fetch(new FetchRequest(new Object()  , null, "mykey")))
@@ -217,7 +225,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void fetch_null_token_should_fail_withBadRequest() {
-    ConfigurationService service = createService(new ProfileBuilder().build());
+    ConfigurationService service = createService(Profile.builder().build());
     Duration duration = StepVerifier
         .create(
             service.fetch(new FetchRequest(null, "myrepo", "mykey")))
@@ -241,7 +249,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void fetch_null_tenant_should_fail_with_InvalidAuthenticationToken() {
-    ConfigurationService service = createService(new ProfileBuilder().build());
+    ConfigurationService service = createService(Profile.builder().build());
     Duration duration = StepVerifier
         .create(
             service.fetch(new FetchRequest(new Object()  , "myrepo", "mykey")))
@@ -253,7 +261,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void fetch_null_claims_should_fail_with_InvalidAuthenticationToken() {
-    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg").build());
+    ConfigurationService service = createService(Profile.builder().tenant("myorg").build());
     Duration duration = StepVerifier
         .create(
             service.fetch(new FetchRequest(new Object()  , "myrepo", "mykey")))
@@ -265,7 +273,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void fetch_null_role_should_fail_with_InvalidAuthenticationToken() {
-    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg")
+    ConfigurationService service = createService(Profile.builder().tenant("myorg")
         .claims(new HashMap<>()).build());
     Duration duration = StepVerifier
         .create(
@@ -280,7 +288,7 @@ public class ConfigurationServiceImplTest {
   void fetch_should_fail_with_RepositoryNotFoundException() {
     Map<String, Object> claims = new HashMap<>();
     claims.put("role", Role.Member);
-    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg")
+    ConfigurationService service = createService(Profile.builder().tenant("myorg")
         .claims(claims).build());
     Duration duration = StepVerifier
         .create(
@@ -365,7 +373,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void entries_fetch_null_request_should_fail_withBadRequest() {
-    ConfigurationService service = createService(new ProfileBuilder().build());
+    ConfigurationService service = createService(Profile.builder().build());
     Duration duration = StepVerifier
         .create(
             service.entries(null))
@@ -377,7 +385,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void entries_null_repository_should_fail_withBadRequest() {
-    ConfigurationService service = createService(new ProfileBuilder().build());
+    ConfigurationService service = createService(Profile.builder().build());
     Duration duration = StepVerifier
         .create(
             service.entries(new FetchRequest(new Object()  , null, "mykey")))
@@ -389,7 +397,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void entries_null_token_should_fail_withBadRequest() {
-    ConfigurationService service = createService(new ProfileBuilder().build());
+    ConfigurationService service = createService(Profile.builder().build());
     Duration duration = StepVerifier
         .create(
             service.entries(new FetchRequest(null, "myrepo", "mykey")))
@@ -413,7 +421,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void entries_null_tenant_should_fail_with_InvalidAuthenticationToken() {
-    ConfigurationService service = createService(new ProfileBuilder().build());
+    ConfigurationService service = createService(Profile.builder().build());
     Duration duration = StepVerifier
         .create(
             service.entries(new FetchRequest(new Object()  , "myrepo", "mykey")))
@@ -425,7 +433,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void entries_null_claims_should_fail_with_InvalidAuthenticationToken() {
-    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg").build());
+    ConfigurationService service = createService(Profile.builder().tenant("myorg").build());
     Duration duration = StepVerifier
         .create(
             service.entries(new FetchRequest(new Object()  , "myrepo", "mykey")))
@@ -437,7 +445,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void entries_null_role_should_fail_with_InvalidAuthenticationToken() {
-    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg")
+    ConfigurationService service = createService(Profile.builder().tenant("myorg")
         .claims(new HashMap<>()).build());
     Duration duration = StepVerifier
         .create(
@@ -452,7 +460,7 @@ public class ConfigurationServiceImplTest {
   void entries_should_fail_with_RepositoryNotFoundException() {
     Map<String, Object> claims = new HashMap<>();
     claims.put("role", Role.Member);
-    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg")
+    ConfigurationService service = createService(Profile.builder().tenant("myorg")
         .claims(claims).build());
     Duration duration = StepVerifier
         .create(
@@ -482,10 +490,42 @@ public class ConfigurationServiceImplTest {
         .verifyComplete();
     assertNotNull(duration);
   }
+  
+  
+  @Test
+  void update() {
+    ConfigurationService service = createService();
+    createRepository(service);
+    StepVerifier
+        .create(
+            service.save(new SaveRequest(new Object(), "myrepo", "mykey",
+                mapper.valueToTree(1))))
+        .expectSubscription()
+        .assertNext(Assertions::assertNotNull)
+        .verifyComplete();
+    
+    StepVerifier
+    .create(
+        service.save(new SaveRequest(new Object(), "myrepo", "mykey",
+            mapper.valueToTree(42))))
+    .expectSubscription()
+    .assertNext(Assertions::assertNotNull)
+    .verifyComplete();
+    
+    Duration duration = StepVerifier
+        .create(
+            service.fetch(new FetchRequest(new Object(), "myrepo", "mykey")))
+        .expectSubscription()
+        .assertNext(result -> assertEquals("42", String.valueOf(result.value())))
+        .verifyComplete();
+    
+    assertNotNull(duration);
+  }
+
 
   @Test
   void save_null_request_should_fail_withBadRequest() {
-    ConfigurationService service = createService(new ProfileBuilder().build());
+    ConfigurationService service = createService(Profile.builder().build());
     Duration duration = StepVerifier
         .create(
             service.save(null))
@@ -497,7 +537,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void save_null_repository_should_fail_withBadRequest() {
-    ConfigurationService service = createService(new ProfileBuilder().build());
+    ConfigurationService service = createService(Profile.builder().build());
     Duration duration = StepVerifier
         .create(
             service.save(new SaveRequest(new Object(), null, "mykey",
@@ -549,7 +589,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void save_null_tenant_should_fail_with_InvalidAuthenticationToken() {
-    ConfigurationService service = createService(new ProfileBuilder().build());
+    ConfigurationService service = createService(Profile.builder().build());
     Duration duration = StepVerifier
         .create(
             service.save(new SaveRequest(new Object()  , "myrepo", "mykey",
@@ -562,7 +602,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void save_null_claims_should_fail_with_InvalidAuthenticationToken() {
-    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg").build());
+    ConfigurationService service = createService(Profile.builder().tenant("myorg").build());
     Duration duration = StepVerifier
         .create(
             service.save(new SaveRequest(new Object()  , "myrepo", "mykey",
@@ -575,7 +615,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void save_null_role_should_fail_with_InvalidAuthenticationToken() {
-    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg")
+    ConfigurationService service = createService(Profile.builder().tenant("myorg")
         .claims(new HashMap<>()).build());
     Duration duration = StepVerifier
         .create(
@@ -591,7 +631,7 @@ public class ConfigurationServiceImplTest {
   void save_should_fail_with_InvalidPermissionsException() {
     Map<String, Object> claims = new HashMap<>();
     claims.put("role", Role.Member);
-    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg")
+    ConfigurationService service = createService(Profile.builder().tenant("myorg")
         .claims(claims).build());
     Duration duration = StepVerifier
         .create(
@@ -607,7 +647,7 @@ public class ConfigurationServiceImplTest {
   void save_should_fail_with_RepositoryNotFoundException() {
     Map<String, Object> claims = new HashMap<>();
     claims.put("role", Role.Admin);
-    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg")
+    ConfigurationService service = createService(Profile.builder().tenant("myorg")
         .claims(claims).build());
     Duration duration = StepVerifier
         .create(
@@ -649,7 +689,7 @@ public class ConfigurationServiceImplTest {
   void delete_should_fail_with_InvalidPermissionsException() {
     Map<String, Object> claims = new HashMap<>();
     claims.put("role", Role.Member);
-    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg")
+    ConfigurationService service = createService(Profile.builder().tenant("myorg")
         .claims(claims).build());
 
     Duration duration = StepVerifier
@@ -711,7 +751,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void delete_null_tenant_should_fail_with_InvalidAuthenticationToken() {
-    ConfigurationService service = createService(new ProfileBuilder().build());
+    ConfigurationService service = createService(Profile.builder().build());
     Duration duration = StepVerifier
         .create(
             service.delete(new DeleteRequest(new Object()  , "myrepo", "mykey")))
@@ -723,7 +763,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void delete_null_claims_should_fail_with_InvalidAuthenticationToken() {
-    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg").build());
+    ConfigurationService service = createService(Profile.builder().tenant("myorg").build());
     Duration duration = StepVerifier
         .create(
             service.delete(new DeleteRequest(new Object()  , "myrepo", "mykey")))
@@ -735,7 +775,7 @@ public class ConfigurationServiceImplTest {
 
   @Test
   void delete_null_role_should_fail_with_InvalidAuthenticationToken() {
-    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg")
+    ConfigurationService service = createService(Profile.builder().tenant("myorg")
         .claims(new HashMap<>()).build());
     Duration duration = StepVerifier
         .create(
@@ -750,7 +790,7 @@ public class ConfigurationServiceImplTest {
   void delete_should_fail_with_RepositoryNotFoundException() {
     Map<String, Object> claims = new HashMap<>();
     claims.put("role", Role.Admin);
-    ConfigurationService service = createService(new ProfileBuilder().tenant("myorg")
+    ConfigurationService service = createService(Profile.builder().tenant("myorg")
         .claims(claims).build());
     Duration duration = StepVerifier
         .create(
@@ -788,59 +828,5 @@ public class ConfigurationServiceImplTest {
     assertNotNull(duration);
   }
 
-  class ProfileBuilder {
-    private String id;
-    private String tenant;
-    private String email;
-    private boolean isEmaildVerified;
-    private String name;
-    private String familyName;
-    private String givenName;
-    private Map<String, Object> claims;
-
-    Profile build() {
-      return new Profile(id, tenant, email, isEmaildVerified, name, familyName, givenName, claims);
-    }
-
-    ProfileBuilder id(String id) {
-      this.id = id;
-      return this;
-    }
-
-
-    ProfileBuilder tenant(String tenant) {
-      this.tenant = tenant;
-      return this;
-    }
-
-    ProfileBuilder email(String email) {
-      this.email = email;
-      return this;
-    }
-
-    ProfileBuilder emailVerified(boolean emailVerified) {
-      this.isEmaildVerified = emailVerified;
-      return this;
-    }
-
-    ProfileBuilder name(String name) {
-      this.name = name;
-      return this;
-    }
-
-    ProfileBuilder givenName(String name) {
-      this.givenName = name;
-      return this;
-    }
-
-    ProfileBuilder familyName(String name) {
-      this.familyName = name;
-      return this;
-    }
-
-    ProfileBuilder claims(Map<String, Object> claims) {
-      this.claims = claims;
-      return this;
-    }
-  }
+  
 }
