@@ -1,7 +1,14 @@
 package io.scalecube.configuration.tokens;
 
-abstract class KeyProviderFactory {
+import io.scalecube.config.StringConfigProperty;
+import io.scalecube.configuration.AppConfiguration;
+
+final class KeyProviderFactory {
+
+  private static final StringConfigProperty vaultAddr =
+      AppConfiguration.configRegistry().stringProperty("VAULT_ADDR");
+
   static KeyProvider keyProvider() {
-    return System.getenv("VAULT_ADDR") != null ? new VaultKeyProvider() : new KeyProviderImpl();
+    return vaultAddr.value().isPresent() ? new VaultKeyProvider() : new KeyProviderImpl();
   }
 }

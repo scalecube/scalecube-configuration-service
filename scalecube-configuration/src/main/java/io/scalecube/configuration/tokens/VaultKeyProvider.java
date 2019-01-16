@@ -5,7 +5,9 @@ import com.bettercloud.vault.VaultConfig;
 import com.bettercloud.vault.VaultException;
 import com.bettercloud.vault.response.LogicalResponse;
 import io.scalecube.config.ConfigRegistry;
-import io.scalecube.configuration.ConfigRegistryConfiguration;
+import io.scalecube.config.IntConfigProperty;
+import io.scalecube.config.StringConfigProperty;
+import io.scalecube.configuration.AppConfiguration;
 import java.security.Key;
 import java.util.Map;
 import javax.crypto.spec.SecretKeySpec;
@@ -15,32 +17,40 @@ import org.slf4j.LoggerFactory;
 
 public class VaultKeyProvider implements KeyProvider {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(VaultKeyProvider.class);
+
+  private static final String DEFAULT_JWT_ALGORITHM = "HmacSHA256";
+  private static final int DEFAULT_RETRY_INTERVAL = 1000;
+  private static final int DEFAULT_MAX_RETRIES = 5;
+
+  private static final ConfigRegistry configRegistry = AppConfiguration.configRegistry();
+
+  private static final StringConfigProperty jwtAlgorithm =
+      configRegistry.stringProperty("jwt.algorithm");
+  private static final IntConfigProperty maxRetries =
+      configRegistry.intProperty("vault.retry.interval.milliseconds");
+  private static final IntConfigProperty retryInterval =
+      configRegistry.intProperty("vault.max.retries");
+
+  private static final StringConfigProperty vaultAddr = configRegistry.stringProperty("VAULT_ADDR");
+  private static final StringConfigProperty vaultToken =
+      configRegistry.stringProperty("VAULT_TOKEN");
+
   private static final String VAULT_ENTRY_KEY = "key";
   private static final int HTTP_STATUS_NOT_FOUND = 404;
-  private static final int MAX_RETRIES = 5;
-  private static final String VAULT_RETRY_INTERVAL_MILLISECONDS =
-      "vault.retry.interval.milliseconds";
-  private final int maxRetries;
-  private static final int RETRY_INTERVAL_MILLISECONDS = 1000;
-  private final int retryIntervalMilliseconds;
-  private static final String JWT_ALGORITHM = "jwt.algorithm";
-  private static final String DEFAULT_JWT_ALGORITHM = "HmacSHA256";
-  private static final String VAULT_MAX_RETRIES_KEY = "vault.max.retries";
-  private final String algorithm;
-  private static final Logger LOGGER = LoggerFactory.getLogger(VaultKeyProvider.class);
+
   private final VaultPathBuilder vaultPathBuilder = new VaultPathBuilder();
   private final Vault vault;
 
   /** Construct an instance of VaultKeyProvider. */
   VaultKeyProvider() {
     try {
-      vault = new Vault(new VaultConfig().build());
-
-      ConfigRegistry configRegistry = ConfigRegistryConfiguration.configRegistry();
-      algorithm = configRegistry.stringValue(JWT_ALGORITHM, DEFAULT_JWT_ALGORITHM);
-      maxRetries = configRegistry.intValue(VAULT_MAX_RETRIES_KEY, MAX_RETRIES);
-      retryIntervalMilliseconds =
-          configRegistry.intValue(VAULT_RETRY_INTERVAL_MILLISECONDS, RETRY_INTERVAL_MILLISECONDS);
+      VaultConfig vaultConfig =
+          new VaultConfig()
+              .address(vaultAddr.valueOrThrow())
+              .token(vaultToken.valueOrThrow())
+              .build();
+      vault = new Vault(vaultConfig);
     } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
@@ -54,7 +64,9 @@ public class VaultKeyProvider implements KeyProvider {
   private Key getSecretKey(String alias) throws KeyProviderException {
     try {
       String vaultEntry = getVaultEntryValue(alias);
-      return new SecretKeySpec(DatatypeConverter.parseBase64Binary(vaultEntry), algorithm);
+      return new SecretKeySpec(
+          DatatypeConverter.parseBase64Binary(vaultEntry),
+          jwtAlgorithm.value().orElse(DEFAULT_JWT_ALGORITHM));
     } catch (Exception ex) {
       LOGGER.error(String.format("Error creating key for alias: '%s'", alias), ex);
       if (ex instanceof KeyProviderException) {
@@ -71,7 +83,13 @@ public class VaultKeyProvider implements KeyProvider {
     Map<String, String> data = null;
 
     try {
-      response = vault.withRetries(maxRetries, retryIntervalMilliseconds).logical().read(path);
+      response =
+          vault
+              .withRetries(
+                  maxRetries.value().orElse(DEFAULT_MAX_RETRIES),
+                  retryInterval.value().orElse(DEFAULT_RETRY_INTERVAL))
+              .logical()
+              .read(path);
       data = response.getData();
     } catch (VaultException ex) {
       handleVaultException(ex, alias);
