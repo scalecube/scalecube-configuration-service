@@ -2,6 +2,8 @@ package io.scalecube.server;
 
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
+import io.scalecube.app.decoration.Logo;
+import io.scalecube.app.packages.PackageInfo;
 import io.scalecube.config.ConfigRegistry;
 import io.scalecube.configuration.ConfigRegistryConfiguration;
 import io.scalecube.configuration.ConfigurationServiceImpl;
@@ -36,17 +38,22 @@ public class ConfigurationServiceRunner {
     DiscoveryOptions discoveryOptions = discoveryOptions();
     LOGGER.info("Starting configuration service on {}", discoveryOptions);
 
-    Microservices.builder()
-        .discovery(
-            options ->
-                options
-                    .seeds(discoveryOptions.seeds())
-                    .port(discoveryOptions.discoveryPort())
-                    .memberHost(discoveryOptions.memberHost())
-                    .memberPort(discoveryOptions.memberPort()))
-        .transport(options -> options.port(discoveryOptions.servicePort()))
-        .services(createConfigurationService())
-        .startAwait();
+    Microservices microservices =
+        Microservices.builder()
+            .discovery(
+                options ->
+                    options
+                        .seeds(discoveryOptions.seeds())
+                        .port(discoveryOptions.discoveryPort())
+                        .memberHost(discoveryOptions.memberHost())
+                        .memberPort(discoveryOptions.memberPort()))
+            .transport(options -> options.port(discoveryOptions.servicePort()))
+            .services(createConfigurationService())
+            .startAwait();
+    Logo.from(new PackageInfo())
+        .ip(microservices.serviceAddress().getHostName())
+        .port(microservices.serviceAddress().getPort() + "")
+        .draw();
   }
 
   private static ConfigurationService createConfigurationService() {
