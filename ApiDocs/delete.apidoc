@@ -1,5 +1,5 @@
 /**
- * @api {delete endpoint} /io.scalecube.configuration.api.ConfigurationService/delete Delete specified entry
+ * @api {endpoint / delete} /io.scalecube.configuration.api.ConfigurationService/delete Delete specified entry
  * @apiName Delete
  * @apiGroup Delete
  * @apiVersion 0.0.0-CURRENT
@@ -10,21 +10,88 @@
  *
  * @apiSuccess Acknowledgment Empty object
  *
- * @apiParamExample {json} Request-Example:
+ * @apiParamExample {json} Request-Example (WS):
+ *     {
+ *         "q": "/io.scalecube.configuration.api.ConfigurationService/delete",
+ *         "sid": 1,
+ *         "d":{
+ *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "repository": "specifiedRepoName",
+ *         "key": "specifiedKeyName"
+ *         }
+ *     }
+ *
+ * @apiParamExample {json} Request-Example (RS):
+ *     {
+ *       "metadata":{
+ *         "q": "/io.scalecube.configuration.api.ConfigurationService/delete"
+ *         },
+ *         "data":{
+ *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "repository": "specifiedRepoName",
+ *         "key": "specifiedKeyName"
+ *         }
+ *     }
+ *
+ * @apiParamExample {json} Request-Example (HTTP):
  *     {
  *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
  *         "repository": "specifiedRepoName",
  *         "key": "specifiedKeyName"
  *     }
  *
- * @apiSuccessExample Success-Response:
+ * @apiSuccessExample Success-Response (WS):
  *     {
- *
+ *         "q":"/io.scalecube.configuration.api.ConfigurationService/delete",
+ *         "sid":1,
+ *         "d":{}
  *     }
+ *
+ *     {
+ *          "sig":1,
+ *          "sid":1
+ *     }
+ *
+ * @apiSuccessExample Success-Response (RS):
+ *     {
+ *         "data":{},
+ *         "metadata":{
+ *           "q": "/io.scalecube.configuration.api.ConfigurationService/delete"
+ *         }
+ *     }
+ *
+ * @apiSuccessExample Success-Response (HTTP):
+ *     {
+ *     }
+ *
  * @apiError {String} field invalid permission level for specified API key
- * @apiErrorExample {json} Error-Response:
+ *
+ * @apiErrorExample {json} Error-Response (WS):
+ *     {
+ *          "sig":2,
+ *          "q":"/io.scalecube.services.error/500",
+ *          "sid":1,
+ *          "d":{
+ *                  errorCode":500,
+ *                  "errorMessage":"ole 'Member' has insufficient permissions for the requested operation: Delete"
+ *          }
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response (RS):
+ *     {
+ *          "data":{
+ *          "errorCode":500,
+ *          "errorMessage":"ole 'Member' has insufficient permissions for the requested operation: Delete"
+ *          },
+ *          "metadata":{
+ *              "q":"/io.scalecube.services.error/500"
+ *          }
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response (HTTP):
  *     {
  *        errorCode":500,
- *        "errorMessage":"Role 'Member' has insufficient permissions for the requested operation: Delete"
+ *        "errorMessage":"ole 'Member' has insufficient permissions for the requested operation: Delete"
  *     }
+ *
  */
