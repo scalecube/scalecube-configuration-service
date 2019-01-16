@@ -11,28 +11,110 @@
  * @apiSuccess {String} key Specified key name for relevant configuration setting in the repository
  * @apiSuccess {Object} value Specified node name applied for relevant configuration settings in the repository
  *
- * @apiParamExample {json} Request-Example:
+ * @apiParamExample {json} Request-Example (WS):
+ *     {
+ *         "q": "/io.scalecube.configuration.api.ConfigurationService/fetch",
+ *         "sid": 1,
+ *         "d":{
+ *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "repository": "specifiedRepoName",
+ *         "key": "specifiedKeyName"
+ *         }
+ *     }
+ *
+ * @apiParamExample {json} Request-Example (RS):
+ *     {
+ *       "metadata":{
+ *         "q": "/io.scalecube.configuration.api.ConfigurationService/fetch"
+ *         },
+ *         "data":{
+ *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "repository": "specifiedRepoName",
+ *         "key": "specifiedKeyName"
+ *         }
+ *     }
+ *
+ * @apiParamExample {json} Request-Example (HTTP):
  *     {
  *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
  *         "repository": "specifiedRepoName",
  *         "key": "specifiedKeyName"
  *     }
  *
- * @apiSuccessExample Success-Response:
+ * @apiSuccessExample Success-Response (WS):
  *     {
- *        "key": "specifiedKeyName"
- *        "value": {
+ *         "q":"/io.scalecube.configuration.api.ConfigurationService/fetch",
+ *         "sid":1,
+ *         "d":{
+ *         "value": {
  *                    "name": "Gold",
  *                    "instrument": "XAU",
  *                    "DecimalPrecision" : "2",
  *                    "Rounding": "down"
- *                 }
+ *                  },
+ *         "key": "specifiedKeyName"
+ *         }
  *     }
  *
- * @apiError {String} field invalid or non-existent key name (entry in the repository)
- * @apiErrorExample {json} Error-Response:
  *     {
- *        errorCode":500,
- *        "errorMessage":"16562665EC17CDF08E97"
+ *          "sig":1,
+ *          "sid":1
  *     }
+ *
+ * @apiSuccessExample Success-Response (RS):
+ *    {
+ *        "data":{
+ *        "value": {
+ *                   "name": "Gold",
+ *                   "instrument": "XAU",
+ *                   "DecimalPrecision" : "2",
+ *                   "Rounding": "down"
+ *                 },
+ *        "key": "specifiedKeyName"
+ *       },
+ *       "metadata":{
+ *          "q": "/io.scalecube.configuration.api.ConfigurationService/fetch"
+ *       }
+ *    }
+ *
+ * @apiSuccessExample Success-Response (HTTP):
+ *    {
+ *        "value": {
+ *                   "name": "Gold",
+ *                   "instrument": "XAU",
+ *                   "DecimalPrecision" : "2",
+ *                   "Rounding": "down"
+ *                 },
+ *        "key": "specifiedKeyName"
+ *    }
+ *
+ * @apiError {String} field invalid or non-existent key name (entry in the repository)
+ *
+ * @apiErrorExample {json} Error-Response (WS):
+ *    {
+ *         "sig":2,
+ *         "q":"/io.scalecube.services.error/500",
+ *         "sid":1,
+ *         "d":{
+ *                 errorCode":500,
+ *                 "errorMessage":"16562665EC17CDF08E97"
+ *         }
+ *    }
+ *
+ * @apiErrorExample {json} Error-Response (RS):
+ *    {
+ *         "data":{
+ *         "errorCode":500,
+ *         "errorMessage":"16562665EC17CDF08E97"
+ *         },
+ *         "metadata":{
+ *             "q":"/io.scalecube.services.error/500"
+ *         }
+ *    }
+ *
+ * @apiErrorExample {json} Error-Response (HTTP):
+ *    {
+ *       errorCode":500,
+ *       "errorMessage":"16562665EC17CDF08E97"
+ *    }
  */
