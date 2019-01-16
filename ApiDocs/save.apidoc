@@ -1,5 +1,5 @@
 /**
- * @api {save endpoint} /io.scalecube.configuration.api.ConfigurationService/save SaveUpdate the entry
+ * @api {endpoint / save} /io.scalecube.configuration.api.ConfigurationService/save SaveUpdate the entry
  * @apiName Save
  * @apiGroup Save
  * @apiVersion 0.0.0-CURRENT
@@ -15,6 +15,41 @@
  *
  * @apiParamExample {json} Request-Example:
  *     {
+ *         "q": "/io.scalecube.configuration.api.ConfigurationService/save",
+ *         "sid": 1,
+ *         "d":{
+ *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "repository": "specifiedRepoName",
+ *         "key": "specifiedKeyName",
+ *         "value": {
+ *                     "name": "Gold",
+ *                     "instrument": "XAU",
+ *                     "DecimalPrecision" : "2",
+ *                     "Rounding": "down"
+ *                  }
+ *         }
+ *     }
+ *
+ * @apiParamExample {json} Request-Example (RS):
+ *     {
+ *       "metadata":{
+ *         "q": "/io.scalecube.configuration.api.ConfigurationService/save"
+ *         },
+ *         "data":{
+ *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "repository": "specifiedRepoName",
+ *         "key": "specifiedKeyName",
+ *         "value": {
+ *                     "name": "Gold",
+ *                     "instrument": "XAU",
+ *                     "DecimalPrecision" : "2",
+ *                     "Rounding": "down"
+ *                  }
+ *         }
+ *     }
+ *
+ * @apiParamExample {json} Request-Example (HTTP):
+ *     {
  *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
  *         "repository": "specifiedRepoName",
  *         "key": "specifiedKeyName",
@@ -26,15 +61,57 @@
  *                  }
  *     }
  *
- * @apiSuccessExample Success-Response:
+ * @apiSuccessExample Success-Response (WS):
  *     {
+ *         "q":"/io.scalecube.configuration.api.ConfigurationService/save",
+ *         "sid":1,
+ *         "d":{}
+ *     }
  *
+ *     {
+ *          "sig":1,
+ *          "sid":1
+ *     }
+ *
+ * @apiSuccessExample Success-Response (RS):
+ *     {
+ *         "data":{},
+ *         "metadata":{
+ *           "q": "/io.scalecube.configuration.api.ConfigurationService/save"
+ *         }
+ *     }
+ *
+ * @apiSuccessExample Success-Response (HTTP):
+ *     {
  *     }
  *
  * @apiError {String} field invalid or non-existent repository name
- * @apiErrorExample {json} Error-Response:
+ *
+ * @apiErrorExample {json} Error-Response (WS):
+ *     {
+ *          "sig":2,
+ *          "q":"/io.scalecube.services.error/500",
+ *          "sid":1,
+ *          "d":{
+ *                  errorCode":500,
+ *                  "errorMessage":"Failed to open bucket: 'ORG-ACF8F702CE82DE56D737-Name"
+ *          }
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response (RS):
+ *     {
+ *          "data":{
+ *          "errorCode":500,
+ *          "errorMessage":"Failed to open bucket: 'ORG-ACF8F702CE82DE56D737-Name"
+ *          },
+ *          "metadata":{
+ *              "q":"/io.scalecube.services.error/500"
+ *          }
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response (HTTP):
  *     {
  *        errorCode":500,
- *        "errorMessage":"Failed to open bucket: 'ORG-ACF8F702CE82DE56D737-Name'
+ *        "errorMessage":"Failed to open bucket: 'ORG-ACF8F702CE82DE56D737-Name"
  *     }
  */

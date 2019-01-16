@@ -1,28 +1,91 @@
 /**
- * @api {create endpoint} /io.scalecube.configuration.api.ConfigurationService/createRepository Create new Repo
- * @apiVersion 0.0.0-CURRENT
+ * @api {endpoint / createRepository} /io.scalecube.configuration.api.ConfigurationService/createRepository Create new Repo
  * @apiName CreateRepository
  * @apiGroup CreateRepository
- *
- * @apiDescription This operation enable you to create the specific Repository for collecting and storing the relevant entries and requires a write level permission granted for owner role only
+ * @apiVersion 0.0.0-CURRENT
+ * @apiDescription This operation enable you to create the specified Repository for collecting and storing the relevant entries and requires a write permission level granted for owner role only
  * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
  * @apiParam {String} repository Specified name of the repository
  *
  * @apiSuccess Acknowledgment Empty object
  *
- * @apiParamExample {json} Request-Example:
+ * @apiParamExample {json} Request-Example (WS):
+ *     {
+ *         "q": "/io.scalecube.configuration.api.ConfigurationService/createRepository",
+ *         "sid": 1,
+ *         "d":{
+ *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "repository": "specifiedRepoName"
+ *         }
+ *     }
+ *
+ * @apiParamExample {json} Request-Example (RS):
+ *     {
+ *       "metadata":{
+ *         "q": "/io.scalecube.configuration.api.ConfigurationService/createRepository"
+ *         },
+ *         "data":{
+ *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "repository": "specifiedRepoName"
+ *         }
+ *     }
+ *
+ * @apiParamExample {json} Request-Example (HTTP):
  *     {
  *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
  *         "repository": "specifiedRepoName"
  *     }
  *
- * @apiSuccessExample Success-Response:
- *     {
  *
+ * @apiSuccessExample Success-Response (WS):
+ *     {
+ *         "q":"/io.scalecube.configuration.api.ConfigurationService/createRepository",
+ *         "sid":1,
+ *         "d":{}
+ *     }
+ *
+ *     {
+ *          "sig":1,
+ *          "sid":1
+ *     }
+ *
+ * @apiSuccessExample Success-Response (RS):
+ *     {
+ *         "data":{},
+ *         "metadata":{
+ *           "q": "/io.scalecube.configuration.api.ConfigurationService/createRepository"
+ *         }
+ *     }
+ *
+ * @apiSuccessExample Success-Response (HTTP):
+ *     {
  *     }
  *
  * @apiError {String} field invalid permission level for specified API key
- * @apiErrorExample {json} Error-Response:
+ *
+ * @apiErrorExample {json} Error-Response (WS):
+ *     {
+ *          "sig":2,
+ *          "q":"/io.scalecube.services.error/500",
+ *          "sid":1,
+ *          "d":{
+ *                  errorCode":500,
+ *                  "errorMessage":"Role 'Admin' has insufficient permissions for the requested operation: CreateRepoitory"
+ *          }
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response (RS):
+ *     {
+ *          "data":{
+ *          "errorCode":500,
+ *          "errorMessage":"Role 'Member' has insufficient permissions for the requested operation: CreateRepoitory"
+ *          },
+ *          "metadata":{
+ *              "q":"/io.scalecube.services.error/500"
+ *          }
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response (HTTP):
  *     {
  *        errorCode":500,
  *        "errorMessage":"Role 'Admin' has insufficient permissions for the requested operation: CreateRepoitory"
