@@ -48,7 +48,7 @@
   "order": [
     "Overview",
     "GettingStarted",
-    "Datatypes",
+    "InteractiveAPIExplorer",
     "CreateRepository",
     "Save",
     "Fetch",
@@ -68,9 +68,7 @@
   "order": [
     "Overview",
     "GettingStarted",
-    "General Definitions",
     "InteractiveAPIExplorer",
-    "Datatypes",
     "CreateRepository",
     "Save",
     "Fetch",
@@ -108,15 +106,7 @@
  *        "errorMessage":"Role 'Admin' has insufficient permissions for the requested operation: CreateRepoitory"
  *     }
  */
-/**
-* @api {Transport protocols} / Summary
-* @apiName Datatypes
-* @apiVersion 2.0.17-SNAPSHOT
-* @apiGroup Datatypes
-* @apiDescription This chapter will detail datatypes that require specific format for or support a specific set of values.
-<br> Currently the validation is implemented for specific parameters which value type is string and can only contain characters
-in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent. Appropriate validation will be added soon.
-*/
+ *
 /**
  * @api {entries endpoint} /io.scalecube.configuration.api.ConfigurationService/entries Fetch (get) all entries
  * @apiName Entries
@@ -304,52 +294,6 @@ in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent. Appropriat
 * Validation for the object entities is handled by scalecube services and do the next upon the request object:
 * >~ ignores any excessive keys and values added besides the required parameters
 * ><br>~ doesn't ignore the keys duplicates and takes the last values which applied for each of the relevant key duplicate
-*/
-
-/**
-* @api {Host addresses} / General Definitions
-* @apiName GeneralDefinitions
-* @apiGroup Overview
-* @apiVersion 2.0.17-SNAPSHOT
-* @apiDescription The request should contain the following structure upon the transport protocols are used:
-                    <ul>
-								   <b>Websocket</b>
-                                   <li> "q": The query of the relevant service path </li>
-                                   <li> "sid": The identifier of the stream id. </li>
-                                   <li> "d": The request data (parameters and values). </li>
-								   <b>RSocket</b>
-								   <li> "metadata" which contains object "q": The query of the relevant service path </li>
-                                   <li> "data" object: The request data (parameters and values). </li>
-								   <b>HTTP</b>
-								   <li> add the "/io.scalecube.configuration.api.ServiceName/method_name" to the host </li>
-								   <li> "headers": Content-Type json </li>
-                                   <li> "body" json object: The request data (parameters and values). </li>
-                    </ul>
-
-* @apiParamExample {json} Request-Example Websocket:
-                    {
-                        "q": "/io.scalecube.configuration.api.ServiceName/method_name",
-                        "sid": 1,
-                        "d": {
-                                "relevant request parameters and values"
-                             }
-                    }
-
-* @apiParamExample {json} Request-Example RSocket:
-                    {
-                        "metadata": {
-                            "q": "/io.scalecube.configuration.api.ServiceName/method_name",
-                            }
-                            "d": {
-                                    "relevant request parameters and values"
-                            }
-                    }
-
-* @apiParamExample {json} Request-Example HTTP:
-                    {
-                                    "relevant request parameters and values"
-                    }
-
 */
 
 /**
