@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
  * consists with a Token, this token is created and managed by the account service. the
  * configuration service validates the token with the account service.
  */
-@Service
+@Service("configuration")
 public interface ConfigurationService {
 
   /**
