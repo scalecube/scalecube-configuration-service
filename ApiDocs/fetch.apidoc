@@ -6,10 +6,10 @@
  * @apiDescription This operation enable you to get specific value (either string or object) by retrieving specified entry (key) from the relevant Repository and enabled for each accessible permission level (read&write) granted for owner either admin or member role
  * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
  * @apiParam {String} repository Specified name of the repository
- * @apiParam {String} key Specified key name for relevant configuration setting in the repository
+ * @apiParam {String} key Specified key name (entry) for relevant configuration setting in the repository
  *
- * @apiSuccess {String} key Specified key name for relevant configuration setting in the repository
  * @apiSuccess {Object} value Specified node name applied for relevant configuration settings in the repository
+ * @apiSuccess {String} key Specified key name (entry) for relevant configuration setting in the repository
  *
  * @apiParamExample {json} Request-Example (WS):
  *     {
