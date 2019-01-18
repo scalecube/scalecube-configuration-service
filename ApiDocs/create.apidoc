@@ -14,7 +14,7 @@
  *         "q":"/io.scalecube.configuration.api.ConfigurationService/createRepository",
  *         "sid": 1,
  *         "d":{
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "token": "validApiKey",
  *         "repository": "specifiedRepoName"
  *         }
  *     }
@@ -25,14 +25,14 @@
  *         "q": "/io.scalecube.configuration.api.ConfigurationService/createRepository"
  *         },
  *         "data":{
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "token": "validApiKey",
  *         "repository": "specifiedRepoName"
  *         }
  *     }
  *
  * @apiParamExample {json} Request-Example (HTTP):
  *     {
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "token": "validApiKey",
  *         "repository": "specifiedRepoName"
  *     }
  *

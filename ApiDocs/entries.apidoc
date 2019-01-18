@@ -1,5 +1,5 @@
 /**
- * @api {endpoint / entries} /io.scalecube.configuration.api.ConfigurationService/entries Fetch (get) all entries
+ * @api {endpoint / entries} /io.scalecube.configuration.api.ConfigurationService/entries Get all entries
  * @apiName Entries
  * @apiGroup Entries
  * @apiVersion 0.0.0-CURRENT
@@ -8,15 +8,15 @@
  * @apiParam {String} repository Specified name of the repository
  *
  * @apiSuccess {Object[]} entries List of all entries from the relevant configuration setting in the repository (Array of Objects)
- * @apiSuccess {Object} value.entries Specified node name applied for relevant configuration settings in the repository
- * @apiSuccess {String} key.entries Specified key name (entry) for relevant configuration setting in the repository
+ * @apiSuccess {Object} entries.value Specified node name applied for relevant configuration settings in the repository
+ * @apiSuccess {String} entries.key Specified key name (entry) for relevant configuration setting in the repository
  *
  * @apiParamExample {json} Request-Example (WS):
  *     {
  *         "q": "/io.scalecube.configuration.api.ConfigurationService/entries",
  *         "sid": 1,
  *         "d":{
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "token": "validApiKey",
  *         "repository": "specifiedRepoName"
  *         }
  *     }
@@ -27,14 +27,14 @@
  *         "q": "/io.scalecube.configuration.api.ConfigurationService/entries"
  *         },
  *         "data":{
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "token": "validApiKey",
  *         "repository": "specifiedRepoName"
  *         }
  *     }
  *
  * @apiParamExample {json} Request-Example (HTTP):
  *     {
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "token": "validApiKey",
  *         "repository": "specifiedRepoName"
  *     }
  *

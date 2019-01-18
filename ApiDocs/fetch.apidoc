@@ -1,5 +1,5 @@
 /**
- * @api {endpoint / fetch} /io.scalecube.configuration.api.ConfigurationService/fetch Fetch (get) specified entry
+ * @api {endpoint / fetch} /io.scalecube.configuration.api.ConfigurationService/fetch Get specified entry
  * @apiName Fetch
  * @apiGroup Fetch
  * @apiVersion 0.0.0-CURRENT
@@ -16,7 +16,7 @@
  *         "q": "/io.scalecube.configuration.api.ConfigurationService/fetch",
  *         "sid": 1,
  *         "d":{
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "token": "validApiKey",
  *         "repository": "specifiedRepoName",
  *         "key": "specifiedKeyName"
  *         }
@@ -28,7 +28,7 @@
  *         "q": "/io.scalecube.configuration.api.ConfigurationService/fetch"
  *         },
  *         "data":{
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "token": "validApiKey",
  *         "repository": "specifiedRepoName",
  *         "key": "specifiedKeyName"
  *         }
@@ -36,7 +36,7 @@
  *
  * @apiParamExample {json} Request-Example (HTTP):
  *     {
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "token": "validApiKey",
  *         "repository": "specifiedRepoName",
  *         "key": "specifiedKeyName"
  *     }
@@ -88,7 +88,7 @@
  *        "key": "specifiedKeyName"
  *    }
  *
- * @apiError {String} field invalid or non-existent key name (entry in the repository)
+ * @apiError {String} field invalid or non-existent plain key name (entry in the repository)
  *
  * @apiErrorExample {json} Error-Response (WS):
  *    {
