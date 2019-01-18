@@ -41,7 +41,7 @@
   "version": "2.0.17-SNAPSHOT",
   "description": "Configuration service API",
   "title": "API documentation for the Configuration Service",
-  "url" : "Websocket: wss://configuration-service-7070.genesis.om2.com/\nRSocket: wss://configuration-service-9090.genesis.om2.com/\nHTTP: https://configuration-service-8080.genesis.om2.com",
+  "url" : "Websocket: wss://localhost:port/\nRSocket: wss://localhost:port/\nHTTP: https://localhost:port",
   "template": {
     "forceLanguage" : "en"
   },
