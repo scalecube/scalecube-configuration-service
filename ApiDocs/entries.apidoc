@@ -1,5 +1,5 @@
 /**
- * @api {endpoint / entries} /io.scalecube.configuration.api.ConfigurationService/entries Get all entries
+ * @api {endpoint / entries} /configuration/entries Get all entries
  * @apiName Entries
  * @apiGroup Entries
  * @apiVersion 0.0.0-CURRENT
@@ -13,10 +13,10 @@
  *
  * @apiParamExample {json} Request-Example (WS):
  *     {
- *         "q": "/io.scalecube.configuration.api.ConfigurationService/entries",
+ *         "q": "/configuration/entries",
  *         "sid": 1,
  *         "d":{
- *         "token": "validApiKey",
+ *         "token": "API-TOKEN",
  *         "repository": "specifiedRepoName"
  *         }
  *     }
@@ -24,23 +24,23 @@
  * @apiParamExample {json} Request-Example (RS):
  *     {
  *       "metadata":{
- *         "q": "/io.scalecube.configuration.api.ConfigurationService/entries"
+ *         "q": "/configuration/entries"
  *         },
  *         "data":{
- *         "token": "validApiKey",
+ *         "token": "API-TOKEN",
  *         "repository": "specifiedRepoName"
  *         }
  *     }
  *
  * @apiParamExample {json} Request-Example (HTTP):
  *     {
- *         "token": "validApiKey",
+ *         "token": "API-TOKEN",
  *         "repository": "specifiedRepoName"
  *     }
  *
  * @apiSuccessExample Success-Response (WS):
  *     {
- *         "q": "/io.scalecube.configuration.api.ConfigurationService/entries",
+ *         "q": "/configuration/entries",
  *         "sid": 1,
  *         "d":{
  *                "entries": [
@@ -125,7 +125,7 @@
  *                  ]
  *              },
  *       "metadata":{
- *          "q": "/io.scalecube.configuration.api.ConfigurationService/entries"
+ *          "q": "/configuration/entries"
  *       }
  *     }
  *

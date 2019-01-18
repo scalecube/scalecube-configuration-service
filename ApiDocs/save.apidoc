@@ -1,5 +1,5 @@
 /**
- * @api {endpoint / save} /io.scalecube.configuration.api.ConfigurationService/save Save and update the entry
+ * @api {endpoint / save} /configuration/save Save and update the entry
  * @apiName Save
  * @apiGroup Save
  * @apiVersion 0.0.0-CURRENT
@@ -15,10 +15,10 @@
  *
  * @apiParamExample {json} Request-Example:
  *     {
- *         "q": "/io.scalecube.configuration.api.ConfigurationService/save",
+ *         "q": "/configuration/save",
  *         "sid": 1,
  *         "d":{
- *         "token": "validApiKey",
+ *         "token": "API-TOKEN",
  *         "repository": "specifiedRepoName",
  *         "key": "specifiedKeyName",
  *         "value": {
@@ -33,10 +33,10 @@
  * @apiParamExample {json} Request-Example (RS):
  *     {
  *       "metadata":{
- *         "q": "/io.scalecube.configuration.api.ConfigurationService/save"
+ *         "q": "/configuration/save"
  *         },
  *         "data":{
- *         "token": "validApiKey",
+ *         "token": "API-TOKEN",
  *         "repository": "specifiedRepoName",
  *         "key": "specifiedKeyName",
  *         "value": {
@@ -50,7 +50,7 @@
  *
  * @apiParamExample {json} Request-Example (HTTP):
  *     {
- *         "token": "validApiKey",
+ *         "token": "API-TOKEN",
  *         "repository": "specifiedRepoName",
  *         "key": "specifiedKeyName",
  *         "value": {
@@ -63,7 +63,7 @@
  *
  * @apiSuccessExample Success-Response (WS):
  *     {
- *         "q":"/io.scalecube.configuration.api.ConfigurationService/save",
+ *         "q":"/configuration/save",
  *         "sid":1,
  *         "d":{}
  *     }
@@ -77,7 +77,7 @@
  *     {
  *         "data":{},
  *         "metadata":{
- *           "q": "/io.scalecube.configuration.api.ConfigurationService/save"
+ *           "q": "/configuration/save"
  *         }
  *     }
  *

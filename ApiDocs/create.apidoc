@@ -1,5 +1,5 @@
 /**
- * @api {endpoint / createRepository} /io.scalecube.configuration.api.ConfigurationService/createRepository Create new Repo
+ * @api {endpoint / createRepository} /configuration/createRepository Create new Repo
  * @apiName CreateRepository
  * @apiGroup CreateRepository
  * @apiVersion 0.0.0-CURRENT
@@ -11,10 +11,10 @@
  *
  * @apiParamExample {json} Request-Example (WS):
  *     {
- *         "q":"/io.scalecube.configuration.api.ConfigurationService/createRepository",
+ *         "q":"/configuration/createRepository",
  *         "sid": 1,
  *         "d":{
- *         "token": "validApiKey",
+ *         "token": "API-TOKEN",
  *         "repository": "specifiedRepoName"
  *         }
  *     }
@@ -22,24 +22,24 @@
  * @apiParamExample {json} Request-Example (RS):
  *     {
  *       "metadata":{
- *         "q": "/io.scalecube.configuration.api.ConfigurationService/createRepository"
+ *         "q": "/configuration/createRepository"
  *         },
  *         "data":{
- *         "token": "validApiKey",
+ *         "token": "API-TOKEN",
  *         "repository": "specifiedRepoName"
  *         }
  *     }
  *
  * @apiParamExample {json} Request-Example (HTTP):
  *     {
- *         "token": "validApiKey",
+ *         "token": "API-TOKEN",
  *         "repository": "specifiedRepoName"
  *     }
  *
  *
  * @apiSuccessExample Success-Response (WS):
  *     {
- *         "q":"/io.scalecube.configuration.api.ConfigurationService/createRepository",
+ *         "q":"/configuration/createRepository",
  *         "sid":1,
  *         "d":{}
  *     }
@@ -53,7 +53,7 @@
  *     {
  *         "data":{},
  *         "metadata":{
- *           "q": "/io.scalecube.configuration.api.ConfigurationService/createRepository"
+ *           "q": "/configuration/createRepository"
  *         }
  *     }
  *

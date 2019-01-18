@@ -1,5 +1,5 @@
 /**
- * @api {endpoint / fetch} /io.scalecube.configuration.api.ConfigurationService/fetch Get specified entry
+ * @api {endpoint / fetch} /configuration/fetch Get specified entry
  * @apiName Fetch
  * @apiGroup Fetch
  * @apiVersion 0.0.0-CURRENT
@@ -13,10 +13,10 @@
  *
  * @apiParamExample {json} Request-Example (WS):
  *     {
- *         "q": "/io.scalecube.configuration.api.ConfigurationService/fetch",
+ *         "q": "/configuration/fetch",
  *         "sid": 1,
  *         "d":{
- *         "token": "validApiKey",
+ *         "token": "API-TOKEN",
  *         "repository": "specifiedRepoName",
  *         "key": "specifiedKeyName"
  *         }
@@ -25,10 +25,10 @@
  * @apiParamExample {json} Request-Example (RS):
  *     {
  *       "metadata":{
- *         "q": "/io.scalecube.configuration.api.ConfigurationService/fetch"
+ *         "q": "/configuration/fetch"
  *         },
  *         "data":{
- *         "token": "validApiKey",
+ *         "token": "API-TOKEN",
  *         "repository": "specifiedRepoName",
  *         "key": "specifiedKeyName"
  *         }
@@ -36,14 +36,14 @@
  *
  * @apiParamExample {json} Request-Example (HTTP):
  *     {
- *         "token": "validApiKey",
+ *         "token": "API-TOKEN",
  *         "repository": "specifiedRepoName",
  *         "key": "specifiedKeyName"
  *     }
  *
  * @apiSuccessExample Success-Response (WS):
  *     {
- *         "q":"/io.scalecube.configuration.api.ConfigurationService/fetch",
+ *         "q":"/configuration/fetch",
  *         "sid":1,
  *         "d":{
  *         "value": {
@@ -73,7 +73,7 @@
  *        "key": "specifiedKeyName"
  *       },
  *       "metadata":{
- *          "q": "/io.scalecube.configuration.api.ConfigurationService/fetch"
+ *          "q": "/configuration/fetch"
  *       }
  *    }
  *
