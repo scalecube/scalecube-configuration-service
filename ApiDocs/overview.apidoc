@@ -69,7 +69,7 @@
                        "relevant request parameters and values"
                     }
 
-* @apiSuccessExample Success-Response (WS):
+* @apiSuccessExample Response-Example (WS):
                     {
                         "q":"/serviceName/method_name",
                         "sid":int,
@@ -82,7 +82,7 @@
                         "sid":int
                     }
 
-* @apiSuccessExample Success-Response (RS):
+* @apiSuccessExample Response-Example (RS):
                     {
                         "data":{
                                   "relevant response parameters and values"
@@ -92,7 +92,7 @@
                         }
                     }
 
-* @apiSuccessExample Success-Response (HTTP):
+* @apiSuccessExample Response-Example (HTTP):
                     {
                        "relevant response parameters and values"
                     }
