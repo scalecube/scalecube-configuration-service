@@ -48,7 +48,7 @@
 * @apiParamExample {json} Request-Example (WS):
                     {
                         "q": "/serviceName/method_name",
-                        "sid": 1,
+                        "sid":int,
                         "d": {
                                 "relevant request parameters and values"
                              }
@@ -56,19 +56,46 @@
 
 * @apiParamExample {json} Request-Example (RS):
                     {
-                         "metadata": {
-                             "q": "/serviceName/method_name"
-                                     },
-                             "data": {
-                                        "relevant request parameters and values"
-                                     }
+                       "metadata": {
+                           "q": "/serviceName/method_name"
+                                   },
+                           "data": {
+                                      "relevant request parameters and values"
+                                   }
                     }
 
 * @apiParamExample {json} Request-Example (HTTP):
                     {
-                            "relevant request parameters and values"
+                       "relevant request parameters and values"
                     }
 
+* @apiSuccessExample Success-Response (WS):
+                    {
+                        "q":"/serviceName/method_name",
+                        "sid":int,
+                        "d":{
+                               "relevant response parameters and values"
+                            }
+                    }
+                    {
+                        "sig":1,
+                        "sid":int
+                    }
+
+* @apiSuccessExample Success-Response (RS):
+                    {
+                        "data":{
+                                  "relevant response parameters and values"
+                        },
+                        "metadata":{
+                          "q": "/serviceName/method_name"
+                        }
+                    }
+
+* @apiSuccessExample Success-Response (HTTP):
+                    {
+                       "relevant response parameters and values"
+                    }
 */
 
 /**
