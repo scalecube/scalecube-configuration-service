@@ -57,7 +57,7 @@
  *     }
  * @apiParamExample {json} HTTP:
  * Request:
- * https://configuration-service-8080.genesis.om2.com/io.scalecube.configuration.api.ConfigurationService/createRepository
+ * https://localhost:port/configuration/createRepository (endpoint url)
  *
  * Body:
  *     {
