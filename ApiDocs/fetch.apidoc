@@ -1,8 +1,10 @@
 /**
- * @api {endpoint / fetch} /configuration/fetch Get specified entry
+ * @api {ServiceMethod: fetch} /fetch fetch
  * @apiName Fetch
  * @apiGroup Methods
  * @apiVersion 0.0.0-CURRENT
+ * @apiPermission Successful requests and responses
+ *
  * @apiDescription This operation enable you to get specific value (either string or object) by retrieving specified entry (key) from the relevant Repository and enabled for each accessible permission level (read&write) granted for owner either admin or member role
  * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
  * @apiParam {String} repository Specified name of the repository
@@ -11,9 +13,10 @@
  * @apiSuccess {Object} value Specified node name applied for relevant configuration settings in the repository
  * @apiSuccess {String} key Specified key name (entry) for relevant configuration setting in the repository
  *
- * @apiParamExample {json} Request-Example (WS):
+ * @apiParamExample {json} WebSocket:
+ * Request:
  *     {
- *         "q": "/configuration/fetch",
+ *         "q":"/configuration/fetch",
  *         "sid": 1,
  *         "d":{
  *         "token": "API-TOKEN",
@@ -22,26 +25,8 @@
  *         }
  *     }
  *
- * @apiParamExample {json} Request-Example (RS):
- *     {
- *       "metadata":{
- *         "q": "/configuration/fetch"
- *         },
- *         "data":{
- *         "token": "API-TOKEN",
- *         "repository": "specifiedRepoName",
- *         "key": "specifiedKeyName"
- *         }
- *     }
+ * Response:
  *
- * @apiParamExample {json} Request-Example (HTTP):
- *     {
- *         "token": "API-TOKEN",
- *         "repository": "specifiedRepoName",
- *         "key": "specifiedKeyName"
- *     }
- *
- * @apiSuccessExample Success-Response (WS):
  *     {
  *         "q":"/configuration/fetch",
  *         "sid":1,
@@ -61,7 +46,21 @@
  *          "sid":1
  *     }
  *
- * @apiSuccessExample Success-Response (RS):
+ * @apiParamExample {json} RSocket:
+ * Request:
+ *     {
+ *       "metadata":{
+ *         "q": "/configuration/fetch"
+ *         },
+ *         "data":{
+ *         "token": "API-TOKEN",
+ *         "repository": "specifiedRepoName",
+ *         "key": "specifiedKeyName"
+ *         }
+ *     }
+ *
+ * Response:
+ *
  *    {
  *        "data":{
  *        "value": {
@@ -77,7 +76,19 @@
  *       }
  *    }
  *
- * @apiSuccessExample Success-Response (HTTP):
+ * @apiParamExample {json} HTTP:
+ * Request:
+ * https://localhost:port/configuration/fetch (endpoint url)
+ *
+ * Body:
+ *     {
+ *         "token": "API-TOKEN",
+ *         "repository": "specifiedRepoName",
+ *         "key": "specifiedKeyName"
+ *     }
+ *
+ * Response:
+ *
  *    {
  *        "value": {
  *                   "name": "Gold",

@@ -1,8 +1,10 @@
 /**
- * @api {endpoint / delete} /configuration/delete Delete specified entry
+ * @api {ServiceMethod: delete} /delete delete
  * @apiName Delete
  * @apiGroup Methods
  * @apiVersion 0.0.0-CURRENT
+ * @apiPermission Successful requests and responses
+ *
  * @apiDescription This operation enable you to delete a specified entry (key) from the relevant Repository and requires a write level permission granted for owner either admin role only
  * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
  * @apiParam {String} repository Specified name of the repository
@@ -10,9 +12,10 @@
  *
  * @apiSuccess Acknowledgment Empty object
  *
- * @apiParamExample {json} Request-Example (WS):
+ * @apiParamExample {json} WebSocket:
+ * Request:
  *     {
- *         "q": "/configuration/delete",
+ *         "q":"/configuration/delete",
  *         "sid": 1,
  *         "d":{
  *         "token": "API-TOKEN",
@@ -21,26 +24,8 @@
  *         }
  *     }
  *
- * @apiParamExample {json} Request-Example (RS):
- *     {
- *       "metadata":{
- *         "q": "/configuration/delete"
- *         },
- *         "data":{
- *         "token": "API-TOKEN",
- *         "repository": "specifiedRepoName",
- *         "key": "specifiedKeyName"
- *         }
- *     }
+ * Response:
  *
- * @apiParamExample {json} Request-Example (HTTP):
- *     {
- *         "token": "API-TOKEN",
- *         "repository": "specifiedRepoName",
- *         "key": "specifiedKeyName"
- *     }
- *
- * @apiSuccessExample Success-Response (WS):
  *     {
  *         "q":"/configuration/delete",
  *         "sid":1,
@@ -52,7 +37,21 @@
  *          "sid":1
  *     }
  *
- * @apiSuccessExample Success-Response (RS):
+ * @apiParamExample {json} RSocket:
+ * Request:
+ *     {
+ *       "metadata":{
+ *         "q": "/configuration/delete"
+ *         },
+ *         "data":{
+ *         "token": "API-TOKEN",
+ *         "repository": "specifiedRepoName",
+ *         "key": "specifiedKeyName"
+ *         }
+ *     }
+ *
+ * Response:
+ *
  *     {
  *         "data":{},
  *         "metadata":{
@@ -60,8 +59,20 @@
  *         }
  *     }
  *
- * @apiSuccessExample Success-Response (HTTP):
+ * @apiParamExample {json} HTTP:
+ * Request:
+ * https://localhost:port/configuration/delete (endpoint url)
+ *
+ * Body:
  *     {
+ *         "token": "API-TOKEN",
+ *         "repository": "specifiedRepoName",
+ *         "key": "specifiedKeyName"
+ *     }
+ *
+ * Response:
+ *     {
+ *
  *     }
  *
  * @apiError {String} field invalid permission level for specified API key

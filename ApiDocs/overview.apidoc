@@ -1,5 +1,5 @@
 /**
-* @api {} / Getting Started
+* @api {}  Getting Started
 * @apiName GettingStarted
 * @apiGroup Overview
 * @apiVersion 0.0.0-CURRENT
@@ -26,18 +26,19 @@
 */
 
 /**
-* @api {} / Transport protocols API
+* @api {}  Transport protocols API
 * @apiName TransportProtocols
 * @apiGroup Overview
 * @apiVersion 0.0.0-CURRENT
+* @apiPermission Successful requests and responses
 * @apiDescription You are able to manage the service API through the three types of transport protocols which are supported.
-* <br>Upon relevant <a https://github.com/jivygroup/exchange/wiki/Configuration-&-Organization-services-host-addresses">Host address</a> was set the <b>request</b> should contain the following structure according to transport protocol usage:
+* <br>Upon relevant <a href="https://github.com/jivygroup/exchange/wiki/Configuration-&-Organization-services-host-addresses"><b>Host address</b></a> was set the <b>request</b> should contain the following structure according to transport protocol usage:
                     <ul>
 						  <b>Websocket (WS)</b>
                            <li> "q": The query of the relevant service name and method used </li>
                            <li> "sid": The stream identifier (couldn't be reused upon current stream connection is opened)</li>
                            <li> "d": The request data object (keys and values) </li>
-						  <br>RSocket (RS)</b>
+						  <br><b>RSocket (RS)</b>
 						   <li> "metadata": object which contains "q": The query of the relevant service name and method used </li>
                            <li> "d": object: The request data (parameters and values) </li>
 						  <br><b>HTTP</b> (service name and method used should be added to the relevant host address)
@@ -46,7 +47,8 @@
                            <li>  request "method": POST </li>
                     </ul>
 
-* @apiParamExample {json} Request-Example (WS):
+* @apiParamExample {json} WebSocket:
+                    Request:
                     {
                         "q": "/serviceName/method_name",
                         "sid":int,
@@ -55,22 +57,8 @@
                              }
                     }
 
-* @apiParamExample {json} Request-Example (RS):
-                    {
-                       "metadata": {
-                           "q": "/serviceName/method_name"
-                                   },
-                           "data": {
-                                      "relevant request parameters and values"
-                                   }
-                    }
+                    Response:
 
-* @apiParamExample {json} Request-Example (HTTP):
-                    {
-                       "relevant request parameters and values"
-                    }
-
-* @apiSuccessExample Response-Example (WS):
                     {
                         "q":"/serviceName/method_name",
                         "sid":int,
@@ -83,7 +71,18 @@
                         "sid":int
                     }
 
-* @apiSuccessExample Response-Example (RS):
+* @apiParamExample {json} RSocket:
+                    Request:
+                    {
+                       "metadata": {
+                           "q": "/serviceName/method_name"
+                                   },
+                           "data": {
+                                      "relevant request parameters and values"
+                                   }
+                    }
+
+                    Response:
                     {
                         "data":{
                                   "relevant response parameters and values"
@@ -92,22 +91,30 @@
                           "q": "/serviceName/method_name"
                         }
                     }
+* @apiParamExample {json} HTTP:
+                    Request:
+                    https://localhost:port/serviceName/method_name (endpoint url)
 
-* @apiSuccessExample Response-Example (HTTP):
+                    Body:
                     {
-                       "relevant response parameters and values"
+                       "relevant request parameters and values"
+                    }
+
+                    Response:
+                    {
+                       "relevant request parameters and values"
                     }
 */
 
 /**
-  * @api {Host address} / Interactive API Explorer
+  * @api {}  Interactive API Explorer
   * @apiName InteractiveAPIExplorer
   * @apiGroup Overview
   * @apiVersion 0.0.0-CURRENT
-  * @apiDescription For example <b>Websocket</b> connection is one of the accessible ways to use the API, so please follow the steps below to connect and run commands via Sandbox:
+  * @apiDescription <b>WebSocket and RSocket</b> transport are accessible to use the API via in-house developed API Explorer called <b>Sandbox</b> thus to connect and run follow up the next steps:
   <ul>
                  <li> Navigate to the sandbox: <a href="http://scalecube.io/api-sandbox/app/index.html">Scalecube sandbox</a> </li>
-                 <li> Click on the <b>Settings</b> button and choose the relevant <b>transport</b> and host <b>address</b>: wss://configuration-service-7070.genesis.om2.com </li>
+                 <li> Click on the <b>Settings</b> button then set the relevant <a href="https://github.com/jivygroup/exchange/wiki/Configuration-&-Organization-services-host-addresses"><b>Host address</b></a> for the chosen <b>transport</b> </li>
                  <li> Click on <b>Import icon</b> and copy-paste the template.json file path for <a href="https://raw.githubusercontent.com/scalecube/scalecube-configuration-service/master/API-Calls-examples.json">Configuration service endpoints.json</a></li>
                  <li> Click on the <b>Connect</b> button (now you are connected to the environment) and push <b>Send</b> button to make your request</li>
   </ul>

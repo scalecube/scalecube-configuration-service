@@ -1,8 +1,10 @@
 /**
- * @api {endpoint / save} /configuration/save Save and update the entry
+ * @api {endpoint / save} /save save
  * @apiName Save
  * @apiGroup Methods
  * @apiVersion 0.0.0-CURRENT
+ * @apiPermission Successful requests and responses
+ *
  * @apiDescription This operation enable you to save either to update (edit) a specified entry in the relevant Repository and requires a write level permission granted for owner either admin role only.
  * Upon the specified entry is saved then it could be updated i.e. overwritten by the common method
  *
@@ -13,7 +15,9 @@
  *
  * @apiSuccess Acknowledgment Empty object
  *
- * @apiParamExample {json} Request-Example:
+ * @apiParamExample {json} WebSocket:
+ * Request:
+ *
  *     {
  *         "q": "/configuration/save",
  *         "sid": 1,
@@ -30,7 +34,23 @@
  *         }
  *     }
  *
- * @apiParamExample {json} Request-Example (RS):
+ *  Response:
+ *     {
+ *         "q":"/configuration/save",
+ *         "sid":1,
+ *         "d":{}
+ *     }
+ *
+ *     {
+ *          "sig":1,
+ *          "sid":1
+ *     }
+ *
+ *
+ *
+ *
+ * @apiParamExample {json} RSocket:
+ * Request:
  *     {
  *       "metadata":{
  *         "q": "/configuration/save"
@@ -48,7 +68,17 @@
  *         }
  *     }
  *
- * @apiParamExample {json} Request-Example (HTTP):
+ *  Response:
+ *     {
+ *         "data":{},
+ *         "metadata":{
+ *           "q": "/configuration/save"
+ *         }
+ *    }
+ *
+ *
+ * @apiParamExample {json} HTTP:
+ * Request:
  *     {
  *         "token": "API-TOKEN",
  *         "repository": "specifiedRepoName",
@@ -61,29 +91,11 @@
  *                  }
  *     }
  *
- * @apiSuccessExample Success-Response (WS):
+ * Response:
  *     {
- *         "q":"/configuration/save",
- *         "sid":1,
- *         "d":{}
+ *
  *     }
  *
- *     {
- *          "sig":1,
- *          "sid":1
- *     }
- *
- * @apiSuccessExample Success-Response (RS):
- *     {
- *         "data":{},
- *         "metadata":{
- *           "q": "/configuration/save"
- *         }
- *     }
- *
- * @apiSuccessExample Success-Response (HTTP):
- *     {
- *     }
  *
  * @apiError {String} field invalid or non-existent repository name
  *

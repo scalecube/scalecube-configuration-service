@@ -1,8 +1,9 @@
 /**
- * @api {endpoint / createRepository} /createRepository createRepository
+ * @api {ServiceMethod: createRepository} /createRepository  createRepository
  * @apiName CreateRepository
  * @apiGroup Methods
  * @apiVersion 0.0.0-CURRENT
+ * @apiPermission Successful requests and responses
  * @apiDescription This operation enable you to create the specified Repository for collecting and storing the relevant entries and requires a write permission level granted for owner role only
  *
  * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
@@ -10,11 +11,10 @@
  *
  * @apiSuccess Acknowledgment Empty object
  *
- * <b>Successful requests and responses</b>
  *
  * @apiParamExample {json} WebSocket:
  * Request:
- * {
+ *     {
  *         "q":"/configuration/createRepository",
  *         "sid": 1,
  *         "d":{
@@ -37,6 +37,7 @@
  *     }
  *
  * @apiParamExample {json} RSocket:
+ * Request:
  *     {
  *       "metadata":{
  *         "q": "/configuration/createRepository"
