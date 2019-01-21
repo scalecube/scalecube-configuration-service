@@ -1,5 +1,5 @@
 /**
-* @api {Host address} / Getting Started
+* @api {} / Getting Started
 * @apiName GettingStarted
 * @apiGroup Overview
 * @apiVersion 0.0.0-CURRENT
@@ -26,11 +26,12 @@
 */
 
 /**
-* @api {Host address} / Transport protocols API
+* @api {} / Transport protocols API
 * @apiName TransportProtocols
 * @apiGroup Overview
 * @apiVersion 0.0.0-CURRENT
-* @apiDescription Upon relevant <b>host address</b> was set the <b>request</b> should contain the following structure according to transport protocol usage:
+* @apiDescription You are able to manage the service API through the three types of transport protocols we support.
+* <br>Upon relevant <a href="http://scalecube.io/organization-service/index.html">Host address</a> was set the <b>request</b> should contain the following structure according to transport protocol usage:
                     <ul>
 						  <b>Websocket (WS)</b><a href="https://github.com/scalecube/scalecube-services/wiki/Web-Socket-API"> API</a>
                            <li> "q": The query of the relevant service name and method used </li>

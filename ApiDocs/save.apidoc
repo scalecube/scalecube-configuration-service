@@ -1,7 +1,7 @@
 /**
  * @api {endpoint / save} /configuration/save Save and update the entry
  * @apiName Save
- * @apiGroup Save
+ * @apiGroup Methods
  * @apiVersion 0.0.0-CURRENT
  * @apiDescription This operation enable you to save either to update (edit) a specified entry in the relevant Repository and requires a write level permission granted for owner either admin role only.
  * Upon the specified entry is saved then it could be updated i.e. overwritten by the common method
