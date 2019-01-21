@@ -10,9 +10,11 @@
  *
  * @apiSuccess Acknowledgment Empty object
  *
+ * <b>Successful requests and responses</b>
  *
- * @apiParamExample {json} Request-Example (WS):
- *     {
+ * @apiParamExample {json} WebSocket:
+ * Request:
+ * {
  *         "q":"/configuration/createRepository",
  *         "sid": 1,
  *         "d":{
@@ -21,25 +23,8 @@
  *         }
  *     }
  *
- * @apiParamExample {json} Request-Example (RS):
- *     {
- *       "metadata":{
- *         "q": "/configuration/createRepository"
- *         },
- *         "data":{
- *         "token": "API-TOKEN",
- *         "repository": "specifiedRepoName"
- *         }
- *     }
+ * Response:
  *
- * @apiParamExample {json} Request-Example (HTTP):
- *     {
- *         "token": "API-TOKEN",
- *         "repository": "specifiedRepoName"
- *     }
- *
- *
- * @apiSuccessExample Success-Response (WS):
  *     {
  *         "q":"/configuration/createRepository",
  *         "sid":1,
@@ -51,16 +36,38 @@
  *          "sid":1
  *     }
  *
- * @apiSuccessExample Success-Response (RS):
+ * @apiParamExample {json} RSocket:
+ *     {
+ *       "metadata":{
+ *         "q": "/configuration/createRepository"
+ *         },
+ *         "data":{
+ *         "token": "API-TOKEN",
+ *         "repository": "specifiedRepoName"
+ *         }
+ *     }
+ *
+ * Response:
+ *
  *     {
  *         "data":{},
  *         "metadata":{
  *           "q": "/configuration/createRepository"
  *         }
  *     }
+ * @apiParamExample {json} HTTP:
+ * Request:
+ * https://configuration-service-8080.genesis.om2.com/io.scalecube.configuration.api.ConfigurationService/createRepository
  *
- * @apiSuccessExample Success-Response (HTTP):
+ * Body:
  *     {
+ *         "token": "API-TOKEN",
+ *         "repository": "specifiedRepoName"
+ *     }
+ *
+ * Response:
+ *     {
+ *
  *     }
  *
  * @apiError {String} field invalid permission level for specified API key
