@@ -15,6 +15,7 @@
 
   <properties>
     <scalecube-benchmarks.version>1.2.2</scalecube-benchmarks.version>
+    <scalecube-organization.version>2.0.15</scalecube-organization.version>
     <testcontainers.version>1.10.5</testcontainers.version>
   </properties>
 
@@ -32,7 +33,7 @@
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-organization-api</artifactId>
-      <version>2.0.15</version>
+      <version>${scalecube-organization.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
@@ -53,6 +54,13 @@
       <groupId>org.testcontainers</groupId>
       <artifactId>vault</artifactId>
       <version>${testcontainers.version}</version>
+    </dependency>
+    <!-- Need for using testcontainers -->
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-all</artifactId>
+      <version>1.3</version>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
 

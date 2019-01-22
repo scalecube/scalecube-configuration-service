@@ -42,12 +42,12 @@ public class ConfigurationServiceBenchmarkState
   private static final WaitStrategy SERVICE_STARTED =
       new LogMessageWaitStrategy().withRegEx("^.*scalecube.*Running.*$");
 
-  private boolean useTestContainers;
+  private final boolean useTestContainers;
 
   /**
-   * State.
+   * Creates new instance.
    *
-   * @param settings settings.
+   * @param settings benchmarks settings.
    */
   public ConfigurationServiceBenchmarkState(BenchmarkSettings settings) {
     super(settings);
