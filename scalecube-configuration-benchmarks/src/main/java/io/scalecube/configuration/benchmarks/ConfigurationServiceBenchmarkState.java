@@ -3,14 +3,28 @@ package io.scalecube.configuration.benchmarks;
 import com.couchbase.client.java.cluster.DefaultBucketSettings;
 import com.couchbase.client.java.cluster.UserRole;
 import com.couchbase.client.java.cluster.UserSettings;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.model.PortBinding;
+import io.scalecube.account.api.AddOrganizationApiKeyRequest;
+import io.scalecube.account.api.CreateOrganizationRequest;
+import io.scalecube.account.api.CreateOrganizationResponse;
+import io.scalecube.account.api.OrganizationInfo;
+import io.scalecube.account.api.OrganizationService;
+import io.scalecube.account.api.Token;
 import io.scalecube.benchmarks.BenchmarkSettings;
 import io.scalecube.benchmarks.BenchmarkState;
+import io.scalecube.configuration.api.ConfigurationService;
+import io.scalecube.configuration.api.CreateRepositoryRequest;
+import io.scalecube.configuration.api.SaveRequest;
 import io.scalecube.services.gateway.clientsdk.Client;
 import io.scalecube.services.gateway.clientsdk.ClientSettings;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
@@ -18,10 +32,16 @@ import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.couchbase.CouchbaseContainer;
 import org.testcontainers.vault.VaultContainer;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.netty.resources.LoopResources;
 
 public class ConfigurationServiceBenchmarkState
     extends BenchmarkState<ConfigurationServiceBenchmarkState> {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(UpdateConfigValueBenchmark.class);
+
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private static final String COUCHBASE_USERNAME = "admin";
   private static final String COUCHBASE_PASSWORD = "123456";
@@ -43,6 +63,7 @@ public class ConfigurationServiceBenchmarkState
       new LogMessageWaitStrategy().withRegEx("^.*scalecube.*Running.*$");
 
   private final boolean useTestContainers;
+  private final AtomicReference<String> apiKey = new AtomicReference<>();
 
   /**
    * Creates new instance.
@@ -70,22 +91,33 @@ public class ConfigurationServiceBenchmarkState
       startOrganizationService(env);
       startConfigurationService(env);
     }
+
+    Token token = new Token("auth0.com", settings.find("token", ""));
+    int configKeysCount = Integer.parseInt(settings.find("configKeysCount", "100"));
+
+    preload(token, configKeysCount).block();
   }
 
   /**
-   * Creates service proxy with websocket client for a given service interface.
+   * Returns API key which is created on `preload` phase.
    *
-   * @param service service interface class.
-   * @param <T> service type.
-   * @return service proxy.
+   * @return api key.
    */
-  public <T> T clientFor(Class<T> service) {
+  public String apiKey() {
+    return apiKey.get();
+  }
+
+  /**
+   * Creates gateway client.
+   *
+   * @return client.
+   */
+  public Client client() {
     return Client.onWebsocket(
-            ClientSettings.builder()
-                .port(WS_GATEWAY_PORT)
-                .loopResources(LoopResources.create("benchmark-client"))
-                .build())
-        .forService(service);
+        ClientSettings.builder()
+            .port(WS_GATEWAY_PORT)
+            .loopResources(LoopResources.create("benchmark-client"))
+            .build());
   }
 
   private void startCouchbase() {
@@ -168,5 +200,65 @@ public class ConfigurationServiceBenchmarkState
         .withEnv(env)
         .waitingFor(SERVICE_STARTED)
         .start();
+  }
+
+  private Mono<Void> preload(Token token, int configKeysCount) {
+    Client client = client();
+    OrganizationService organizationService = client.forService(OrganizationService.class);
+    ConfigurationService configurationService = client.forService(ConfigurationService.class);
+
+    return createOrganization(organizationService, token)
+        .flatMap(organization -> createApiKey(organizationService, token, organization))
+        .flatMap(apiKey -> createRepository(configurationService, apiKey).then(Mono.just(apiKey)))
+        .flatMapMany(
+            apiKey ->
+                Flux.range(0, configKeysCount)
+                    .flatMap(
+                        keyIndex -> {
+                          String key = "key-" + keyIndex;
+                          JsonNode value = OBJECT_MAPPER.valueToTree(keyIndex);
+
+                          return saveConfigProperty(configurationService, apiKey, key, value);
+                        }))
+        .doOnComplete(() -> LOGGER.info("Preloading completed!"))
+        .then();
+  }
+
+  private Mono<CreateOrganizationResponse> createOrganization(
+      OrganizationService organizationService, Token token) {
+    return organizationService
+        .createOrganization(new CreateOrganizationRequest("benchmarks", token, "info@scalecube.io"))
+        .doOnSuccess(response -> LOGGER.info("Organization created: {}", response))
+        .doOnError(th -> LOGGER.error("Organization not created: {}", th));
+  }
+
+  private Mono<String> createApiKey(
+      OrganizationService organizationService, Token token, OrganizationInfo organization) {
+    Map<String, String> claims = new HashMap<>();
+    claims.put("role", "Owner");
+    return organizationService
+        .addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(token, organization.id(), "benchmarksApiKey", claims))
+        .doOnSuccess(response -> LOGGER.info("ApiKey created: {}", response))
+        .doOnError(th -> LOGGER.error("ApiKey not created: {}", th))
+        .map(response -> response.apiKeys()[0].key())
+        .doOnNext(apiKey::set);
+  }
+
+  private Mono<Void> createRepository(ConfigurationService configurationService, String apiKey) {
+    return configurationService
+        .createRepository(new CreateRepositoryRequest(apiKey, "benchmarks-repo"))
+        .doOnSuccess(response -> LOGGER.info("Repository created: {}", response))
+        .doOnError(th -> LOGGER.error("Repository not created: ", th))
+        .then();
+  }
+
+  private Mono<Void> saveConfigProperty(
+      ConfigurationService configurationService, String apiKey, String key, JsonNode value) {
+    return configurationService
+        .save(new SaveRequest(apiKey, "benchmarks-repo", key, value))
+        .doOnSuccess(response -> LOGGER.info("Config created: {}={}", key, value))
+        .doOnError(th -> LOGGER.error("Config not created: ", th))
+        .then();
   }
 }
