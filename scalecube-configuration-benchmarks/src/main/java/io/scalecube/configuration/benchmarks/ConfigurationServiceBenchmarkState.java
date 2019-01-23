@@ -36,7 +36,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.resources.LoopResources;
 
-public class ConfigurationServiceBenchmarkState
+final class ConfigurationServiceBenchmarkState
     extends BenchmarkState<ConfigurationServiceBenchmarkState> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UpdateConfigValueBenchmark.class);
@@ -63,6 +63,10 @@ public class ConfigurationServiceBenchmarkState
       new LogMessageWaitStrategy().withRegEx("^.*scalecube.*Running.*$");
 
   private final boolean useTestContainers;
+  private final String gatewayHost;
+  private final int gatewayPort;
+  private final String gatewayProtocol;
+
   private final AtomicReference<String> apiKey = new AtomicReference<>();
 
   /**
@@ -73,7 +77,10 @@ public class ConfigurationServiceBenchmarkState
   public ConfigurationServiceBenchmarkState(BenchmarkSettings settings) {
     super(settings);
 
-    useTestContainers = Boolean.valueOf(settings.find("useTestContainers", "true"));
+    useTestContainers = Boolean.valueOf(settings.find("useTestContainers", "false"));
+    gatewayHost = String.valueOf(settings.find("gatewayHost", "localhost"));
+    gatewayPort = Integer.valueOf(settings.find("gatewayPort", String.valueOf(WS_GATEWAY_PORT)));
+    gatewayProtocol = String.valueOf(settings.find("gatewayProtocol", "ws"));
   }
 
   @Override
@@ -113,11 +120,26 @@ public class ConfigurationServiceBenchmarkState
    * @return client.
    */
   public Client client() {
-    return Client.onWebsocket(
+    ClientSettings settings =
         ClientSettings.builder()
-            .port(WS_GATEWAY_PORT)
+            .host(gatewayHost)
+            .port(gatewayPort)
             .loopResources(LoopResources.create("benchmark-client"))
-            .build());
+            .build();
+
+    switch (gatewayProtocol.toLowerCase()) {
+      case "ws":
+        return Client.onWebsocket(settings);
+      case "rs":
+        return Client.onRSocket(settings);
+      case "http":
+        return Client.onHttp(settings);
+      default:
+        throw new IllegalStateException(
+            String.format(
+                "Unknown gateway protocol '%s'. Must be one of following 'ws', 'rs', 'http'",
+                gatewayProtocol));
+    }
   }
 
   private void startCouchbase() {
