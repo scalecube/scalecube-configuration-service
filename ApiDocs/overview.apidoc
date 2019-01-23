@@ -1,5 +1,5 @@
 /**
-  * @api  Getting Started
+  * @api  . Getting Started
   * @apiName GettingStarted
   * @apiGroup Overview
   * @apiVersion 0.0.0-CURRENT
@@ -26,7 +26,7 @@
   */
 
   /**
-  * @api  Transport protocols API
+  * @api  . Transport protocols API
   * @apiName TransportProtocols
   * @apiGroup Overview
   * @apiVersion 0.0.0-CURRENT
@@ -107,7 +107,7 @@
   */
 
   /**
-    * @api {}  Interactive API Explorer
+    * @api  . Interactive API Explorer
     * @apiName InteractiveAPIExplorer
     * @apiGroup Overview
     * @apiVersion 0.0.0-CURRENT
