@@ -3,7 +3,6 @@
   "version": "0.0.0-CURRENT",
   "description": "Configuration service API",
   "title": "API documentation for the Configuration Service",
-  "url" : "Websocket: wss://configuration-service-7070.genesis.om2.com/\nRSocket: wss://configuration-service-9090.genesis.om2.com/\nHTTP: https://configuration-service-8080.genesis.om2.com",
   "template": {
     "forceLanguage" : "en"
   },
@@ -12,10 +11,6 @@
     "GettingStarted",
     "TransportProtocols",
     "InteractiveAPIExplorer",
-    "CreateRepository",
-    "Save",
-    "Fetch",
-    "Entries",
-    "Delete"
+    "Methods"
   ]
 }

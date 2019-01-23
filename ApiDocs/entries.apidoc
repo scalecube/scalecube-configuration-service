@@ -1,199 +1,212 @@
 /**
- * @api {endpoint / entries} /io.scalecube.configuration.api.ConfigurationService/entries Fetch (get) all entries
- * @apiName Entries
- * @apiGroup Entries
- * @apiVersion 0.0.0-CURRENT
- * @apiDescription This operation enable you to get all values (array of objects) by retrieving all the entries (keys) from the relevant Repository and enabled for each accessible permission level (read&write) granted for owner either admin or member role
- * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
- * @apiParam {String} repository Specified name of the repository
- *
- * @apiSuccess {Object[]} entries List of all entries from the relevant configuration setting in the repository (Array of Objects)
- * @apiSuccess {Object} value.entries Specified node name applied for relevant configuration settings in the repository
- * @apiSuccess {String} key.entries Specified key name (entry) for relevant configuration setting in the repository
- *
- * @apiParamExample {json} Request-Example (WS):
- *     {
- *         "q": "/io.scalecube.configuration.api.ConfigurationService/entries",
- *         "sid": 1,
- *         "d":{
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
- *         "repository": "specifiedRepoName"
- *         }
- *     }
- *
- * @apiParamExample {json} Request-Example (RS):
- *     {
- *       "metadata":{
- *         "q": "/io.scalecube.configuration.api.ConfigurationService/entries"
- *         },
- *         "data":{
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
- *         "repository": "specifiedRepoName"
- *         }
- *     }
- *
- * @apiParamExample {json} Request-Example (HTTP):
- *     {
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
- *         "repository": "specifiedRepoName"
- *     }
- *
- * @apiSuccessExample Success-Response (WS):
- *     {
- *         "q": "/io.scalecube.configuration.api.ConfigurationService/entries",
- *         "sid": 1,
- *         "d":{
- *                "entries": [
- *                  {
- *                    "value": {
- *                               "instrumentInstance": {
- *                               "name": "Bitcoin",
- *                               "instrument": "BTC",
- *                               "DecimalPrecision" : "2",
- *                               "Rounding": "down"
- *                    },
- *                    "key": "specifiedKeyName"
- *                    }
- *                  },
- *                  {
- *                    "value": {
- *                               "instrumentInstance": {
- *                               "name": "Gold",
- *                               "instrument": "XAU",
- *                               "DecimalPrecision" : "2",
- *                               "Rounding": "down"
- *                    },
- *                    "key": "specifiedKeyName2"
- *                    }
- *                  },
- *                  {
- *                    "value": {
- *                               "instrumentInstance": {
- *                               "name": "USOIL",
- *                               "instrument": "OIL",
- *                               "DecimalPrecision" : "2",
- *                               "Rounding": "down"
- *                    },
- *                    "key": "specifiedKeyName3"
- *                    }
- *                  }
- *                  ]
- *              }
- *     }
- *     {
- *         "sig":1,
- *         "sid":1
- *     }
- *
- * @apiSuccessExample Success-Response (RS):
- *     {
- *       "data":{
- *                "entries": [
- *                  {
- *                    "value": {
- *                               "instrumentInstance": {
- *                               "name": "Bitcoin",
- *                               "instrument": "BTC",
- *                               "DecimalPrecision" : "2",
- *                               "Rounding": "down"
- *                    },
- *                    "key": "specifiedKeyName"
- *                    }
- *                  },
- *                  {
- *                    "value": {
- *                               "instrumentInstance": {
- *                               "name": "Gold",
- *                               "instrument": "XAU",
- *                               "DecimalPrecision" : "2",
- *                               "Rounding": "down"
- *                    },
- *                    "key": "specifiedKeyName2"
- *                    }
- *                  },
- *                  {
- *                    "value": {
- *                               "instrumentInstance": {
- *                               "name": "USOIL",
- *                               "instrument": "OIL",
- *                               "DecimalPrecision" : "2",
- *                               "Rounding": "down"
- *                    },
- *                    "key": "specifiedKeyName3"
- *                    }
- *                  }
- *                  ]
- *              },
- *       "metadata":{
- *          "q": "/io.scalecube.configuration.api.ConfigurationService/entries"
- *       }
- *     }
- *
- * @apiSuccessExample Success-Response (HTTP):
- *     {
- *       "entries": [
- *         {
- *           "value": {
- *                      "instrumentInstance": {
- *                      "name": "Bitcoin",
- *                      "instrument": "BTC",
- *                      "DecimalPrecision" : "2",
- *                      "Rounding": "down"
- *           },
- *           "key": "specifiedKeyName"
- *           }
- *         },
- *         {
- *           "value": {
- *                      "instrumentInstance": {
- *                      "name": "Gold",
- *                      "instrument": "XAU",
- *                      "DecimalPrecision" : "2",
- *                      "Rounding": "down"
- *           },
- *           "key": "specifiedKeyName2"
- *           }
- *         },
- *         {
- *           "value": {
- *                      "instrumentInstance": {
- *                      "name": "USOIL",
- *                      "instrument": "OIL",
- *                      "DecimalPrecision" : "2",
- *                      "Rounding": "down"
- *           },
- *           "key": "specifiedKeyName3"
- *           }
- *         }
- *         ]
- *    }
- *
- * @apiError {String} field invalid API key (token)
- * @apiErrorExample {json} Error-Response (WS):
- *    {
- *         "sig":2,
- *         "q":"/io.scalecube.services.error/500",
- *         "sid":1,
- *         "d":{
- *                 errorCode":500,
- *                 "errorMessage":"Token verification failed"
- *         }
- *    }
- *
- * @apiErrorExample {json} Error-Response (RS):
- *    {
- *         "data":{
- *         "errorCode":500,
- *         "errorMessage":"Token verification failed"
- *         },
- *         "metadata":{
- *             "q":"/io.scalecube.services.error/500"
- *         }
- *    }
- *
- * @apiErrorExample {json} Error-Response (HTTP):
- *    {
- *       errorCode":500,
- *       "errorMessage":"Token verification failed"
- *    }
- */
+  * @api {ServiceMethod: entries} /configuration/entries entries
+  * @apiName Entries
+  * @apiGroup Methods
+  * @apiVersion 0.0.0-CURRENT
+  * @apiPermission Request / Response / Error-response
+  *
+  * @apiDescription This operation enable you to get all values (array of objects) by retrieving all the entries (keys) from
+  * the relevant Repository and enabled for each accessible permission level (read&write) granted for owner either admin or member role
+  *
+  * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
+  * @apiParam {String} repository Specified name of the repository
+  *
+  * @apiSuccess {Object[]} entries List of all entries from the relevant configuration setting in the repository (Array of Objects)
+  * @apiSuccess {Object} entries.value Specified node name applied for relevant configuration settings in the repository
+  * @apiSuccess {String} entries.key Specified key name (entry) for relevant configuration setting in the repository
+  *
+  * @apiError {String} field invalid API key (token)
+  *
+  * @apiErrorExample {json} WebSocket
+  * Request:
+  *     {
+  *         "q":"/configuration/entries",
+  *         "sid": 1,
+  *         "d":{
+  *         "token": "API-TOKEN",
+  *         "repository": "specifiedRepoName"
+  *         }
+  *     }
+  *
+  * Response:
+  *
+  *     {
+  *         "q": "/configuration/entries",
+  *         "sid": 1,
+  *         "d":{
+  *                "entries": [
+  *                  {
+  *                    "value": {
+  *                               "instrumentInstance": {
+  *                               "name": "Bitcoin",
+  *                               "instrument": "BTC",
+  *                               "DecimalPrecision" : "2",
+  *                               "Rounding": "down"
+  *                    },
+  *                    "key": "specifiedKeyName"
+  *                    }
+  *                  },
+  *                  {
+  *                    "value": {
+  *                               "instrumentInstance": {
+  *                               "name": "Gold",
+  *                               "instrument": "XAU",
+  *                               "DecimalPrecision" : "2",
+  *                               "Rounding": "down"
+  *                    },
+  *                    "key": "specifiedKeyName2"
+  *                    }
+  *                  },
+  *                  {
+  *                    "value": {
+  *                               "instrumentInstance": {
+  *                               "name": "USOIL",
+  *                               "instrument": "OIL",
+  *                               "DecimalPrecision" : "2",
+  *                               "Rounding": "down"
+  *                    },
+  *                    "key": "specifiedKeyName3"
+  *                    }
+  *                  }
+  *                  ]
+  *              }
+  *     }
+  *     {
+  *         "sig":1,
+  *         "sid":1
+  *     }
+  *
+  * Error Response:
+  *     {
+  *          "sig":2,
+  *          "q":"/io.scalecube.services.error/500",
+  *          "sid":1,
+  *          "d":{
+  *                  errorCode":500,
+  *                  "errorMessage":"Token verification failed"
+  *          }
+  *     }
+  *
+  * @apiErrorExample {json} RSocket:
+  * Request:
+  *     {
+  *       "metadata":{
+  *         "q": "/configuration/entries"
+  *         },
+  *         "data":{
+  *         "token": "API-TOKEN",
+  *         "repository": "specifiedRepoName"
+  *         }
+  *     }
+  *
+  * Response:
+  *
+  *     {
+  *       "data":{
+  *                "entries": [
+  *                  {
+  *                    "value": {
+  *                               "instrumentInstance": {
+  *                               "name": "Bitcoin",
+  *                               "instrument": "BTC",
+  *                               "DecimalPrecision" : "2",
+  *                               "Rounding": "down"
+  *                    },
+  *                    "key": "specifiedKeyName"
+  *                    }
+  *                  },
+  *                  {
+  *                    "value": {
+  *                               "instrumentInstance": {
+  *                               "name": "Gold",
+  *                               "instrument": "XAU",
+  *                               "DecimalPrecision" : "2",
+  *                               "Rounding": "down"
+  *                    },
+  *                    "key": "specifiedKeyName2"
+  *                    }
+  *                  },
+  *                  {
+  *                    "value": {
+  *                               "instrumentInstance": {
+  *                               "name": "USOIL",
+  *                               "instrument": "OIL",
+  *                               "DecimalPrecision" : "2",
+  *                               "Rounding": "down"
+  *                    },
+  *                    "key": "specifiedKeyName3"
+  *                    }
+  *                  }
+  *                  ]
+  *              },
+  *       "metadata":{
+  *          "q": "/configuration/entries"
+  *       }
+  *     }
+  *
+  * Error Response:
+  *     {
+  *         "data":{
+  *         "errorCode":500,
+  *         "errorMessage":"Token verification failed"
+  *         },
+  *         "metadata":{
+  *             "q":"/io.scalecube.services.error/500"
+  *         }
+  *     }
+  *
+  * @apiErrorExample {json} HTTP:
+  * Request:
+  * https://localhost:port/configuration/entries (endpoint url)
+  *
+  * Body:
+  *     {
+  *         "token": "API-TOKEN",
+  *         "repository": "specifiedRepoName"
+  *     }
+  *
+  * Response:
+  *     {
+  *       "entries": [
+  *         {
+  *           "value": {
+  *                      "instrumentInstance": {
+  *                      "name": "Bitcoin",
+  *                      "instrument": "BTC",
+  *                      "DecimalPrecision" : "2",
+  *                      "Rounding": "down"
+  *           },
+  *           "key": "specifiedKeyName"
+  *           }
+  *         },
+  *         {
+  *           "value": {
+  *                      "instrumentInstance": {
+  *                      "name": "Gold",
+  *                      "instrument": "XAU",
+  *                      "DecimalPrecision" : "2",
+  *                      "Rounding": "down"
+  *           },
+  *           "key": "specifiedKeyName2"
+  *           }
+  *         },
+  *         {
+  *           "value": {
+  *                      "instrumentInstance": {
+  *                      "name": "USOIL",
+  *                      "instrument": "OIL",
+  *                      "DecimalPrecision" : "2",
+  *                      "Rounding": "down"
+  *           },
+  *           "key": "specifiedKeyName3"
+  *           }
+  *         }
+  *         ]
+  *    }
+  *
+  * Error Response:
+  *    {
+  *       errorCode":500,
+  *       "errorMessage":"Token verification failed"
+  *    }
+  */
