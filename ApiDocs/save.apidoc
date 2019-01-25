@@ -1,117 +1,124 @@
 /**
- * @api {endpoint / save} /io.scalecube.configuration.api.ConfigurationService/save Save and update the entry
- * @apiName Save
- * @apiGroup Save
- * @apiVersion 0.0.0-CURRENT
- * @apiDescription This operation enable you to save either to update (edit) a specified entry in the relevant Repository and requires a write level permission granted for owner either admin role only.
- * Upon the specified entry is saved then it could be updated i.e. overwritten by the common method
- *
- * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
- * @apiParam {String} repository Specified name of the repository
- * @apiParam {String} key Specified key name (entry) for relevant configuration setting in the repository
- * @apiParam {JsonNode} value Specified node (entry) name applied for relevant configuration settings in the repository
- *
- * @apiSuccess Acknowledgment Empty object
- *
- * @apiParamExample {json} Request-Example:
- *     {
- *         "q": "/io.scalecube.configuration.api.ConfigurationService/save",
- *         "sid": 1,
- *         "d":{
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
- *         "repository": "specifiedRepoName",
- *         "key": "specifiedKeyName",
- *         "value": {
- *                     "name": "Gold",
- *                     "instrument": "XAU",
- *                     "DecimalPrecision" : "2",
- *                     "Rounding": "down"
- *                  }
- *         }
- *     }
- *
- * @apiParamExample {json} Request-Example (RS):
- *     {
- *       "metadata":{
- *         "q": "/io.scalecube.configuration.api.ConfigurationService/save"
- *         },
- *         "data":{
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
- *         "repository": "specifiedRepoName",
- *         "key": "specifiedKeyName",
- *         "value": {
- *                     "name": "Gold",
- *                     "instrument": "XAU",
- *                     "DecimalPrecision" : "2",
- *                     "Rounding": "down"
- *                  }
- *         }
- *     }
- *
- * @apiParamExample {json} Request-Example (HTTP):
- *     {
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
- *         "repository": "specifiedRepoName",
- *         "key": "specifiedKeyName",
- *         "value": {
- *                     "name": "Gold",
- *                     "instrument": "XAU",
- *                     "DecimalPrecision" : "2",
- *                     "Rounding": "down"
- *                  }
- *     }
- *
- * @apiSuccessExample Success-Response (WS):
- *     {
- *         "q":"/io.scalecube.configuration.api.ConfigurationService/save",
- *         "sid":1,
- *         "d":{}
- *     }
- *
- *     {
- *          "sig":1,
- *          "sid":1
- *     }
- *
- * @apiSuccessExample Success-Response (RS):
- *     {
- *         "data":{},
- *         "metadata":{
- *           "q": "/io.scalecube.configuration.api.ConfigurationService/save"
- *         }
- *     }
- *
- * @apiSuccessExample Success-Response (HTTP):
- *     {
- *     }
- *
- * @apiError {String} field invalid or non-existent repository name
- *
- * @apiErrorExample {json} Error-Response (WS):
- *     {
- *          "sig":2,
- *          "q":"/io.scalecube.services.error/500",
- *          "sid":1,
- *          "d":{
- *                  errorCode":500,
- *                  "errorMessage":"Failed to open bucket: 'ORG-ACF8F702CE82DE56D737-Name"
- *          }
- *     }
- *
- * @apiErrorExample {json} Error-Response (RS):
- *     {
- *          "data":{
- *          "errorCode":500,
- *          "errorMessage":"Failed to open bucket: 'ORG-ACF8F702CE82DE56D737-Name"
- *          },
- *          "metadata":{
- *              "q":"/io.scalecube.services.error/500"
- *          }
- *     }
- *
- * @apiErrorExample {json} Error-Response (HTTP):
- *     {
- *        errorCode":500,
- *        "errorMessage":"Failed to open bucket: 'ORG-ACF8F702CE82DE56D737-Name"
- *     }
- */
+  * @api {ServiceMethod: save} /configuration/save save
+  * @apiName Save
+  * @apiGroup Methods
+  * @apiVersion 0.0.0-CURRENT
+  * @apiPermission Request / Response / Error-response
+  *
+  * @apiDescription This operation enable you to save either to update (edit) a specified entry in the relevant Repository
+  * and requires a write level permission granted for owner either admin role only. Upon the specified entry is saved then it could be updated i.e. overwritten by the common method
+  *
+  * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
+  * @apiParam {String} repository Specified name of the repository
+  * @apiParam {String} key Specified key name (entry) for relevant configuration setting in the repository
+  * @apiParam {JsonNode} value Specified node (entry) name applied for relevant configuration settings in the repository
+  *
+  * @apiSuccess Acknowledgment Empty object
+  *
+  * @apiError {String} field invalid or non-existent repository name
+  *
+  *
+  * @apiErrorExample {json} WebSocket:
+  * Request:
+  *
+  *     {
+  *         "q": "/configuration/save",
+  *         "sid": 1,
+  *         "d":{
+  *         "token": "API-TOKEN",
+  *         "repository": "specifiedRepoName",
+  *         "key": "specifiedKeyName",
+  *         "value": {
+  *                     "name": "Gold",
+  *                     "instrument": "XAU",
+  *                     "DecimalPrecision" : "2",
+  *                     "Rounding": "down"
+  *                  }
+  *         }
+  *     }
+  *
+  * Response:
+  *     {
+  *         "q":"/configuration/save",
+  *         "sid":1,
+  *         "d":{}
+  *     }
+  *
+  *     {
+  *          "sig":1,
+  *          "sid":1
+  *     }
+  *
+  * Error Response:
+  *     {
+  *          "sig":2,
+  *          "q":"/io.scalecube.services.error/500",
+  *          "sid":1,
+  *          "d":{
+  *                  errorCode":500,
+  *                  "errorMessage":"Failed to open bucket: 'ORG-ACF8F702CE82DE56D737-Name"
+  *          }
+  *     }
+  *
+  * @apiErrorExample {json} RSocket:
+  * Request:
+  *     {
+  *       "metadata":{
+  *         "q": "/configuration/save"
+  *         },
+  *         "data":{
+  *         "token": "API-TOKEN",
+  *         "repository": "specifiedRepoName",
+  *         "key": "specifiedKeyName",
+  *         "value": {
+  *                     "name": "Gold",
+  *                     "instrument": "XAU",
+  *                     "DecimalPrecision" : "2",
+  *                     "Rounding": "down"
+  *                  }
+  *         }
+  *     }
+  *
+  * Response:
+  *     {
+  *         "data":{},
+  *         "metadata":{
+  *           "q": "/configuration/save"
+  *         }
+  *     }
+  *
+  * Error Response:
+  *     {
+  *         "data":{
+  *         "errorCode":500,
+  *         "errorMessage":"Failed to open bucket: 'ORG-ACF8F702CE82DE56D737-Name"
+  *         },
+  *         "metadata":{
+  *             "q":"/io.scalecube.services.error/500"
+  *         }
+  *     }
+  * @apiErrorExample {json} HTTP:
+  * Request:
+  *     {
+  *         "token": "API-TOKEN",
+  *         "repository": "specifiedRepoName",
+  *         "key": "specifiedKeyName",
+  *         "value": {
+  *                     "name": "Gold",
+  *                     "instrument": "XAU",
+  *                     "DecimalPrecision" : "2",
+  *                     "Rounding": "down"
+  *                  }
+  *     }
+  *
+  * Response:
+  *     {
+  *
+  *     }
+  *
+  * Error-Response (HTTP):
+  *     {
+  *        errorCode":500,
+  *        "errorMessage":"Failed to open bucket: 'ORG-ACF8F702CE82DE56D737-Name"
+  *     }
+  */

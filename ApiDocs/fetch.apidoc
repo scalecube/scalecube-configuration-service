@@ -1,120 +1,133 @@
 /**
- * @api {endpoint / fetch} /io.scalecube.configuration.api.ConfigurationService/fetch Fetch (get) specified entry
- * @apiName Fetch
- * @apiGroup Fetch
- * @apiVersion 0.0.0-CURRENT
- * @apiDescription This operation enable you to get specific value (either string or object) by retrieving specified entry (key) from the relevant Repository and enabled for each accessible permission level (read&write) granted for owner either admin or member role
- * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
- * @apiParam {String} repository Specified name of the repository
- * @apiParam {String} key Specified key name (entry) for relevant configuration setting in the repository
- *
- * @apiSuccess {Object} value Specified node name applied for relevant configuration settings in the repository
- * @apiSuccess {String} key Specified key name (entry) for relevant configuration setting in the repository
- *
- * @apiParamExample {json} Request-Example (WS):
- *     {
- *         "q": "/io.scalecube.configuration.api.ConfigurationService/fetch",
- *         "sid": 1,
- *         "d":{
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
- *         "repository": "specifiedRepoName",
- *         "key": "specifiedKeyName"
- *         }
- *     }
- *
- * @apiParamExample {json} Request-Example (RS):
- *     {
- *       "metadata":{
- *         "q": "/io.scalecube.configuration.api.ConfigurationService/fetch"
- *         },
- *         "data":{
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
- *         "repository": "specifiedRepoName",
- *         "key": "specifiedKeyName"
- *         }
- *     }
- *
- * @apiParamExample {json} Request-Example (HTTP):
- *     {
- *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
- *         "repository": "specifiedRepoName",
- *         "key": "specifiedKeyName"
- *     }
- *
- * @apiSuccessExample Success-Response (WS):
- *     {
- *         "q":"/io.scalecube.configuration.api.ConfigurationService/fetch",
- *         "sid":1,
- *         "d":{
- *         "value": {
- *                    "name": "Gold",
- *                    "instrument": "XAU",
- *                    "DecimalPrecision" : "2",
- *                    "Rounding": "down"
- *                  },
- *         "key": "specifiedKeyName"
- *         }
- *     }
- *
- *     {
- *          "sig":1,
- *          "sid":1
- *     }
- *
- * @apiSuccessExample Success-Response (RS):
- *    {
- *        "data":{
- *        "value": {
- *                   "name": "Gold",
- *                   "instrument": "XAU",
- *                   "DecimalPrecision" : "2",
- *                   "Rounding": "down"
- *                 },
- *        "key": "specifiedKeyName"
- *       },
- *       "metadata":{
- *          "q": "/io.scalecube.configuration.api.ConfigurationService/fetch"
- *       }
- *    }
- *
- * @apiSuccessExample Success-Response (HTTP):
- *    {
- *        "value": {
- *                   "name": "Gold",
- *                   "instrument": "XAU",
- *                   "DecimalPrecision" : "2",
- *                   "Rounding": "down"
- *                 },
- *        "key": "specifiedKeyName"
- *    }
- *
- * @apiError {String} field invalid or non-existent key name (entry in the repository)
- *
- * @apiErrorExample {json} Error-Response (WS):
- *    {
- *         "sig":2,
- *         "q":"/io.scalecube.services.error/500",
- *         "sid":1,
- *         "d":{
- *                 errorCode":500,
- *                 "errorMessage":"16562665EC17CDF08E97"
- *         }
- *    }
- *
- * @apiErrorExample {json} Error-Response (RS):
- *    {
- *         "data":{
- *         "errorCode":500,
- *         "errorMessage":"16562665EC17CDF08E97"
- *         },
- *         "metadata":{
- *             "q":"/io.scalecube.services.error/500"
- *         }
- *    }
- *
- * @apiErrorExample {json} Error-Response (HTTP):
- *    {
- *       errorCode":500,
- *       "errorMessage":"16562665EC17CDF08E97"
- *    }
- */
+  * @api {ServiceMethod: fetch} /configuration/fetch fetch
+  * @apiName Fetch
+  * @apiGroup Methods
+  * @apiVersion 0.0.0-CURRENT
+  * @apiPermission Request / Response / Error-response
+  *
+  * @apiDescription This operation enable you to get specific value (either string or object) by retrieving specified entry (key)
+  * from the relevant Repository and enabled for each accessible permission level (read&write) granted for owner either admin or member role
+  *
+  * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
+  * @apiParam {String} repository Specified name of the repository
+  * @apiParam {String} key Specified key name (entry) for relevant configuration setting in the repository
+  *
+  * @apiSuccess {Object} value Specified node name applied for relevant configuration settings in the repository
+  * @apiSuccess {String} key Specified key name (entry) for relevant configuration setting in the repository
+  *
+  * @apiError {String} field invalid or non-existent plain key name (entry in the repository)
+  *
+  * @apiErrorExample {json} WebSocket:
+  * Request:
+  *     {
+  *         "q":"/configuration/fetch",
+  *         "sid": 1,
+  *         "d":{
+  *         "token": "API-TOKEN",
+  *         "repository": "specifiedRepoName",
+  *         "key": "specifiedKeyName"
+  *         }
+  *     }
+  *
+  * Response:
+  *
+  *     {
+  *         "q":"/configuration/fetch",
+  *         "sid":1,
+  *         "d":{
+  *         "value": {
+  *                    "name": "Gold",
+  *                    "instrument": "XAU",
+  *                    "DecimalPrecision" : "2",
+  *                    "Rounding": "down"
+  *                  },
+  *         "key": "specifiedKeyName"
+  *         }
+  *     }
+  *
+  *     {
+  *          "sig":1,
+  *          "sid":1
+  *     }
+  *
+  * Error Response:
+  *    {
+  *         "sig":2,
+  *         "q":"/io.scalecube.services.error/500",
+  *         "sid":1,
+  *         "d":{
+  *                 errorCode":500,
+  *                 "errorMessage":"16562665EC17CDF08E97"
+  *         }
+  *    }
+  *
+  * @apiErrorExample {json} RSocket:
+  * Request:
+  *     {
+  *       "metadata":{
+  *         "q": "/configuration/fetch"
+  *         },
+  *         "data":{
+  *         "token": "API-TOKEN",
+  *         "repository": "specifiedRepoName",
+  *         "key": "specifiedKeyName"
+  *         }
+  *     }
+  *
+  * Response:
+  *
+  *    {
+  *        "data":{
+  *        "value": {
+  *                   "name": "Gold",
+  *                   "instrument": "XAU",
+  *                   "DecimalPrecision" : "2",
+  *                   "Rounding": "down"
+  *                 },
+  *        "key": "specifiedKeyName"
+  *       },
+  *       "metadata":{
+  *          "q": "/configuration/fetch"
+  *       }
+  *    }
+  *
+  * Error Response:
+  *    {
+  *         "data":{
+  *         "errorCode":500,
+  *         "errorMessage":"16562665EC17CDF08E97"
+  *         },
+  *         "metadata":{
+  *             "q":"/io.scalecube.services.error/500"
+  *         }
+  *    }
+  *
+  * @apiErrorExample {json} HTTP:
+  * Request:
+  * https://localhost:port/configuration/fetch (endpoint url)
+  *
+  * Body:
+  *     {
+  *         "token": "API-TOKEN",
+  *         "repository": "specifiedRepoName",
+  *         "key": "specifiedKeyName"
+  *     }
+  *
+  * Response:
+  *
+  *    {
+  *        "value": {
+  *                   "name": "Gold",
+  *                   "instrument": "XAU",
+  *                   "DecimalPrecision" : "2",
+  *                   "Rounding": "down"
+  *                 },
+  *        "key": "specifiedKeyName"
+  *    }
+  *
+  * Error Response (HTTP):
+  *    {
+  *       errorCode":500,
+  *       "errorMessage":"16562665EC17CDF08E97"
+  *    }
+  */

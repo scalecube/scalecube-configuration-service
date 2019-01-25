@@ -8,7 +8,7 @@
     "text": "createRepo",
     "backColor": "black",
     "data": {
-      "q": "/io.scalecube.configuration.api.ConfigurationService/createRepository",
+      "q": "/configuration/createRepository",
       "sid": 1,
       "d": {
         "token": "YOUR API KEY VALUE WHICH IS ASSIGNED WITH OWNER ROLE",
@@ -21,7 +21,7 @@
     "text": "saveUpdateEntry",
     "backColor": "black",
     "data": {
-      "q": "/io.scalecube.configuration.api.ConfigurationService/save",
+      "q": "/configuration/save",
       "sid": 2,
       "d": {
         "token": "YOUR API KEY VALUE WHICH IS ASSIGNED WITH OWNER OR ADMIN ROLE",
@@ -36,7 +36,7 @@
       "text": "fetchRepoEntrySingle",
       "backColor": "black",
       "data": {
-        "q": "/io.scalecube.configuration.api.ConfigurationService/fetch",
+        "q": "/configuration/fetch",
         "sid": 3,
         "d": {
           "token": "YOUR API KEY VALUE WHICH IS ASSIGNED WITH OWNER/ADMIN/MEMBER ROLE",
@@ -50,7 +50,7 @@
       "text": "fetchRepoEntryAll",
       "backColor": "black",
       "data": {
-        "q": "/io.scalecube.configuration.api.ConfigurationService/entries",
+        "q": "/configuration/entries",
         "sid": 4,
         "d": {
           "token": "YOUR API KEY VALUE WHICH IS ASSIGNED WITH ROLE",
@@ -63,7 +63,7 @@
       "text": "deleteEntry",
       "backColor": "black",
       "data": {
-        "q": "/io.scalecube.configuration.api.ConfigurationService/delete",
+        "q": "/configuration/delete",
         "sid": 5,
         "d": {
           "token": "YOUR API KEY VALUE WHICH IS ASSIGNED WITH OWNER OR ADMIN ROLE",
