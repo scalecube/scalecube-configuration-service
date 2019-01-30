@@ -35,11 +35,15 @@ public class VaultKeyProvider implements KeyProvider {
   private static final StringConfigProperty vaultAddr = configRegistry.stringProperty("VAULT_ADDR");
   private static final StringConfigProperty vaultToken =
       configRegistry.stringProperty("VAULT_TOKEN");
+  private static final StringConfigProperty vaultSecretsPath =
+      configRegistry.stringProperty("VAULT_SECRETS_PATH");
+
+  private static final StringConfigProperty apiKeysPathPattern =
+      configRegistry.stringProperty("api.keys.path.pattern");
 
   private static final String VAULT_ENTRY_KEY = "key";
   private static final int HTTP_STATUS_NOT_FOUND = 404;
 
-  private final VaultPathBuilder vaultPathBuilder = new VaultPathBuilder();
   private final Vault vault;
 
   /** Construct an instance of VaultKeyProvider. */
@@ -78,7 +82,7 @@ public class VaultKeyProvider implements KeyProvider {
   }
 
   private String getVaultEntryValue(String alias) throws KeyProviderException {
-    final String path = vaultPathBuilder.getPath(alias);
+    final String path = getPath(alias);
     final LogicalResponse response;
     Map<String, String> data = null;
 
@@ -105,11 +109,16 @@ public class VaultKeyProvider implements KeyProvider {
 
   private void handleVaultException(VaultException ex, String alias) throws KeyProviderException {
     if (ex.getHttpStatusCode() == HTTP_STATUS_NOT_FOUND) {
-      final String path = vaultPathBuilder.getPath(alias);
+      final String path = getPath(alias);
       final String message = String.format("path: '%s' not found", path);
       throw new KeyProviderException(message, ex);
     }
 
     throw new KeyProviderException(ex);
+  }
+
+  private String getPath(String alias) {
+    return String.format(apiKeysPathPattern.valueOrThrow(), vaultSecretsPath.valueOrThrow())
+        .concat(alias);
   }
 }
