@@ -8,7 +8,7 @@ import java.util.Base64;
 import java.util.Properties;
 import javax.crypto.spec.SecretKeySpec;
 
-public class KeyProviderImpl implements KeyProvider {
+final class KeyProviderImpl implements KeyProvider {
 
   private static final String HMAC_SHA_256 = "HmacSHA256";
 
@@ -34,6 +34,5 @@ public class KeyProviderImpl implements KeyProvider {
     byte[] decodedKey = Base64.getDecoder().decode(properties.get(alias).toString().getBytes());
     // rebuild key using SecretKeySpec
     return new SecretKeySpec(decodedKey, 0, decodedKey.length, HMAC_SHA_256);
-
   }
 }

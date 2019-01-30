@@ -12,6 +12,9 @@ import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.repository.couchbase.CouchbaseAdmin;
 import io.scalecube.configuration.repository.couchbase.CouchbaseDataAccess;
 import io.scalecube.configuration.repository.couchbase.CouchbaseSettings;
+import io.scalecube.configuration.tokens.KeyProvider;
+import io.scalecube.configuration.tokens.KeyProviderFactory;
+import io.scalecube.configuration.tokens.TokenVerifier;
 import io.scalecube.configuration.tokens.TokenVerifierFactory;
 import io.scalecube.services.Microservices;
 import java.util.List;
@@ -56,18 +59,20 @@ public class ConfigurationServiceRunner {
 
   private static ConfigurationService createConfigurationService() {
     ConfigRegistry configRegistry = AppConfiguration.configRegistry();
-    CouchbaseSettings settings = //
+    CouchbaseSettings settings =
         configRegistry.objectProperty("couchbase", CouchbaseSettings.class).value(null);
 
-    CouchbaseAdmin couchbaseAdmin = //
-        new CouchbaseAdmin(settings, couchbaseAdminCluster(settings));
+    CouchbaseAdmin couchbaseAdmin = new CouchbaseAdmin(settings, couchbaseAdminCluster(settings));
 
-    ConfigurationDataAccess configurationDataAccess = //
+    ConfigurationDataAccess configurationDataAccess =
         new CouchbaseDataAccess(settings, couchbaseDataAccessCluster(settings), couchbaseAdmin);
+
+    KeyProvider keyProvider = KeyProviderFactory.keyProvider();
+    TokenVerifier tokenVerifier = TokenVerifierFactory.tokenVerifier(keyProvider);
 
     return ConfigurationServiceImpl.builder()
         .dataAccess(configurationDataAccess)
-        .tokenVerifier(TokenVerifierFactory.tokenVerifier())
+        .tokenVerifier(tokenVerifier)
         .build();
   }
 

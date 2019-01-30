@@ -13,8 +13,15 @@ import org.slf4j.LoggerFactory;
 
 final class TokenVerifierImpl implements TokenVerifier {
 
+  private static final Logger logger = LoggerFactory.getLogger(TokenVerifierImpl.class);
+
   private static final String KID_HEADER_NAME = "kid";
-  private final Logger logger = LoggerFactory.getLogger(TokenVerifierImpl.class);
+
+  private final KeyProvider keyProvider;
+
+  TokenVerifierImpl(KeyProvider keyProvider) {
+    this.keyProvider = keyProvider;
+  }
 
   @Override
   public Profile verify(Object token) throws InvalidAuthenticationException {
@@ -48,7 +55,7 @@ final class TokenVerifierImpl implements TokenVerifier {
 
   private JwtAuthenticator getTokenAuthenticator(String keyAlias) {
     try {
-      Key key = KeyProviderFactory.keyProvider().get(keyAlias);
+      Key key = keyProvider.get(keyAlias);
       // todo propose a good solution for it or just refactor security library
       return new JwtAuthenticatorImpl.Builder().keyResolver(map -> Optional.of(key)).build();
     } catch (Exception ex) {
