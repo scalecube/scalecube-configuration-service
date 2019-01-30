@@ -36,8 +36,9 @@
   </properties>
 
   <modules>
-    <module>scalecube-configuration-api</module>
     <module>scalecube-configuration</module>
+    <module>scalecube-configuration-api</module>
+    <module>scalecube-configuration-benchmarks</module>
   </modules>
 
   <dependencyManagement>
