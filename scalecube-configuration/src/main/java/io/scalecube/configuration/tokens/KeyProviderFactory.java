@@ -1,12 +1,21 @@
 package io.scalecube.configuration.tokens;
 
+import io.scalecube.account.api.OrganizationService;
 import io.scalecube.config.StringConfigProperty;
 import io.scalecube.configuration.AppConfiguration;
+import java.util.concurrent.atomic.AtomicReference;
 
-final class KeyProviderFactory {
+/**
+ * This class is a Factory for {@link KeyProvider key providers}. Generally, once set in an
+ * environment - the same provider will be returned.
+ */
+public final class KeyProviderFactory {
 
   private static final StringConfigProperty vaultAddr =
       AppConfiguration.configRegistry().stringProperty("VAULT_ADDR");
+
+  private static final AtomicReference<OrganizationService> organizationService =
+      new AtomicReference<>();
 
   static KeyProvider provider;
 
@@ -18,10 +27,25 @@ final class KeyProviderFactory {
       if (provider != null) {
         return provider;
       }
-      provider =
-          new CachingKeyProvider(
-              vaultAddr.value().isPresent() ? new VaultKeyProvider() : new KeyProviderImpl());
+      OrganizationService service = organizationService.get();
+      if (service != null) {
+        provider = new CachingKeyProvider(new OrganizationServiceKeyProvider(service));
+      } else {
+        provider =
+            new CachingKeyProvider(
+                vaultAddr.value().isPresent() ? new VaultKeyProvider() : new KeyProviderImpl());
+      }
     }
     return provider;
+  }
+
+  /**
+   * Make the Key Provider Factory work with an {@link OrganizationService organization service}.
+   *
+   * @param service the service to get public keys from
+   * @see OrganizationService#getPublicKey(String)
+   */
+  public static void withOrganizationService(OrganizationService service) {
+    organizationService.set(service);
   }
 }
