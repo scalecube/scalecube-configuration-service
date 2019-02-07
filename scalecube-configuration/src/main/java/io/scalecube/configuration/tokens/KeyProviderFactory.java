@@ -8,7 +8,20 @@ final class KeyProviderFactory {
   private static final StringConfigProperty vaultAddr =
       AppConfiguration.configRegistry().stringProperty("VAULT_ADDR");
 
+  static KeyProvider provider;
+
   static KeyProvider keyProvider() {
-    return vaultAddr.value().isPresent() ? new VaultKeyProvider() : new KeyProviderImpl();
+    if (provider != null) {
+      return provider;
+    }
+    synchronized (KeyProviderFactory.class) {
+      if (provider != null) {
+        return provider;
+      }
+      provider =
+          new CachingKeyProvider(
+              vaultAddr.value().isPresent() ? new VaultKeyProvider() : new KeyProviderImpl());
+    }
+    return provider;
   }
 }
