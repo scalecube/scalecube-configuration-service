@@ -1,6 +1,7 @@
 package io.scalecube.configuration.tokens;
 
 import io.scalecube.security.Profile;
+import reactor.core.publisher.Mono;
 
 /**
  * Token verification abstraction.
@@ -13,5 +14,5 @@ public interface TokenVerifier {
    * @return a profile.
    * @throws InvalidAuthenticationException in case the verification fails.
    */
-  Profile verify(Object token) throws InvalidAuthenticationException;
+  Mono<Profile> verify(Object token);
 }
