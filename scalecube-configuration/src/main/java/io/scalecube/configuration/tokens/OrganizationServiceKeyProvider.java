@@ -1,9 +1,12 @@
 package io.scalecube.configuration.tokens;
 
+import io.scalecube.account.api.GetPublicKeyRequest;
+import io.scalecube.account.api.GetPublicKeyResponse;
 import io.scalecube.account.api.OrganizationService;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
@@ -31,7 +34,7 @@ class OrganizationServiceKeyProvider implements KeyProvider {
   public Key get(String alias) throws KeyProviderException {
     try {
       return organizationservice
-          .getPublicKey(alias)
+          .getPublicKey(new GetPublicKeyRequest(alias))
           .flatMap(OrganizationServiceKeyProvider::parsePublicKey)
           .block();
     } catch (RuntimeException exception) {
@@ -43,8 +46,7 @@ class OrganizationServiceKeyProvider implements KeyProvider {
     }
   }
 
-  private static Mono<java.security.PublicKey> parsePublicKey(
-      io.scalecube.account.api.PublicKey keyToParse) {
+  private static Mono<PublicKey> parsePublicKey(GetPublicKeyResponse keyToParse) {
     return Mono.create(
         theKey -> {
           try {
