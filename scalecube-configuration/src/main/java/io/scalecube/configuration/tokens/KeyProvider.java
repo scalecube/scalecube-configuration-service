@@ -14,5 +14,5 @@ public interface KeyProvider {
    * @return a cluster
    * @throws KeyProviderException in case of an error while acquiring the cluster.
    */
-  Mono<Key> get(String alias) throws KeyProviderException;
+  Mono<Key> get(String alias);
 }
