@@ -15,7 +15,7 @@
 
   <properties>
     <mainClass>io.scalecube.server.ConfigurationServiceRunner</mainClass>
-    <scalecube-organization-api.version>2.0.17-SNAPSHOT</scalecube-organization-api.version>
+    <scalecube-organization-api.version>2.1.0-SNAPSHOT</scalecube-organization-api.version>
   </properties>
 
   <dependencies>
