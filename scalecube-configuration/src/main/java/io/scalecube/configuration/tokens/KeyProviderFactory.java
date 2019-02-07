@@ -11,9 +11,6 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public final class KeyProviderFactory {
 
-  private static final StringConfigProperty vaultAddr =
-      AppConfiguration.configRegistry().stringProperty("VAULT_ADDR");
-
   private static final AtomicReference<OrganizationService> organizationService =
       new AtomicReference<>();
 
@@ -32,8 +29,7 @@ public final class KeyProviderFactory {
         provider = new CachingKeyProvider(new OrganizationServiceKeyProvider(service));
       } else {
         provider =
-            new CachingKeyProvider(
-                vaultAddr.value().isPresent() ? new VaultKeyProvider() : new KeyProviderImpl());
+            new CachingKeyProvider(new KeyProviderImpl());
       }
     }
     return provider;

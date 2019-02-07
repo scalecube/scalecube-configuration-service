@@ -31,12 +31,12 @@ class OrganizationServiceKeyProvider implements KeyProvider {
   }
 
   @Override
-  public Key get(String alias) throws KeyProviderException {
+  public Mono<Key> get(String alias) throws KeyProviderException {
     try {
       return organizationservice
           .getPublicKey(new GetPublicKeyRequest(alias))
-          .flatMap(OrganizationServiceKeyProvider::parsePublicKey)
-          .block();
+          .flatMap(OrganizationServiceKeyProvider::parsePublicKey);
+          
     } catch (RuntimeException exception) {
       if (exception.getCause() instanceof KeyProviderException) {
         throw (KeyProviderException) exception.getCause();

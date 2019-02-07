@@ -4,10 +4,11 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import java.security.Key;
 import java.util.concurrent.TimeUnit;
+import reactor.core.publisher.Mono;
 
 class CachingKeyProvider implements KeyProvider {
 
-  private final LoadingCache<String, Key> cache;
+  private final LoadingCache<String, Mono<Key>> cache;
 
   CachingKeyProvider(KeyProvider delegate) {
     cache =
@@ -15,11 +16,11 @@ class CachingKeyProvider implements KeyProvider {
             .maximumSize(10_000)
             .expireAfterWrite(5, TimeUnit.MINUTES)
             .refreshAfterWrite(1, TimeUnit.MINUTES)
-            .build(delegate::get);
+            .build(key -> delegate.get(key).cache());
   }
 
   @Override
-  public Key get(String alias) throws KeyProviderException {
+  public Mono<Key> get(String alias) throws KeyProviderException {
     return cache.get(alias);
   }
 }

@@ -7,14 +7,15 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Properties;
 import javax.crypto.spec.SecretKeySpec;
+import reactor.core.publisher.Mono;
 
 public class KeyProviderImpl implements KeyProvider {
 
   private static final String HMAC_SHA_256 = "HmacSHA256";
 
   @Override
-  public Key get(String alias) throws KeyProviderException {
-    return getKey0(alias);
+  public Mono<Key> get(String alias) throws KeyProviderException {
+    return Mono.just(getKey0(alias));
   }
 
   private Key getKey0(String alias) throws KeyProviderException {
