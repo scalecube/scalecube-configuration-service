@@ -39,7 +39,8 @@ import reactor.netty.resources.LoopResources;
 final class ConfigurationServiceBenchmarkState
     extends BenchmarkState<ConfigurationServiceBenchmarkState> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(UpdateConfigValueBenchmark.class);
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(ConfigurationServiceBenchmarkState.class);
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 

@@ -1,6 +1,8 @@
 package io.scalecube.configuration;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.scalecube.configuration.api.BadRequest;
@@ -17,21 +19,19 @@ import io.scalecube.configuration.repository.exception.RepositoryNotFoundExcepti
 import io.scalecube.configuration.repository.inmem.InMemoryDataAccess;
 import io.scalecube.configuration.tokens.InvalidAuthenticationException;
 import io.scalecube.security.Profile;
-
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
 import java.util.Objects;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-public class ConfigurationServiceImplTest {
+class ConfigurationServiceImplTest {
   private final ObjectMapper mapper = new ObjectMapper();
-  
+
   @Test
   void create_repository_null_request_should_fail_withBadRequest() {
     ConfigurationService service = createService(Profile.builder().build());
@@ -175,7 +175,7 @@ public class ConfigurationServiceImplTest {
   private ConfigurationService createService(Profile profile) {
     return ConfigurationServiceImpl.builder()
         .dataAccess(new InMemoryDataAccess())
-        .tokenVerifier((token) -> profile)
+        .tokenVerifier(token -> Mono.justOrEmpty(profile))
         .build();
   }
 
@@ -490,8 +490,8 @@ public class ConfigurationServiceImplTest {
         .verifyComplete();
     assertNotNull(duration);
   }
-  
-  
+
+
   @Test
   void update() {
     ConfigurationService service = createService();
@@ -503,7 +503,7 @@ public class ConfigurationServiceImplTest {
         .expectSubscription()
         .assertNext(Assertions::assertNotNull)
         .verifyComplete();
-    
+
     StepVerifier
     .create(
         service.save(new SaveRequest(new Object(), "myrepo", "mykey",
@@ -511,14 +511,14 @@ public class ConfigurationServiceImplTest {
     .expectSubscription()
     .assertNext(Assertions::assertNotNull)
     .verifyComplete();
-    
+
     Duration duration = StepVerifier
         .create(
             service.fetch(new FetchRequest(new Object(), "myrepo", "mykey")))
         .expectSubscription()
         .assertNext(result -> assertEquals("42", String.valueOf(result.value())))
         .verifyComplete();
-    
+
     assertNotNull(duration);
   }
 
@@ -828,5 +828,5 @@ public class ConfigurationServiceImplTest {
     assertNotNull(duration);
   }
 
-  
+
 }

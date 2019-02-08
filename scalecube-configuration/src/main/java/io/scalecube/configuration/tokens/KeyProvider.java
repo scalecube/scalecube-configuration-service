@@ -3,16 +3,14 @@ package io.scalecube.configuration.tokens;
 import java.security.Key;
 import reactor.core.publisher.Mono;
 
-/**
- * Public key provider abstraction. Public Key is used to verify signed JWT tokens.
- */
+/** Public key provider abstraction. Public Key is used to verify signed JWT tokens. */
 public interface KeyProvider {
 
   /**
-   * Returns a key corresponding to the <code>alias</code> argument.
+   * Returns a key corresponding to the <code>keyId</code> argument.
    *
-   * @return a cluster
-   * @throws KeyProviderException in case of an error while acquiring the cluster.
+   * @param keyId key identifier.
+   * @return key.
    */
-  Mono<Key> get(String alias);
+  Mono<Key> get(String keyId);
 }

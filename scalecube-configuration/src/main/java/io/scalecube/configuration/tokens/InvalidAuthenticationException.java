@@ -10,7 +10,5 @@ public class InvalidAuthenticationException extends Exception {
     super(message, cause);
   }
 
-  public InvalidAuthenticationException() {
-
-  }
+  public InvalidAuthenticationException() {}
 }

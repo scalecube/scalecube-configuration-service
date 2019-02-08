@@ -13,7 +13,9 @@ import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.repository.couchbase.CouchbaseAdmin;
 import io.scalecube.configuration.repository.couchbase.CouchbaseDataAccess;
 import io.scalecube.configuration.repository.couchbase.CouchbaseSettings;
-import io.scalecube.configuration.tokens.KeyProviderFactory;
+import io.scalecube.configuration.tokens.CachingKeyProvider;
+import io.scalecube.configuration.tokens.KeyProvider;
+import io.scalecube.configuration.tokens.OrganizationServiceKeyProvider;
 import io.scalecube.configuration.tokens.TokenVerifierFactory;
 import io.scalecube.services.Microservices;
 import io.scalecube.services.ServiceInfo;
@@ -72,14 +74,17 @@ public class ConfigurationServiceRunner {
 
     return call -> {
       OrganizationService organizationService = call.create().api(OrganizationService.class);
-      
-      KeyProviderFactory.withOrganizationService(organizationService);
-      ConfigurationService configurationService = ConfigurationServiceImpl.builder()
-          .dataAccess(configurationDataAccess)
-          .tokenVerifier(TokenVerifierFactory.tokenVerifier())
-          .build();
-      
-      return Collections.singleton(ServiceInfo.fromServiceInstance(configurationService).build()); 
+
+      KeyProvider keyProvider =
+          new CachingKeyProvider(new OrganizationServiceKeyProvider(organizationService));
+
+      ConfigurationService configurationService =
+          ConfigurationServiceImpl.builder()
+              .dataAccess(configurationDataAccess)
+              .tokenVerifier(TokenVerifierFactory.tokenVerifier(keyProvider))
+              .build();
+
+      return Collections.singleton(ServiceInfo.fromServiceInstance(configurationService).build());
     };
   }
 
