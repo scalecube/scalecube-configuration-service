@@ -15,7 +15,7 @@
 
   <properties>
     <scalecube-benchmarks.version>1.2.2</scalecube-benchmarks.version>
-    <scalecube-organization.version>2.0.15</scalecube-organization.version>
+    <scalecube-organization.version>2.1.0-SNAPSHOT</scalecube-organization.version>
     <testcontainers.version>1.10.5</testcontainers.version>
   </properties>
 

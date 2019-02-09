@@ -8,19 +8,17 @@ import io.scalecube.configuration.api.Entries;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.SaveRequest;
-
 import io.scalecube.configuration.authorization.AuthorizationService;
 import io.scalecube.configuration.authorization.OperationType;
 import io.scalecube.configuration.operation.ServiceOperationContext;
 import io.scalecube.configuration.operation.ServiceOperationFactory;
 import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.tokens.TokenVerifier;
-
 import java.util.Objects;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 public class ConfigurationServiceImpl implements ConfigurationService {
 
@@ -31,102 +29,64 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   private final AuthorizationService authorizationService;
 
   private ConfigurationServiceImpl(
-      ConfigurationDataAccess dataAccess,
-      TokenVerifier tokenVerifier) {
+      ConfigurationDataAccess dataAccess, TokenVerifier tokenVerifier) {
     this.dataAccess = dataAccess;
     this.tokenVerifier = tokenVerifier;
     this.authorizationService = AuthorizationService.builder().build();
   }
 
-  public static Builder builder() {
-    return new Builder();
-  }
-
   @Override
   public Mono<Acknowledgment> createRepository(CreateRepositoryRequest request) {
-
-    return Mono.create(result -> {
-      try {
-        logger.debug("createRepository: enter: request: {}", request);
-        Acknowledgment acknowledgment = ServiceOperationFactory.createRepository().execute(
-            request, context(OperationType.CreateRepoitory));
-        logger.debug("createRepository: exit: request: {}", request);
-        result.success(acknowledgment);
-      } catch (Throwable ex) {
-        logger.error("createRepository: request: {}, error: {}", request, ex);
-        result.error(ex);
-      }
-    });
+    return Mono.fromRunnable(() -> logger.debug("createRepository: enter: request: {}", request))
+        .then(Mono.fromCallable(ServiceOperationFactory::createRepository))
+        .flatMap(operation -> operation.execute(request, context(OperationType.CreateRepoitory)))
+        .subscribeOn(Schedulers.parallel())
+        .doOnSuccess(result -> logger.debug("createRepository: exit: request: {}", request))
+        .doOnError(th -> logger.error("createRepository: request: {}, error: {}", request, th));
   }
-
 
   @Override
   public Mono<FetchResponse> fetch(FetchRequest request) {
-    return Mono.create(result -> {
-      try {
-        logger.debug("fetch: enter: request: {}", request);
-        FetchResponse response = ServiceOperationFactory.fetch().execute(request,
-            context(OperationType.Read));
-        logger.debug("fetch: exit: request: {}, response: {}", request, response);
-        result.success(response);
-      } catch (Throwable ex) {
-        logger.debug("fetch: exit: request: {}, error: {}", request, ex);
-        result.error(ex);
-      }
-    });
+    return Mono.fromRunnable(() -> logger.debug("fetch: enter: request: {}", request))
+        .then(Mono.fromCallable(ServiceOperationFactory::fetch))
+        .flatMap(operation -> operation.execute(request, context(OperationType.Read)))
+        .subscribeOn(Schedulers.parallel())
+        .doOnSuccess(
+            response -> logger.debug("fetch: exit: request: {}, response: {}", request, request))
+        .doOnError(th -> logger.error("fetch: request: {}, error: {}", request, th));
   }
-
 
   @Override
   public Mono<Entries<FetchResponse>> entries(FetchRequest request) {
-    return Mono.create(result -> {
-      try {
-        logger.debug("entries: enter: request: {}", request);
-        FetchResponse[] fetchResponses = ServiceOperationFactory.fetchAll().execute(
-            request, context(OperationType.List));
-
-        logger.debug("entries: exit: request: {}, return {} entries", request,
-            fetchResponses.length);
-        result.success(new Entries<>(fetchResponses));
-      } catch (Throwable ex) {
-        logger.debug("entries: request: {}, error: {}", request, ex);
-        result.error(ex);
-      }
-    });
+    return Mono.fromRunnable(() -> logger.debug("entries: enter: request: {}", request))
+        .then(Mono.fromCallable(ServiceOperationFactory::fetchAll))
+        .flatMap(operation -> operation.execute(request, context(OperationType.List)))
+        .subscribeOn(Schedulers.parallel())
+        .doOnSuccess(
+            responses ->
+                logger.debug("entries: exit: request: {}, return {} entries", request, responses))
+        .map(Entries::new)
+        .doOnError(th -> logger.error("entries: request: {}, error: {}", request, th));
   }
-
 
   @Override
   public Mono<Acknowledgment> save(SaveRequest request) {
-    return Mono.create(result -> {
-      try {
-        logger.debug("save: enter: request: {}", request);
-        Acknowledgment acknowledgment = ServiceOperationFactory.saveEntry().execute(
-            request, context(OperationType.Write));
-        logger.debug("save: exit: request: {}", request);
-        result.success(acknowledgment);
-      } catch (Throwable ex) {
-        logger.error("save: request: {}, error: {}", request, ex);
-        result.error(ex);
-      }
-    });
+    return Mono.fromRunnable(() -> logger.debug("save: enter: request: {}", request))
+        .then(Mono.fromCallable(ServiceOperationFactory::saveEntry))
+        .flatMap(operation -> operation.execute(request, context(OperationType.Write)))
+        .subscribeOn(Schedulers.parallel())
+        .doOnSuccess(result -> logger.debug("save: exit: request: {}", request))
+        .doOnError(th -> logger.error("save: request: {}, error: {}", request, th));
   }
-
 
   @Override
   public Mono<Acknowledgment> delete(DeleteRequest request) {
-    return Mono.create(result -> {
-      try {
-        logger.debug("delete: enter: request: {}", request);
-        Acknowledgment acknowledgment = ServiceOperationFactory.deleteEntry().execute(
-            request, context(OperationType.Delete));
-        logger.debug("delete: exit: request: {}", request);
-        result.success(acknowledgment);
-      } catch (Throwable ex) {
-        logger.debug("delete: request: {}, error: {}", request, ex);
-        result.error(ex);
-      }
-    });
+    return Mono.fromRunnable(() -> logger.debug("delete: enter: request: {}", request))
+        .then(Mono.fromCallable(ServiceOperationFactory::deleteEntry))
+        .flatMap(operation -> operation.execute(request, context(OperationType.Delete)))
+        .subscribeOn(Schedulers.parallel())
+        .doOnSuccess(result -> logger.debug("delete: exit: request: {}", request))
+        .doOnError(th -> logger.error("delete: request: {}, error: {}", request, th));
   }
 
   private ServiceOperationContext context(OperationType operationType) {
@@ -138,9 +98,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .build();
   }
 
-  /**
-   * Service builder class.
-   */
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  /** Service builder class. */
   public static class Builder {
     private ConfigurationDataAccess dataAccess;
     private TokenVerifier tokenVerifier;

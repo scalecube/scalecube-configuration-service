@@ -15,7 +15,7 @@ final class SaveEntry extends ServiceOperation<SaveRequest, Acknowledgment> {
   }
 
   @Override
-  protected void validate(SaveRequest request) throws Throwable {
+  protected void validate(SaveRequest request) {
     super.validate(request);
     if (request.repository() == null || request.repository().length() == 0) {
       throw new BadRequest("Repository name is a required argument");

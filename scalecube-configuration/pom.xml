@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -14,7 +15,8 @@
 
   <properties>
     <mainClass>io.scalecube.server.ConfigurationServiceRunner</mainClass>
-    <vault-java-driver.version>3.1.0</vault-java-driver.version>
+    <scalecube-organization-api.version>2.1.0-SNAPSHOT</scalecube-organization-api.version>
+    <caffeine.version>2.6.2</caffeine.version>
   </properties>
 
   <dependencies>
@@ -23,15 +25,21 @@
       <artifactId>scalecube-app-utils</artifactId>
       <version>0.0.4</version>
     </dependency>
-    <dependency>
-      <groupId>com.bettercloud</groupId>
-      <artifactId>vault-java-driver</artifactId>
-      <version>${vault-java-driver.version}</version>
-    </dependency>
+
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-configuration-api</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.scalecube</groupId>
+      <artifactId>scalecube-organization-api</artifactId>
+      <version>${scalecube-organization-api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+      <version>${caffeine.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>

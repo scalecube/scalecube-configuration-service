@@ -2,6 +2,7 @@ package io.scalecube.server;
 
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
+import io.scalecube.account.api.OrganizationService;
 import io.scalecube.app.decoration.Logo;
 import io.scalecube.app.packages.PackageInfo;
 import io.scalecube.config.ConfigRegistry;
@@ -12,8 +13,14 @@ import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.repository.couchbase.CouchbaseAdmin;
 import io.scalecube.configuration.repository.couchbase.CouchbaseDataAccess;
 import io.scalecube.configuration.repository.couchbase.CouchbaseSettings;
+import io.scalecube.configuration.tokens.CachingKeyProvider;
+import io.scalecube.configuration.tokens.KeyProvider;
+import io.scalecube.configuration.tokens.OrganizationServiceKeyProvider;
 import io.scalecube.configuration.tokens.TokenVerifierFactory;
 import io.scalecube.services.Microservices;
+import io.scalecube.services.ServiceInfo;
+import io.scalecube.services.ServiceProvider;
+import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +61,7 @@ public class ConfigurationServiceRunner {
         .draw();
   }
 
-  private static ConfigurationService createConfigurationService() {
+  private static ServiceProvider createConfigurationService() {
     ConfigRegistry configRegistry = AppConfiguration.configRegistry();
     CouchbaseSettings settings = //
         configRegistry.objectProperty("couchbase", CouchbaseSettings.class).value(null);
@@ -65,10 +72,20 @@ public class ConfigurationServiceRunner {
     ConfigurationDataAccess configurationDataAccess = //
         new CouchbaseDataAccess(settings, couchbaseDataAccessCluster(settings), couchbaseAdmin);
 
-    return ConfigurationServiceImpl.builder()
-        .dataAccess(configurationDataAccess)
-        .tokenVerifier(TokenVerifierFactory.tokenVerifier())
-        .build();
+    return call -> {
+      OrganizationService organizationService = call.create().api(OrganizationService.class);
+
+      KeyProvider keyProvider =
+          new CachingKeyProvider(new OrganizationServiceKeyProvider(organizationService));
+
+      ConfigurationService configurationService =
+          ConfigurationServiceImpl.builder()
+              .dataAccess(configurationDataAccess)
+              .tokenVerifier(TokenVerifierFactory.tokenVerifier(keyProvider))
+              .build();
+
+      return Collections.singleton(ServiceInfo.fromServiceInstance(configurationService).build());
+    };
   }
 
   private static Cluster couchbaseDataAccessCluster(CouchbaseSettings settings) {

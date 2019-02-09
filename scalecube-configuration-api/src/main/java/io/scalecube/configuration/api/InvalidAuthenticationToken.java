@@ -1,14 +1,10 @@
 package io.scalecube.configuration.api;
 
-public class InvalidAuthenticationToken extends Throwable {
-
-  private static final long serialVersionUID = 1L;
+public class InvalidAuthenticationToken extends RuntimeException {
 
   public InvalidAuthenticationToken(String message) {
-
     super(message);
   }
 
-  public InvalidAuthenticationToken() {
-  }
+  public InvalidAuthenticationToken() {}
 }
