@@ -32,6 +32,7 @@ public abstract class ServiceOperation<I extends AccessRequest, O> {
   public Mono<O> execute(I request, ServiceOperationContext context) {
     return Mono.fromRunnable(() -> validate(request))
         .then(Mono.defer(() -> verifyToken(context.tokenVerifier(), request.token())))
+        .switchIfEmpty(Mono.error(new InvalidAuthenticationToken("profile is null")))
         .map(
             profile -> {
               validateProfile(profile);
@@ -54,7 +55,7 @@ public abstract class ServiceOperation<I extends AccessRequest, O> {
     return tokenVerifier.verify(token);
   }
 
-  private void validateProfile(Profile profile) throws InvalidAuthenticationToken {
+  private void validateProfile(Profile profile) {
     if (profile == null) {
       throw new InvalidAuthenticationToken("profile is null");
     }

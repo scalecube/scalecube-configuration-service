@@ -17,7 +17,6 @@ import io.scalecube.configuration.repository.exception.DuplicateRepositoryExcept
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
 import io.scalecube.configuration.repository.inmem.InMemoryDataAccess;
-import io.scalecube.configuration.tokens.InvalidAuthenticationException;
 import io.scalecube.security.Profile;
 import java.time.Duration;
 import java.util.Arrays;
@@ -75,7 +74,7 @@ class ConfigurationServiceImplTest {
         .create(
             service.createRepository(new CreateRepositoryRequest(new Object(), "myrepo")))
         .expectSubscription()
-        .expectError(InvalidAuthenticationException.class)
+        .expectError(InvalidAuthenticationToken.class)
         .verify();
     assertNotNull(duration);
   }
@@ -242,7 +241,7 @@ class ConfigurationServiceImplTest {
         .create(
             service.fetch(new FetchRequest(new Object()  , "myrepo", "mykey")))
         .expectSubscription()
-        .expectError(InvalidAuthenticationException.class)
+        .expectError(InvalidAuthenticationToken.class)
         .verify();
     assertNotNull(duration);
   }
@@ -414,7 +413,7 @@ class ConfigurationServiceImplTest {
         .create(
             service.entries(new FetchRequest(new Object()  , "myrepo", "mykey")))
         .expectSubscription()
-        .expectError(InvalidAuthenticationException.class)
+        .expectError(InvalidAuthenticationToken.class)
         .verify();
     assertNotNull(duration);
   }
@@ -582,7 +581,7 @@ class ConfigurationServiceImplTest {
             service.save(new SaveRequest(new Object()  , "myrepo", "mykey",
                 mapper.valueToTree(1))))
         .expectSubscription()
-        .expectError(InvalidAuthenticationException.class)
+        .expectError(InvalidAuthenticationToken.class)
         .verify();
     assertNotNull(duration);
   }
@@ -744,7 +743,7 @@ class ConfigurationServiceImplTest {
         .create(
             service.delete(new DeleteRequest(new Object()  , "myrepo", "mykey")))
         .expectSubscription()
-        .expectError(InvalidAuthenticationException.class)
+        .expectError(InvalidAuthenticationToken.class)
         .verify();
     assertNotNull(duration);
   }
