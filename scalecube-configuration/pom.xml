@@ -16,6 +16,7 @@
   <properties>
     <mainClass>io.scalecube.server.ConfigurationServiceRunner</mainClass>
     <scalecube-organization-api.version>2.1.0-SNAPSHOT</scalecube-organization-api.version>
+    <caffeine.version>2.6.2</caffeine.version>
   </properties>
 
   <dependencies>
@@ -38,7 +39,7 @@
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>
-      <version>2.6.2</version>
+      <version>${caffeine.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
