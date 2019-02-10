@@ -9,11 +9,12 @@ import io.scalecube.configuration.repository.couchbase.operation.CreateRepositor
 import io.scalecube.configuration.repository.couchbase.operation.EntryOperation;
 import io.scalecube.configuration.repository.couchbase.operation.EntryOperation.OperationType;
 import io.scalecube.configuration.repository.couchbase.operation.OperationContext;
-import java.util.Collection;
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 
 public class CouchbaseDataAccess extends CouchbaseOperations implements ConfigurationDataAccess {
+
   private final Cluster cluster;
   private final CouchbaseAdmin couchbaseAdmin;
 
@@ -32,8 +33,28 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
   }
 
   @Override
-  public boolean createRepository(Repository repository) {
+  public Mono<Void> createRepository(Repository repository) {
     return execute(() -> createRepository(context(repository)));
+  }
+
+  @Override
+  public Mono<Document> get(RepositoryEntryKey key) {
+    return execute(() -> execute(key, null, OperationType.Read));
+  }
+
+  @Override
+  public Mono<Document> put(RepositoryEntryKey key, Document document) {
+    return execute(() -> execute(key, document, OperationType.Write));
+  }
+
+  @Override
+  public Mono<String> remove(RepositoryEntryKey key) {
+    return execute(() -> execute(key, null, OperationType.Delete).id());
+  }
+
+  @Override
+  public Flux<Document> entries(Repository repository) {
+    return EntryOperation.getOperation(OperationType.List).execute(context(repository));
   }
 
   private boolean createRepository(OperationContext context) {
@@ -41,38 +62,11 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
     return operation.execute(couchbaseAdmin, context);
   }
 
-  @Override
-  public Document get(RepositoryEntryKey key) {
-    return execute(() -> execute(key, null, OperationType.Read));
-  }
-
-  @Override
-  public Document put(RepositoryEntryKey key, Document document) {
-    return execute(() -> execute(key, document, OperationType.Write));
-  }
-
-  @Override
-  public String remove(RepositoryEntryKey key) {
-    return execute(() -> execute(key, null, OperationType.Delete).id());
-  }
-
-  private Document execute(RepositoryEntryKey key, Document document, OperationType type) {
-    List<Document> result = EntryOperation
+  private Flux<Document> execute(RepositoryEntryKey key, Document document, OperationType type) {
+    return EntryOperation
         .getOperation(type)
         .execute(context(key, document));
-
-    if (result.isEmpty()) {
-      throw new IllegalStateException();
-    }
-
-    return result.get(0);
   }
-
-  @Override
-  public Collection<Document> entries(Repository repository) {
-    return EntryOperation.getOperation(OperationType.List).execute(context(repository));
-  }
-
 
   private OperationContext context(RepositoryEntryKey key, Document document) {
     return context()
@@ -87,11 +81,9 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
         .build();
   }
 
-
   private OperationContext.Builder context() {
     return OperationContext.builder()
         .cluster(cluster)
         .settings(settings);
   }
-
 }

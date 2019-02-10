@@ -19,7 +19,7 @@ final class PutEntryOperation extends EntryOperation {
   }
 
   private Document put(OperationContext context) {
-    Objects.requireNonNull(context.key());
+    Objects.requireNonNull(context.key(),);
     Objects.requireNonNull(context.document());
 
     logger.debug(

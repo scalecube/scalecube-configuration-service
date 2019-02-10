@@ -2,88 +2,74 @@ package io.scalecube.configuration.repository.couchbase.operation;
 
 import static com.couchbase.client.java.query.Select.select;
 import static com.couchbase.client.java.query.dsl.Expression.i;
+import static rx.Observable.error;
 
-import com.couchbase.client.java.Bucket;
+import com.couchbase.client.java.query.AsyncN1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.SimpleN1qlQuery;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.exception.DataRetrievalFailureException;
 import io.scalecube.configuration.repository.exception.OperationInterruptedException;
 import io.scalecube.configuration.repository.exception.QueryTimeoutException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+import reactor.core.publisher.Flux;
 import rx.Observable;
+import rx.functions.Func1;
 
 final class ListEntriesOperation extends EntryOperation {
 
-  protected ListEntriesOperation() {
+  private static final String ALL = "*";
+  private final Func1<Throwable, Observable<? extends AsyncN1qlQueryResult>> errorMapper = errorMapper();
+
+  ListEntriesOperation() {
   }
 
   @Override
-  public List<Document> execute(OperationContext context) {
-    return entries(context);
-  }
+  public Flux<Document> execute(OperationContext context) {
+    return Flux.from(sink -> {
+      Objects.requireNonNull(context.repository(), "context.repository is null");
+      logger.debug("enter: entries -> repository = [ {} ]", context.repository());
 
-  private List<Document> entries(OperationContext context) {
-    Objects.requireNonNull(context.repository());
-    logger.debug("enter: entries -> repository = [ {} ]", context.repository());
-    List<Document> entries = new ArrayList<>();
-
-    try {
-      final Bucket bucket = openBucket(context);
-      final SimpleN1qlQuery query = N1qlQuery.simple(select("*").from(i(bucket.name())));
-      entries =
-          executeAsync(bucket.async().query(query))
-              .flatMap(
-                  result ->
-                      result
+      Observable<Document> source = asyncBucket(context)
+          .flatMap(bucket -> {
+            SimpleN1qlQuery query = N1qlQuery.simple(select(ALL).from(i(bucket.name())));
+            return bucket.query(query)
+                .onErrorResumeNext(errorMapper)
+                .flatMap(queryResult -> {
+                      queryResult.finalSuccess().doOnNext(finalSuccess -> sink.onComplete());
+                      return queryResult
                           .rows()
-                          .mergeWith(
-                              result
-                                  .errors()
-                                  .flatMap(
-                                      error ->
-                                          Observable.error(
-                                              new DataRetrievalFailureException(
-                                                  "N1QL error: " + error.toString()))))
-                          .flatMap(
-                              row ->
-                                  Observable.just(
-                                      decode(row.value().get(bucket.name()).toString())))
-                          .toList())
-              .toBlocking()
-              .single();
-    } catch (Throwable throwable) {
-      String message = String.format("Failed to get entries from repository: '%s'",
-          context.repository());
-      handleException(throwable, message);
-    }
-    logger.debug(
-        "exit: entries -> repository = [ {} ], return = [ {} ] entries",
-        context.repository(),
-        entries.size());
-    return entries;
+                          .mergeWith(queryResult
+                              .errors()
+                              .flatMap(errObj -> error(new DataRetrievalFailureException(
+                                  "N1QL error: " + errObj.toString()))))
+                          .map(row -> decode(row.value().get(bucket.name()).toString()));
+                    }
+                );
+          });
+      source
+          .doOnError(sink::onError)
+          .doOnNext(sink::onNext)
+          .doOnCompleted(sink::onComplete);
+    });
   }
 
-  private <R> Observable<R> executeAsync(Observable<R> asyncAction) {
-    return asyncAction.onErrorResumeNext(
-        ex -> {
-          if (ex instanceof RuntimeException) {
-            return Observable.error(
-                translateExceptionIfPossible((RuntimeException) ex));
-          } else if (ex instanceof TimeoutException) {
-            return Observable.error(new QueryTimeoutException(ex.getMessage(), ex));
-          } else if (ex instanceof InterruptedException) {
-            return Observable.error(new OperationInterruptedException(ex.getMessage(), ex));
-          } else if (ex instanceof ExecutionException) {
-            return Observable.error(new OperationInterruptedException(ex.getMessage(), ex));
-          } else {
-            return Observable.error(ex);
-          }
-        });
+  private Func1<Throwable, Observable<? extends AsyncN1qlQueryResult>> errorMapper() {
+    return ex -> {
+      if (ex instanceof RuntimeException) {
+        return error(
+            translateExceptionIfPossible((RuntimeException) ex));
+      } else if (ex instanceof TimeoutException) {
+        return error(new QueryTimeoutException(ex.getMessage(), ex));
+      } else if (ex instanceof InterruptedException) {
+        return error(new OperationInterruptedException(ex.getMessage(), ex));
+      } else if (ex instanceof ExecutionException) {
+        return error(new OperationInterruptedException(ex.getMessage(), ex));
+      } else {
+        return error(ex);
+      }
+    };
   }
-
 }
