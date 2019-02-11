@@ -1,29 +1,23 @@
 package io.scalecube.configuration.repository.couchbase.operation;
 
 import io.scalecube.configuration.repository.Document;
+import io.scalecube.configuration.repository.couchbase.CouchbaseExceptionTranslator;
 import java.util.Objects;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-final class GetEntryOperation extends EntryOperation {
-
-  GetEntryOperation() {
-  }
+final class GetEntryOperation extends EntryOperation<Mono<Document>> {
 
   @Override
-  public Flux<Document> execute(OperationContext context) {
-    return Flux.from(get(context));
-  }
-
-  private Mono<Document> get(OperationContext context) {
-    return Mono.create(sink -> {
-      Objects.requireNonNull(context.key(), "context.key is null");
-      logger.debug("GET for key=[{}]", context.key());
-      asyncBucket(context)
-          .flatMap(bucket -> bucket.get(context.key().key()))
-          .doOnError(sink::error)
-          .map(json -> translationService.decode(json.content().toString(), Document.class))
-          .doOnError(sink::error);
-    });
+  public Mono<Document> execute(OperationContext context) {
+    return Mono.fromRunnable(
+        () -> {
+          logger.debug("enter: get -> key = [{}]", context.key());
+          Objects.requireNonNull(context.key());
+        })
+        .then(openBucket(context))
+        .flatMap(bucket -> getDocument(bucket, context.key().key()))
+        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
+        .doOnError(th -> logger.error("Failed to get key: {}", context.key().key()))
+        .doOnSuccess(doc -> logger.debug("exit: get key -> [ {} ], return -> [ {} ]", doc.value()));
   }
 }

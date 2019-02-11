@@ -1,49 +1,35 @@
 package io.scalecube.configuration.repository.couchbase.operation;
 
-import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.document.RawJsonDocument;
 import io.scalecube.configuration.repository.Document;
-import io.scalecube.configuration.repository.RepositoryEntryKey;
-import java.util.Collections;
-import java.util.List;
+import io.scalecube.configuration.repository.couchbase.CouchbaseExceptionTranslator;
 import java.util.Objects;
+import reactor.core.publisher.Mono;
+import rx.RxReactiveStreams;
 
-final class PutEntryOperation extends EntryOperation {
-
-  protected PutEntryOperation() {
-  }
+final class PutEntryOperation extends EntryOperation<Mono<Document>> {
 
   @Override
-  public List<Document> execute(OperationContext context) {
-    return Collections.singletonList(put(context));
-  }
+  public Mono<Document> execute(OperationContext context) {
+    return Mono.fromRunnable(
+        () -> {
+          logger.debug(
+              "enter: put -> key = [{}], document = [{}]", context.key(), context.document());
 
-  private Document put(OperationContext context) {
-    Objects.requireNonNull(context.key(),);
-    Objects.requireNonNull(context.document());
-
-    logger.debug(
-        "enter: put -> key = [{}], document = [{}]",
-        context.key(),
-        context.document());
-
-    RepositoryEntryKey key = context.key();
-    Document document = context.document();
-
-    try {
-      Bucket bucket = openBucket(context);
-      bucket.upsert(RawJsonDocument.create(key.key(), encode(document)));
-    } catch (Throwable throwable) {
-      String message =
-          String.format("Failed to put key: '%s'", key);
-      handleException(throwable, message);
-    }
-
-    logger.debug(
-        "exit: put -> key = [{}], document = [{}]",
-        key,
-        document);
-
-    return document;
+          Objects.requireNonNull(context.key());
+          Objects.requireNonNull(context.document());
+        })
+        .then(openBucket(context))
+        .flatMap(
+            bucket ->
+                Mono.from(
+                    RxReactiveStreams.toPublisher(
+                        bucket.upsert(
+                            RawJsonDocument.create(
+                                context.key().key(), encode(context.document()))))))
+        .thenReturn(context.document())
+        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
+        .doOnError(th -> logger.error("Failed to put key: {}", context.key().key()))
+        .doOnSuccess(doc -> logger.debug("exit: put -> key = [{}], document = [{}]", doc));
   }
 }

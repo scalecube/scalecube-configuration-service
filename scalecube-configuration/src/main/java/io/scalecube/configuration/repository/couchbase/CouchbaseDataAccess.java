@@ -1,6 +1,6 @@
 package io.scalecube.configuration.repository.couchbase;
 
-import com.couchbase.client.java.Cluster;
+import com.couchbase.client.java.AsyncCluster;
 import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.Repository;
@@ -12,10 +12,10 @@ import io.scalecube.configuration.repository.couchbase.operation.OperationContex
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+public class CouchbaseDataAccess implements ConfigurationDataAccess {
 
-public class CouchbaseDataAccess extends CouchbaseOperations implements ConfigurationDataAccess {
-
-  private final Cluster cluster;
+  private final CouchbaseSettings settings;
+  private final AsyncCluster cluster;
   private final CouchbaseAdmin couchbaseAdmin;
 
   /**
@@ -26,64 +26,50 @@ public class CouchbaseDataAccess extends CouchbaseOperations implements Configur
    * @param couchbaseAdmin couchbase operations with admin permissions
    */
   public CouchbaseDataAccess(
-      CouchbaseSettings settings, Cluster cluster, CouchbaseAdmin couchbaseAdmin) {
-    super(settings);
+      CouchbaseSettings settings, AsyncCluster cluster, CouchbaseAdmin couchbaseAdmin) {
+    this.settings = settings;
     this.cluster = cluster;
     this.couchbaseAdmin = couchbaseAdmin;
   }
 
   @Override
-  public Mono<Void> createRepository(Repository repository) {
-    return execute(() -> createRepository(context(repository)));
+  public Mono<Boolean> createRepository(Repository repository) {
+    return new CreateRepositoryOperation().execute(couchbaseAdmin, context(repository));
   }
 
   @Override
   public Mono<Document> get(RepositoryEntryKey key) {
-    return execute(() -> execute(key, null, OperationType.Read));
+    EntryOperation<Mono<Document>> operation = EntryOperation.getOperation(OperationType.Read);
+    return operation.execute(context(key, null));
   }
 
   @Override
   public Mono<Document> put(RepositoryEntryKey key, Document document) {
-    return execute(() -> execute(key, document, OperationType.Write));
+    EntryOperation<Mono<Document>> operation = EntryOperation.getOperation(OperationType.Write);
+    return operation.execute(context(key, document));
   }
 
   @Override
   public Mono<String> remove(RepositoryEntryKey key) {
-    return execute(() -> execute(key, null, OperationType.Delete).id());
+    EntryOperation<Mono<Document>> operation = EntryOperation.getOperation(OperationType.Delete);
+    return operation.execute(context(key, null)).map(Document::id);
   }
 
   @Override
   public Flux<Document> entries(Repository repository) {
-    return EntryOperation.getOperation(OperationType.List).execute(context(repository));
-  }
-
-  private boolean createRepository(OperationContext context) {
-    CreateRepositoryOperation operation = new CreateRepositoryOperation();
-    return operation.execute(couchbaseAdmin, context);
-  }
-
-  private Flux<Document> execute(RepositoryEntryKey key, Document document, OperationType type) {
-    return EntryOperation
-        .getOperation(type)
-        .execute(context(key, document));
+    EntryOperation<Flux<Document>> operation = EntryOperation.getOperation(OperationType.List);
+    return operation.execute(context(repository));
   }
 
   private OperationContext context(RepositoryEntryKey key, Document document) {
-    return context()
-        .document(document)
-        .key(key)
-        .build();
+    return context().document(document).key(key).build();
   }
 
   private OperationContext context(Repository repository) {
-    return context()
-        .repository(repository)
-        .build();
+    return context().repository(repository).build();
   }
 
   private OperationContext.Builder context() {
-    return OperationContext.builder()
-        .cluster(cluster)
-        .settings(settings);
+    return OperationContext.builder().cluster(cluster).settings(settings);
   }
 }

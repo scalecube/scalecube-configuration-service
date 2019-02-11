@@ -1,5 +1,6 @@
 package io.scalecube.server;
 
+import com.couchbase.client.java.AsyncCluster;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
 import io.scalecube.account.api.OrganizationService;
@@ -88,15 +89,15 @@ public class ConfigurationServiceRunner {
     };
   }
 
-  private static Cluster couchbaseDataAccessCluster(CouchbaseSettings settings) {
-    return CouchbaseCluster.create(settings.hosts());
+  private static AsyncCluster couchbaseDataAccessCluster(CouchbaseSettings settings) {
+    return CouchbaseCluster.create(settings.hosts()).async();
   }
 
-  private static Cluster couchbaseAdminCluster(CouchbaseSettings settings) {
+  private static AsyncCluster couchbaseAdminCluster(CouchbaseSettings settings) {
     List<String> nodes = settings.hosts();
     Cluster cluster = nodes.isEmpty() ? CouchbaseCluster.create() : CouchbaseCluster.create(nodes);
     cluster.authenticate(settings.username(), settings.password());
-    return cluster;
+    return cluster.async();
   }
 
   private static DiscoveryOptions discoveryOptions() {

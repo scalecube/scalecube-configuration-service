@@ -28,7 +28,7 @@
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-configuration</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>

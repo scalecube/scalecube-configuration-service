@@ -43,6 +43,7 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- Scalecube -->
       <dependency>
         <groupId>io.scalecube</groupId>
         <artifactId>config</artifactId>
@@ -83,6 +84,8 @@
         <artifactId>scalecube-services-api</artifactId>
         <version>${scalecube-services.version}</version>
       </dependency>
+
+      <!-- Couchbase -->
       <dependency>
         <groupId>com.couchbase.client</groupId>
         <artifactId>java-client</artifactId>
