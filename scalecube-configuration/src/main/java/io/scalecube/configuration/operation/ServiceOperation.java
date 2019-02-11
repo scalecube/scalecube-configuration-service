@@ -9,6 +9,7 @@ import io.scalecube.configuration.repository.RepositoryEntryKey;
 import io.scalecube.configuration.tokens.TokenVerifier;
 import io.scalecube.security.Profile;
 import java.util.Objects;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
 /**
@@ -29,16 +30,15 @@ public abstract class ServiceOperation<I extends AccessRequest, O> {
    * @param context execution context
    * @return service call response
    */
-  public Mono<O> execute(I request, ServiceOperationContext context) {
+  public Publisher<O> execute(I request, ServiceOperationContext context) {
     return Mono.fromRunnable(() -> validate(request))
         .then(Mono.defer(() -> verifyToken(context.tokenVerifier(), request.token())))
         .switchIfEmpty(Mono.error(new InvalidAuthenticationToken("profile is null")))
-        .map(
-            profile -> {
-              validateProfile(profile);
-              authorize(getRole(profile), context);
-              return process(request, profile, context);
-            });
+        .doOnNext(profile -> {
+          validateProfile(profile);
+          authorize(getRole(profile), context);
+        })
+        .flatMapMany(profile -> process(request, profile, context));
   }
 
   protected void validate(I request) {
@@ -87,7 +87,8 @@ public abstract class ServiceOperation<I extends AccessRequest, O> {
     return Enum.valueOf(Role.class, role.toString());
   }
 
-  protected abstract O process(I request, Profile profile, ServiceOperationContext context);
+  protected abstract Publisher<O> process(I request, Profile profile,
+      ServiceOperationContext context);
 
   protected static Repository repository(Profile profile, AccessRequest request) {
     return Repository.builder().namespace(profile.tenant()).name(request.repository()).build();

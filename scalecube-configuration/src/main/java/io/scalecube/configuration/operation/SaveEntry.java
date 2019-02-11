@@ -4,19 +4,16 @@ import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.BadRequest;
 import io.scalecube.configuration.api.SaveRequest;
 import io.scalecube.configuration.repository.Document;
-import io.scalecube.configuration.repository.RepositoryEntryKey;
-
 import io.scalecube.security.Profile;
-
 import java.util.UUID;
+import reactor.core.publisher.Mono;
 
 final class SaveEntry extends ServiceOperation<SaveRequest, Acknowledgment> {
-  protected SaveEntry() {
-  }
 
   @Override
   protected void validate(SaveRequest request) {
     super.validate(request);
+
     if (request.repository() == null || request.repository().length() == 0) {
       throw new BadRequest("Repository name is a required argument");
     }
@@ -31,16 +28,18 @@ final class SaveEntry extends ServiceOperation<SaveRequest, Acknowledgment> {
   }
 
   @Override
-  protected Acknowledgment process(SaveRequest request,
-                                   Profile profile,
-                                   ServiceOperationContext context) {
-    Document document = Document.builder()
-        .id(UUID.randomUUID().toString())
-        .key(request.key())
-        .value(request.value())
-        .build();
-    RepositoryEntryKey key = key(profile, request, request.key());
-    context.dataAccess().put(key, document);
-    return new Acknowledgment();
+  protected Mono<Acknowledgment> process(SaveRequest request,
+      Profile profile,
+      ServiceOperationContext context) {
+    return Mono.fromCallable(() -> key(profile, request, request.key()))
+        .flatMap(key -> {
+          Document document = Document.builder()
+              .id(UUID.randomUUID().toString())
+              .key(request.key())
+              .value(request.value())
+              .build();
+          return context.dataAccess().put(key, document);
+        })
+        .thenReturn(new Acknowledgment());
   }
 }

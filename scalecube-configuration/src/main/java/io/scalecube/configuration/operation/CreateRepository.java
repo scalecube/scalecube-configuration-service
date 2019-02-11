@@ -4,10 +4,10 @@ import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.BadRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.security.Profile;
+import org.reactivestreams.Publisher;
+import reactor.core.publisher.Mono;
 
 final class CreateRepository extends ServiceOperation<CreateRepositoryRequest, Acknowledgment> {
-
-  CreateRepository() {}
 
   @Override
   protected void validate(CreateRepositoryRequest request) {
@@ -19,9 +19,10 @@ final class CreateRepository extends ServiceOperation<CreateRepositoryRequest, A
   }
 
   @Override
-  protected Acknowledgment process(
+  protected Publisher<Acknowledgment> process(
       CreateRepositoryRequest request, Profile profile, ServiceOperationContext context) {
-    context.dataAccess().createRepository(repository(profile, request));
-    return new Acknowledgment();
+    return Mono.fromCallable(() -> repository(profile, request))
+        .flatMap(repository -> context.dataAccess().createRepository(repository))
+        .thenReturn(new Acknowledgment());
   }
 }

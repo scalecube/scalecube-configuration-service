@@ -3,16 +3,15 @@ package io.scalecube.configuration.operation;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.BadRequest;
 import io.scalecube.configuration.api.DeleteRequest;
-import io.scalecube.configuration.repository.RepositoryEntryKey;
 import io.scalecube.security.Profile;
+import reactor.core.publisher.Mono;
 
 final class DeleteEntry extends ServiceOperation<DeleteRequest, Acknowledgment> {
-
-  DeleteEntry() {}
 
   @Override
   protected void validate(DeleteRequest request) {
     super.validate(request);
+
     if (request.repository() == null || request.repository().length() == 0) {
       throw new BadRequest("Repository name is a required argument");
     }
@@ -23,10 +22,10 @@ final class DeleteEntry extends ServiceOperation<DeleteRequest, Acknowledgment> 
   }
 
   @Override
-  protected Acknowledgment process(
+  protected Mono<Acknowledgment> process(
       DeleteRequest request, Profile profile, ServiceOperationContext context) {
-    RepositoryEntryKey key = key(profile, request, request.key());
-    context.dataAccess().remove(key);
-    return new Acknowledgment();
+    return Mono.fromCallable(() -> key(profile, request, request.key()))
+        .flatMap(key -> context.dataAccess().remove(key))
+        .thenReturn(new Acknowledgment());
   }
 }
