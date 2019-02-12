@@ -29,7 +29,7 @@ public class InMemoryDataAccess implements ConfigurationDataAccess {
   public Mono<Document> get(RepositoryEntryKey key) {
     return Mono.fromCallable(() -> getRepository(key.repository()))
         .filter(repository -> repository.containsKey(key.key()))
-        .switchIfEmpty(Mono.error(new KeyNotFoundException(key.toString())))
+        .switchIfEmpty(Mono.defer(() -> Mono.error(new KeyNotFoundException(key.toString()))))
         .map(repository -> repository.get(key.key()));
   }
 
@@ -47,7 +47,7 @@ public class InMemoryDataAccess implements ConfigurationDataAccess {
   public Mono<String> remove(RepositoryEntryKey key) {
     return Mono.fromCallable(() -> getRepository(key.repository()))
         .filter(repository -> repository.containsKey(key.key()))
-        .switchIfEmpty(Mono.error(new KeyNotFoundException(key.toString())))
+        .switchIfEmpty(Mono.defer(() -> Mono.error(new KeyNotFoundException(key.toString()))))
         .map(repository -> repository.remove(key.key()))
         .thenReturn(key.key());
   }

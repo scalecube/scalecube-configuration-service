@@ -33,11 +33,13 @@ public abstract class ServiceOperation<I extends AccessRequest, O> {
   public Publisher<O> execute(I request, ServiceOperationContext context) {
     return Mono.fromRunnable(() -> validate(request))
         .then(Mono.defer(() -> verifyToken(context.tokenVerifier(), request.token())))
-        .switchIfEmpty(Mono.error(new InvalidAuthenticationToken("profile is null")))
-        .doOnNext(profile -> {
-          validateProfile(profile);
-          authorize(getRole(profile), context);
-        })
+        .switchIfEmpty(
+            Mono.defer(() -> Mono.error(new InvalidAuthenticationToken("profile is null"))))
+        .doOnNext(
+            profile -> {
+              validateProfile(profile);
+              authorize(getRole(profile), context);
+            })
         .flatMapMany(profile -> process(request, profile, context));
   }
 
@@ -87,8 +89,8 @@ public abstract class ServiceOperation<I extends AccessRequest, O> {
     return Enum.valueOf(Role.class, role.toString());
   }
 
-  protected abstract Publisher<O> process(I request, Profile profile,
-      ServiceOperationContext context);
+  protected abstract Publisher<O> process(
+      I request, Profile profile, ServiceOperationContext context);
 
   protected static Repository repository(Profile profile, AccessRequest request) {
     return Repository.builder().namespace(profile.tenant()).name(request.repository()).build();

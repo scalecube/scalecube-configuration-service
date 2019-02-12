@@ -75,7 +75,7 @@ public abstract class EntryOperation<R extends Publisher> {
     return Mono.fromRunnable(
         () -> logger.debug("enter: getDocument -> bucket = [ {} ], [ {} ]", bucket.name(), id))
         .then(Mono.from(RxReactiveStreams.toPublisher(bucket.get(id))))
-        .switchIfEmpty(Mono.error(new KeyNotFoundException(id)))
+        .switchIfEmpty(Mono.defer(() -> Mono.error(new KeyNotFoundException(id))))
         .map(jsonDocument -> toEntity(id, bucket.name(), jsonDocument))
         .onErrorMap(
             th -> !(th instanceof DataAccessException),
