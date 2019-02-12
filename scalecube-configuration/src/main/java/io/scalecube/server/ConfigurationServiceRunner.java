@@ -1,8 +1,9 @@
 package io.scalecube.server;
 
 import com.couchbase.client.java.AsyncCluster;
-import com.couchbase.client.java.Cluster;
-import com.couchbase.client.java.CouchbaseCluster;
+import com.couchbase.client.java.CouchbaseAsyncCluster;
+import com.couchbase.client.java.env.CouchbaseEnvironment;
+import com.couchbase.client.java.env.DefaultCouchbaseEnvironment;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.app.decoration.Logo;
 import io.scalecube.app.packages.PackageInfo;
@@ -64,14 +65,17 @@ public class ConfigurationServiceRunner {
 
   private static ServiceProvider createConfigurationService() {
     ConfigRegistry configRegistry = AppConfiguration.configRegistry();
-    CouchbaseSettings settings = //
+    CouchbaseSettings settings =
         configRegistry.objectProperty("couchbase", CouchbaseSettings.class).value(null);
 
-    CouchbaseAdmin couchbaseAdmin = //
-        new CouchbaseAdmin(settings, couchbaseAdminCluster(settings));
+    CouchbaseEnvironment env = DefaultCouchbaseEnvironment.create();
 
-    ConfigurationDataAccess configurationDataAccess = //
-        new CouchbaseDataAccess(settings, couchbaseDataAccessCluster(settings), couchbaseAdmin);
+    CouchbaseAdmin couchbaseAdmin =
+        new CouchbaseAdmin(settings, couchbaseAdminCluster(settings, env));
+
+    ConfigurationDataAccess configurationDataAccess =
+        new CouchbaseDataAccess(
+            settings, couchbaseDataAccessCluster(settings, env), couchbaseAdmin);
 
     return call -> {
       OrganizationService organizationService = call.create().api(OrganizationService.class);
@@ -89,15 +93,20 @@ public class ConfigurationServiceRunner {
     };
   }
 
-  private static AsyncCluster couchbaseDataAccessCluster(CouchbaseSettings settings) {
-    return CouchbaseCluster.create(settings.hosts()).async();
+  private static AsyncCluster couchbaseDataAccessCluster(
+      CouchbaseSettings settings, CouchbaseEnvironment env) {
+    return CouchbaseAsyncCluster.create(env, settings.hosts());
   }
 
-  private static AsyncCluster couchbaseAdminCluster(CouchbaseSettings settings) {
+  private static AsyncCluster couchbaseAdminCluster(
+      CouchbaseSettings settings, CouchbaseEnvironment env) {
     List<String> nodes = settings.hosts();
-    Cluster cluster = nodes.isEmpty() ? CouchbaseCluster.create() : CouchbaseCluster.create(nodes);
+    AsyncCluster cluster =
+        nodes.isEmpty()
+            ? CouchbaseAsyncCluster.create(env)
+            : CouchbaseAsyncCluster.create(env, nodes);
     cluster.authenticate(settings.username(), settings.password());
-    return cluster.async();
+    return cluster;
   }
 
   private static DiscoveryOptions discoveryOptions() {
