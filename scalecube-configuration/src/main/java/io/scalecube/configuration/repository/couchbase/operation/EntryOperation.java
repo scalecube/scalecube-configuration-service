@@ -17,6 +17,7 @@ import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import rx.RxReactiveStreams;
 
 /**
@@ -76,6 +77,7 @@ public abstract class EntryOperation<R extends Publisher> {
         () -> logger.debug("enter: getDocument -> bucket = [ {} ], [ {} ]", bucket.name(), id))
         .then(Mono.from(RxReactiveStreams.toPublisher(bucket.get(id))))
         .switchIfEmpty(Mono.defer(() -> Mono.error(new KeyNotFoundException(id))))
+        .publishOn(Schedulers.parallel())
         .map(jsonDocument -> toEntity(id, bucket.name(), jsonDocument))
         .onErrorMap(
             th -> !(th instanceof DataAccessException),
@@ -105,7 +107,7 @@ public abstract class EntryOperation<R extends Publisher> {
 
     try {
       if (document != null) {
-        entity = translationService.decode(document.content().toString(), Document.class);
+        entity = decode(document.content().toString());
       }
     } catch (Throwable throwable) {
       logger.error(
