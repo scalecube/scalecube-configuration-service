@@ -20,7 +20,7 @@ final class RemoveEntryOperation extends EntryOperation<Mono<Document>> {
             bucket -> Mono.from(RxReactiveStreams.toPublisher(bucket.remove(context.key().key()))))
         .map(jsonDoc -> Document.builder().id(jsonDoc.id()).key(context.key().key()).build())
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
-        .doOnError(th -> logger.error("Failed to remove key: {}", context.key().key()))
+        .doOnError(th -> logger.error("Failed to remove key: {}", context.key().key(), th))
         .doOnSuccess(doc -> logger.debug("exit: remove -> key = [{}]", context.key().key()));
   }
 }

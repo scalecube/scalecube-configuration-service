@@ -1,7 +1,7 @@
 package io.scalecube.configuration.repository.couchbase.operation;
 
 import com.couchbase.client.java.AsyncBucket;
-import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.document.ByteArrayDocument;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.Repository;
 import io.scalecube.configuration.repository.couchbase.ConfigurationBucketName;
@@ -75,10 +75,10 @@ public abstract class EntryOperation<R extends Publisher> {
   Mono<Document> getDocument(AsyncBucket bucket, String id) {
     return Mono.fromRunnable(
         () -> logger.debug("enter: getDocument -> bucket = [ {} ], [ {} ]", bucket.name(), id))
-        .then(Mono.from(RxReactiveStreams.toPublisher(bucket.get(id))))
+        .then(Mono.from(RxReactiveStreams.toPublisher(bucket.get(id, ByteArrayDocument.class))))
         .switchIfEmpty(Mono.defer(() -> Mono.error(new KeyNotFoundException(id))))
         .publishOn(Schedulers.parallel())
-        .map(jsonDocument -> toEntity(id, bucket.name(), jsonDocument))
+        .map(document -> toEntity(id, bucket.name(), document))
         .onErrorMap(
             th -> !(th instanceof DataAccessException),
             th ->
@@ -100,23 +100,23 @@ public abstract class EntryOperation<R extends Publisher> {
                     "exit: getDocument -> bucket = [ {} ], [ {} ]", bucket.name(), document.key()));
   }
 
-  private Document toEntity(String id, String bucket, JsonDocument document) {
+  private Document toEntity(String id, String bucket, ByteArrayDocument document) {
     logger.debug(
         "enter: toEntity -> bucket = [ {} ] id = [ {} ], document = [ {} ]", bucket, id, document);
     Document entity = null;
 
     try {
       if (document != null) {
-        entity = decode(document.content().toString());
+        entity = decode(document.content());
       }
-    } catch (Throwable throwable) {
+    } catch (Exception e) {
       logger.error(
           "Failed to decode json document bucket = '%s', id = '%s', document = %s",
-          bucket, id, document);
+          bucket, id, document, e);
       throw new DataAccessResourceFailureException(
           String.format(
               "Failed to Failed to decode json document bucket = '%s', id = '%s'", bucket, id),
-          throwable);
+          e);
     }
 
     logger.debug(
@@ -157,11 +157,11 @@ public abstract class EntryOperation<R extends Publisher> {
     return ConfigurationBucketName.from(repository, context.settings()).name();
   }
 
-  Document decode(String content) {
+  Document decode(byte[] content) {
     return translationService.decode(content, Document.class);
   }
 
-  String encode(Document document) {
-    return translationService.encode(document);
+  byte[] encode(Document document) {
+    return translationService.encode(document, Document.class);
   }
 }

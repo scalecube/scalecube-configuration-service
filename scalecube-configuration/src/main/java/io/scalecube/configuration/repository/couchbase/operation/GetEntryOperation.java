@@ -17,7 +17,7 @@ final class GetEntryOperation extends EntryOperation<Mono<Document>> {
         .then(openBucket(context))
         .flatMap(bucket -> getDocument(bucket, context.key().key()))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
-        .doOnError(th -> logger.error("Failed to get key: {}", context.key().key()))
+        .doOnError(th -> logger.error("Failed to get key: {}", context.key().key(), th))
         .doOnSuccess(doc -> logger.debug("exit: get key -> [ {} ], return -> [ {} ]", doc.value()));
   }
 }

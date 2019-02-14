@@ -38,7 +38,8 @@ final class ListEntriesOperation extends EntryOperation<Flux<Document>> {
             })
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
         .doOnError(
-            th -> logger.error("Failed to get entries from repository: {}", context.repository()))
+            th ->
+                logger.error("Failed to get entries from repository: {}", context.repository(), th))
         .doOnComplete(
             () -> logger.debug("exit: entries -> repository = [ {} ]", context.repository()));
   }
@@ -58,6 +59,6 @@ final class ListEntriesOperation extends EntryOperation<Flux<Document>> {
                                     Observable.error(
                                         new DataRetrievalFailureException(
                                             "N1QL error: " + error.toString()))))
-                    .map(row -> decode(row.value().get(bucket.name()).toString())));
+                    .map(row -> decode(row.value().get(bucket.name()).toString().getBytes())));
   }
 }
