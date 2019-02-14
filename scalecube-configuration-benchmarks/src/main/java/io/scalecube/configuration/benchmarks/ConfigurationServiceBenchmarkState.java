@@ -44,6 +44,7 @@ final class ConfigurationServiceBenchmarkState
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+  private static final String COUCHBASE_DOCKER_IMAGE = "couchbase/server:6.0.0";
   private static final String COUCHBASE_USERNAME = "admin";
   private static final String COUCHBASE_PASSWORD = "123456";
   private static final String COUCHBASE_NETWORK_ALIAS = "couchbase";
@@ -100,7 +101,7 @@ final class ConfigurationServiceBenchmarkState
       startConfigurationService(env);
     }
 
-    Token token = new Token("auth0.com", settings.find("token", ""));
+    Token token = new Token(settings.find("token", ""));
     int configKeysCount = Integer.parseInt(settings.find("configKeysCount", "100"));
 
     preload(token, configKeysCount).block();
@@ -145,7 +146,7 @@ final class ConfigurationServiceBenchmarkState
 
   private void startCouchbase() {
     CouchbaseContainer couchbase =
-        new CouchbaseContainer()
+        new CouchbaseContainer(COUCHBASE_DOCKER_IMAGE)
             .withClusterAdmin(COUCHBASE_USERNAME, COUCHBASE_PASSWORD)
             .withNetwork(Network.SHARED)
             .withNetworkAliases(COUCHBASE_NETWORK_ALIAS)
@@ -250,7 +251,7 @@ final class ConfigurationServiceBenchmarkState
   private Mono<CreateOrganizationResponse> createOrganization(
       OrganizationService organizationService, Token token) {
     return organizationService
-        .createOrganization(new CreateOrganizationRequest("benchmarks", token, "info@scalecube.io"))
+        .createOrganization(new CreateOrganizationRequest("benchmarks", token))
         .doOnSuccess(response -> LOGGER.info("Organization created: {}", response))
         .doOnError(th -> LOGGER.error("Organization not created: {}", th));
   }
