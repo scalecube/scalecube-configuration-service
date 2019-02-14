@@ -15,7 +15,7 @@ final class CreatePrimaryIndexOperation extends Operation<Mono<Boolean>> {
                     .cluster()
                     .openBucket(context.name())
                     .flatMap(AsyncBucket::bucketManager)
-                    .flatMap(bucketManager -> bucketManager.createN1qlPrimaryIndex(true, true))))
+                    .flatMap(bucketManager -> bucketManager.createN1qlPrimaryIndex(true, false))))
         .onErrorMap(throwable -> new CreatePrimaryIndexException(throwable.getMessage()));
   }
 }
