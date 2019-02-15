@@ -251,7 +251,7 @@ final class ConfigurationServiceBenchmarkState
   private Mono<CreateOrganizationResponse> createOrganization(
       OrganizationService organizationService, Token token) {
     return organizationService
-        .createOrganization(new CreateOrganizationRequest("benchmarks", token))
+        .createOrganization(new CreateOrganizationRequest("benchmarks", "info@scalecube.io", token))
         .doOnSuccess(response -> LOGGER.info("Organization created: {}", response))
         .doOnError(th -> LOGGER.error("Organization not created: {}", th));
   }
