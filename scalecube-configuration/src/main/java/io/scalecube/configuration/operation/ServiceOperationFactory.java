@@ -8,6 +8,7 @@ import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.SaveRequest;
 
 public class ServiceOperationFactory {
+
   public static ServiceOperation<CreateRepositoryRequest, Acknowledgment> createRepository() {
     return new CreateRepository();
   }
@@ -16,7 +17,7 @@ public class ServiceOperationFactory {
     return new FetchEntry();
   }
 
-  public static ServiceOperation<FetchRequest, FetchResponse[]> fetchAll() {
+  public static ServiceOperation<FetchRequest, FetchResponse> fetchAll() {
     return new FetchEntries();
   }
 

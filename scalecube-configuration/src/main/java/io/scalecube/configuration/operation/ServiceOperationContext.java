@@ -2,12 +2,11 @@ package io.scalecube.configuration.operation;
 
 import io.scalecube.configuration.authorization.AuthorizationService;
 import io.scalecube.configuration.authorization.OperationType;
-
 import io.scalecube.configuration.repository.ConfigurationDataAccess;
-
 import io.scalecube.configuration.tokens.TokenVerifier;
 
 public final class ServiceOperationContext {
+
   private final ConfigurationDataAccess dataAccess;
   private final TokenVerifier tokenVerifier;
   private final AuthorizationService authorizationService;
@@ -20,19 +19,19 @@ public final class ServiceOperationContext {
     this.operationType = builder.operationType;
   }
 
-  public ConfigurationDataAccess dataAccess() {
+  ConfigurationDataAccess dataAccess() {
     return dataAccess;
   }
 
-  public TokenVerifier tokenVerifier() {
+  TokenVerifier tokenVerifier() {
     return tokenVerifier;
   }
 
-  public AuthorizationService authorizationService() {
+  AuthorizationService authorizationService() {
     return authorizationService;
   }
 
-  public OperationType operationType() {
+  OperationType operationType() {
     return operationType;
   }
 
@@ -41,6 +40,7 @@ public final class ServiceOperationContext {
   }
 
   public static class Builder {
+
     private ConfigurationDataAccess dataAccess;
     private TokenVerifier tokenVerifier;
     private AuthorizationService authorizationService;

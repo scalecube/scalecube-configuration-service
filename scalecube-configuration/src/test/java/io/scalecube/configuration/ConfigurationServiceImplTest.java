@@ -2,34 +2,39 @@ package io.scalecube.configuration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.scalecube.configuration.api.BadRequest;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.DeleteRequest;
 import io.scalecube.configuration.api.FetchRequest;
+import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
 import io.scalecube.configuration.api.InvalidPermissionsException;
 import io.scalecube.configuration.api.SaveRequest;
+import io.scalecube.configuration.repository.InMemoryDataAccess;
 import io.scalecube.configuration.repository.exception.DuplicateRepositoryException;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
-import io.scalecube.configuration.repository.inmem.InMemoryDataAccess;
 import io.scalecube.security.Profile;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 class ConfigurationServiceImplTest {
   private final ObjectMapper mapper = new ObjectMapper();
+
+  @BeforeAll
+  static void setUp() {
+    StepVerifier.setDefaultTimeout(Duration.ofSeconds(3));
+  }
 
   @Test
   void create_repository_null_request_should_fail_withBadRequest() {
@@ -182,20 +187,18 @@ class ConfigurationServiceImplTest {
   void fetch() {
     ConfigurationService service = createService();
     createRepository(service);
+
+    SaveRequest saveRequest = new SaveRequest(new Object(), "myrepo", "mykey",
+        mapper.valueToTree(1));
+    FetchRequest fetchRequest = new FetchRequest(new Object(), "myrepo", "mykey");
+
+    Mono<FetchResponse> saveAndFetch = service.save(saveRequest).then(service.fetch(fetchRequest));
+
     StepVerifier
-        .create(
-            service.save(new SaveRequest(new Object(), "myrepo", "mykey",
-                mapper.valueToTree(1))))
-        .expectSubscription()
-        .assertNext(Assertions::assertNotNull)
-        .verifyComplete();
-    Duration duration = StepVerifier
-        .create(
-            service.fetch(new FetchRequest(new Object(), "myrepo", "mykey")))
+        .create(saveAndFetch)
         .expectSubscription()
         .assertNext(result -> assertEquals(String.valueOf(result.value()), "1"))
         .verifyComplete();
-    assertNotNull(duration);
   }
 
   @Test
@@ -338,36 +341,26 @@ class ConfigurationServiceImplTest {
   void entries() {
     ConfigurationService service = createService();
     createRepository(service);
-    StepVerifier
-        .create(
-            service.save(new SaveRequest(new Object(), "myrepo", "mykey",
-                mapper.valueToTree(1))))
-        .expectSubscription()
-        .assertNext(Assertions::assertNotNull)
-        .verifyComplete();
+
+    Object token = new Object();
+    String repository = "myrepo";
+    String key1 = "mykey";
+    JsonNode value1 = mapper.valueToTree(1);
+    String key2 = "mykey2";
+    JsonNode value2 = mapper.valueToTree(2);
+
+    SaveRequest saveRequest1 = new SaveRequest(token, repository, key1, value1);
+    SaveRequest saveRequest2 = new SaveRequest(token, repository, key2, value2);
+    FetchRequest fetchRequest = new FetchRequest(token, repository, null);
 
     StepVerifier
         .create(
-            service.save(new SaveRequest(new Object(), "myrepo", "mykey2",
-                mapper.valueToTree(2))))
+            service.save(saveRequest1).then(service.save(saveRequest2))
+                .thenMany(service.entries(fetchRequest))
+        )
         .expectSubscription()
-        .assertNext(Assertions::assertNotNull)
+        .expectNextCount(2)
         .verifyComplete();
-
-
-
-    assertNotNull(StepVerifier
-        .create(
-            service.entries(new FetchRequest(new Object()  , "myrepo", null)))
-        .expectSubscription()
-        .assertNext(r -> {
-          assertEquals(2, r.entries().length);
-          assertTrue(Arrays.stream(r.entries()).anyMatch(i->Objects.equals(i.value().toString(),
-              "1")));
-          assertTrue(Arrays.stream(r.entries()).anyMatch(i->Objects.equals(i.value().toString(),
-              "2")));
-        })
-        .verifyComplete());
   }
 
   @Test
@@ -662,23 +655,20 @@ class ConfigurationServiceImplTest {
   void delete() {
     ConfigurationService service = createService();
     createRepository(service);
+
+    Object token = new Object();
+    String repository = "myrepo";
+    String key = "mykey";
+    JsonNode value = mapper.valueToTree(1);
+
+    SaveRequest saveRequest = new SaveRequest(token, repository, key, value);
+    DeleteRequest deleteRequest = new DeleteRequest(token, repository, key);
+    FetchRequest fetchRequest = new FetchRequest(token, repository, key);
+
     StepVerifier
         .create(
-            service.save(new SaveRequest(new Object(), "myrepo", "mykey",
-                mapper.valueToTree(1))))
-        .expectSubscription()
-        .assertNext(Assertions::assertNotNull)
-        .verifyComplete();
-    Duration duration = StepVerifier
-        .create(
-            service.delete(new DeleteRequest(new Object(), "myrepo", "mykey")))
-        .expectSubscription()
-        .assertNext(Assertions::assertNotNull)
-        .verifyComplete();
-    assertNotNull(duration);
-    StepVerifier
-        .create(
-            service.fetch(new FetchRequest(new Object()  , "myrepo", "mykey")))
+            service.save(saveRequest)
+                .then(service.delete(deleteRequest).then(service.fetch(fetchRequest))))
         .expectSubscription()
         .expectError(KeyNotFoundException.class)
         .verify();

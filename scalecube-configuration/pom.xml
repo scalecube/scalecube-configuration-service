@@ -1,11 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>io.scalecube</groupId>
     <artifactId>scalecube-configuration-parent</artifactId>
-    <version>2.0.20-SNAPSHOT</version>
+    <version>2.1.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>scalecube-configuration</artifactId>
@@ -15,17 +16,19 @@
 
   <properties>
     <mainClass>io.scalecube.server.ConfigurationServiceRunner</mainClass>
-    <scalecube-organization-api.version>2.1.0-SNAPSHOT</scalecube-organization-api.version>
+
+    <scalecube-organization-api.version>2.1.0</scalecube-organization-api.version>
+    <scalecube-app-utils.version>0.0.4</scalecube-app-utils.version>
     <caffeine.version>2.6.2</caffeine.version>
+    <rxjava-reactive-streams.version>1.2.1</rxjava-reactive-streams.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-app-utils</artifactId>
-      <version>0.0.4</version>
+      <version>${scalecube-app-utils.version}</version>
     </dependency>
-
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-configuration-api</artifactId>
@@ -35,11 +38,6 @@
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-organization-api</artifactId>
       <version>${scalecube-organization-api.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.github.ben-manes.caffeine</groupId>
-      <artifactId>caffeine</artifactId>
-      <version>${caffeine.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
@@ -69,9 +67,25 @@
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-services</artifactId>
     </dependency>
+
+    <!-- Couchbase -->
     <dependency>
       <groupId>com.couchbase.client</groupId>
       <artifactId>java-client</artifactId>
+    </dependency>
+
+    <!-- ReactiveX -->
+    <dependency>
+      <groupId>io.reactivex</groupId>
+      <artifactId>rxjava-reactive-streams</artifactId>
+      <version>${rxjava-reactive-streams.version}</version>
+    </dependency>
+
+    <!-- Caffeine -->
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+      <version>${caffeine.version}</version>
     </dependency>
 
     <!-- Loggers -->
