@@ -17,7 +17,7 @@
   <properties>
     <mainClass>io.scalecube.server.ConfigurationServiceRunner</mainClass>
 
-    <scalecube-organization-api.version>2.1.0-SNAPSHOT</scalecube-organization-api.version>
+    <scalecube-organization-api.version>2.1.0</scalecube-organization-api.version>
     <scalecube-app-utils.version>0.0.4</scalecube-app-utils.version>
     <caffeine.version>2.6.2</caffeine.version>
     <rxjava-reactive-streams.version>1.2.1</rxjava-reactive-streams.version>
