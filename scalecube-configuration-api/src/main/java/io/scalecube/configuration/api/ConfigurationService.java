@@ -2,6 +2,7 @@ package io.scalecube.configuration.api;
 
 import io.scalecube.services.annotations.Service;
 import io.scalecube.services.annotations.ServiceMethod;
+import java.util.List;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -38,10 +39,19 @@ public interface ConfigurationService {
    * Entries request requires read level permissions to list all entries objects from the store.
    *
    * @param request includes the name of the repository to list.
-   * @return list of FetchResponses per each entry in the repository.
+   * @return stream of FetchResponses per each entry in the repository.
    */
   @ServiceMethod
   Flux<FetchResponse> entries(FetchRequest request);
+
+  /**
+   * Entries request requires read level permissions to list all entries objects from the store.
+   *
+   * @param request includes the name of the repository to list.
+   * @return list of FetchResponses per each entry in the repository.
+   */
+  @ServiceMethod
+  Mono<List<FetchResponse>> collectEntries(FetchRequest request);
 
   /**
    * Save request requires write level permissions to save (create or update) entry to the store.

@@ -364,6 +364,32 @@ class ConfigurationServiceImplTest {
   }
 
   @Test
+  void collectEntries() {
+    ConfigurationService service = createService();
+    createRepository(service);
+
+    Object token = new Object();
+    String repository = "myrepo";
+    String key1 = "mykey";
+    JsonNode value1 = mapper.valueToTree(1);
+    String key2 = "mykey2";
+    JsonNode value2 = mapper.valueToTree(2);
+
+    SaveRequest saveRequest1 = new SaveRequest(token, repository, key1, value1);
+    SaveRequest saveRequest2 = new SaveRequest(token, repository, key2, value2);
+    FetchRequest fetchRequest = new FetchRequest(token, repository, null);
+
+    StepVerifier.create(
+            service
+                .save(saveRequest1)
+                .then(service.save(saveRequest2))
+                .then(service.collectEntries(fetchRequest)))
+        .expectSubscription()
+        .assertNext(fetchResponses -> assertEquals(2, fetchResponses.size()))
+        .verifyComplete();
+  }
+
+  @Test
   void entries_fetch_null_request_should_fail_withBadRequest() {
     ConfigurationService service = createService(Profile.builder().build());
     Duration duration = StepVerifier
