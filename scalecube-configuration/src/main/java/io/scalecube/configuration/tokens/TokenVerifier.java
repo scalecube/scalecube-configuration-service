@@ -1,6 +1,6 @@
 package io.scalecube.configuration.tokens;
 
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import reactor.core.publisher.Mono;
 
 /** Token verification abstraction. */

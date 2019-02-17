@@ -7,7 +7,7 @@ import io.scalecube.configuration.api.InvalidAuthenticationToken;
 import io.scalecube.configuration.repository.Repository;
 import io.scalecube.configuration.repository.RepositoryEntryKey;
 import io.scalecube.configuration.tokens.TokenVerifier;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import java.util.Objects;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;

@@ -3,7 +3,7 @@ package io.scalecube.configuration.tokens;
 import io.scalecube.security.DefaultJwtAuthenticator;
 import io.scalecube.security.JwtAuthenticator;
 import io.scalecube.security.JwtKeyResolver;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ final class TokenVerifierImpl implements TokenVerifier {
   @Override
   public Mono<Profile> verify(Object token) {
     return Mono.fromRunnable(() -> Objects.requireNonNull(token, "Token is a required argument"))
-        .then(Mono.fromCallable(() -> jwtAuthenticator.authenticate(token.toString())))
+        .then(jwtAuthenticator.authenticate(token.toString()))
         .doOnError(throwable -> logger.warn("Token verification failed, reason: {}", throwable))
         .onErrorMap(th -> new InvalidAuthenticationException("Token verification failed", th));
   }

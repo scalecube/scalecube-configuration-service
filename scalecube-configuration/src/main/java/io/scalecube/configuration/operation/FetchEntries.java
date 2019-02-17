@@ -3,7 +3,7 @@ package io.scalecube.configuration.operation;
 import io.scalecube.configuration.api.BadRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.FetchResponse;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

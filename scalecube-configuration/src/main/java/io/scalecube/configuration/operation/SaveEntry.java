@@ -4,7 +4,7 @@ import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.BadRequest;
 import io.scalecube.configuration.api.SaveRequest;
 import io.scalecube.configuration.repository.Document;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import java.util.UUID;
 import reactor.core.publisher.Mono;
 

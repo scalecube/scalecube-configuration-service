@@ -3,7 +3,7 @@ package io.scalecube.configuration.operation;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.BadRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 

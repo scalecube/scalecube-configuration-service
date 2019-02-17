@@ -18,7 +18,7 @@ import io.scalecube.configuration.repository.InMemoryDataAccess;
 import io.scalecube.configuration.repository.exception.DuplicateRepositoryException;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
