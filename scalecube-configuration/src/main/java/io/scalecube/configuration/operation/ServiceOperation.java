@@ -93,7 +93,7 @@ public abstract class ServiceOperation<I extends AccessRequest, O> {
       I request, Profile profile, ServiceOperationContext context);
 
   protected static Repository repository(Profile profile, AccessRequest request) {
-    return Repository.builder().namespace(profile.tenant()).name(request.repository()).build();
+    return new Repository(profile.tenant(), request.repository());
   }
 
   protected static RepositoryEntryKey key(Profile profile, AccessRequest request, String key) {

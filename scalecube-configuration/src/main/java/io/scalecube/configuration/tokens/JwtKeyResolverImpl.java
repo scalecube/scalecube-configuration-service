@@ -1,6 +1,6 @@
 package io.scalecube.configuration.tokens;
 
-import io.scalecube.security.JwtKeyResolver;
+import io.scalecube.security.jwt.JwtKeyResolver;
 import java.security.Key;
 import java.time.Duration;
 import java.util.Map;

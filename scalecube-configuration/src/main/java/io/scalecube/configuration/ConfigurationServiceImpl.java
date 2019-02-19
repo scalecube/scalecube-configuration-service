@@ -12,7 +12,9 @@ import io.scalecube.configuration.authorization.OperationType;
 import io.scalecube.configuration.operation.ServiceOperationContext;
 import io.scalecube.configuration.operation.ServiceOperationFactory;
 import io.scalecube.configuration.repository.ConfigurationDataAccess;
+import io.scalecube.configuration.repository.Repository;
 import io.scalecube.configuration.tokens.TokenVerifier;
+import io.scalecube.security.api.AccessControl;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,23 +29,21 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   private final ConfigurationDataAccess dataAccess;
   private TokenVerifier tokenVerifier;
   private final AuthorizationService authorizationService;
+  private final AccessControl accessControl;
 
-  private ConfigurationServiceImpl(
-      ConfigurationDataAccess dataAccess, TokenVerifier tokenVerifier) {
-    this.dataAccess = dataAccess;
-    this.tokenVerifier = tokenVerifier;
-    this.authorizationService = AuthorizationService.builder().build();
+  private ConfigurationServiceImpl(Builder builder) {
+    this.dataAccess = builder.dataAccess;
+    this.tokenVerifier = builder.tokenVerifier;
+    this.authorizationService = builder.authService;
+    this.accessControl = builder.accessContorl;
   }
 
   @Override
   public Mono<Acknowledgment> createRepository(CreateRepositoryRequest request) {
-    return Mono.fromRunnable(() -> logger.debug("createRepository: enter: request: {}", request))
-        .then(Mono.fromCallable(ServiceOperationFactory::createRepository))
-        .flatMap(operation -> Mono
-            .from(operation.execute(request, context(OperationType.CreateRepoitory))))
-        .subscribeOn(Schedulers.parallel())
-        .doOnSuccess(result -> logger.debug("createRepository: exit: request: {}", request))
-        .doOnError(th -> logger.error("createRepository: request: {}, error: {}", request, th));
+    return accessControl
+        .check(request.token().toString(), "configuration/createRepository")
+        .map(p -> this.dataAccess.createRepository(new Repository(p.tenant(),request.repository())))
+        .thenReturn(new Acknowledgment());
   }
 
   @Override
@@ -106,8 +106,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
    */
   public static class Builder {
 
+    public AuthorizationService authService = AuthorizationService.builder().build();
     private ConfigurationDataAccess dataAccess;
     private TokenVerifier tokenVerifier;
+    private AccessControl accessContorl;
 
     public Builder dataAccess(ConfigurationDataAccess dataAccess) {
       this.dataAccess = dataAccess;
@@ -119,15 +121,18 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       return this;
     }
 
+    public Builder accessControl(AccessControl accessContorl) {
+      this.accessContorl = accessContorl;
+      return this;
+    }
+    
     /**
      * Constructs a ConfigurationService object.
      *
      * @return a instance of ConfigurationService
      */
     public ConfigurationService build() {
-      Objects.requireNonNull(dataAccess, "Data access cannot be null");
-      Objects.requireNonNull(tokenVerifier, "Token verifier cannot be null");
-      return new ConfigurationServiceImpl(dataAccess, tokenVerifier);
+      return new ConfigurationServiceImpl(this);
     }
   }
 }

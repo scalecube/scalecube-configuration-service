@@ -14,10 +14,12 @@ import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
 import io.scalecube.configuration.api.InvalidPermissionsException;
 import io.scalecube.configuration.api.SaveRequest;
+import io.scalecube.configuration.authorization.Permissions;
 import io.scalecube.configuration.repository.InMemoryDataAccess;
 import io.scalecube.configuration.repository.exception.DuplicateRepositoryException;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
+import io.scalecube.security.acl.DefaultAccessControl;
 import io.scalecube.security.api.Profile;
 import java.time.Duration;
 import java.util.HashMap;
@@ -31,11 +33,47 @@ import reactor.test.StepVerifier;
 class ConfigurationServiceImplTest {
   private final ObjectMapper mapper = new ObjectMapper();
 
+  private Profile owner;
+
+  private Profile member;
+
+  private Profile admin;
+
   @BeforeAll
   static void setUp() {
     StepVerifier.setDefaultTimeout(Duration.ofSeconds(3));
   }
 
+  
+  private ConfigurationService createService() {
+    this.owner = createProfile(Role.Owner);
+    this.member = createProfile(Role.Member);
+    this.admin = createProfile(Role.Admin);
+    
+    return createService(owner);
+  }
+
+  private Profile createProfile(Role role) {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("roles", role.toString());
+    return Profile.builder().tenant("myorg").claims(claims).build();
+  }
+
+  private ConfigurationService createService(Profile profile) {
+    return ConfigurationServiceImpl.builder()
+        .dataAccess(new InMemoryDataAccess())
+        .accessControl(
+            DefaultAccessControl.builder()
+                .authenticator(new DummyAuthenticator(profile))
+                .authorizer(
+                    Permissions.builder()
+                        .grant("configuration/createRepository", Role.Owner.toString())
+                        .build())
+                .build())
+        .tokenVerifier(token -> Mono.justOrEmpty(profile))
+        .build();
+  }
+  
   @Test
   void create_repository_null_request_should_fail_withBadRequest() {
     ConfigurationService service = createService(Profile.builder().build());
@@ -123,10 +161,7 @@ class ConfigurationServiceImplTest {
 
   @Test
   void create_repository_member_role_should_fail_with_InvalidPermissionsException() {
-    Map<String, Object> claims = new HashMap<>();
-    claims.put("role", Role.Member);
-    ConfigurationService service = createService(Profile.builder().tenant("myorg")
-        .claims(claims).build());
+    ConfigurationService service = createService(member);
     Duration duration = StepVerifier
         .create(
             service.createRepository(new CreateRepositoryRequest(new Object(), "myrepo")))
@@ -168,20 +203,7 @@ class ConfigurationServiceImplTest {
     assertNotNull(duration);
   }
 
-
-  private ConfigurationService createService() {
-    Map<String, Object> claims = new HashMap<>();
-    claims.put("role", Role.Owner);
-    return createService(Profile.builder().tenant("myorg")
-        .claims(claims).build());
-  }
-
-  private ConfigurationService createService(Profile profile) {
-    return ConfigurationServiceImpl.builder()
-        .dataAccess(new InMemoryDataAccess())
-        .tokenVerifier(token -> Mono.justOrEmpty(profile))
-        .build();
-  }
+  
 
   @Test
   void fetch() {
@@ -637,10 +659,7 @@ class ConfigurationServiceImplTest {
 
   @Test
   void save_should_fail_with_RepositoryNotFoundException() {
-    Map<String, Object> claims = new HashMap<>();
-    claims.put("role", Role.Admin);
-    ConfigurationService service = createService(Profile.builder().tenant("myorg")
-        .claims(claims).build());
+    ConfigurationService service = createService(admin);
     Duration duration = StepVerifier
         .create(
             service.save(new SaveRequest(new Object()  , "myrepo", "mykey",
@@ -676,10 +695,7 @@ class ConfigurationServiceImplTest {
 
   @Test
   void delete_should_fail_with_InvalidPermissionsException() {
-    Map<String, Object> claims = new HashMap<>();
-    claims.put("role", Role.Member);
-    ConfigurationService service = createService(Profile.builder().tenant("myorg")
-        .claims(claims).build());
+    ConfigurationService service = createService(member);
 
     Duration duration = StepVerifier
         .create(

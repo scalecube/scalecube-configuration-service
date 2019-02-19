@@ -1,9 +1,9 @@
 package io.scalecube.configuration.tokens;
 
-import io.scalecube.security.DefaultJwtAuthenticator;
-import io.scalecube.security.JwtAuthenticator;
-import io.scalecube.security.JwtKeyResolver;
 import io.scalecube.security.api.Profile;
+import io.scalecube.security.jwt.DefaultJwtAuthenticator;
+import io.scalecube.security.jwt.JwtAuthenticator;
+import io.scalecube.security.jwt.JwtKeyResolver;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
