@@ -1,5 +1,7 @@
 package io.scalecube.configuration;
 
+import static java.util.Objects.requireNonNull;
+import io.scalecube.configuration.api.AccessRequest;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
@@ -7,11 +9,9 @@ import io.scalecube.configuration.api.DeleteRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.SaveRequest;
-import io.scalecube.configuration.authorization.AuthorizationService;
 import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.Repository;
-import io.scalecube.configuration.tokens.TokenVerifier;
 import io.scalecube.security.api.AccessControl;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -26,23 +26,26 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   private final ConfigurationDataAccess dataAccess;
   private final AccessControl accessControl;
 
-  private ConfigurationServiceImpl(Builder builder) {
-    this.dataAccess = builder.dataAccess;
-    this.accessControl = builder.accessContorl;
+  public ConfigurationServiceImpl(ConfigurationDataAccess dataAccess, AccessControl accessContorl) {
+    this.dataAccess = dataAccess;
+    this.accessControl = accessContorl;
   }
 
   @Override
   public Mono<Acknowledgment> createRepository(CreateRepositoryRequest request) {
+    requireNonNullAccessRequest(request);
     return accessControl
-        .check(request.token().toString(), "configuration/createRepository")
-        .map(p -> this.dataAccess.createRepository(new Repository(p.tenant(),request.repository())))
+        .check(request.token().toString(), ConfigurationService.CONFIG_CREATE_REPO)
+        .map(
+            p -> this.dataAccess.createRepository(new Repository(p.tenant(), request.repository())))
         .thenReturn(new Acknowledgment());
   }
 
   @Override
   public Mono<FetchResponse> fetch(FetchRequest request) {
+    requireNonNullAccessRequest(request);
     return accessControl
-        .check(request.token().toString(), "configuration/fetch")
+        .check(request.token().toString(), ConfigurationService.CONFIG_FETCH)
         .map(p -> this.dataAccess.fetch(p.tenant(), request.repository(), request.key()))
         .flatMap(
             document ->
@@ -53,64 +56,43 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Flux<FetchResponse> entries(FetchRequest request) {
+    requireNonNullAccessRequest(request);
     return accessControl
-        .check(request.token().toString(), "configuration/entries")
+        .check(request.token().toString(), ConfigurationService.CONFIG_ENTRIES)
         .map(p -> this.dataAccess.fetchAll(p.tenant(), request.repository()))
         .flatMapMany(fluxDoc -> fluxDoc.map(doc -> new FetchResponse(doc.key(), doc.value())));
   }
 
   @Override
   public Mono<Acknowledgment> save(SaveRequest request) {
-    
+    requireNonNullAccessRequest(request);
     return accessControl
-        .check(request.token().toString(), "configuration/save")
-        .map(p -> this.dataAccess.save( p.tenant(), request.repository() ,Document.builder()
-            .id(UUID.randomUUID().toString())
-            .key(request.key())
-            .value(request.value())
-            .build()))
+        .check(request.token().toString(), ConfigurationService.CONFIG_SAVE)
+        .map(
+            p ->
+                this.dataAccess.save(
+                    p.tenant(),
+                    request.repository(),
+                    Document.builder()
+                        .id(UUID.randomUUID().toString())
+                        .key(request.key())
+                        .value(request.value())
+                        .build()))
         .thenReturn(new Acknowledgment());
-    
   }
 
   @Override
   public Mono<Acknowledgment> delete(DeleteRequest request) {
+    requireNonNullAccessRequest(request);
     return accessControl
-        .check(request.token().toString(), "configuration/delete")
-        .map(p -> this.dataAccess.delete( p.tenant(), request.repository() ,request.key()))
+        .check(request.token().toString(), ConfigurationService.CONFIG_DELETE)
+        .map(p -> this.dataAccess.delete(p.tenant(), request.repository(), request.key()))
         .thenReturn(new Acknowledgment());
   }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  /**
-   * Service builder class.
-   */
-  public static class Builder {
-
-    public AuthorizationService authService = AuthorizationService.builder().build();
-    private ConfigurationDataAccess dataAccess;
-    private AccessControl accessContorl;
-
-    public Builder dataAccess(ConfigurationDataAccess dataAccess) {
-      this.dataAccess = dataAccess;
-      return this;
-    }
-
-    public Builder accessControl(AccessControl accessContorl) {
-      this.accessContorl = accessContorl;
-      return this;
-    }
-    
-    /**
-     * Constructs a ConfigurationService object.
-     *
-     * @return a instance of ConfigurationService
-     */
-    public ConfigurationService build() {
-      return new ConfigurationServiceImpl(this);
-    }
+  
+  private static void requireNonNullAccessRequest(AccessRequest request) {
+    requireNonNull(request);
+    requireNonNull(request.repository());
+    requireNonNull(request.token()); 
   }
 }

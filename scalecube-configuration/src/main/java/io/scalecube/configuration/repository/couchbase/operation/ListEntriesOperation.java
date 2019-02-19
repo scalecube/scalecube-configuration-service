@@ -2,7 +2,6 @@ package io.scalecube.configuration.repository.couchbase.operation;
 
 import static com.couchbase.client.java.query.Select.select;
 import static com.couchbase.client.java.query.dsl.Expression.i;
-
 import com.couchbase.client.java.AsyncBucket;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.SimpleN1qlQuery;

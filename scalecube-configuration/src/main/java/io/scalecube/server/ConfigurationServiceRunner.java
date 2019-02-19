@@ -5,6 +5,7 @@ import com.couchbase.client.java.CouchbaseAsyncCluster;
 import com.couchbase.client.java.env.CouchbaseEnvironment;
 import com.couchbase.client.java.env.DefaultCouchbaseEnvironment;
 import io.scalecube.account.api.OrganizationService;
+import io.scalecube.account.api.Role;
 import io.scalecube.app.decoration.Logo;
 import io.scalecube.app.packages.PackageInfo;
 import io.scalecube.config.ConfigRegistry;
@@ -19,12 +20,10 @@ import io.scalecube.configuration.repository.couchbase.CouchbaseSettings;
 import io.scalecube.configuration.tokens.CachingKeyProvider;
 import io.scalecube.configuration.tokens.KeyProvider;
 import io.scalecube.configuration.tokens.OrganizationServiceKeyProvider;
-import io.scalecube.configuration.tokens.TokenVerifierFactory;
 import io.scalecube.security.acl.DefaultAccessControl;
 import io.scalecube.security.api.AccessControl;
 import io.scalecube.security.api.Authenticator;
 import io.scalecube.security.jwt.DefaultJwtAuthenticator;
-import io.scalecube.security.jwt.JwtKeyResolver;
 import io.scalecube.services.Microservices;
 import io.scalecube.services.ServiceInfo;
 import io.scalecube.services.ServiceProvider;
@@ -63,9 +62,7 @@ public class ConfigurationServiceRunner {
             .transport(options -> options.port(discoveryOptions.servicePort()))
             .services(createConfigurationService())
             .startAwait();
-    
-    
-    
+
     Logo.from(new PackageInfo())
         .ip(microservices.serviceAddress().getHostName())
         .port(microservices.serviceAddress().getPort() + "")
@@ -102,14 +99,18 @@ public class ConfigurationServiceRunner {
       AccessControl accessContorl =
           DefaultAccessControl.builder()
               .authenticator(authenticator)
-              .authorizer(Permissions.builder().grant("configuration/createRepository", "owner").build())
+              .authorizer(
+                  Permissions.builder()
+                      .grant(ConfigurationService.CONFIG_CREATE_REPO, Role.Owner.toString())
+                      .grant(ConfigurationService.CONFIG_SAVE, Role.Owner.toString())
+                      .grant(ConfigurationService.CONFIG_DELETE, Role.Owner.toString())
+                      .grant(ConfigurationService.CONFIG_FETCH, Role.Owner.toString())
+                      .grant(ConfigurationService.CONFIG_ENTRIES, Role.Owner.toString())
+                      .build())
               .build();
 
       ConfigurationService configurationService =
-          ConfigurationServiceImpl.builder()
-              .accessControl(accessContorl)
-              .dataAccess(configurationDataAccess)
-              .build();
+          new ConfigurationServiceImpl(configurationDataAccess, accessContorl);
 
       return Collections.singleton(ServiceInfo.fromServiceInstance(configurationService).build());
     };

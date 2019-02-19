@@ -2,7 +2,6 @@ package io.scalecube.configuration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.scalecube.configuration.api.BadRequest;
@@ -60,19 +59,17 @@ class ConfigurationServiceImplTest {
   }
 
   private ConfigurationService createService(Profile profile) {
-    return ConfigurationServiceImpl.builder()
-        .dataAccess(new InMemoryDataAccess())
-        .accessControl(
-            DefaultAccessControl.builder()
-                .authenticator(new DummyAuthenticator(profile))
-                .authorizer(
-                    Permissions.builder()
-                        .grant("configuration/createRepository", Role.Owner.toString())
-                        .build())
-                .build())
-        .build();
+    return new ConfigurationServiceImpl(
+        new InMemoryDataAccess(),
+        DefaultAccessControl.builder()
+            .authenticator(new DummyAuthenticator(profile))
+            .authorizer(
+                Permissions.builder()
+                    .grant("configuration/createRepository", Role.Owner.toString())
+                    .build())
+            .build());
   }
-  
+
   @Test
   void create_repository_null_request_should_fail_withBadRequest() {
     ConfigurationService service = createService(Profile.builder().build());
@@ -537,7 +534,7 @@ class ConfigurationServiceImplTest {
 
 
   @Test
-  void save_null_request_should_fail_withBadRequest() {
+  void should_fail_withBadRequest() {
     ConfigurationService service = createService(Profile.builder().build());
     Duration duration = StepVerifier
         .create(
