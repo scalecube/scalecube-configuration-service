@@ -50,23 +50,25 @@ public class CouchbaseDataAccess implements ConfigurationDataAccess {
   public Flux<Document> fetchAll(String tenant, String repository) {
     return entries(new Repository(tenant, repository));
   }
-  
+
   @Override
   public Mono<Document> save(String tenant, String repository, Document document) {
     return put(
-        RepositoryEntryKey.builder().repository(new Repository(tenant, repository)).build(), document);
+        RepositoryEntryKey.builder().repository(new Repository(tenant, repository)).build(),
+        document);
   }
 
   @Override
   public Mono<String> delete(String tenant, String repository, String key) {
-    return remove(RepositoryEntryKey.builder().repository(new Repository(tenant, repository)).build());
+    return remove(
+        RepositoryEntryKey.builder().repository(new Repository(tenant, repository)).build());
   }
-  
+
   private Mono<Document> get(RepositoryEntryKey key) {
     EntryOperation<Mono<Document>> operation = EntryOperation.getOperation(OperationType.Read);
     return operation.execute(context(key, null));
   }
-  
+
   private Mono<Document> put(RepositoryEntryKey key, Document document) {
     EntryOperation<Mono<Document>> operation = EntryOperation.getOperation(OperationType.Write);
     return operation.execute(context(key, document));
@@ -93,7 +95,4 @@ public class CouchbaseDataAccess implements ConfigurationDataAccess {
   private OperationContext.Builder context() {
     return OperationContext.builder().cluster(cluster).settings(settings);
   }
-
- 
-  
 }
