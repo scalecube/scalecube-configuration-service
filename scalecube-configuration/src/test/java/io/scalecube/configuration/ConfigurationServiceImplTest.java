@@ -14,6 +14,7 @@ import io.scalecube.configuration.api.InvalidAuthenticationToken;
 import io.scalecube.configuration.api.InvalidPermissionsException;
 import io.scalecube.configuration.api.SaveRequest;
 import io.scalecube.configuration.authorization.Permissions;
+import io.scalecube.configuration.authorization.Role;
 import io.scalecube.configuration.repository.InMemoryDataAccess;
 import io.scalecube.configuration.repository.exception.DuplicateRepositoryException;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;

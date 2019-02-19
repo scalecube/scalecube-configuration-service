@@ -1,6 +1,8 @@
 package io.scalecube.configuration;
 
 import static java.util.Objects.requireNonNull;
+
+import io.scalecube.cluster.membership.IdGenerator;
 import io.scalecube.configuration.api.AccessRequest;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
@@ -13,7 +15,6 @@ import io.scalecube.configuration.repository.ConfigurationDataAccess;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.Repository;
 import io.scalecube.security.api.AccessControl;
-import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -74,7 +75,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                     p.tenant(),
                     request.repository(),
                     Document.builder()
-                        .id(UUID.randomUUID().toString())
+                        .id(IdGenerator.generateId())
                         .key(request.key())
                         .value(request.value())
                         .build()))

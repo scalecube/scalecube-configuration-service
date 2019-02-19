@@ -23,6 +23,7 @@ import io.scalecube.configuration.tokens.OrganizationServiceKeyProvider;
 import io.scalecube.security.acl.DefaultAccessControl;
 import io.scalecube.security.api.AccessControl;
 import io.scalecube.security.api.Authenticator;
+import io.scalecube.security.api.Authorizer;
 import io.scalecube.security.jwt.DefaultJwtAuthenticator;
 import io.scalecube.services.Microservices;
 import io.scalecube.services.ServiceInfo;
@@ -86,7 +87,6 @@ public class ConfigurationServiceRunner {
     return call -> {
       OrganizationService organizationService = call.create().api(OrganizationService.class);
       KeyProvider keyProvider = new OrganizationServiceKeyProvider(organizationService);
-
       KeyProvider jwtKeyProvider = new CachingKeyProvider(keyProvider);
 
       Authenticator authenticator =
@@ -99,14 +99,7 @@ public class ConfigurationServiceRunner {
       AccessControl accessContorl =
           DefaultAccessControl.builder()
               .authenticator(authenticator)
-              .authorizer(
-                  Permissions.builder()
-                      .grant(ConfigurationService.CONFIG_CREATE_REPO, Role.Owner.toString())
-                      .grant(ConfigurationService.CONFIG_SAVE, Role.Owner.toString())
-                      .grant(ConfigurationService.CONFIG_DELETE, Role.Owner.toString())
-                      .grant(ConfigurationService.CONFIG_FETCH, Role.Owner.toString())
-                      .grant(ConfigurationService.CONFIG_ENTRIES, Role.Owner.toString())
-                      .build())
+              .authorizer(getPermissions())
               .build();
 
       ConfigurationService configurationService =
@@ -114,6 +107,33 @@ public class ConfigurationServiceRunner {
 
       return Collections.singleton(ServiceInfo.fromServiceInstance(configurationService).build());
     };
+  }
+
+  private static Authorizer getPermissions() {
+    return Permissions.builder()
+        .grant(
+            ConfigurationService.CONFIG_CREATE_REPO,
+            Role.Owner.toString(),
+            Role.Admin.toString())
+        .grant(
+            ConfigurationService.CONFIG_SAVE,
+            Role.Owner.toString(),
+            Role.Admin.toString())
+        .grant(
+            ConfigurationService.CONFIG_DELETE,
+            Role.Owner.toString(),
+            Role.Admin.toString())
+        .grant(
+            ConfigurationService.CONFIG_FETCH,
+            Role.Owner.toString(),
+            Role.Admin.toString(),
+            Role.Member.toString())
+        .grant(
+            ConfigurationService.CONFIG_ENTRIES,
+            Role.Owner.toString(),
+            Role.Admin.toString(),
+            Role.Member.toString())
+        .build();
   }
 
   private static AsyncCluster couchbaseDataAccessCluster(

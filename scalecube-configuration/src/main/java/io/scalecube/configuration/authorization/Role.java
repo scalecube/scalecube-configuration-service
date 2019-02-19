@@ -1,4 +1,4 @@
-package io.scalecube.configuration;
+package io.scalecube.configuration.authorization;
 
 public enum Role {
   Owner("owner"),
