@@ -37,9 +37,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     requireNonNullAccessRequest(request);
     return accessControl
         .check(request.token().toString(), ConfigurationService.CONFIG_CREATE_REPO)
-        .map(
+        .flatMap(
             p -> this.dataAccess.createRepository(new Repository(p.tenant(), request.repository())))
-        .thenReturn(new Acknowledgment());
+        .map(b->new Acknowledgment());
   }
 
   @Override

@@ -42,7 +42,7 @@ public class Permissions implements Authorizer {
       for (String subject : roles) {
         permissions
             .computeIfAbsent(resourceName, newAction -> new HashSet<>())
-            .add(subject.trim().toLowerCase());
+            .add(subject);
       }
       return this;
     }

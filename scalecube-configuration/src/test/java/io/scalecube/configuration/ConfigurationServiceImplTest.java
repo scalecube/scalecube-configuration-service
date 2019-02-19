@@ -175,15 +175,18 @@ class ConfigurationServiceImplTest {
         .create(
             service.createRepository(new CreateRepositoryRequest(new Object(), "myrepo")))
         .expectSubscription()
-        .assertNext(Assertions::assertNotNull)
+        .assertNext(r->{
+          System.out.println(r); 
+        })
         .verifyComplete();
-    Duration duration = StepVerifier
+    
+    StepVerifier
         .create(
             service.createRepository(new CreateRepositoryRequest(new Object(), "myrepo")))
         .expectSubscription()
         .expectError(DuplicateRepositoryException.class)
         .verify();
-    assertNotNull(duration);
+   
   }
 
   /**

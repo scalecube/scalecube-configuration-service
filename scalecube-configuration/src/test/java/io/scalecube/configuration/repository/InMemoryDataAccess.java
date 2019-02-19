@@ -14,43 +14,43 @@ public class InMemoryDataAccess implements ConfigurationDataAccess {
 
   @Override
   public Mono<Boolean> createRepository(Repository repository) {
-    return Mono.fromRunnable(() -> {
-      if (repositoryExists(repository)) {
-        throw new DuplicateRepositoryException(repository.toString());
+    return Mono.create(sink->{
+      if (!repositoryExists(repository)) {
+        map.putIfAbsent(repository.namespace(), new HashMap<>());
+        map.get(repository.namespace()).put(repository.name(), new HashMap<>());  
+        sink.success(true);
+      } else {
+        sink.error(new DuplicateRepositoryException(repository.toString()));        
       }
-
-      map.putIfAbsent(repository.namespace(), new HashMap<>());
-      map.get(repository.namespace()).put(repository.name(), new HashMap<>());
-    }).then(Mono.just(true));
+    });
   }
 
   @Override
   public Mono<Document> fetch(String tenant, String repository, String key) {
-    // TODO Auto-generated method stub
-    return null;
+    return get(
+        RepositoryEntryKey.builder()
+            .repository(new Repository(tenant, repository))
+            .key(key)
+            .build());
   }
-
 
   @Override
   public Flux<Document> fetchAll(String tenant, String repository) {
-    // TODO Auto-generated method stub
-    return null;
+    return entries(new Repository(tenant, repository));
   }
-
 
   @Override
-  public Mono<Document> save(String tenant, String repository, Document build) {
-    // TODO Auto-generated method stub
-    return null;
+  public Mono<Document> save(String tenant, String repository, Document document) {
+    return put(
+        RepositoryEntryKey.builder().repository(new Repository(tenant, repository)).build(),
+        document);
   }
-
 
   @Override
   public Mono<String> delete(String tenant, String repository, String key) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
+    return remove(
+        RepositoryEntryKey.builder().repository(new Repository(tenant, repository)).build());
+  }  
 
   private Mono<Document> get(RepositoryEntryKey key) {
     return Mono.fromCallable(() -> getRepository(key.repository()))
