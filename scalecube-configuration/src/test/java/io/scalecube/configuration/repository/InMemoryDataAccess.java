@@ -24,18 +24,42 @@ public class InMemoryDataAccess implements ConfigurationDataAccess {
     }).then(Mono.just(true));
   }
 
+  @Override
+  public Mono<Document> fetch(String tenant, String repository, String key) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 
   @Override
-  public Mono<Document> get(RepositoryEntryKey key) {
+  public Flux<Document> fetchAll(String tenant, String repository) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+
+  @Override
+  public Mono<Document> save(String tenant, String repository, Document build) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+
+  @Override
+  public Mono<String> delete(String tenant, String repository, String key) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+  
+
+  private Mono<Document> get(RepositoryEntryKey key) {
     return Mono.fromCallable(() -> getRepository(key.repository()))
         .filter(repository -> repository.containsKey(key.key()))
         .switchIfEmpty(Mono.defer(() -> Mono.error(new KeyNotFoundException(key.toString()))))
         .map(repository -> repository.get(key.key()));
   }
 
-
-  @Override
-  public Mono<Document> put(RepositoryEntryKey key, Document value) {
+  private Mono<Document> put(RepositoryEntryKey key, Document value) {
     return Mono.fromCallable(() -> getRepository(key.repository()))
         .map(repository -> {
           repository.put(key.key(), value);
@@ -43,8 +67,7 @@ public class InMemoryDataAccess implements ConfigurationDataAccess {
         });
   }
 
-  @Override
-  public Mono<String> remove(RepositoryEntryKey key) {
+  private Mono<String> remove(RepositoryEntryKey key) {
     return Mono.fromCallable(() -> getRepository(key.repository()))
         .filter(repository -> repository.containsKey(key.key()))
         .switchIfEmpty(Mono.defer(() -> Mono.error(new KeyNotFoundException(key.toString()))))
@@ -52,8 +75,7 @@ public class InMemoryDataAccess implements ConfigurationDataAccess {
         .thenReturn(key.key());
   }
 
-  @Override
-  public Flux<Document> entries(Repository repository) {
+  private Flux<Document> entries(Repository repository) {
     return Flux.fromIterable(getRepository(repository).values());
   }
 
@@ -71,4 +93,7 @@ public class InMemoryDataAccess implements ConfigurationDataAccess {
     return map.containsKey(repository.namespace())
         && map.get(repository.namespace()).containsKey(repository.name());
   }
+
+
+ 
 }

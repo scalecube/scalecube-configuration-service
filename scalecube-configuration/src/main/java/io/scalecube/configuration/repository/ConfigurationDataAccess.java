@@ -14,38 +14,11 @@ public interface ConfigurationDataAccess {
    */
   Mono<Boolean> createRepository(Repository repository);
 
-  /**
-   * Returns a document corresponding to the <code>cluster</code> argument.
-   *
-   * @param key Document cluster
-   * @return Document
-   */
-  Mono<Document> get(RepositoryEntryKey key);
+  Mono<Document> fetch(String tenant, String repository, String key);
 
-  /**
-   * Puts a the <code>document</code> argument with the corresponding <code>cluster</code> argument
-   * in the underlying data source.
-   *
-   * @param key Document cluster
-   * @param document The document to upsert in the underlying data source.
-   * @return The upserted document
-   */
-  Mono<Document> put(RepositoryEntryKey key, Document document);
+  Flux<Document> fetchAll(String tenant, String repository);
 
-  /**
-   * Removes a document corresponding to the <code>cluster</code> argument from the underlying data
-   * source.
-   *
-   * @param key Document cluster
-   * @return The key of the removed document
-   */
-  Mono<String> remove(RepositoryEntryKey key);
+  Mono<Document> save(String tenant, String repository, Document build);
 
-  /**
-   * Returns all the entries in the name.
-   *
-   * @param repository Repository info
-   * @return Collection of documents
-   */
-  Flux<Document> entries(Repository repository);
+  Mono<String> delete(String tenant, String repository, String key);
 }

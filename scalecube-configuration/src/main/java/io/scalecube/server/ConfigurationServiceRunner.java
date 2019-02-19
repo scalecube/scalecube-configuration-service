@@ -109,7 +109,6 @@ public class ConfigurationServiceRunner {
           ConfigurationServiceImpl.builder()
               .accessControl(accessContorl)
               .dataAccess(configurationDataAccess)
-              .tokenVerifier(TokenVerifierFactory.tokenVerifier(keyProvider))
               .build();
 
       return Collections.singleton(ServiceInfo.fromServiceInstance(configurationService).build());

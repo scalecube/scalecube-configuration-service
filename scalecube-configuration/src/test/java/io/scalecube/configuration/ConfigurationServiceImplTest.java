@@ -70,7 +70,6 @@ class ConfigurationServiceImplTest {
                         .grant("configuration/createRepository", Role.Owner.toString())
                         .build())
                 .build())
-        .tokenVerifier(token -> Mono.justOrEmpty(profile))
         .build();
   }
   
