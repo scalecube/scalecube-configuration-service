@@ -1,7 +1,7 @@
 package io.scalecube.configuration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
@@ -19,8 +19,6 @@ import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 class ConfigurationServiceImplTest {
-  private final ObjectMapper mapper = new ObjectMapper();
-
   private Profile owner;
 
   private Profile member;
