@@ -116,6 +116,21 @@ class ConfigurationServiceImplTest {
   }
 
   @Test
+  void shouldFetchAllEntries() {
+
+    ConfigurationService service = createService();
+
+    service.createRepository(new CreateRepositoryRequest(new Object(), REPO)).block();
+    service.save(new SaveRequest(TOKEN, REPO, KEY, jsonNode())).block();
+    service.save(new SaveRequest(TOKEN, REPO, KEY + "1", jsonNode())).block();
+    StepVerifier.create(service.entries(new FetchRequest(TOKEN, REPO)))
+        .expectSubscription()
+        .assertNext(r -> assertEquals(r.key(), KEY + "1"))
+        .assertNext(r -> assertEquals(r.key(), KEY))
+        .verifyComplete();
+  }
+
+  @Test
   void shouldDelete() {
 
     ConfigurationService service = createService();
