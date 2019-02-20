@@ -76,7 +76,7 @@ public class ConfigurationServiceRunner {
     CouchbaseAdmin couchbaseAdmin =
         new CouchbaseAdmin(settings, couchbaseAdminCluster(settings, env));
 
-    ConfigurationRepository configurationDataAccess =
+    ConfigurationRepository configurationRepository =
         new CouchbaseRepository(
             settings, couchbaseDataAccessCluster(settings, env), couchbaseAdmin);
 
@@ -97,7 +97,7 @@ public class ConfigurationServiceRunner {
               .build();
 
       ConfigurationService configurationService =
-          new ConfigurationServiceImpl(configurationDataAccess, accessContorl);
+          new ConfigurationServiceImpl(configurationRepository, accessContorl);
 
       return Collections.singleton(ServiceInfo.fromServiceInstance(configurationService).build());
     };
