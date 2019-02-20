@@ -23,10 +23,10 @@ import reactor.core.publisher.Mono;
 public class ConfigurationServiceImpl implements ConfigurationService {
 
   private static final Logger logger = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
+  private final static Acknowledgment ACK = new Acknowledgment();
 
   private final ConfigurationDataAccess dataAccess;
   private final AccessControl accessControl;
-
   public ConfigurationServiceImpl(ConfigurationDataAccess dataAccess, AccessControl accessContorl) {
     this.dataAccess = dataAccess;
     this.accessControl = accessContorl;
@@ -39,7 +39,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .check(request.token().toString(), ConfigurationService.CONFIG_CREATE_REPO)
         .flatMap(
             p -> this.dataAccess.createRepository(new Repository(p.tenant(), request.repository())))
-        .map(b->new Acknowledgment());
+        .map(b->ACK);
   }
 
   @Override
@@ -79,7 +79,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                         .key(request.key())
                         .value(request.value())
                         .build()))
-        .thenReturn(new Acknowledgment());
+        .thenReturn(ACK);
   }
 
   @Override
@@ -88,7 +88,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return accessControl
         .check(request.token().toString(), ConfigurationService.CONFIG_DELETE)
         .map(p -> this.dataAccess.delete(p.tenant(), request.repository(), request.key()))
-        .thenReturn(new Acknowledgment());
+        .thenReturn(ACK);
   }
   
   private static void verifyRequest(AccessRequest request) {
