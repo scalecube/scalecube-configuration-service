@@ -35,61 +35,70 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> createRepository(CreateRepositoryRequest request) {
-    verifyRequest(request);
-    return accessControl
-        .check(request.token().toString(), ConfigurationService.CONFIG_CREATE_REPO)
-        .flatMap(
-            p -> this.repository.createRepository(new Repository(p.tenant(), request.repository())))
-        .map(b -> ACK);
+    return validateRequest(request)
+        .then(
+            accessControl
+                .check(request.token().toString(), ConfigurationService.CONFIG_CREATE_REPO)
+                .flatMap(
+                    p ->
+                        this.repository.createRepository(
+                            new Repository(p.tenant(), request.repository())))
+                .map(b -> ACK));
   }
 
   @Override
   public Mono<FetchResponse> fetch(FetchRequest request) {
-    verifyRequest(request);
-    return accessControl
-        .check(request.token().toString(), ConfigurationService.CONFIG_FETCH)
-        .flatMap(p -> this.repository.fetch(p.tenant(), request.repository(), request.key()))
-        .map(Document::value)
-        .map(value -> new FetchResponse(request.key(), value));
+    return validateRequest(request)
+        .then(
+            accessControl
+                .check(request.token().toString(), ConfigurationService.CONFIG_FETCH)
+                .flatMap(
+                    p -> this.repository.fetch(p.tenant(), request.repository(), request.key()))
+                .map(Document::value)
+                .map(value -> new FetchResponse(request.key(), value)));
   }
 
   @Override
   public Flux<FetchResponse> entries(FetchRequest request) {
-    verifyRequest(request);
-    return accessControl
-        .check(request.token().toString(), ConfigurationService.CONFIG_ENTRIES)
-        .flatMapMany(p -> this.repository.fetchAll(p.tenant(), request.repository()))
-        .map(doc -> new FetchResponse(doc.key(), doc.value()));
+    return validateRequest(request)
+        .thenMany(
+            accessControl
+                .check(request.token().toString(), ConfigurationService.CONFIG_ENTRIES)
+                .flatMapMany(p -> this.repository.fetchAll(p.tenant(), request.repository()))
+                .map(doc -> new FetchResponse(doc.key(), doc.value())));
   }
 
   @Override
   public Mono<Acknowledgment> save(SaveRequest request) {
-    verifyRequest(request);
-    return accessControl
-        .check(request.token().toString(), ConfigurationService.CONFIG_SAVE)
-        .flatMap(
-            p ->
-                this.repository.save(
-                    p.tenant(),
-                    request.repository(),
-                    Document.builder()
-                        .id(IdGenerator.generateId())
-                        .key(request.key())
-                        .value(request.value())
-                        .build()))
-        .thenReturn(ACK);
+    return validateRequest(request)
+        .then(
+            accessControl
+                .check(request.token().toString(), ConfigurationService.CONFIG_SAVE)
+                .flatMap(
+                    p ->
+                        this.repository.save(
+                            p.tenant(),
+                            request.repository(),
+                            Document.builder()
+                                .id(IdGenerator.generateId())
+                                .key(request.key())
+                                .value(request.value())
+                                .build()))
+                .thenReturn(ACK));
   }
 
   @Override
   public Mono<Acknowledgment> delete(DeleteRequest request) {
-    verifyRequest(request);
-    return accessControl
-        .check(request.token().toString(), ConfigurationService.CONFIG_DELETE)
-        .flatMap(p -> this.repository.delete(p.tenant(), request.repository(), request.key()))
-        .thenReturn(ACK);
+    return validateRequest(request)
+        .then(
+            accessControl
+                .check(request.token().toString(), ConfigurationService.CONFIG_DELETE)
+                .flatMap(
+                    p -> this.repository.delete(p.tenant(), request.repository(), request.key()))
+                .thenReturn(ACK));
   }
 
-  private static Mono<Void> verifyRequest(AccessRequest request) {
+  private static Mono<Void> validateRequest(AccessRequest request) {
     requireNonNull(request, "");
     requireNonNull(request.token());
     requireNonNull(request.repository());
