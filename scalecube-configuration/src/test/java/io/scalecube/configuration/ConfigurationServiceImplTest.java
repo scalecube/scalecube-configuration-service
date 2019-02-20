@@ -1,6 +1,7 @@
 package io.scalecube.configuration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.scalecube.configuration.api.Acknowledgment;

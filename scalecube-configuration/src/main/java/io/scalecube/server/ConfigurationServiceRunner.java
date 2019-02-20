@@ -5,7 +5,6 @@ import com.couchbase.client.java.CouchbaseAsyncCluster;
 import com.couchbase.client.java.env.CouchbaseEnvironment;
 import com.couchbase.client.java.env.DefaultCouchbaseEnvironment;
 import io.scalecube.account.api.OrganizationService;
-import io.scalecube.account.api.Role;
 import io.scalecube.app.decoration.Logo;
 import io.scalecube.app.packages.PackageInfo;
 import io.scalecube.config.ConfigRegistry;
@@ -13,18 +12,14 @@ import io.scalecube.configuration.AppConfiguration;
 import io.scalecube.configuration.ConfigurationServiceImpl;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.authorization.DefaultPermissions;
-import io.scalecube.configuration.authorization.Permissions;
 import io.scalecube.configuration.repository.ConfigurationRepository;
 import io.scalecube.configuration.repository.couchbase.CouchbaseAdmin;
 import io.scalecube.configuration.repository.couchbase.CouchbaseRepository;
 import io.scalecube.configuration.repository.couchbase.CouchbaseSettings;
-import io.scalecube.configuration.tokens.CachingKeyProvider;
-import io.scalecube.configuration.tokens.KeyProvider;
 import io.scalecube.configuration.tokens.OrganizationServiceKeyProvider;
 import io.scalecube.security.acl.DefaultAccessControl;
 import io.scalecube.security.api.AccessControl;
 import io.scalecube.security.api.Authenticator;
-import io.scalecube.security.api.Authorizer;
 import io.scalecube.security.jwt.DefaultJwtAuthenticator;
 import io.scalecube.services.Microservices;
 import io.scalecube.services.ServiceInfo;
@@ -87,15 +82,13 @@ public class ConfigurationServiceRunner {
 
     return call -> {
       OrganizationService organizationService = call.create().api(OrganizationService.class);
-      KeyProvider keyProvider = new OrganizationServiceKeyProvider(organizationService);
-      KeyProvider jwtKeyProvider = new CachingKeyProvider(keyProvider);
+
+      OrganizationServiceKeyProvider keyProvider =
+          new OrganizationServiceKeyProvider(organizationService);
 
       Authenticator authenticator =
           new DefaultJwtAuthenticator(
-              map -> {
-                String kid = map.get("kid").toString();
-                return jwtKeyProvider.get(kid).block();
-              });
+              map -> keyProvider.get(map.get("kid").toString()).block());
 
       AccessControl accessContorl =
           DefaultAccessControl.builder()
@@ -109,7 +102,7 @@ public class ConfigurationServiceRunner {
       return Collections.singleton(ServiceInfo.fromServiceInstance(configurationService).build());
     };
   }
-  
+
   private static AsyncCluster couchbaseDataAccessCluster(
       CouchbaseSettings settings, CouchbaseEnvironment env) {
     return CouchbaseAsyncCluster.create(env, settings.hosts());
