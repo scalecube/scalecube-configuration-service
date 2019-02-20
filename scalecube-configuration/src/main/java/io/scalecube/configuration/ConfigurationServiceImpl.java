@@ -99,9 +99,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   private static Mono<Void> validateRequest(AccessRequest request) {
-    requireNonNull(request, "");
-    requireNonNull(request.token());
-    requireNonNull(request.repository());
+    requireNonNull(request, "request null is invalid");
+    requireNonNull(request.token(), "request.token null is invalid");
+    requireNonNull(request.repository(), "request.repository null is invalid");
     return Mono.empty().then();
   }
 }
