@@ -1,16 +1,21 @@
 package io.scalecube.configuration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
+import io.scalecube.configuration.api.DeleteRequest;
+import io.scalecube.configuration.api.FetchRequest;
+import io.scalecube.configuration.api.SaveRequest;
 import io.scalecube.configuration.authorization.DefaultPermissions;
 import io.scalecube.configuration.authorization.Role;
 import io.scalecube.configuration.repository.InMemoryDataAccess;
 import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
 import io.scalecube.security.acl.DefaultAccessControl;
 import io.scalecube.security.api.Profile;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +24,14 @@ import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 class ConfigurationServiceImplTest {
+  private static final String KEY = "key";
+
+  private static final String TOKEN = "token";
+
+  private static final String REPO = "repo";
+
+  private static final ObjectMapper mapper = new ObjectMapper();
+
   private Profile owner;
 
   private Profile member;
@@ -56,8 +69,7 @@ class ConfigurationServiceImplTest {
   @Test
   void shouldCreateRepository() {
     ConfigurationService service = createService();
-    StepVerifier.create(
-            service.createRepository(new CreateRepositoryRequest(new Object(), "myrepo")))
+    StepVerifier.create(service.createRepository(new CreateRepositoryRequest(new Object(), REPO)))
         .expectSubscription()
         .assertNext(r -> assertEquals(Acknowledgment.class, r.getClass()))
         .verifyComplete();
@@ -66,16 +78,62 @@ class ConfigurationServiceImplTest {
   @Test
   void shouldFailWithRepositoryAlreadyExists() {
     ConfigurationService service = createService();
-    StepVerifier.create(
-            service.createRepository(new CreateRepositoryRequest(new Object(), "myrepo")))
+
+    StepVerifier.create(service.createRepository(new CreateRepositoryRequest(new Object(), REPO)))
         .expectSubscription()
         .assertNext(r -> assertEquals(Acknowledgment.class, r.getClass()))
         .verifyComplete();
 
-    StepVerifier.create(
-            service.createRepository(new CreateRepositoryRequest(new Object(), "myrepo")))
+    StepVerifier.create(service.createRepository(new CreateRepositoryRequest(new Object(), REPO)))
         .expectSubscription()
         .expectError(RepositoryAlreadyExistsException.class)
         .verify();
+  }
+
+  @Test
+  void shouldSaveRequest() {
+
+    ConfigurationService service = createService();
+
+    service.createRepository(new CreateRepositoryRequest(new Object(), REPO)).block();
+    StepVerifier.create(service.save(new SaveRequest(TOKEN, REPO, KEY, jsonNode())))
+        .expectSubscription()
+        .assertNext(r -> assertEquals(Acknowledgment.class, r.getClass()))
+        .verifyComplete();
+  }
+
+  @Test
+  void shouldFetch() {
+
+    ConfigurationService service = createService();
+
+    service.createRepository(new CreateRepositoryRequest(new Object(), REPO)).block();
+    service.save(new SaveRequest(TOKEN, REPO, KEY, jsonNode())).block();
+    StepVerifier.create(service.fetch(new FetchRequest(TOKEN, REPO, KEY)))
+        .expectSubscription()
+        .assertNext(r -> assertEquals(r.key(), KEY))
+        .verifyComplete();
+  }
+
+  @Test
+  void shouldDelete() {
+
+    ConfigurationService service = createService();
+
+    service.createRepository(new CreateRepositoryRequest(new Object(), REPO)).block();
+    service.save(new SaveRequest(TOKEN, REPO, KEY, jsonNode())).block();
+
+    StepVerifier.create(service.delete(new DeleteRequest(TOKEN, REPO, KEY)))
+        .expectSubscription()
+        .assertNext(r -> assertEquals(Acknowledgment.class, r.getClass()))
+        .verifyComplete();
+  }
+
+  private static JsonNode jsonNode() {
+    try {
+      return mapper.readTree("{\"k1\":\"v1\"}");
+    } catch (IOException e) {
+      return null;
+    }
   }
 }

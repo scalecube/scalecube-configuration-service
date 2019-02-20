@@ -1,7 +1,6 @@
 package io.scalecube.configuration;
 
 import static java.util.Objects.requireNonNull;
-
 import io.scalecube.cluster.membership.IdGenerator;
 import io.scalecube.configuration.api.AccessRequest;
 import io.scalecube.configuration.api.Acknowledgment;
@@ -70,7 +69,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     verifyRequest(request);
     return accessControl
         .check(request.token().toString(), ConfigurationService.CONFIG_SAVE)
-        .map(
+        .flatMap(
             p ->
                 this.repository.save(
                     p.tenant(),
@@ -88,7 +87,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     verifyRequest(request);
     return accessControl
         .check(request.token().toString(), ConfigurationService.CONFIG_DELETE)
-        .map(p -> this.repository.delete(p.tenant(), request.repository(), request.key()))
+        .flatMap(p -> this.repository.delete(p.tenant(), request.repository(), request.key()))
         .thenReturn(ACK);
   }
 
