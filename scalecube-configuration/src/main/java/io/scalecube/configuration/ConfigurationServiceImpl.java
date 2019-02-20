@@ -48,12 +48,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     verifyRequest(request);
     return accessControl
         .check(request.token().toString(), ConfigurationService.CONFIG_FETCH)
-        .map(p -> this.repository.fetch(p.tenant(), request.repository(), request.key()))
-        .flatMap(
-            document ->
-                document
-                    .map(Document::value)
-                    .map(value -> new FetchResponse(request.key(), value)));
+        .flatMap(p -> this.repository.fetch(p.tenant(), request.repository(), request.key()))
+        .map(Document::value)
+        .map(value -> new FetchResponse(request.key(), value));
   }
 
   @Override
@@ -61,8 +58,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     verifyRequest(request);
     return accessControl
         .check(request.token().toString(), ConfigurationService.CONFIG_ENTRIES)
-        .map(p -> this.repository.fetchAll(p.tenant(), request.repository()))
-        .flatMapMany(fluxDoc -> fluxDoc.map(doc -> new FetchResponse(doc.key(), doc.value())));
+        .flatMapMany(p -> this.repository.fetchAll(p.tenant(), request.repository()))
+        .map(doc -> new FetchResponse(doc.key(), doc.value()));
   }
 
   @Override
@@ -92,9 +89,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .thenReturn(ACK);
   }
 
-  private static void verifyRequest(AccessRequest request) {
+  private static Mono<Void> verifyRequest(AccessRequest request) {
     requireNonNull(request, "");
     requireNonNull(request.token());
     requireNonNull(request.repository());
+    return Mono.empty().then();
   }
 }

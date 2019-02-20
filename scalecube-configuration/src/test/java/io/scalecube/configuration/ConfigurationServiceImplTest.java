@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
@@ -11,7 +12,6 @@ import io.scalecube.configuration.api.DeleteRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.SaveRequest;
 import io.scalecube.configuration.authorization.DefaultPermissions;
-import io.scalecube.configuration.authorization.Role;
 import io.scalecube.configuration.repository.InMemoryDataAccess;
 import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
 import io.scalecube.security.acl.DefaultAccessControl;

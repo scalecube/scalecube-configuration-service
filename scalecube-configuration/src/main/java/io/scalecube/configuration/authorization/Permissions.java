@@ -1,5 +1,6 @@
 package io.scalecube.configuration.authorization;
 
+import io.scalecube.account.api.Role;
 import io.scalecube.security.api.Authorizer;
 import io.scalecube.security.api.Profile;
 import java.security.AccessControlException;
@@ -38,11 +39,11 @@ public class Permissions implements Authorizer {
      *     lowercased.
      * @return builder.
      */
-    public Permissions.Builder grant(String resourceName, String... roles) {
-      for (String subject : roles) {
+    public Permissions.Builder grant(String resourceName, Role... roles) {
+      for (Role subject : roles) {
         permissions
             .computeIfAbsent(resourceName, newAction -> new HashSet<>())
-            .add(subject);
+            .add(subject.toString());
       }
       return this;
     }
