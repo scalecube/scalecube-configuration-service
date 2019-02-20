@@ -96,7 +96,5 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     requireNonNull(request, "");
     requireNonNull(request.token());
     requireNonNull(request.repository());
-
-    if (request.repository().isEmpty()) {}
   }
 }

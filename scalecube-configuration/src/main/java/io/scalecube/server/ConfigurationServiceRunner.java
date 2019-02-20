@@ -12,6 +12,7 @@ import io.scalecube.config.ConfigRegistry;
 import io.scalecube.configuration.AppConfiguration;
 import io.scalecube.configuration.ConfigurationServiceImpl;
 import io.scalecube.configuration.api.ConfigurationService;
+import io.scalecube.configuration.authorization.DefaultPermissions;
 import io.scalecube.configuration.authorization.Permissions;
 import io.scalecube.configuration.repository.ConfigurationRepository;
 import io.scalecube.configuration.repository.couchbase.CouchbaseAdmin;
@@ -99,7 +100,7 @@ public class ConfigurationServiceRunner {
       AccessControl accessContorl =
           DefaultAccessControl.builder()
               .authenticator(authenticator)
-              .authorizer(getPermissions())
+              .authorizer(DefaultPermissions.PERMISSIONS)
               .build();
 
       ConfigurationService configurationService =
@@ -108,34 +109,7 @@ public class ConfigurationServiceRunner {
       return Collections.singleton(ServiceInfo.fromServiceInstance(configurationService).build());
     };
   }
-
-  private static Authorizer getPermissions() {
-    return Permissions.builder()
-        .grant(
-            ConfigurationService.CONFIG_CREATE_REPO,
-            Role.Owner.toString(),
-            Role.Admin.toString())
-        .grant(
-            ConfigurationService.CONFIG_SAVE,
-            Role.Owner.toString(),
-            Role.Admin.toString())
-        .grant(
-            ConfigurationService.CONFIG_DELETE,
-            Role.Owner.toString(),
-            Role.Admin.toString())
-        .grant(
-            ConfigurationService.CONFIG_FETCH,
-            Role.Owner.toString(),
-            Role.Admin.toString(),
-            Role.Member.toString())
-        .grant(
-            ConfigurationService.CONFIG_ENTRIES,
-            Role.Owner.toString(),
-            Role.Admin.toString(),
-            Role.Member.toString())
-        .build();
-  }
-
+  
   private static AsyncCluster couchbaseDataAccessCluster(
       CouchbaseSettings settings, CouchbaseEnvironment env) {
     return CouchbaseAsyncCluster.create(env, settings.hosts());

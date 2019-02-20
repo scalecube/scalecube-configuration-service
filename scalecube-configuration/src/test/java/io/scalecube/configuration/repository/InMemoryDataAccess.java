@@ -1,6 +1,6 @@
 package io.scalecube.configuration.repository;
 
-import io.scalecube.configuration.repository.exception.DuplicateRepositoryException;
+import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
 import java.util.HashMap;
@@ -20,7 +20,7 @@ public class InMemoryDataAccess implements ConfigurationRepository {
         map.get(repository.namespace()).put(repository.name(), new HashMap<>());  
         sink.success(true);
       } else {
-        sink.error(new DuplicateRepositoryException(repository.toString()));        
+        sink.error(new RepositoryAlreadyExistsException(repository.toString()));        
       }
     });
   }
