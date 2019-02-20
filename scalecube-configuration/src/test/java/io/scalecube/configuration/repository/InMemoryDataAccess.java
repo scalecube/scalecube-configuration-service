@@ -8,7 +8,7 @@ import java.util.Map;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class InMemoryDataAccess implements ConfigurationDataAccess {
+public class InMemoryDataAccess implements ConfigurationRepository {
 
   private final Map<String, Map<String, Map<String, Document>>> map = new HashMap<>();
 

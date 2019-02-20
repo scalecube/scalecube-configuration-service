@@ -11,7 +11,7 @@ import io.scalecube.configuration.api.DeleteRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.SaveRequest;
-import io.scalecube.configuration.repository.ConfigurationDataAccess;
+import io.scalecube.configuration.repository.ConfigurationRepository;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.Repository;
 import io.scalecube.security.api.AccessControl;
@@ -23,12 +23,13 @@ import reactor.core.publisher.Mono;
 public class ConfigurationServiceImpl implements ConfigurationService {
 
   private static final Logger logger = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
-  private final static Acknowledgment ACK = new Acknowledgment();
+  private static final Acknowledgment ACK = new Acknowledgment();
 
-  private final ConfigurationDataAccess dataAccess;
+  private final ConfigurationRepository repository;
   private final AccessControl accessControl;
-  public ConfigurationServiceImpl(ConfigurationDataAccess dataAccess, AccessControl accessContorl) {
-    this.dataAccess = dataAccess;
+
+  public ConfigurationServiceImpl(ConfigurationRepository repository, AccessControl accessContorl) {
+    this.repository = repository;
     this.accessControl = accessContorl;
   }
 
@@ -38,8 +39,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return accessControl
         .check(request.token().toString(), ConfigurationService.CONFIG_CREATE_REPO)
         .flatMap(
-            p -> this.dataAccess.createRepository(new Repository(p.tenant(), request.repository())))
-        .map(b->ACK);
+            p -> this.repository.createRepository(new Repository(p.tenant(), request.repository())))
+        .map(b -> ACK);
   }
 
   @Override
@@ -47,7 +48,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     verifyRequest(request);
     return accessControl
         .check(request.token().toString(), ConfigurationService.CONFIG_FETCH)
-        .map(p -> this.dataAccess.fetch(p.tenant(), request.repository(), request.key()))
+        .map(p -> this.repository.fetch(p.tenant(), request.repository(), request.key()))
         .flatMap(
             document ->
                 document
@@ -60,7 +61,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     verifyRequest(request);
     return accessControl
         .check(request.token().toString(), ConfigurationService.CONFIG_ENTRIES)
-        .map(p -> this.dataAccess.fetchAll(p.tenant(), request.repository()))
+        .map(p -> this.repository.fetchAll(p.tenant(), request.repository()))
         .flatMapMany(fluxDoc -> fluxDoc.map(doc -> new FetchResponse(doc.key(), doc.value())));
   }
 
@@ -71,7 +72,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .check(request.token().toString(), ConfigurationService.CONFIG_SAVE)
         .map(
             p ->
-                this.dataAccess.save(
+                this.repository.save(
                     p.tenant(),
                     request.repository(),
                     Document.builder()
@@ -87,13 +88,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     verifyRequest(request);
     return accessControl
         .check(request.token().toString(), ConfigurationService.CONFIG_DELETE)
-        .map(p -> this.dataAccess.delete(p.tenant(), request.repository(), request.key()))
+        .map(p -> this.repository.delete(p.tenant(), request.repository(), request.key()))
         .thenReturn(ACK);
   }
-  
+
   private static void verifyRequest(AccessRequest request) {
-    requireNonNull(request);
+    requireNonNull(request, "");
+    requireNonNull(request.token());
     requireNonNull(request.repository());
-    requireNonNull(request.token()); 
+
+    if (request.repository().isEmpty()) {}
   }
 }

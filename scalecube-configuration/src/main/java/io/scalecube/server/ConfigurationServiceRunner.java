@@ -13,9 +13,9 @@ import io.scalecube.configuration.AppConfiguration;
 import io.scalecube.configuration.ConfigurationServiceImpl;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.authorization.Permissions;
-import io.scalecube.configuration.repository.ConfigurationDataAccess;
+import io.scalecube.configuration.repository.ConfigurationRepository;
 import io.scalecube.configuration.repository.couchbase.CouchbaseAdmin;
-import io.scalecube.configuration.repository.couchbase.CouchbaseDataAccess;
+import io.scalecube.configuration.repository.couchbase.CouchbaseRepository;
 import io.scalecube.configuration.repository.couchbase.CouchbaseSettings;
 import io.scalecube.configuration.tokens.CachingKeyProvider;
 import io.scalecube.configuration.tokens.KeyProvider;
@@ -80,8 +80,8 @@ public class ConfigurationServiceRunner {
     CouchbaseAdmin couchbaseAdmin =
         new CouchbaseAdmin(settings, couchbaseAdminCluster(settings, env));
 
-    ConfigurationDataAccess configurationDataAccess =
-        new CouchbaseDataAccess(
+    ConfigurationRepository configurationDataAccess =
+        new CouchbaseRepository(
             settings, couchbaseDataAccessCluster(settings, env), couchbaseAdmin);
 
     return call -> {

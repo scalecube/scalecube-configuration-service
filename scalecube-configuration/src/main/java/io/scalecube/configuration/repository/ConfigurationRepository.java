@@ -4,7 +4,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /** An abstraction of configuration data access. */
-public interface ConfigurationDataAccess {
+public interface ConfigurationRepository {
 
   /**
    * Creates a name in underlying data source.

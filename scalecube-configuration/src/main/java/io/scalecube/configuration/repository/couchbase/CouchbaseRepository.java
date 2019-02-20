@@ -1,7 +1,7 @@
 package io.scalecube.configuration.repository.couchbase;
 
 import com.couchbase.client.java.AsyncCluster;
-import io.scalecube.configuration.repository.ConfigurationDataAccess;
+import io.scalecube.configuration.repository.ConfigurationRepository;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.Repository;
 import io.scalecube.configuration.repository.RepositoryEntryKey;
@@ -12,7 +12,7 @@ import io.scalecube.configuration.repository.couchbase.operation.OperationContex
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class CouchbaseDataAccess implements ConfigurationDataAccess {
+public class CouchbaseRepository implements ConfigurationRepository {
 
   private final CouchbaseSettings settings;
   private final AsyncCluster cluster;
@@ -25,7 +25,7 @@ public class CouchbaseDataAccess implements ConfigurationDataAccess {
    * @param cluster couchbase cluster
    * @param couchbaseAdmin couchbase operations with admin permissions
    */
-  public CouchbaseDataAccess(
+  public CouchbaseRepository(
       CouchbaseSettings settings, AsyncCluster cluster, CouchbaseAdmin couchbaseAdmin) {
     this.settings = settings;
     this.cluster = cluster;
