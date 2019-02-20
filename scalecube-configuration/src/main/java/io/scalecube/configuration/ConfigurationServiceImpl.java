@@ -34,7 +34,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> createRepository(CreateRepositoryRequest request) {
-    requireNonNullAccessRequest(request);
+    verifyRequest(request);
     return accessControl
         .check(request.token().toString(), ConfigurationService.CONFIG_CREATE_REPO)
         .flatMap(
@@ -44,7 +44,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<FetchResponse> fetch(FetchRequest request) {
-    requireNonNullAccessRequest(request);
+    verifyRequest(request);
     return accessControl
         .check(request.token().toString(), ConfigurationService.CONFIG_FETCH)
         .map(p -> this.dataAccess.fetch(p.tenant(), request.repository(), request.key()))
@@ -57,7 +57,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Flux<FetchResponse> entries(FetchRequest request) {
-    requireNonNullAccessRequest(request);
+    verifyRequest(request);
     return accessControl
         .check(request.token().toString(), ConfigurationService.CONFIG_ENTRIES)
         .map(p -> this.dataAccess.fetchAll(p.tenant(), request.repository()))
@@ -66,7 +66,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> save(SaveRequest request) {
-    requireNonNullAccessRequest(request);
+    verifyRequest(request);
     return accessControl
         .check(request.token().toString(), ConfigurationService.CONFIG_SAVE)
         .map(
@@ -84,14 +84,14 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> delete(DeleteRequest request) {
-    requireNonNullAccessRequest(request);
+    verifyRequest(request);
     return accessControl
         .check(request.token().toString(), ConfigurationService.CONFIG_DELETE)
         .map(p -> this.dataAccess.delete(p.tenant(), request.repository(), request.key()))
         .thenReturn(new Acknowledgment());
   }
   
-  private static void requireNonNullAccessRequest(AccessRequest request) {
+  private static void verifyRequest(AccessRequest request) {
     requireNonNull(request);
     requireNonNull(request.repository());
     requireNonNull(request.token()); 
