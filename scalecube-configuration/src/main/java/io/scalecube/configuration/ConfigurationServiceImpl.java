@@ -69,8 +69,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 .check(request.token().toString(), ConfigurationService.CONFIG_ENTRIES)
                 .flatMapMany(p -> repository.fetchAll(p.tenant(), request.repository()))
                 .map(doc -> new FetchResponse(doc.key(), doc.value())))
-        .doOnComplete(() -> logger.debug("save: exit: request: {}", request))
-        .doOnError(th -> logger.error("save: request: {}, error: {}", request, th));
+        .doOnComplete(() -> logger.debug("entries: exit: request: {}", request))
+        .doOnError(th -> logger.error("entries: request: {}, error: {}", request, th));
   }
 
   @Override
