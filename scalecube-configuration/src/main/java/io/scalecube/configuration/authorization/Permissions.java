@@ -27,32 +27,6 @@ public class Permissions implements Authorizer {
 
   private final Map<String, Set<String>> rolesForAllResources;
 
-  public static class Builder {
-
-    private final Map<String, Set<String>> permissions = new HashMap<>();
-
-    /**
-     * grant access to list of roles for a certain action.
-     *
-     * @param resourceName name or topic of granting access.
-     * @param roles or roles allowed to access or do an action names are trimmed of whitespace and
-     *     lowercased.
-     * @return builder.
-     */
-    public Permissions.Builder grant(String resourceName, Role... roles) {
-      for (Role subject : roles) {
-        permissions
-            .computeIfAbsent(resourceName, newAction -> new HashSet<>())
-            .add(subject.toString());
-      }
-      return this;
-    }
-
-    public Authorizer build() {
-      return new Permissions(this);
-    }
-  }
-
   private Permissions(Builder builder) {
     this.rolesForAllResources = new HashMap<>(builder.permissions.size());
     builder.permissions.forEach(
@@ -78,5 +52,31 @@ public class Permissions implements Authorizer {
     return Mono.just(profile)
         .filter(p -> isInRole(p, rolesByResource(resource)))
         .switchIfEmpty(Mono.error(() -> new AccessControlException("Permission denied")));
+  }
+  
+  public static class Builder {
+
+    private final Map<String, Set<String>> permissions = new HashMap<>();
+
+    /**
+     * grant access to list of roles for a certain action.
+     *
+     * @param resourceName name or topic of granting access.
+     * @param roles or roles allowed to access or do an action names are trimmed of whitespace and
+     *     lowercased.
+     * @return builder.
+     */
+    public Permissions.Builder grant(String resourceName, Role... roles) {
+      for (Role subject : roles) {
+        permissions
+            .computeIfAbsent(resourceName, newAction -> new HashSet<>())
+            .add(subject.toString());
+      }
+      return this;
+    }
+
+    public Authorizer build() {
+      return new Permissions(this);
+    }
   }
 }
