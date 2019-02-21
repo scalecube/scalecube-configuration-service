@@ -1,6 +1,7 @@
 package io.scalecube.configuration;
 
 import static java.util.Objects.requireNonNull;
+
 import io.scalecube.cluster.membership.IdGenerator;
 import io.scalecube.configuration.api.AccessRequest;
 import io.scalecube.configuration.api.Acknowledgment;
