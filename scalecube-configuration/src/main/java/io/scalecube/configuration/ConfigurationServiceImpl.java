@@ -1,7 +1,6 @@
 package io.scalecube.configuration;
 
 import static java.util.Objects.requireNonNull;
-
 import io.scalecube.cluster.membership.IdGenerator;
 import io.scalecube.configuration.api.AccessRequest;
 import io.scalecube.configuration.api.Acknowledgment;
@@ -43,7 +42,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                     p ->
                         this.repository.createRepository(
                             new Repository(p.tenant(), request.repository())))
-                .map(b -> ACK));
+                .map(b -> ACK))
+        .doOnSuccess(result -> logger.debug("createRepository: exit: request: {}", request))
+        .doOnError(th -> logger.error("createRepository: request: {}, error: {}", request, th));
   }
 
   @Override
@@ -55,7 +56,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 .flatMap(
                     p -> this.repository.fetch(p.tenant(), request.repository(), request.key()))
                 .map(Document::value)
-                .map(value -> new FetchResponse(request.key(), value)));
+                .map(value -> new FetchResponse(request.key(), value)))
+        .doOnSuccess(result -> logger.debug("fetch: exit: request: {}", request))
+        .doOnError(th -> logger.error("fetch: request: {}, error: {}", request, th));
   }
 
   @Override
@@ -65,7 +68,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             accessControl
                 .check(request.token().toString(), ConfigurationService.CONFIG_ENTRIES)
                 .flatMapMany(p -> this.repository.fetchAll(p.tenant(), request.repository()))
-                .map(doc -> new FetchResponse(doc.key(), doc.value())));
+                .map(doc -> new FetchResponse(doc.key(), doc.value())))
+        .doOnComplete(() -> logger.debug("save: exit: request: {}", request))
+        .doOnError(th -> logger.error("save: request: {}, error: {}", request, th));
   }
 
   @Override
@@ -84,7 +89,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                                 .key(request.key())
                                 .value(request.value())
                                 .build()))
-                .thenReturn(ACK));
+                .thenReturn(ACK))
+        .doOnSuccess(result -> logger.debug("save: exit: request: {}", request))
+        .doOnError(th -> logger.error("save: request: {}, error: {}", request, th));
   }
 
   @Override
@@ -95,7 +102,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 .check(request.token().toString(), ConfigurationService.CONFIG_DELETE)
                 .flatMap(
                     p -> this.repository.delete(p.tenant(), request.repository(), request.key()))
-                .thenReturn(ACK));
+                .thenReturn(ACK))
+        .doOnSuccess(result -> logger.debug("delete: exit: request: {}", request))
+        .doOnError(th -> logger.error("delete: request: {}, error: {}", request, th));
   }
 
   private static Mono<Void> validateRequest(AccessRequest request) {
