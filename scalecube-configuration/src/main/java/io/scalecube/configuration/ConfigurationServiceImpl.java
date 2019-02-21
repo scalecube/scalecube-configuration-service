@@ -53,8 +53,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .then(
             accessControl
                 .check(request.token().toString(), ConfigurationService.CONFIG_FETCH)
-                .flatMap(
-                    p -> repository.fetch(p.tenant(), request.repository(), request.key()))
+                .flatMap(p -> repository.fetch(p.tenant(), request.repository(), request.key()))
                 .map(Document::value)
                 .map(value -> new FetchResponse(request.key(), value)))
         .doOnSuccess(result -> logger.debug("fetch: exit: request: {}", request))
@@ -100,17 +99,18 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .then(
             accessControl
                 .check(request.token().toString(), ConfigurationService.CONFIG_DELETE)
-                .flatMap(
-                    p -> repository.delete(p.tenant(), request.repository(), request.key()))
+                .flatMap(p -> repository.delete(p.tenant(), request.repository(), request.key()))
                 .thenReturn(ACK))
         .doOnSuccess(result -> logger.debug("delete: exit: request: {}", request))
         .doOnError(th -> logger.error("delete: request: {}, error: {}", request, th));
   }
 
   private static Mono<Void> validateRequest(AccessRequest request) {
-    requireNonNull(request, "request null is invalid");
-    requireNonNull(request.token(), "request.token null is invalid");
-    requireNonNull(request.repository(), "request.repository null is invalid");
-    return Mono.empty().then();
+    return Mono.fromRunnable(
+        () -> {
+          requireNonNull(request, "request null is invalid");
+          requireNonNull(request.token(), "request.token null is invalid");
+          requireNonNull(request.repository(), "request.repository null is invalid");
+        });
   }
 }
