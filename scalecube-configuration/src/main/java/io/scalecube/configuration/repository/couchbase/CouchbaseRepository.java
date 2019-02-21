@@ -1,7 +1,7 @@
 package io.scalecube.configuration.repository.couchbase;
 
 import com.couchbase.client.java.AsyncCluster;
-import io.scalecube.configuration.repository.ConfigurationDataAccess;
+import io.scalecube.configuration.repository.ConfigurationRepository;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.Repository;
 import io.scalecube.configuration.repository.RepositoryEntryKey;
@@ -12,7 +12,7 @@ import io.scalecube.configuration.repository.couchbase.operation.OperationContex
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class CouchbaseDataAccess implements ConfigurationDataAccess {
+public class CouchbaseRepository implements ConfigurationRepository {
 
   private final CouchbaseSettings settings;
   private final AsyncCluster cluster;
@@ -25,7 +25,7 @@ public class CouchbaseDataAccess implements ConfigurationDataAccess {
    * @param cluster couchbase cluster
    * @param couchbaseAdmin couchbase operations with admin permissions
    */
-  public CouchbaseDataAccess(
+  public CouchbaseRepository(
       CouchbaseSettings settings, AsyncCluster cluster, CouchbaseAdmin couchbaseAdmin) {
     this.settings = settings;
     this.cluster = cluster;
@@ -38,25 +38,48 @@ public class CouchbaseDataAccess implements ConfigurationDataAccess {
   }
 
   @Override
-  public Mono<Document> get(RepositoryEntryKey key) {
+  public Mono<Document> fetch(String tenant, String repository, String key) {
+    return get(
+        RepositoryEntryKey.builder()
+            .repository(new Repository(tenant, repository))
+            .key(key)
+            .build());
+  }
+
+  @Override
+  public Flux<Document> fetchAll(String tenant, String repository) {
+    return entries(new Repository(tenant, repository));
+  }
+
+  @Override
+  public Mono<Document> save(String tenant, String repository, Document document) {
+    return put(
+        RepositoryEntryKey.builder().repository(new Repository(tenant, repository)).build(),
+        document);
+  }
+
+  @Override
+  public Mono<String> delete(String tenant, String repository, String key) {
+    return remove(
+        RepositoryEntryKey.builder().repository(new Repository(tenant, repository)).build());
+  }
+
+  private Mono<Document> get(RepositoryEntryKey key) {
     EntryOperation<Mono<Document>> operation = EntryOperation.getOperation(OperationType.Read);
     return operation.execute(context(key, null));
   }
 
-  @Override
-  public Mono<Document> put(RepositoryEntryKey key, Document document) {
+  private Mono<Document> put(RepositoryEntryKey key, Document document) {
     EntryOperation<Mono<Document>> operation = EntryOperation.getOperation(OperationType.Write);
     return operation.execute(context(key, document));
   }
 
-  @Override
-  public Mono<String> remove(RepositoryEntryKey key) {
+  private Mono<String> remove(RepositoryEntryKey key) {
     EntryOperation<Mono<Document>> operation = EntryOperation.getOperation(OperationType.Delete);
     return operation.execute(context(key, null)).map(Document::id);
   }
 
-  @Override
-  public Flux<Document> entries(Repository repository) {
+  private Flux<Document> entries(Repository repository) {
     EntryOperation<Flux<Document>> operation = EntryOperation.getOperation(OperationType.List);
     return operation.execute(context(repository));
   }

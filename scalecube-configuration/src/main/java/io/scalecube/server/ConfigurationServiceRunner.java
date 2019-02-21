@@ -11,14 +11,16 @@ import io.scalecube.config.ConfigRegistry;
 import io.scalecube.configuration.AppConfiguration;
 import io.scalecube.configuration.ConfigurationServiceImpl;
 import io.scalecube.configuration.api.ConfigurationService;
-import io.scalecube.configuration.repository.ConfigurationDataAccess;
+import io.scalecube.configuration.authorization.DefaultPermissions;
+import io.scalecube.configuration.repository.ConfigurationRepository;
 import io.scalecube.configuration.repository.couchbase.CouchbaseAdmin;
-import io.scalecube.configuration.repository.couchbase.CouchbaseDataAccess;
+import io.scalecube.configuration.repository.couchbase.CouchbaseRepository;
 import io.scalecube.configuration.repository.couchbase.CouchbaseSettings;
-import io.scalecube.configuration.tokens.CachingKeyProvider;
-import io.scalecube.configuration.tokens.KeyProvider;
 import io.scalecube.configuration.tokens.OrganizationServiceKeyProvider;
-import io.scalecube.configuration.tokens.TokenVerifierFactory;
+import io.scalecube.security.acl.DefaultAccessControl;
+import io.scalecube.security.api.AccessControl;
+import io.scalecube.security.api.Authenticator;
+import io.scalecube.security.jwt.DefaultJwtAuthenticator;
 import io.scalecube.services.Microservices;
 import io.scalecube.services.ServiceInfo;
 import io.scalecube.services.ServiceProvider;
@@ -57,6 +59,7 @@ public class ConfigurationServiceRunner {
             .transport(options -> options.port(discoveryOptions.servicePort()))
             .services(createConfigurationService())
             .startAwait();
+
     Logo.from(new PackageInfo())
         .ip(microservices.serviceAddress().getHostName())
         .port(microservices.serviceAddress().getPort() + "")
@@ -73,21 +76,28 @@ public class ConfigurationServiceRunner {
     CouchbaseAdmin couchbaseAdmin =
         new CouchbaseAdmin(settings, couchbaseAdminCluster(settings, env));
 
-    ConfigurationDataAccess configurationDataAccess =
-        new CouchbaseDataAccess(
+    ConfigurationRepository configurationRepository =
+        new CouchbaseRepository(
             settings, couchbaseDataAccessCluster(settings, env), couchbaseAdmin);
 
     return call -> {
       OrganizationService organizationService = call.create().api(OrganizationService.class);
 
-      KeyProvider keyProvider =
-          new CachingKeyProvider(new OrganizationServiceKeyProvider(organizationService));
+      OrganizationServiceKeyProvider keyProvider =
+          new OrganizationServiceKeyProvider(organizationService);
+
+      Authenticator authenticator =
+          new DefaultJwtAuthenticator(
+              map -> keyProvider.get(map.get("kid").toString()).block());
+
+      AccessControl accessContorl =
+          DefaultAccessControl.builder()
+              .authenticator(authenticator)
+              .authorizer(DefaultPermissions.PERMISSIONS)
+              .build();
 
       ConfigurationService configurationService =
-          ConfigurationServiceImpl.builder()
-              .dataAccess(configurationDataAccess)
-              .tokenVerifier(TokenVerifierFactory.tokenVerifier(keyProvider))
-              .build();
+          new ConfigurationServiceImpl(configurationRepository, accessContorl);
 
       return Collections.singleton(ServiceInfo.fromServiceInstance(configurationService).build());
     };
