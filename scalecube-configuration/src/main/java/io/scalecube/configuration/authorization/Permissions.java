@@ -65,9 +65,8 @@ public class Permissions implements Authorizer {
     return new Builder();
   }
 
-  private static Set<String> rolesByResource(
-      final Map<String, Set<String>> permissionsByAction, String resource) {
-    return permissionsByAction.getOrDefault(resource, Collections.emptySet());
+  private Set<String> rolesByResource(String resource) {
+    return rolesForAllResources.getOrDefault(resource, Collections.emptySet());
   }
 
   private static boolean isInRole(Profile profile, Set<String> roles) {
@@ -77,7 +76,7 @@ public class Permissions implements Authorizer {
   @Override
   public Mono<Profile> authorize(Profile profile, String resource) {
     return Mono.just(profile)
-        .filter(p -> isInRole(p, rolesByResource(rolesForAllResources, resource)))
+        .filter(p -> isInRole(p, rolesByResource(resource)))
         .switchIfEmpty(Mono.error(() -> new AccessControlException("Permission denied")));
   }
 }
