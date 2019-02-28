@@ -1,4 +1,4 @@
-package io.scalecube.server;
+package io.scalecube.configuration.server;
 
 import io.scalecube.services.transport.api.Address;
 import java.util.List;
