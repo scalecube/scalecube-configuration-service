@@ -1,4 +1,4 @@
-package io.scalecube.server;
+package io.scalecube.configuration.server;
 
 import com.couchbase.client.java.AsyncCluster;
 import com.couchbase.client.java.CouchbaseAsyncCluster;
