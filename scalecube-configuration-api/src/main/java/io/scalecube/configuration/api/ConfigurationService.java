@@ -2,7 +2,7 @@ package io.scalecube.configuration.api;
 
 import io.scalecube.services.annotations.Service;
 import io.scalecube.services.annotations.ServiceMethod;
-
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -15,6 +15,12 @@ import reactor.core.publisher.Mono;
  */
 @Service("configuration")
 public interface ConfigurationService {
+
+  public static final String CONFIG_CREATE_REPO = "configuration/createRepository";
+  public static final String CONFIG_FETCH = "configuration/fetch";
+  public static final String CONFIG_ENTRIES = "configuration/entries";
+  public static final String CONFIG_SAVE = "configuration/save";
+  public static final String CONFIG_DELETE = "configuration/delete";
 
   /**
    * Request to create a configuration repository and requires a write level permissions.
@@ -38,11 +44,10 @@ public interface ConfigurationService {
    * Entries request requires read level permissions to list all entries objects from the store.
    *
    * @param request includes the name of the repository to list.
-   * @return list of FetchReponses per each entry in the repository.
+   * @return list of FetchResponses per each entry in the repository.
    */
   @ServiceMethod
-  Mono<Entries<FetchResponse>> entries(FetchRequest request);
-
+  Flux<FetchResponse> entries(FetchRequest request);
 
   /**
    * Save request requires write level permissions to save (create or update) entry to the store.
@@ -61,5 +66,4 @@ public interface ConfigurationService {
    */
   @ServiceMethod
   Mono<Acknowledgment> delete(DeleteRequest request);
-
 }
