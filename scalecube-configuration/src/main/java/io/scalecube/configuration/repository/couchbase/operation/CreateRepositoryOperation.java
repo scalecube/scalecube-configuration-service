@@ -3,7 +3,7 @@ package io.scalecube.configuration.repository.couchbase.operation;
 import io.scalecube.configuration.repository.couchbase.ConfigurationBucketName;
 import io.scalecube.configuration.repository.couchbase.CouchbaseAdmin;
 import io.scalecube.configuration.repository.couchbase.CouchbaseExceptionTranslator;
-import io.scalecube.configuration.repository.exception.DuplicateRepositoryException;
+import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
@@ -42,7 +42,7 @@ public class CreateRepositoryOperation {
             (exists, sink) -> {
               if (exists) {
                 sink.error(
-                    new DuplicateRepositoryException(
+                    new RepositoryAlreadyExistsException(
                         "Repository with name: '" + name + " already exists."));
               }
             });

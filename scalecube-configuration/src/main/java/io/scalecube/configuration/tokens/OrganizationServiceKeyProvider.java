@@ -1,18 +1,27 @@
 package io.scalecube.configuration.tokens;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.scalecube.account.api.GetPublicKeyRequest;
 import io.scalecube.account.api.GetPublicKeyResponse;
 import io.scalecube.account.api.OrganizationService;
+import io.scalecube.config.ConfigRegistry;
+import io.scalecube.configuration.AppConfiguration;
 import java.security.Key;
 import java.security.KeyFactory;
-import java.security.PublicKey;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.concurrent.TimeUnit;
 import reactor.core.publisher.Mono;
 
-public final class OrganizationServiceKeyProvider implements KeyProvider {
+public final class OrganizationServiceKeyProvider {
 
-  private final OrganizationService organizationService;
+  ConfigRegistry configRegistry = AppConfiguration.configRegistry();
+
+  int cacheSize = configRegistry.intValue("key.cache.max.size", 1000);
+  int expiresAfterSeconds = configRegistry.intValue("key.cache.ttl", 300);
+  int refreshIntervalSeconds = configRegistry.intValue("key.cache.refresh.interval", 60);
+  private final LoadingCache<String, Mono<Key>> cache;
 
   /**
    * Creates key provider.
@@ -20,17 +29,24 @@ public final class OrganizationServiceKeyProvider implements KeyProvider {
    * @param organizationService organization service.
    */
   public OrganizationServiceKeyProvider(OrganizationService organizationService) {
-    this.organizationService = organizationService;
+    cache =
+        Caffeine.newBuilder()
+            .maximumSize(cacheSize)
+            .expireAfterWrite(expiresAfterSeconds, TimeUnit.SECONDS)
+            .refreshAfterWrite(refreshIntervalSeconds, TimeUnit.SECONDS)
+            .build(
+                keyId ->
+                    organizationService
+                        .getPublicKey(new GetPublicKeyRequest(keyId))
+                        .map(OrganizationServiceKeyProvider::parsePublicKey)
+                        .cache());
   }
 
-  @Override
   public Mono<Key> get(String keyId) {
-    return organizationService
-        .getPublicKey(new GetPublicKeyRequest(keyId))
-        .map(this::parsePublicKey);
+    return cache.get(keyId);
   }
 
-  private PublicKey parsePublicKey(GetPublicKeyResponse publicKeyInfo) {
+  private static Key parsePublicKey(GetPublicKeyResponse publicKeyInfo) {
     try {
       byte[] encodedKey = publicKeyInfo.key();
 
