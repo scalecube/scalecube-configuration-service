@@ -54,7 +54,7 @@ class ConfigurationServiceImplTest {
 
   private Profile createProfile(Role role) {
     Map<String, Object> claims = new HashMap<>();
-    claims.put("roles", role.toString());
+    claims.put("role", role.toString());
     return Profile.builder().tenant("myorg").claims(claims).build();
   }
 

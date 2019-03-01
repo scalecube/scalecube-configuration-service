@@ -87,17 +87,16 @@ public class ConfigurationServiceRunner {
           new OrganizationServiceKeyProvider(organizationService);
 
       Authenticator authenticator =
-          new DefaultJwtAuthenticator(
-              map -> keyProvider.get(map.get("kid").toString()).block());
+          new DefaultJwtAuthenticator(map -> keyProvider.get(map.get("kid").toString()).block());
 
-      AccessControl accessContorl =
+      AccessControl accessControl =
           DefaultAccessControl.builder()
               .authenticator(authenticator)
               .authorizer(DefaultPermissions.PERMISSIONS)
               .build();
 
       ConfigurationService configurationService =
-          new ConfigurationServiceImpl(configurationRepository, accessContorl);
+          new ConfigurationServiceImpl(configurationRepository, accessControl);
 
       return Collections.singleton(ServiceInfo.fromServiceInstance(configurationService).build());
     };
