@@ -44,7 +44,7 @@ public class Permissions implements Authorizer {
   }
 
   private static boolean isInRole(Profile profile, Set<String> roles) {
-    return roles.contains(profile.claim("roles"));
+    return roles.contains(profile.claim("role"));
   }
 
   @Override
