@@ -17,11 +17,11 @@ import reactor.core.publisher.Mono;
 @Service("configuration")
 public interface ConfigurationService {
 
-  public static final String CONFIG_CREATE_REPO = "configuration/createRepository";
-  public static final String CONFIG_FETCH = "configuration/fetch";
-  public static final String CONFIG_ENTRIES = "configuration/entries";
-  public static final String CONFIG_SAVE = "configuration/save";
-  public static final String CONFIG_DELETE = "configuration/delete";
+  String CONFIG_CREATE_REPO = "configuration/createRepository";
+  String CONFIG_FETCH = "configuration/fetch";
+  String CONFIG_ENTRIES = "configuration/entries";
+  String CONFIG_SAVE = "configuration/save";
+  String CONFIG_DELETE = "configuration/delete";
 
   /**
    * Request to create a configuration repository and requires a write level permissions.

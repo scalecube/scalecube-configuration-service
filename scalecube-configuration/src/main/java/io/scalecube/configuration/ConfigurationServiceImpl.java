@@ -16,10 +16,13 @@ import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.Repository;
 import io.scalecube.security.api.AccessControl;
 import java.util.List;
+import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 public class ConfigurationServiceImpl implements ConfigurationService {
 
@@ -28,50 +31,63 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   private final ConfigurationRepository repository;
   private final AccessControl accessControl;
+  private final Scheduler scheduler =
+      Schedulers.fromExecutor(
+          Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
 
-  public ConfigurationServiceImpl(ConfigurationRepository repository, AccessControl accessContorl) {
+  public ConfigurationServiceImpl(ConfigurationRepository repository, AccessControl accessControl) {
     this.repository = repository;
-    this.accessControl = accessContorl;
+    this.accessControl = accessControl;
   }
 
   @Override
   public Mono<Acknowledgment> createRepository(CreateRepositoryRequest request) {
     return validateRequest(request)
+        .subscribeOn(scheduler)
         .then(
-            accessControl
-                .check(request.token().toString(), ConfigurationService.CONFIG_CREATE_REPO)
-                .flatMap(
-                    p ->
-                        repository.createRepository(
-                            new Repository(p.tenant(), request.repository())))
-                .map(b -> ACK))
+            Mono.defer(
+                () ->
+                    accessControl
+                        .check(request.token().toString(), ConfigurationService.CONFIG_CREATE_REPO)
+                        .flatMap(
+                            p ->
+                                repository.createRepository(
+                                    new Repository(p.tenant(), request.repository())))
+                        .map(b -> ACK)))
         .doOnSuccess(result -> logger.debug("createRepository: exit: request: {}", request))
-        .doOnError(th -> logger.error("createRepository: request: {}, error: {}", request, th));
+        .doOnError(th -> logger.error("createRepository: request: {}, error:", request, th));
   }
 
   @Override
   public Mono<FetchResponse> fetch(FetchRequest request) {
     return validateRequest(request)
+        .subscribeOn(scheduler)
         .then(
-            accessControl
-                .check(request.token().toString(), ConfigurationService.CONFIG_FETCH)
-                .flatMap(p -> repository.fetch(p.tenant(), request.repository(), request.key()))
-                .map(Document::value)
-                .map(value -> new FetchResponse(request.key(), value)))
+            Mono.defer(
+                () ->
+                    accessControl
+                        .check(request.token().toString(), ConfigurationService.CONFIG_FETCH)
+                        .flatMap(
+                            p -> repository.fetch(p.tenant(), request.repository(), request.key()))
+                        .map(Document::value)
+                        .map(value -> new FetchResponse(request.key(), value))))
         .doOnSuccess(result -> logger.debug("fetch: exit: request: {}", request))
-        .doOnError(th -> logger.error("fetch: request: {}, error: {}", request, th));
+        .doOnError(th -> logger.error("fetch: request: {}, error:", request, th));
   }
 
   @Override
   public Flux<FetchResponse> entries(FetchRequest request) {
     return validateRequest(request)
+        .subscribeOn(scheduler)
         .thenMany(
-            accessControl
-                .check(request.token().toString(), ConfigurationService.CONFIG_ENTRIES)
-                .flatMapMany(p -> repository.fetchAll(p.tenant(), request.repository()))
-                .map(doc -> new FetchResponse(doc.key(), doc.value())))
+            Flux.defer(
+                () ->
+                    accessControl
+                        .check(request.token().toString(), ConfigurationService.CONFIG_ENTRIES)
+                        .flatMapMany(p -> repository.fetchAll(p.tenant(), request.repository()))
+                        .map(doc -> new FetchResponse(doc.key(), doc.value()))))
         .doOnComplete(() -> logger.debug("entries: exit: request: {}", request))
-        .doOnError(th -> logger.error("entries: request: {}, error: {}", request, th));
+        .doOnError(th -> logger.error("entries: request: {}, error:", request, th));
   }
 
   @Override
@@ -82,34 +98,41 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   @Override
   public Mono<Acknowledgment> save(SaveRequest request) {
     return validateRequest(request)
+        .subscribeOn(scheduler)
         .then(
-            accessControl
-                .check(request.token().toString(), ConfigurationService.CONFIG_SAVE)
-                .flatMap(
-                    p ->
-                        repository.save(
-                            p.tenant(),
-                            request.repository(),
-                            Document.builder()
-                                .id(IdGenerator.generateId())
-                                .key(request.key())
-                                .value(request.value())
-                                .build()))
-                .thenReturn(ACK))
+            Mono.defer(
+                () ->
+                    accessControl
+                        .check(request.token().toString(), ConfigurationService.CONFIG_SAVE)
+                        .flatMap(
+                            p ->
+                                repository.save(
+                                    p.tenant(),
+                                    request.repository(),
+                                    Document.builder()
+                                        .id(IdGenerator.generateId())
+                                        .key(request.key())
+                                        .value(request.value())
+                                        .build()))
+                        .thenReturn(ACK)))
         .doOnSuccess(result -> logger.debug("save: exit: request: {}", request))
-        .doOnError(th -> logger.error("save: request: {}, error: {}", request, th));
+        .doOnError(th -> logger.error("save: request: {}, error:", request, th));
   }
 
   @Override
   public Mono<Acknowledgment> delete(DeleteRequest request) {
     return validateRequest(request)
+        .subscribeOn(scheduler)
         .then(
-            accessControl
-                .check(request.token().toString(), ConfigurationService.CONFIG_DELETE)
-                .flatMap(p -> repository.delete(p.tenant(), request.repository(), request.key()))
-                .thenReturn(ACK))
+            Mono.defer(
+                () ->
+                    accessControl
+                        .check(request.token().toString(), ConfigurationService.CONFIG_DELETE)
+                        .flatMap(
+                            p -> repository.delete(p.tenant(), request.repository(), request.key()))
+                        .thenReturn(ACK)))
         .doOnSuccess(result -> logger.debug("delete: exit: request: {}", request))
-        .doOnError(th -> logger.error("delete: request: {}, error: {}", request, th));
+        .doOnError(th -> logger.error("delete: request: {}, error:", request, th));
   }
 
   private static Mono<Void> validateRequest(AccessRequest request) {
