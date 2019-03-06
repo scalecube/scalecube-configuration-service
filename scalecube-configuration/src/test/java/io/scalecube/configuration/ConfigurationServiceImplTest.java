@@ -117,7 +117,7 @@ class ConfigurationServiceImplTest {
   }
 
   @Test
-  void shouldCollectAllEntries() {
+  void shouldFetchAllEntries() {
     Object token = new Object();
     String key1 = "mykey";
     JsonNode value1 = mapper.valueToTree(1);
@@ -132,27 +132,12 @@ class ConfigurationServiceImplTest {
     FetchRequest fetchRequest = new FetchRequest(token, REPO, null);
 
     StepVerifier.create(
-            service
-                .save(saveRequest1)
-                .then(service.save(saveRequest2))
-                .then(service.collectEntries(fetchRequest)))
+        service
+            .save(saveRequest1)
+            .then(service.save(saveRequest2))
+            .then(service.entries(fetchRequest)))
         .expectSubscription()
         .assertNext(fetchResponses -> assertEquals(2, fetchResponses.size()))
-        .verifyComplete();
-  }
-
-  @Test
-  void shouldFetchAllEntries() {
-
-    ConfigurationService service = createService();
-
-    service.createRepository(new CreateRepositoryRequest(new Object(), REPO)).block();
-    service.save(new SaveRequest(TOKEN, REPO, KEY, jsonNode())).block();
-    service.save(new SaveRequest(TOKEN, REPO, KEY + "1", jsonNode())).block();
-    StepVerifier.create(service.entries(new FetchRequest(TOKEN, REPO)))
-        .expectSubscription()
-        .assertNext(r -> assertEquals(r.key(), KEY + "1"))
-        .assertNext(r -> assertEquals(r.key(), KEY))
         .verifyComplete();
   }
 

@@ -71,12 +71,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                             p -> repository.fetch(p.tenant(), request.repository(), request.key()))
                         .map(Document::value)
                         .map(value -> new FetchResponse(request.key(), value))))
-        .doOnSuccess(result -> logger.debug("fetch: exit: request: {}", request))
+        .doOnSuccess(
+            result -> logger.debug("fetch: exit: request: {}, result: {}", request, result))
         .doOnError(th -> logger.error("fetch: request: {}, error:", request, th));
   }
 
   @Override
-  public Flux<FetchResponse> entries(FetchRequest request) {
+  public Mono<List<FetchResponse>> entries(FetchRequest request) {
     return validateRequest(request)
         .subscribeOn(scheduler)
         .thenMany(
@@ -86,13 +87,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                         .check(request.token().toString(), ConfigurationService.CONFIG_ENTRIES)
                         .flatMapMany(p -> repository.fetchAll(p.tenant(), request.repository()))
                         .map(doc -> new FetchResponse(doc.key(), doc.value()))))
-        .doOnComplete(() -> logger.debug("entries: exit: request: {}", request))
+        .collectList()
+        .doOnSuccess(
+            result -> logger.debug("entries: exit: request: {}, result: {}", request, result))
         .doOnError(th -> logger.error("entries: request: {}, error:", request, th));
-  }
-
-  @Override
-  public Mono<List<FetchResponse>> collectEntries(FetchRequest request) {
-    return entries(request).collectList();
   }
 
   @Override
