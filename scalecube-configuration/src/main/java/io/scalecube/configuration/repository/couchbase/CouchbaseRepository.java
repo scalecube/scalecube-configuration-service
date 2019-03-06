@@ -39,49 +39,46 @@ public class CouchbaseRepository implements ConfigurationRepository {
 
   @Override
   public Mono<Document> fetch(String tenant, String repository, String key) {
-    return get(
-        RepositoryEntryKey.builder()
-            .repository(new Repository(tenant, repository))
-            .key(key)
-            .build());
+    EntryOperation<Mono<Document>> operation = EntryOperation.getOperation(OperationType.Read);
+    return operation.execute(
+        context(
+            RepositoryEntryKey.builder()
+                .repository(new Repository(tenant, repository))
+                .key(key)
+                .build(),
+            null));
   }
 
   @Override
   public Flux<Document> fetchAll(String tenant, String repository) {
-    return entries(new Repository(tenant, repository));
+    EntryOperation<Flux<Document>> operation = EntryOperation.getOperation(OperationType.List);
+    return operation.execute(context(new Repository(tenant, repository)));
   }
 
   @Override
   public Mono<Document> save(String tenant, String repository, Document document) {
-    return put(
-        RepositoryEntryKey.builder().repository(new Repository(tenant, repository)).build(),
-        document);
+    EntryOperation<Mono<Document>> operation = EntryOperation.getOperation(OperationType.Write);
+    return operation.execute(
+        context(
+            RepositoryEntryKey.builder()
+                .repository(new Repository(tenant, repository))
+                .key(document.key())
+                .build(),
+            document));
   }
 
   @Override
   public Mono<String> delete(String tenant, String repository, String key) {
-    return remove(
-        RepositoryEntryKey.builder().repository(new Repository(tenant, repository)).build());
-  }
-
-  private Mono<Document> get(RepositoryEntryKey key) {
-    EntryOperation<Mono<Document>> operation = EntryOperation.getOperation(OperationType.Read);
-    return operation.execute(context(key, null));
-  }
-
-  private Mono<Document> put(RepositoryEntryKey key, Document document) {
-    EntryOperation<Mono<Document>> operation = EntryOperation.getOperation(OperationType.Write);
-    return operation.execute(context(key, document));
-  }
-
-  private Mono<String> remove(RepositoryEntryKey key) {
     EntryOperation<Mono<Document>> operation = EntryOperation.getOperation(OperationType.Delete);
-    return operation.execute(context(key, null)).map(Document::id);
-  }
-
-  private Flux<Document> entries(Repository repository) {
-    EntryOperation<Flux<Document>> operation = EntryOperation.getOperation(OperationType.List);
-    return operation.execute(context(repository));
+    return operation
+        .execute(
+            context(
+                RepositoryEntryKey.builder()
+                    .repository(new Repository(tenant, repository))
+                    .key(key)
+                    .build(),
+                null))
+        .map(Document::id);
   }
 
   private OperationContext context(RepositoryEntryKey key, Document document) {
