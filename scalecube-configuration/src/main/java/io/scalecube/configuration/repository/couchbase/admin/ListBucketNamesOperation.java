@@ -1,21 +1,20 @@
 package io.scalecube.configuration.repository.couchbase.admin;
 
+import com.couchbase.client.java.cluster.AsyncClusterManager;
 import com.couchbase.client.java.cluster.BucketSettings;
-import java.util.List;
-import java.util.stream.Collectors;
+import reactor.core.publisher.Flux;
+import rx.RxReactiveStreams;
 
-final class ListBucketNamesOperation extends Operation<List<String>> {
-
-  protected ListBucketNamesOperation() {
-  }
+final class ListBucketNamesOperation extends Operation<Flux<String>> {
 
   @Override
-  public List<String> execute(AdminOperationContext context) {
-    return context.cluster()
-        .clusterManager()
-        .getBuckets()
-        .stream()
-        .map(BucketSettings::name)
-        .collect(Collectors.toList());
+  public Flux<String> execute(AdminOperationContext context) {
+    return Flux.from(
+        RxReactiveStreams.toPublisher(
+            context
+                .cluster()
+                .clusterManager()
+                .flatMap(AsyncClusterManager::getBuckets)
+                .map(BucketSettings::name)));
   }
 }

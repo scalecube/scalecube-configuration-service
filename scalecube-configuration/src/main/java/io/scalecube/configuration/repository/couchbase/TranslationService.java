@@ -1,24 +1,21 @@
 package io.scalecube.configuration.repository.couchbase;
 
-/**
- * Represents a translation service from object to string and vice versa.
- */
+/** Represents a translation service from object to byte array and vice versa. */
 public interface TranslationService {
 
   /**
-   * Encodes a JSON String into the target format.
+   * Encodes an object into the byte array.
    *
    * @param source the source contents to encode.
    * @return the encoded document representation.
    */
-  <T> String encode(T source);
+  <T> byte[] encode(T source, Class<T> sourceType);
 
   /**
-   * Decodes the string into the target
+   * Decodes the byte array into the target
    *
    * @param source the source formatted document.
-   * @param target the target of the populated data.
    * @return a properly populated object to work with.
    */
-  <T> T decode(String source, Class<T> target);
+  <T> T decode(byte[] source, Class<T> targetType);
 }

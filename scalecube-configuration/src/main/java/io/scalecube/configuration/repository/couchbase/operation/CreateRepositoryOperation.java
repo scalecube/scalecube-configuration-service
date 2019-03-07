@@ -3,56 +3,48 @@ package io.scalecube.configuration.repository.couchbase.operation;
 import io.scalecube.configuration.repository.couchbase.ConfigurationBucketName;
 import io.scalecube.configuration.repository.couchbase.CouchbaseAdmin;
 import io.scalecube.configuration.repository.couchbase.CouchbaseExceptionTranslator;
-import io.scalecube.configuration.repository.exception.DataAccessException;
-import io.scalecube.configuration.repository.exception.DataAccessResourceFailureException;
-import io.scalecube.configuration.repository.exception.DuplicateRepositoryException;
+import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Mono;
 
 public class CreateRepositoryOperation {
-  private static Logger logger = LoggerFactory.getLogger(CreateRepositoryOperation.class);
-  private final CouchbaseExceptionTranslator exceptionTranslator;
 
-  public CreateRepositoryOperation() {
-    exceptionTranslator = new CouchbaseExceptionTranslator();
-  }
+  private static final Logger logger = LoggerFactory.getLogger(CreateRepositoryOperation.class);
 
   /**
    * Creates a repository using the given arguments.
+   *
    * @param couchbaseAdmin Couchbase admin API.
-   * @param context operation context
+   * @param ctx operation context
    * @return true if the operation completes successfully
    */
-  public boolean execute(CouchbaseAdmin couchbaseAdmin, OperationContext context) {
-    logger.debug(
-        "enter: createBucket -> repository = [ {} ]", context.repository());
-    try {
-      String bucket = ConfigurationBucketName.from(context.repository(), context.settings()).name();
-      ensureBucketNameIsNotInUse(couchbaseAdmin, bucket);
-      couchbaseAdmin.createBucket(bucket);
-    } catch (Throwable ex) {
-      String message = String.format("Failed to create repository: '%s'", context.repository());
-      handleException(ex, message);
-    }
-
-    logger.debug(
-        "exit: createBucket -> repository = [ {} ]", context.repository());
-    return true;
+  public Mono<Boolean> execute(CouchbaseAdmin couchbaseAdmin, OperationContext ctx) {
+    return Mono.fromRunnable(
+        () -> logger.debug("enter: createBucket -> repository = [ {} ]", ctx.repository()))
+        .then(
+            Mono.fromCallable(
+                () -> ConfigurationBucketName.from(ctx.repository(), ctx.settings()).name()))
+        .flatMap(
+            bucketName ->
+                ensureBucketNameIsNotInUse(couchbaseAdmin, bucketName)
+                    .then(couchbaseAdmin.createBucket(bucketName)))
+        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
+        .doOnError(th -> logger.error("Failed to create repository: {}", ctx.repository(), th))
+        .doOnSuccess(
+            created -> logger.debug("exit: createBucket -> repository = [ {} ]", ctx.repository()));
   }
 
-  private void ensureBucketNameIsNotInUse(CouchbaseAdmin couchbaseAdmin, String name) {
-    if (couchbaseAdmin.isBucketExists(name)) {
-      throw new DuplicateRepositoryException("Repository with name: '" + name + " already exists.");
-    }
-  }
-
-  private void handleException(Throwable throwable, String message) {
-    logger.error(message, throwable);
-    if (throwable instanceof DataAccessException) {
-      throw (DataAccessException) throwable;
-    } else if (throwable instanceof RuntimeException) {
-      throw exceptionTranslator.translateExceptionIfPossible((RuntimeException) throwable);
-    }
-    throw new DataAccessResourceFailureException(message, throwable);
+  private Mono<Void> ensureBucketNameIsNotInUse(CouchbaseAdmin couchbaseAdmin, String name) {
+    return couchbaseAdmin
+        .isBucketExists(name)
+        .handle(
+            (exists, sink) -> {
+              if (exists) {
+                sink.error(
+                    new RepositoryAlreadyExistsException(
+                        "Repository with name: '" + name + " already exists."));
+              }
+            });
   }
 }

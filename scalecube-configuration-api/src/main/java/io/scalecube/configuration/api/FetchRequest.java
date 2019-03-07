@@ -1,8 +1,6 @@
 package io.scalecube.configuration.api;
 
-/**
- * Represents a request o fetch data from a repository.
- */
+/** Represents a request o fetch data from a repository. */
 public class FetchRequest implements AccessRequest {
 
   protected String repository;
@@ -11,13 +9,14 @@ public class FetchRequest implements AccessRequest {
 
   /**
    * Default constructor.
+   *
    * @deprecated only for serialization/deserialization.
    */
-  FetchRequest() {
-  }
+  FetchRequest() {}
 
   /**
    * Constructs a FetchRequest object.
+   *
    * @param token The request token
    * @param repository The repository name
    * @param key The requested data key
@@ -26,6 +25,16 @@ public class FetchRequest implements AccessRequest {
     this.token = token;
     this.repository = repository;
     this.key = key;
+  }
+
+  /**
+   * Constructs a FetchRequest object.
+   *
+   * @param token The request token
+   * @param repository The repository name
+   */
+  public FetchRequest(Object token, String repository) {
+    this(token, repository, null);
   }
 
   public String repository() {
@@ -44,5 +53,4 @@ public class FetchRequest implements AccessRequest {
   public String toString() {
     return "FetchRequest [repository=" + repository + ", key=" + key + ", token=" + token + "]";
   }
-
 }
