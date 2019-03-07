@@ -1,28 +1,31 @@
 package io.scalecube.configuration.repository.couchbase.operation;
 
-import com.couchbase.client.java.Cluster;
+import com.couchbase.client.java.AsyncCluster;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.Repository;
 import io.scalecube.configuration.repository.RepositoryEntryKey;
 import io.scalecube.configuration.repository.couchbase.CouchbaseSettings;
 
 public final class OperationContext {
+
   private final CouchbaseSettings settings;
-  private final Cluster cluster;
+  private final AsyncCluster cluster;
   private final Document document;
   private final RepositoryEntryKey key;
   private final Repository repository;
 
-  private OperationContext(CouchbaseSettings settings, Cluster cluster,
-      Document document, RepositoryEntryKey key, Repository repository) {
+  private OperationContext(
+      CouchbaseSettings settings,
+      AsyncCluster cluster,
+      Document document,
+      RepositoryEntryKey key,
+      Repository repository) {
     this.settings = settings;
     this.cluster = cluster;
     this.document = document;
     this.key = key;
     this.repository = repository;
   }
-
-
 
   public static Builder builder() {
     return new Builder();
@@ -32,7 +35,7 @@ public final class OperationContext {
     return settings;
   }
 
-  public Cluster cluster() {
+  public AsyncCluster cluster() {
     return cluster;
   }
 
@@ -48,10 +51,9 @@ public final class OperationContext {
     return repository;
   }
 
-
   public static class Builder {
     private CouchbaseSettings settings;
-    private Cluster cluster;
+    private AsyncCluster cluster;
     private Document document;
     private RepositoryEntryKey key;
     private Repository repository;
@@ -61,7 +63,7 @@ public final class OperationContext {
       return this;
     }
 
-    public Builder cluster(Cluster cluster) {
+    public Builder cluster(AsyncCluster cluster) {
       this.cluster = cluster;
       return this;
     }
@@ -81,11 +83,8 @@ public final class OperationContext {
       return this;
     }
 
-
     public OperationContext build() {
-      return new OperationContext(settings, cluster,
-          document, key, repository);
+      return new OperationContext(settings, cluster, document, key, repository);
     }
-
   }
 }

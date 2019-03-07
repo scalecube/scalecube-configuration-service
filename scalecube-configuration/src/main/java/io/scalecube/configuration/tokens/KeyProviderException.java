@@ -1,7 +1,6 @@
 package io.scalecube.configuration.tokens;
 
-
-public class KeyProviderException extends Exception {
+public class KeyProviderException extends RuntimeException {
 
   KeyProviderException(String message) {
     this(message, null);

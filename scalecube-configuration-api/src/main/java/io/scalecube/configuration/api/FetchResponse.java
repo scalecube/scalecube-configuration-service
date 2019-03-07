@@ -10,6 +10,7 @@ public class FetchResponse {
 
   /**
    * Default constructor.
+   *
    * @deprecated only for serialization/deserialization.
    */
   FetchResponse() {
@@ -17,6 +18,7 @@ public class FetchResponse {
 
   /**
    * Constructs a fetch response object.
+   *
    * @param key fetch key
    * @param value fetch value
    */
@@ -25,12 +27,12 @@ public class FetchResponse {
     this.key = key;
   }
 
-  public static Builder builder() {
-    return new Builder();
-  }
-
   public Object value() {
     return this.value;
+  }
+
+  public String key() {
+    return key;
   }
 
   @Override
@@ -38,24 +40,4 @@ public class FetchResponse {
     return "FetchResponse [value=" + value + ", key=" + key + "]";
   }
 
-  public static class Builder {
-
-    private Object value;
-    private String key;
-
-    public FetchResponse build() {
-      return new FetchResponse(this.key, this.value);
-    }
-
-    public Builder value(Object value) {
-      this.value = value;
-      return this;
-    }
-
-    public Builder key(String key) {
-      this.key = key;
-      return this;
-    }
-
-  }
 }
