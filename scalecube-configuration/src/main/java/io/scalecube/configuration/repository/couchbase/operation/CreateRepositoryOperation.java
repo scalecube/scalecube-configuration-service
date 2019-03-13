@@ -43,7 +43,7 @@ public class CreateRepositoryOperation {
               if (exists) {
                 sink.error(
                     new RepositoryAlreadyExistsException(
-                        "Repository with name: '" + name + " already exists."));
+                        "Repository with name: '" + name + "' already exists"));
               }
             });
   }

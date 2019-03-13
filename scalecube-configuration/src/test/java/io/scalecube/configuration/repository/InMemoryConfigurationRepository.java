@@ -8,7 +8,7 @@ import java.util.Map;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class InMemoryDataAccess implements ConfigurationRepository {
+public class InMemoryConfigurationRepository implements ConfigurationRepository {
 
   private final Map<String, Map<String, Map<String, Document>>> map = new HashMap<>();
 
@@ -21,7 +21,9 @@ public class InMemoryDataAccess implements ConfigurationRepository {
             map.get(repository.namespace()).put(repository.name(), new HashMap<>());
             sink.success(true);
           } else {
-            sink.error(new RepositoryAlreadyExistsException(repository.toString()));
+            sink.error(
+                new RepositoryAlreadyExistsException(
+                    "Repository with name: '" + repository.name() + "' already exists"));
           }
         });
   }
