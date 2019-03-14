@@ -90,5 +90,5 @@ Feature: Integration tests for configuration service - FETCH (Single entry).
     Given an organization "organizationId" with specified "name" and "email" already created with related "Owner" API key which is stored there
     And the specified name "repository" was created without any stored entry by applying related "Owner" API key
     And the related organization "Owner" has deleted the relevant "Owner" API key from the organization "organizationId"
-    When the user requested to get some entry from the relevant specified name "repository" applying this deleted "Owner" API key
+    When the user requested to delete some entry from the relevant specified name "repository" applying this deleted "Owner" API key
     Then the user should get "errorMessage": "Token verification failed"
