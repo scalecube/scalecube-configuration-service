@@ -5,13 +5,14 @@
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
   *
-  * @apiDescription This operation enable you to save either to update (edit) a specified entry in the relevant Repository
-  * and requires a write level permission granted for owner either admin role only. Upon the specified entry is saved then it could be updated i.e. overwritten by the common method
+  * @apiDescription This operation enable you to save either to update (edit) a specific settings (values) applying the related entry (key) in the relevant Repository.
+  * This method requires a write level permission granted by related manager's (Owner | Admin) API key role only.
+  * Upon the specified settings (values) are saved then it could be updated i.e. overwritten by the common method applying the related entry (key).
   *
   * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
   * @apiParam {String} repository Specified name of the repository
-  * @apiParam {String} key Specified key name (entry) for relevant configuration setting in the repository
-  * @apiParam {JsonNode} value Specified node (entry) name applied for relevant configuration settings in the repository
+  * @apiParam {String} key Specified key name (entry) for relevant configuration settings (values) in the repository
+  * @apiParam {JsonNode} value Specified node settings (values) to be stored either updated in the related repository
   *
   * @apiSuccess Acknowledgment Empty object
   *
@@ -56,7 +57,7 @@
   *          "sid":1,
   *          "d":{
   *                  errorCode":500,
-  *                  "errorMessage":"Failed to open bucket: 'ORG-ACF8F702CE82DE56D737-Name"
+  *                  "errorMessage":"repository: 'Name' not found"
   *          }
   *     }
   *
@@ -91,7 +92,7 @@
   *     {
   *         "data":{
   *         "errorCode":500,
-  *         "errorMessage":"Failed to open bucket: 'ORG-ACF8F702CE82DE56D737-Name"
+  *         "errorMessage":"repository: 'Name' not found"
   *         },
   *         "metadata":{
   *             "q":"/io.scalecube.services.error/500"
@@ -119,6 +120,6 @@
   * Error-Response (HTTP):
   *     {
   *        errorCode":500,
-  *        "errorMessage":"Failed to open bucket: 'ORG-ACF8F702CE82DE56D737-Name"
+  *        "errorMessage":"repository: 'Name' not found"
   *     }
   */

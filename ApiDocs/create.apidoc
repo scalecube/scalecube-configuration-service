@@ -5,7 +5,7 @@
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
   *
-  * @apiDescription This operation enable you to create the specified Repository for collecting and storing the relevant
+  * @apiDescription This operation enable to create the specified Repository for collecting and storing the relevant
   * entries and requires a write permission level granted for <b>Owner</b> API key role only.
   *
   * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
@@ -47,7 +47,7 @@
   *          "sid":1,
   *          "d":{
   *                  errorCode":500,
-  *                  "errorMessage":"Role 'Admin' has insufficient permissions for the requested operation: CreateRepoitory"
+  *                  "errorMessage":"Permission denied"
   *          }
   *     }
   *
@@ -78,7 +78,7 @@
   *     {
   *          "data":{
   *          "errorCode":500,
-  *          "errorMessage":"Role 'Member' has insufficient permissions for the requested operation: CreateRepoitory"
+  *          "errorMessage":"Permission denied"
   *          },
   *          "metadata":{
   *              "q":"/io.scalecube.services.error/500"
@@ -104,6 +104,6 @@
   *
   *     {
   *        errorCode":500,
-  *        "errorMessage":"Role 'Admin' has insufficient permissions for the requested operation: CreateRepoitory"
+  *        "errorMessage":"Permission denied"
   *     }
   */

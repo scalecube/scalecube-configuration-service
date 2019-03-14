@@ -5,15 +5,15 @@
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
   *
-  * @apiDescription This operation enable you to get all values (array of objects) by retrieving all the entries (keys) from
-  * the relevant Repository and enabled for each accessible permission level (read&write) granted for owner either admin or member role
+  * @apiDescription This operation enable to get all values (settings - array of objects) by retrieving all the entries (keys) from
+  * the relevant Repository and enabled for each accessible permission level granted by related API key role (Owner | Admin | Member).
   *
   * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
   * @apiParam {String} repository Specified name of the repository
   *
   * @apiSuccess {Object[]} entries List of all entries from the relevant configuration setting in the repository (Array of Objects)
   * @apiSuccess {Object} entries.value Specified node name applied for relevant configuration settings in the repository
-  * @apiSuccess {String} entries.key Specified key name (entry) for relevant configuration setting in the repository
+  * @apiSuccess {String} entries.key Specified key name (entry) for relevant configuration settings (values) in the repository
   *
   * @apiError {String} field invalid API key (token)
   *

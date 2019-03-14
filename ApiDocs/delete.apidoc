@@ -5,15 +5,16 @@
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
   *
-  * @apiDescription This operation enable you to delete a specified entry (key) from the relevant Repository and requires a write level permission granted for owner either admin role only
+  * @apiDescription This operation enable to delete a specific entry (key) from the relevant Repository and requires
+  * a write level permission granted for owner either admin role only.
   *
   * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
   * @apiParam {String} repository Specified name of the repository
-  * @apiParam {String} key Specified key name (entry) for relevant configuration setting in the repository
+  * @apiParam {String} key Specified key name (entry) for relevant configuration settings (values) in the repository
   *
   * @apiSuccess Acknowledgment Empty object
   *
-  * @apiError {String} field invalid permission level for specified API key
+  * @apiError {String} field invalid or non-existent key name (entry in the repository)
   *
   * @apiErrorExample {json} WebSocket
   * Request:
@@ -47,7 +48,7 @@
   *          "sid":1,
   *          "d":{
   *                  errorCode":500,
-  *                  "errorMessage":"ole 'Member' has insufficient permissions for the requested operation: Delete"
+  *                  "errorMessage":"key:'Name' not found"
   *          }
   *     }
   *
@@ -77,7 +78,7 @@
   *     {
   *          "data":{
   *          "errorCode":500,
-  *          "errorMessage":"ole 'Member' has insufficient permissions for the requested operation: Delete"
+  *          "errorMessage":"key:'Name' not found"
   *          },
   *          "metadata":{
   *              "q":"/io.scalecube.services.error/500"
@@ -102,6 +103,6 @@
   * Error Response:
   *     {
   *        errorCode":500,
-  *        "errorMessage":"ole 'Member' has insufficient permissions for the requested operation: Delete"
+  *        "errorMessage":"key:'Name' not found"
   *     }
   */

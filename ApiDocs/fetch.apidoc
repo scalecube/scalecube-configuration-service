@@ -5,17 +5,17 @@
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
   *
-  * @apiDescription This operation enable you to get specific value (either string or object) by retrieving specified entry (key)
-  * from the relevant Repository and enabled for each accessible permission level (read&write) granted for owner either admin or member role
+  * @apiDescription This operation enable to get specific value (setting - single object) by retrieving specified entry (key)
+  * from the relevant Repository and enabled for each accessible permission level granted by related API key role (Owner | Admin | Member).
   *
   * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
   * @apiParam {String} repository Specified name of the repository
   * @apiParam {String} key Specified key name (entry) for relevant configuration setting in the repository
   *
   * @apiSuccess {Object} value Specified node name applied for relevant configuration settings in the repository
-  * @apiSuccess {String} key Specified key name (entry) for relevant configuration setting in the repository
+  * @apiSuccess {String} key Specified key name (entry) for relevant configuration setting (value) in the repository
   *
-  * @apiError {String} field invalid or non-existent plain key name (entry in the repository)
+  * @apiError {String} field invalid or non-existent key name (entry in the repository)
   *
   * @apiErrorExample {json} WebSocket:
   * Request:
@@ -57,7 +57,7 @@
   *         "sid":1,
   *         "d":{
   *                 errorCode":500,
-  *                 "errorMessage":"16562665EC17CDF08E97"
+  *                 "errorMessage":"key:'Name' not found"
   *         }
   *    }
   *
@@ -95,7 +95,7 @@
   *    {
   *         "data":{
   *         "errorCode":500,
-  *         "errorMessage":"16562665EC17CDF08E97"
+  *         "errorMessage":"key:'Name' not found"
   *         },
   *         "metadata":{
   *             "q":"/io.scalecube.services.error/500"
@@ -128,6 +128,6 @@
   * Error Response (HTTP):
   *    {
   *       errorCode":500,
-  *       "errorMessage":"16562665EC17CDF08E97"
+  *       "errorMessage":"key:'Name' not found"
   *    }
   */
