@@ -23,7 +23,6 @@ import com.couchbase.client.java.error.TemporaryFailureException;
 import com.couchbase.client.java.error.TemporaryLockFailureException;
 import com.couchbase.client.java.error.TranscodingException;
 import com.couchbase.client.java.error.ViewDoesNotExistException;
-
 import io.scalecube.configuration.repository.exception.DataAccessException;
 import io.scalecube.configuration.repository.exception.DataAccessResourceFailureException;
 import io.scalecube.configuration.repository.exception.DataIntegrityViolationException;
@@ -32,23 +31,46 @@ import io.scalecube.configuration.repository.exception.DuplicateKeyException;
 import io.scalecube.configuration.repository.exception.InvalidDataAccessResourceUsageException;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.OperationCancellationException;
+import io.scalecube.configuration.repository.exception.OperationInterruptedException;
 import io.scalecube.configuration.repository.exception.QueryTimeoutException;
 import io.scalecube.configuration.repository.exception.TransientDataAccessResourceException;
-
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-/**
- * Utility class used to translate runtime exception into a more meaningful exceptions.
- */
+/** Utility class used to translate exception into a more meaningful exceptions. */
 public final class CouchbaseExceptionTranslator {
+
+  private CouchbaseExceptionTranslator() {}
 
   /**
    * Return a translation os the ex argument into a {@link DataAccessException} if possible.
-   * @param ex the runtime exception to try and translate
-   * @return A {@link DataAccessException} translation of the ex argument if possible;
-   *     the ex argument otherwise
+   *
+   * @param ex the exception to try and translate
+   * @return A {@link DataAccessException} translation of the ex argument if possible; the ex
+   *     argument otherwise
    */
-  public DataAccessException translateExceptionIfPossible(RuntimeException ex) {
+  public static DataAccessException translateExceptionIfPossible(Throwable ex) {
+    if (ex instanceof DataAccessException) {
+      return (DataAccessException) ex;
+    }
+
+    if (ex instanceof RuntimeException) {
+      return translateRuntimeExceptionIfPossible((RuntimeException) ex);
+    }
+
+    if (ex instanceof TimeoutException) {
+      return new QueryTimeoutException(ex.getMessage(), ex);
+    }
+
+    if (ex instanceof InterruptedException || ex instanceof ExecutionException) {
+      return new OperationInterruptedException(ex.getMessage(), ex);
+    }
+
+    // Unable to translate exception, therefore just wrap in DataAccessException
+    throw new DataAccessException(ex);
+  }
+
+  private static DataAccessException translateRuntimeExceptionIfPossible(RuntimeException ex) {
     if (ex instanceof InvalidPasswordException
         || ex instanceof NotConnectedException
         || ex instanceof ConfigurationException
@@ -76,8 +98,7 @@ public final class CouchbaseExceptionTranslator {
       return new DataIntegrityViolationException(ex.getMessage(), ex);
     }
 
-    if (ex instanceof RequestCancelledException
-        || ex instanceof BackpressureException) {
+    if (ex instanceof RequestCancelledException || ex instanceof BackpressureException) {
       return new OperationCancellationException(ex.getMessage(), ex);
     }
 
@@ -87,18 +108,17 @@ public final class CouchbaseExceptionTranslator {
       return new InvalidDataAccessResourceUsageException(ex.getMessage(), ex);
     }
 
-    if (ex instanceof TemporaryLockFailureException
-        || ex instanceof TemporaryFailureException) {
+    if (ex instanceof TemporaryLockFailureException || ex instanceof TemporaryFailureException) {
       return new TransientDataAccessResourceException(ex.getMessage(), ex);
     }
 
-    if ((ex != null && ex.getCause() instanceof TimeoutException)) {
+    if (ex != null && ex.getCause() instanceof TimeoutException) {
       return new QueryTimeoutException(ex.getMessage(), ex);
     }
 
     if (ex instanceof TranscodingException) {
-      //note: the more specific CouchbaseQueryExecutionException should be thrown by the template
-      //when dealing with TranscodingException in the query/n1ql methods.
+      // note: the more specific CouchbaseQueryExecutionException should be thrown by the template
+      // when dealing with TranscodingException in the query/n1ql methods.
       return new DataRetrievalFailureException(ex.getMessage(), ex);
     }
 

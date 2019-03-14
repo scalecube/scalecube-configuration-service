@@ -1,26 +1,25 @@
 package io.scalecube.configuration.repository.couchbase.admin;
 
 import com.couchbase.client.java.cluster.BucketSettings;
-import com.couchbase.client.java.query.N1qlQueryResult;
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-/**
- * Factory class for constructing admin operation classes.
- */
+/** Factory class for constructing admin operation classes. */
 public abstract class AdminOperationsFactory {
-  public static Operation<BucketSettings> insertBucket() {
+
+  public static Operation<Mono<BucketSettings>> insertBucket() {
     return new InsertBucketOperation();
   }
 
-  public static Operation<N1qlQueryResult> createPrimaryIndex() {
+  public static Operation<Mono<Boolean>> createPrimaryIndex() {
     return new CreatePrimaryIndexOperation();
   }
 
-  public static Operation<Boolean> insertUser() {
+  public static Operation<Mono<Boolean>> insertUser() {
     return new InsertUserOperation();
   }
 
-  public static Operation<List<String>> getBucketNames() {
+  public static Operation<Flux<String>> getBucketNames() {
     return new ListBucketNamesOperation();
   }
 }

@@ -1,11 +1,8 @@
 package io.scalecube.configuration.api;
 
-public class InvalidPermissionsException extends Throwable {
-
-  private static final long serialVersionUID = 1L;
+public class InvalidPermissionsException extends RuntimeException {
 
   public InvalidPermissionsException(String message) {
     super(message);
   }
-
 }
