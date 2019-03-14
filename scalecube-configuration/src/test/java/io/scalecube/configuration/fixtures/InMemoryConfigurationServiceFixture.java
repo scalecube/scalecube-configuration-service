@@ -9,6 +9,7 @@ import io.jsonwebtoken.Jwts;
 import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.DeleteOrganizationResponse;
 import io.scalecube.account.api.GetMembershipResponse;
+import io.scalecube.account.api.GetOrganizationRequest;
 import io.scalecube.account.api.GetOrganizationResponse;
 import io.scalecube.account.api.GetPublicKeyResponse;
 import io.scalecube.account.api.OrganizationInfo;
@@ -35,6 +36,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import org.mockito.ArgumentMatchers;
 import org.opentest4j.TestAbortedException;
 import reactor.core.publisher.Mono;
 
@@ -90,35 +92,51 @@ public final class InMemoryConfigurationServiceFixture implements Fixture {
   }
 
   @Override
-  public void tearDown() {}
+  public void tearDown() {
+    // do nothing
+  }
 
   private OrganizationService mockOrganization() {
     OrganizationService organizationService = mock(OrganizationService.class);
 
-    final Builder organization1InfoBuilder =
+    String organizationId1 = "ORG-TEST-1";
+    Builder organization1InfoBuilder =
         OrganizationInfo.builder()
-            .id("ORG-TEST-1")
+            .id(organizationId1)
             .name("Test Organization 1")
             .email("info@scalecube.io")
             .apiKeys(
                 new ApiKey[] {
-                  mockApiKey(Role.Owner),
-                  mockApiKey(Role.Owner, true),
-                  mockApiKey(Role.Admin),
-                  mockApiKey(Role.Member)
+                  mockApiKey(organizationId1, Role.Owner),
+                  mockApiKey(organizationId1, Role.Owner, true),
+                  mockApiKey(organizationId1, Role.Admin),
+                  mockApiKey(organizationId1, Role.Member)
                 });
     OrganizationInfo organization1Info = organization1InfoBuilder.build();
 
+    String organizationId2 = "ORG-TEST-2";
     Builder organization2InfoBuilder =
         OrganizationInfo.builder()
-            .id("ORG-TEST-2")
+            .id(organizationId2)
             .name("Test Organization 2")
             .email("info@scalecube.io")
-            .apiKeys(new ApiKey[] {mockApiKey(Role.Owner)});
+            .apiKeys(
+                new ApiKey[] {
+                  mockApiKey(organizationId2, Role.Owner), mockApiKey(organizationId2, Role.Admin)
+                });
     OrganizationInfo organization2Info = organization2InfoBuilder.build();
 
-    when(organizationService.getOrganization(any()))
+    GetOrganizationRequest request1 =
+        ArgumentMatchers.argThat(
+            argument -> argument != null && argument.organizationId().equals(organizationId1));
+    when(organizationService.getOrganization(request1))
         .thenReturn(Mono.just(new GetOrganizationResponse(organization1InfoBuilder)));
+
+    GetOrganizationRequest request2 =
+        ArgumentMatchers.argThat(
+            argument -> argument != null && argument.organizationId().equals(organizationId2));
+    when(organizationService.getOrganization(request2))
+        .thenReturn(Mono.just(new GetOrganizationResponse(organization2InfoBuilder)));
 
     when(organizationService.getUserOrganizationsMembership(any()))
         .thenReturn(
@@ -145,15 +163,16 @@ public final class InMemoryConfigurationServiceFixture implements Fixture {
     return organizationService;
   }
 
-  private ApiKey mockApiKey(Role role) {
-    return mockApiKey(role, false);
+  private ApiKey mockApiKey(String organizationId, Role role) {
+    return mockApiKey(organizationId, role, false);
   }
 
   @SuppressWarnings("unchecked")
-  private ApiKey mockApiKey(Role role, boolean expired) {
+  private ApiKey mockApiKey(String organizationId, Role role, boolean expired) {
     ApiKey apiKey = mock(ApiKey.class);
 
     Map claims = new HashMap<>();
+    claims.put("aud", organizationId);
     claims.put("role", role.name());
 
     Profile profile = Profile.builder().claims(claims).build();

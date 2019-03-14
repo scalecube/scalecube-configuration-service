@@ -57,7 +57,6 @@ abstract class BaseTest {
 
   private ApiKey getApiKey(
       OrganizationService organizationService, String organizationId, Role role, boolean expired) {
-
     GetOrganizationResponse organization =
         organizationService
             .getOrganization(new GetOrganizationRequest(AUTH0_TOKEN, organizationId))

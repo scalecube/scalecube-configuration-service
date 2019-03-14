@@ -60,7 +60,12 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   }
 
   private Mono<Document> get(RepositoryEntryKey key) {
-    return Mono.just(getRepository(key.repository()).get(key.key()));
+    return Mono.justOrEmpty(getRepository(key.repository()).get(key.key()))
+        .switchIfEmpty(
+            Mono.defer(
+                () ->
+                    Mono.error(
+                        new KeyNotFoundException(String.format("Key '%s' not found", key.key())))));
   }
 
   private Mono<Document> put(RepositoryEntryKey key, Document value) {
@@ -73,7 +78,11 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   private Mono<String> remove(RepositoryEntryKey key) {
     return Mono.fromCallable(() -> getRepository(key.repository()))
         .filter(repository -> repository.containsKey(key.key()))
-        .switchIfEmpty(Mono.defer(() -> Mono.error(new KeyNotFoundException(key.toString()))))
+        .switchIfEmpty(
+            Mono.defer(
+                () ->
+                    Mono.error(
+                        new KeyNotFoundException(String.format("Key '%s' not found", key.key())))))
         .map(repository -> repository.remove(key.key()))
         .thenReturn(key.key());
   }
@@ -86,7 +95,9 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
     if (repositoryExists(repository)) {
       return map.get(repository.namespace()).get(repository.name());
     } else {
-      throw new RepositoryNotFoundException(repository.toString());
+      throw new RepositoryNotFoundException(
+          String.format(
+              "Repository '%s' not found", repository.namespace() + "-" + repository.name()));
     }
   }
 
