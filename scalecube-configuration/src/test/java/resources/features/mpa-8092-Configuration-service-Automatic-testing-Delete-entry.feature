@@ -82,7 +82,7 @@ Feature: Integration tests for configuration service - FETCH (Single entry).
     And related "Admin" API key was stored in the organization with specified name "Org-2"
     And "repository" with specified name "Repo-1" was created by applying related "Owner" API key
     When the user requested to delete specific entry from the "repository" name "Repo-1" applying the "Admin" API key from organization with name "Org-2"
-    Then the user should get the "errorMessage":"Permission denied"
+    Then the user should get the "errorMessage":"Repository:'Name' not found"
 
 
   #MPA-8092 (#39) - logic will be implemented by Architect as the nature of the API key (token) is some expiration interim
