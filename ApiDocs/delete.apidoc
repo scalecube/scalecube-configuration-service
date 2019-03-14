@@ -1,5 +1,5 @@
 /**
-  * @api {ServiceMethod: delete} /configuration/delete delete
+  * @api {ServiceMethod: delete} /configuration/delete delete (entry)
   * @apiName Delete
   * @apiGroup Methods
   * @apiVersion 0.0.0-CURRENT

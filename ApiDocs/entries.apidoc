@@ -1,5 +1,5 @@
 /**
-  * @api {ServiceMethod: entries} /configuration/entries entries
+  * @api {ServiceMethod: entries} /configuration/entries entries (get all entries)
   * @apiName Entries
   * @apiGroup Methods
   * @apiVersion 0.0.0-CURRENT

@@ -1,5 +1,5 @@
 /**
-  * @api {ServiceMethod: save} /configuration/save save
+  * @api {ServiceMethod: save} /configuration/save save (entry)
   * @apiName Save
   * @apiGroup Methods
   * @apiVersion 0.0.0-CURRENT

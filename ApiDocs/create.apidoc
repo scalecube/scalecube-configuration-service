@@ -5,10 +5,12 @@
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
   *
-  * @apiDescription This operation enable you to create the specified Repository for collecting and storing the relevant entries and requires a write permission level granted for owner role only
+  * @apiDescription This operation enable you to create the specified Repository for collecting and storing the relevant
+  * entries and requires a write permission level granted for <b>Owner</b> API key role only.
   *
   * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
   * @apiParam {String} repository Specified name of the repository
+  * @apiParam {String} email Specified e-mail of the related repository manager
   *
   * @apiSuccess Acknowledgment Empty object
   *
@@ -22,6 +24,7 @@
   *         "d":{
   *         "token": "API-TOKEN",
   *         "repository": "specifiedRepoName"
+  *         "email": "specified@mail.com"
   *         }
   *     }
   *

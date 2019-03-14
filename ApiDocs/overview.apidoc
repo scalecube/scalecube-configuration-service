@@ -6,16 +6,14 @@
   * @apiDescription Configuration service enable you to integrate the API in order to create and manage the separate
   * repositories purposed for entries collection and storage.
   *
-  *
   * <b>Getting Started</b>
   *
-  *
   * All API endpoints are documented below. You can try out any query in realtime using our interactive API.
-  * <br>Configuration service is a provider for <a href="http://scalecube.io/organization-service/index.html">Organization service</a> management.
+  * <br> <a href="http://scalecube.io/organization-service/index.html">Organization service</a> is a provider for Configuration service management.
   * Actually all methods require <a href="http://scalecube.io/organization-service/index.html#api-ApiKey-AddOrganizationApiKey">API key</a> authorization since
   * they provide a specific permission level (write or read ) for the each user. So there is a necessity to get the API key
-  * (token - assigned with relevant role Member/Admin/Owner) which is basically purposed for organization managers who provide such kind permission level to potential costumers.
-  * <br>Thus, we recommend you first to be granted with valid <b>API key</b> assigned with relevant role (permission level) to be able to make valid requests across all service <b>endpoints</b>.
+  * (token - assigned with relevant role Member | Admin | Owner) which is basically issued by some of the organization managers who provide such kind permission level to potential costumers.
+  * <br>Thus, firstly we recommend to be granted with valid <b>API key</b> assigned with relevant role (permission level) to be able to make valid requests across all service <b>endpoints</b>.
   *
   * <b>Validation</b> for the object entities is handled by <b>Scalecube</b> services and do the next upon the request object:
   * >~ ignores any excessive keys and values added besides the required parameters

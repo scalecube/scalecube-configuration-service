@@ -1,5 +1,5 @@
 /**
-  * @api {ServiceMethod: fetch} /configuration/fetch fetch
+  * @api {ServiceMethod: fetch} /configuration/fetch fetch (get single entry)
   * @apiName Fetch
   * @apiGroup Methods
   * @apiVersion 0.0.0-CURRENT
