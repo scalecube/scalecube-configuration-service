@@ -10,7 +10,6 @@
   *
   * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
   * @apiParam {String} repository Specified name of the repository
-  * @apiParam {String} email Specified e-mail of the related repository manager
   *
   * @apiSuccess Acknowledgment Empty object
   *
@@ -24,7 +23,6 @@
   *         "d":{
   *         "token": "API-TOKEN",
   *         "repository": "specifiedRepoName"
-  *         "email": "specified@mail.com"
   *         }
   *     }
   *
