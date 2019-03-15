@@ -5,18 +5,18 @@
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
   *
-  * @apiDescription This operation enable you to save either to update (edit) a specific settings (values) applying the related entry (key) in the relevant Repository.
-  * This method requires a write level permission granted by related manager's (Owner | Admin) API key role only.
-  * Upon the specified settings (values) are saved then it could be updated i.e. overwritten by the common method applying the related entry (key).
+  * @apiDescription This operation enable to save either to update (edit) a specific entry (setting(s)) applying the related key in the relevant Repository.
+  * This method requires a write level permission granted for managers's API keys with related roles <b>Owner</b> either <b>Admin</b> only.
+  * Upon the specified setting(s) was (were) saved then each could be updated i.e. overwritten by the common method applying the related key.
   *
   * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
   * @apiParam {String} repository Specified name of the repository
-  * @apiParam {String} key Specified key name (entry) for relevant configuration settings (values) in the repository
-  * @apiParam {JsonNode} value Specified node settings (values) to be stored either updated in the related repository
+  * @apiParam {String} key Specified key name for relevant configuration settings (objects) in the repository
+  * @apiParam {JsonNode} value Specified node of settings (objects) to be stored either updated in the related repository
   *
   * @apiSuccess Acknowledgment Empty object
   *
-  * @apiError {String} field invalid or non-existent repository name
+  * @apiError {String} field invalid or non-existent repository
   *
   *
   * @apiErrorExample {json} WebSocket:
@@ -56,7 +56,7 @@
   *          "q":"/io.scalecube.services.error/500",
   *          "sid":1,
   *          "d":{
-  *                  errorCode":500,
+  *                  "errorCode":500,
   *                  "errorMessage":"repository: 'Name' not found"
   *          }
   *     }
@@ -119,7 +119,7 @@
   *
   * Error-Response (HTTP):
   *     {
-  *        errorCode":500,
+  *        "errorCode":500,
   *        "errorMessage":"repository: 'Name' not found"
   *     }
   */
