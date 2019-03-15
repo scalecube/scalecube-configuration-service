@@ -109,7 +109,7 @@ Feature: Integration tests for configuration service - SAVE/UPDATE.
   Scenario: Fail to save (edit) the specific entry in the Repository upon the "token" is invalid (expired)
     Given a user have got an invalid "token" (API key)
     When this user requested to save some entry in the some specified name "repository"
-    Then no repository shouldn't be created and the user should get the "errorMessage": "Token verification failed"
+    Then no entry shouldn't be created and the user should get the "errorMessage": "Token verification failed"
 
 
   #MPA-8092 (#15)
@@ -130,7 +130,7 @@ Feature: Integration tests for configuration service - SAVE/UPDATE.
     And "repository" with specified name "Repo-1" was created  by applying related "Owner" API key
     When the user requested to save some entry in the "repository" name "Repo-1" applying the "Admin" API key from organization with name "Org-2"
     Then no entry shouldn't be recorded to the relevant "repository" name "Repo-1"
-    And the user should get the "errorMessage":"Permission denied"
+    And the user should get the "errorMessage":"repository:'Name' not found"
 
 
   #MPA-8092 (#17) - logic will be implemented by Architect as the nature of the API key (token) is some expiration interim

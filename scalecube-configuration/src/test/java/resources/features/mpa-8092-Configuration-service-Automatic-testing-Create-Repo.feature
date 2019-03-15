@@ -22,6 +22,16 @@ Feature: Integration tests for configuration service - CREATE (Repository).
     And the user should get the successful response with the "empty" object
 
 
+  #MPA-8092 (#1.1)
+  Scenario: Successful Repositories creation with identical names applying the "Owner" API keys from different organizations
+    Given the user have got a valid "token" (API key) with assigned "Owner" role issued on behalf of organization "Org-1"
+    And the user have got a valid "token" (API key) with assigned "Owner" role issued on behalf of organization "Org-2"
+    When this user requested to create the "repository" with "Repo-1" name applying "Owner" API key from organization "Org-1"
+    And this user requested to create the "repository" with the same "Repo-1" name applying "Owner" API key from organization "Org-2"
+    Then two repositories with identical names "Repo-1" should be created
+    And for each request the user should get the successful response with the "empty" object
+
+
   #__________________________________________________NEGATIVE___________________________________________________________
 
   #MPA-8092 (#2)

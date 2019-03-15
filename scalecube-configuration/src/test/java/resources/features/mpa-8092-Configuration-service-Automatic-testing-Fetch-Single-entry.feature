@@ -33,8 +33,8 @@ Feature: Integration tests for configuration service - FETCH (Single entry).
       | instrumentId | name   | DecimalPrecision | Rounding | key                        |
       | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
     And the repository with "specified" name "Repo-2" already created with following entry
-      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
-      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
+      | instrumentId | name | DecimalPrecision | Rounding | key                        |
+      | JPY          | Yen  | 2                | down     | KEY-FOR-PRECIOUS-METAL-123 |
     And the user have been granted with valid "token" (API key) assigned by "Member" role
     When this user requested to get (fetch) the existent entry set by "KEY-FOR-PRECIOUS-METAL-123" key from the repository "Repo-1" name
     Then the user should get only one specified key with related entry
@@ -87,11 +87,11 @@ Feature: Integration tests for configuration service - FETCH (Single entry).
     And related "Member" API key was stored in the organization with specified name "Org-2"
     And "repository" with specified name "Repo-1" was created by applying related "Owner" API key
     When the user requested to get some entry from the "repository" name "Repo-1" applying the "Member" API key from organization with name "Org-2"
-    Then the user should get the "errorMessage":"Permission denied"
+    Then the user should get the "errorMessage":"repository:'Name' not found"
 
 
   #MPA-8092 (#25) - logic will be implemented by Architect as the nature of the API key (token) is some expiration interim
-  Scenario: Fail to save (edit) the specific entry in the Repository upon the Admin "token" (API key) was deleted from the Organization
+  Scenario: Fail to get the specific entry from the Repository upon the Admin "token" (API key) was deleted from the Organization
     Given an organization "organizationId" with specified "name" and "email" already created with related "Owner" and "Admin" API keys which are stored there
     And the specified name "repository" was created without any stored entry by applying related "Owner" API key
     And the related organization "Owner" has deleted the relevant "Admin" API key from the organization "organizationId"

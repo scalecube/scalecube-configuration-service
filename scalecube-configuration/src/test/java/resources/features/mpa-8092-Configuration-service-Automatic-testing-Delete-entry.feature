@@ -14,7 +14,7 @@ Feature: Integration tests for configuration service - FETCH (Single entry).
   #__________________________________________________POSITIVE___________________________________________________________
 
   #MPA-8092 (#32)
-  Scenario: Successful delete of the specific entry from the related Repository applying managers' API keys: "Owner" and "Admin",
+  Scenario: Successful delete of the specific entry from the related Repository applying managers' API keys: "Owner" and "Admin"
     Given the specified name "repository" was created with following entries
       | instrumentId | name   | DecimalPrecision | Rounding | key                        |
       | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
@@ -23,6 +23,21 @@ Feature: Integration tests for configuration service - FETCH (Single entry).
     When this user requested to delete the entry set by "KEY-FOR-PRECIOUS-METAL-123" key from the relevant "repository" applying the "Owner" API key
     And this user requested to delete the entry set by "KEY-FOR-CURRENCY-999" key from the relevant "repository" applying the "Admin" API key
     Then for each request user should get the successful response with the "empty" object
+
+
+  #MPA-8092 (#32.1)
+  Scenario: Successful delete one of the identical keys (entries) from the related Repository applying some of the managers' API keys
+    Given the repository with "specified" name "Repo-1" created applying "Owner" API key with following entry
+      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
+      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
+    And the repository with "specified" name "Repo-2" created applying "Owner" API key with following entry
+      | instrumentId | name     | DecimalPrecision | Rounding | key                        |
+      | XPT          | Platinum | 2                | up       | KEY-FOR-PRECIOUS-METAL-123 |
+    When this user requested to delete existent entry set by "KEY-FOR-PRECIOUS-METAL-123" key from the repository "Repo-1" name
+    Then user should get the successful response with the "empty" object
+    But the identical entry with related key shouldn't be deleted from the the repository "Repo-2" name
+      | instrumentId | name     | DecimalPrecision | Rounding | key                        |
+      | XPT          | Platinum | 2                | up       | KEY-FOR-PRECIOUS-METAL-123 |
 
 
   #MPA-8092 (#33)
@@ -55,7 +70,7 @@ Feature: Integration tests for configuration service - FETCH (Single entry).
       | instrumentId | name   | DecimalPrecision | Rounding | key                        |
       | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
     And the user have been granted with valid "token" (API key) assigned by "Admin" role
-    When this user requested to delete "non-existent" "key from the relevant specified name "repository"
+    When this user requested to delete "non-existent" key from the relevant specified name "repository"
     Then the user should get the "errorMessage":"key:'Name' not found"
 
 
@@ -82,7 +97,7 @@ Feature: Integration tests for configuration service - FETCH (Single entry).
     And related "Admin" API key was stored in the organization with specified name "Org-2"
     And "repository" with specified name "Repo-1" was created by applying related "Owner" API key
     When the user requested to delete specific entry from the "repository" name "Repo-1" applying the "Admin" API key from organization with name "Org-2"
-    Then the user should get the "errorMessage":"Repository:'Name' not found"
+    Then the user should get the "errorMessage":"repository:'Name' not found"
 
 
   #MPA-8092 (#39) - logic will be implemented by Architect as the nature of the API key (token) is some expiration interim
