@@ -25,7 +25,7 @@ Feature: Integration tests for configuration service - FETCH (Single entry).
     Then for each request user should get the successful response with the "empty" object
 
 
-  #MPA-8092 (#32.1)
+  #MPA-8092 (#33)
   Scenario: Successful delete one of the identical keys (entries) from the related Repository applying some of the managers' API keys
     Given the repository with "specified" name "Repo-1" created applying "Owner" API key with following entry
       | instrumentId | name   | DecimalPrecision | Rounding | key                        |
@@ -38,17 +38,8 @@ Feature: Integration tests for configuration service - FETCH (Single entry).
     But the identical entry with related key shouldn't be deleted from the the repository "Repo-2" name
       | instrumentId | name     | DecimalPrecision | Rounding | key                        |
       | XPT          | Platinum | 2                | up       | KEY-FOR-PRECIOUS-METAL-123 |
-
-
-  #MPA-8092 (#33)
-  Scenario: Successfully get nothing upon stored entry was deleted from the Repository (check the deletion)
-    Given the specified name "repository" was created with following entries
-      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
-      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
-    And the user have been granted with valid "token" (API key) assigned by "Owner" role
-    And this user requested to delete the entry set by "key" from the relevant "repository"
-    When this user requested to get the recently deleted entry "key" from the relevant "repository" specified name
-    Then the user should get the "errorMessage":"key:'Name' not found"
+    And this user requested to get the recently deleted entry "KEY-FOR-PRECIOUS-METAL-123" from the repository "Repo-1" name
+    And this user should get the "errorMessage":"key:'Name' not found"
 
 
   #__________________________________________________NEGATIVE___________________________________________________________
