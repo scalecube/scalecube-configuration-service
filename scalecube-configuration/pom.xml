@@ -21,6 +21,7 @@
     <scalecube-app-utils.version>0.0.4</scalecube-app-utils.version>
     <caffeine.version>2.6.2</caffeine.version>
     <rxjava-reactive-streams.version>1.2.1</rxjava-reactive-streams.version>
+    <commons-lang3.version>3.8.1</commons-lang3.version>
   </properties>
 
   <dependencies>
@@ -122,6 +123,12 @@
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-test-utils</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>${commons-lang3.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
