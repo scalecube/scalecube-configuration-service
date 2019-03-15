@@ -122,7 +122,9 @@ public final class InMemoryConfigurationServiceFixture implements Fixture {
             .email("info@scalecube.io")
             .apiKeys(
                 new ApiKey[] {
-                  mockApiKey(organizationId2, Role.Owner), mockApiKey(organizationId2, Role.Admin)
+                  mockApiKey(organizationId2, Role.Owner),
+                  mockApiKey(organizationId2, Role.Admin),
+                  mockApiKey(organizationId2, Role.Member)
                 });
     OrganizationInfo organization2Info = organization2InfoBuilder.build();
 
