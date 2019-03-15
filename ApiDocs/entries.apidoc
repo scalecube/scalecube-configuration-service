@@ -34,7 +34,7 @@
   *         "q": "/configuration/entries",
   *         "sid": 1,
   *         "d":{
-  *                "entries": [
+  *                [
   *                  {
   *                    "value": {
   *                               "instrumentInstance": {
@@ -103,7 +103,7 @@
   *
   *     {
   *       "data":{
-  *                "entries": [
+  *                [
   *                  {
   *                    "value": {
   *                               "instrumentInstance": {
@@ -167,7 +167,7 @@
   *
   * Response:
   *     {
-  *       "entries": [
+  *       [
   *         {
   *           "value": {
   *                      "instrumentInstance": {

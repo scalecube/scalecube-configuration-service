@@ -8,7 +8,7 @@ public class DefaultPermissions {
 
   public static final Authorizer PERMISSIONS =
       Permissions.builder()
-          .grant(ConfigurationService.CONFIG_CREATE_REPO, Role.Owner, Role.Admin)
+          .grant(ConfigurationService.CONFIG_CREATE_REPO, Role.Owner)
           .grant(ConfigurationService.CONFIG_SAVE, Role.Owner, Role.Admin)
           .grant(ConfigurationService.CONFIG_DELETE, Role.Owner, Role.Admin)
           .grant(ConfigurationService.CONFIG_FETCH, Role.Owner, Role.Admin, Role.Member)
