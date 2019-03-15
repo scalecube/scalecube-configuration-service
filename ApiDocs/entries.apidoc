@@ -1,19 +1,19 @@
 /**
-  * @api {ServiceMethod: entries} /configuration/entries entries
+  * @api {ServiceMethod: entries} /configuration/entries entries (get all entries)
   * @apiName Entries
   * @apiGroup Methods
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
   *
-  * @apiDescription This operation enable you to get all values (array of objects) by retrieving all the entries (keys) from
-  * the relevant Repository and enabled for each accessible permission level (read&write) granted for owner either admin or member role
+  * @apiDescription This operation enable to get all entries (setting(s) - array of objects) by retrieving all the keys from
+  * the relevant Repository. This method requires a read level permission which is granted for all related API key roles (Owner | Admin | Member).
   *
   * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
   * @apiParam {String} repository Specified name of the repository
   *
-  * @apiSuccess {Object[]} entries List of all entries from the relevant configuration setting in the repository (Array of Objects)
-  * @apiSuccess {Object} entries.value Specified node name applied for relevant configuration settings in the repository
-  * @apiSuccess {String} entries.key Specified key name (entry) for relevant configuration setting in the repository
+  * @apiSuccess {Object[]} entries List of all entries from the relevant configuration settings in the repository (Array of Objects)
+  * @apiSuccess {Object} entries.value Json node of settings (objects) stored in the repository
+  * @apiSuccess {String} entries.key Specified key name for relevant configuration settings (objects) in the repository
   *
   * @apiError {String} field invalid API key (token)
   *
@@ -34,7 +34,7 @@
   *         "q": "/configuration/entries",
   *         "sid": 1,
   *         "d":{
-  *                [
+  *                "entries": [
   *                  {
   *                    "value": {
   *                               "instrumentInstance": {
@@ -82,7 +82,7 @@
   *          "q":"/io.scalecube.services.error/500",
   *          "sid":1,
   *          "d":{
-  *                  errorCode":500,
+  *                  "errorCode":500,
   *                  "errorMessage":"Token verification failed"
   *          }
   *     }
@@ -103,7 +103,7 @@
   *
   *     {
   *       "data":{
-  *                [
+  *                "entries": [
   *                  {
   *                    "value": {
   *                               "instrumentInstance": {
@@ -167,7 +167,7 @@
   *
   * Response:
   *     {
-  *       [
+  *       "entries": [
   *         {
   *           "value": {
   *                      "instrumentInstance": {
@@ -206,7 +206,7 @@
   *
   * Error Response:
   *    {
-  *       errorCode":500,
+  *       "errorCode":500,
   *       "errorMessage":"Token verification failed"
   *    }
   */
