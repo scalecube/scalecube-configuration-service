@@ -145,10 +145,6 @@ public abstract class EntryOperation<R extends Publisher> {
                         th ->
                             new RepositoryNotFoundException(
                                 String.format("Repository '%s' not found", bucketName), th))
-                    .onErrorMap(
-                        th ->
-                            new RepositoryNotFoundException(
-                                String.format("Failed to open bucket: '%s'", bucketName), th))
                     .doOnError(
                         th ->
                             logger.error("Failed to open bucket: '{}', error: {}", bucketName, th)))
