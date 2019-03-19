@@ -1,5 +1,6 @@
 package io.scalecube.configuration.repository.couchbase.operation;
 
+import com.couchbase.client.core.CouchbaseException;
 import com.couchbase.client.java.AsyncBucket;
 import com.couchbase.client.java.document.ByteArrayDocument;
 import io.scalecube.configuration.repository.Document;
@@ -76,7 +77,10 @@ public abstract class EntryOperation<R extends Publisher> {
     return Mono.fromRunnable(
         () -> logger.debug("enter: getDocument -> bucket = [ {} ], [ {} ]", bucket.name(), id))
         .then(Mono.from(RxReactiveStreams.toPublisher(bucket.get(id, ByteArrayDocument.class))))
-        .switchIfEmpty(Mono.defer(() -> Mono.error(new KeyNotFoundException(id))))
+        .switchIfEmpty(
+            Mono.defer(
+                () ->
+                    Mono.error(new KeyNotFoundException(String.format("Key '%s' not found", id)))))
         .publishOn(Schedulers.parallel())
         .map(document -> toEntity(id, bucket.name(), document))
         .onErrorMap(
@@ -137,9 +141,10 @@ public abstract class EntryOperation<R extends Publisher> {
                                 .cluster()
                                 .openBucket(bucketName, PasswordGenerator.md5Hash(bucketName))))
                     .onErrorMap(
+                        CouchbaseException.class,
                         th ->
                             new RepositoryNotFoundException(
-                                String.format("Failed to open bucket: '%s'", bucketName), th))
+                                String.format("Repository '%s' not found", bucketName), th))
                     .doOnError(
                         th ->
                             logger.error("Failed to open bucket: '{}', error: {}", bucketName, th)))

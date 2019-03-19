@@ -6,5 +6,7 @@ public class InvalidAuthenticationToken extends RuntimeException {
     super(message);
   }
 
-  public InvalidAuthenticationToken() {}
+  public InvalidAuthenticationToken() {
+    super("Token verification failed");
+  }
 }
