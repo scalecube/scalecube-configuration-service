@@ -2,7 +2,7 @@ package io.scalecube.configuration.api;
 
 import io.scalecube.services.annotations.Service;
 import io.scalecube.services.annotations.ServiceMethod;
-import reactor.core.publisher.Flux;
+import java.util.List;
 import reactor.core.publisher.Mono;
 
 /**
@@ -47,7 +47,7 @@ public interface ConfigurationService {
    * @return list of FetchResponses per each entry in the repository.
    */
   @ServiceMethod
-  Flux<FetchResponse> entries(FetchRequest request);
+  Mono<List<FetchResponse>> entries(FetchRequest request);
 
   /**
    * Save request requires write level permissions to save (create or update) entry to the store.

@@ -4,11 +4,13 @@ import static com.couchbase.client.java.query.Select.select;
 import static com.couchbase.client.java.query.dsl.Expression.i;
 
 import com.couchbase.client.java.AsyncBucket;
+import com.couchbase.client.java.error.DocumentDoesNotExistException;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.SimpleN1qlQuery;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.couchbase.CouchbaseExceptionTranslator;
 import io.scalecube.configuration.repository.exception.DataRetrievalFailureException;
+import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import java.util.Objects;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -36,6 +38,9 @@ final class ListEntriesOperation extends EntryOperation<Flux<Document>> {
 
               return Flux.from(RxReactiveStreams.toPublisher(query(bucket, query)));
             })
+        .onErrorMap(
+            DocumentDoesNotExistException.class,
+            e -> new KeyNotFoundException(String.format("Key '%s' not found", context.key().key())))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
         .doOnError(
             th ->
