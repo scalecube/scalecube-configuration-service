@@ -38,6 +38,17 @@ Feature: Integration tests for configuration service - ENTRIES (All entries).
     Then the user should get the "errorMessage":"repository:'Name' not found"
 
 
+  #MPA-8211 (#27.1)
+  Scenario: Fail to get any entry upon the repository name is empty or undefined (null)
+    Given no "repository" was created
+    And the user have been granted with valid "token" (API key) assigned by "Admin" role
+    When this user requested to get all entries in the some "repository" with empty and undefined name
+      | repository |
+      |            |
+      | null       |
+    Then the user should get an error message: "Please specify a Repository name"
+
+
   #MPA-8092 (#28)
   Scenario: Fail to get any entry from the Repository upon the "token" is invalid (expired)
     Given a user have got an invalid "token" (API key)

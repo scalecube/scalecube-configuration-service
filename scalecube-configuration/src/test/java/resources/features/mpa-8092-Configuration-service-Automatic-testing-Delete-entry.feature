@@ -55,6 +55,28 @@ Feature: Integration tests for configuration service - FETCH (Single entry).
     And the user should get the "errorMessage":"Permission denied"
 
 
+  #MPA-8211 (#34.1)
+  Scenario: Fail to delete the entry upon the related key is empty or undefined (null)
+    Given the specified name "repository" was created without any entries
+    And the user have been granted with valid "token" (API key) assigned by "Owner" role
+    When this user requested to delete specific entry in the relevant "repository" with empty and undefined keys
+      | key  |
+      |      |
+      | null |
+    Then the user should get an error message: "Please specify a key name"
+
+
+  #MPA-8211 (#34.2)
+  Scenario: Fail to get the entry upon the repository name is empty or undefined (null)
+    Given no "repository" was created
+    And the user have been granted with valid "token" (API key) assigned by "Admin" role
+    When this user requested to delete some entry in the some "repository" with empty and undefined name
+      | repository |
+      |            |
+      | null       |
+    Then the user should get an error message: "Please specify a Repository name"
+
+
   #MPA-8092 (#35)
   Scenario: Fail to delete a non-existent entry from the related Repository applying the "Admin" API key
     Given the specified name "repository" was created with following entries

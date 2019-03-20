@@ -81,4 +81,4 @@ Feature: Integration tests for configuration service - CREATE (Repository).
       |            |
       | null       |
     Then new "repository" shouldn't be created
-    And the user should get an error message: "Please specify Repository name"
+    And the user should get an error message: "Please specify a Repository name"

@@ -173,3 +173,15 @@ Feature: Integration tests for configuration service - SAVE/UPDATE.
       | JPY   | null |
     Then no entry should be stored in the related repository
     And the user should get an error message: "Please specify a key name"
+
+
+  #MPA-8211 (#17.2)
+  Scenario: Fail to save the entry upon the repository name is empty or undefined (null)
+    Given no "repository" was created
+    And the user have been granted with valid "token" (API key) assigned by "Admin" role
+    When this user requested to save some entries in the some "repository" with empty and undefined name
+      | value | key      | repository |
+      | XAG   | metal    |            |
+      | JPY   | currency | null       |
+    Then no entry should be stored in the related repository
+    And the user should get an error message: "Please specify a Repository name"

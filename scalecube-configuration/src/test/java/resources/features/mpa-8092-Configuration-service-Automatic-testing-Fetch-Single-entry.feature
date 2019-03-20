@@ -56,6 +56,28 @@ Feature: Integration tests for configuration service - FETCH (Single entry).
     And the user should get the "errorMessage":"key:'Name' not found"
 
 
+  #MPA-8211 (#20.1)
+  Scenario: Fail to get the entry upon the related key is empty or undefined (null)
+    Given the specified name "repository" was created without any entries
+    And the user have been granted with valid "token" (API key) assigned by "Owner" role
+    When this user requested to get specific entry in the relevant "repository" with empty and undefined keys
+      | key  |
+      |      |
+      | null |
+    Then the user should get an error message: "Please specify a key name"
+
+
+  #MPA-8211 (#20.2)
+  Scenario: Fail to get the entry upon the repository name is empty or undefined (null)
+    Given no "repository" was created
+    And the user have been granted with valid "token" (API key) assigned by "Admin" role
+    When this user requested to get some entries in the some "repository" with empty and undefined name
+      | repository |
+      |            |
+      | null       |
+    Then the user should get an error message: "Please specify a Repository name"
+
+
   #MPA-8092 (#21)
   Scenario: Fail to get any entry from the non-existent Repository applying some of the accessible API keys: "Owner", "Admin", "Member"
     Given no "repository" was created
