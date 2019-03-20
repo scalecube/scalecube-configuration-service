@@ -41,7 +41,7 @@ Feature: Integration tests for configuration service - SAVE/UPDATE.
 
 
   #MPA-8092 (#9)
-  Scenario: Successful update (save/override - edit) one of the identical entries in the single Repository applying the "Owner" API key
+  Scenario: Successful update (save/override - edit) one of the identical entries in the different Repositories applying the "Owner" API key
     Given the repository with "specified" name "Repo-1" already created with following entry
       | instrumentId | name   | DecimalPrecision | Rounding | key                        |
       | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
@@ -68,6 +68,26 @@ Feature: Integration tests for configuration service - SAVE/UPDATE.
       | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
     Then existent entry shouldn't be duplicated thus new values should be set to the given key and stored in the relevant "repository"
     And the user should get the successful response with the "empty" object
+
+
+  #MPA-8211 (#10.1)
+  Scenario: Successful update (save/override - edit) of the existing entry with empty or undefined (null) value which is set by specified key
+    Given the specified name "repository" was created with following entries
+      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
+      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
+      | JPY          | Yen    | 4                | down     | KEY-FOR-CURRENCY-999       |
+    And the user have been granted with valid "token" (API key) assigned by "Owner" role
+    When this user requested to update (save) the existent entries in the relevant "repository" with empty and undefined values
+      | value | key                        |
+      |       | KEY-FOR-PRECIOUS-METAL-123 |
+      | null  | KEY-FOR-CURRENCY-999       |
+    Then the related entries which are set to the related key should be set to the given key
+    And for each request user should get the successful response with the "empty" object
+    And this user requested to get all recently updated entries to verify that keys and values weren't deleted
+    Then the user should get all the entries stored in the related "repository"
+      | value | key                        |
+      |       | KEY-FOR-PRECIOUS-METAL-123 |
+      | null  | KEY-FOR-CURRENCY-999       |
 
 
   #MPA-8092 (#11)
@@ -141,3 +161,15 @@ Feature: Integration tests for configuration service - SAVE/UPDATE.
     When the user requested to save some entry in the relevant specified name "repository" applying this deleted "Owner" API key
     Then no entry should be stored in the related repository
     And the user should get an error message: "Token verification failed"
+
+
+  #MPA-8211 (#17.1)
+  Scenario: Fail to save the entry upon the related key is empty or undefined (null)
+    Given the specified name "repository" was created without any entries
+    And the user have been granted with valid "token" (API key) assigned by "Admin" role
+    When this user requested to save some entries in the relevant "repository" with empty and undefined keys
+      | value | key  |
+      | XAG   |      |
+      | JPY   | null |
+    Then no entry should be stored in the related repository
+    And the user should get an error message: "Please specify a key name"

@@ -46,7 +46,7 @@
   *          "q":"/io.scalecube.services.error/500",
   *          "sid":1,
   *          "d":{
-  *                  errorCode":500,
+  *                  "errorCode":500,
   *                  "errorMessage":"Permission denied"
   *          }
   *     }
@@ -103,7 +103,7 @@
   * Error Response:
   *
   *     {
-  *        errorCode":500,
+  *        "errorCode":500,
   *        "errorMessage":"Permission denied"
   *     }
   */

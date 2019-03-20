@@ -15,7 +15,7 @@
   * @apiSuccess {Object} value Json of settings (object) stored in the repository
   * @apiSuccess {String} key Specified key name for relevant configuration setting (object) in the repository
   *
-  * @apiError {String} field invalid or non-existent key name
+  * @apiError {String} field invalid or non-existent repository
   *
   * @apiErrorExample {json} WebSocket:
   * Request:
@@ -57,7 +57,7 @@
   *         "sid":1,
   *         "d":{
   *                 "errorCode":500,
-  *                 "errorMessage":"key:'Name' not found"
+  *                 "errorMessage":"repository: 'Name' not found"
   *         }
   *    }
   *
@@ -95,7 +95,7 @@
   *    {
   *         "data":{
   *         "errorCode":500,
-  *         "errorMessage":"key:'Name' not found"
+  *         "errorMessage":"repository: 'Name' not found"
   *         },
   *         "metadata":{
   *             "q":"/io.scalecube.services.error/500"
@@ -128,6 +128,6 @@
   * Error Response (HTTP):
   *    {
   *       "errorCode":500,
-  *       "errorMessage":"key:'Name' not found"
+  *       "errorMessage":"repository: 'Name' not found"
   *    }
   */
