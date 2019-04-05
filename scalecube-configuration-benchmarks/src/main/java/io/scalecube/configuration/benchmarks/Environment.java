@@ -58,6 +58,8 @@ final class Environment {
     CouchbaseContainer couchbase =
         new CouchbaseContainer(COUCHBASE_DOCKER_IMAGE)
             .withClusterAdmin(COUCHBASE_USERNAME, COUCHBASE_PASSWORD)
+            .withMemoryQuota("1536")
+            .withIndexMemoryQuota("1536")
             .withNetwork(Network.SHARED)
             .withNetworkAliases(COUCHBASE_NETWORK_ALIAS)
             .withCreateContainerCmdModifier(
@@ -81,6 +83,15 @@ final class Environment {
             .name(name)
             .password(password)
             .roles(Collections.singletonList(new UserRole("bucket_full_access", name))),
+        true);
+
+    String configName = "configurations";
+    couchbase.createBucket(
+        DefaultBucketSettings.builder().name(configName).password(password).quota(100).build(),
+        UserSettings.build()
+            .name(configName)
+            .password(password)
+            .roles(Collections.singletonList(new UserRole("bucket_full_access", configName))),
         true);
   }
 
