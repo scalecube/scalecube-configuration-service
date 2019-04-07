@@ -4,17 +4,21 @@ import com.couchbase.client.java.AsyncCluster;
 import io.scalecube.configuration.repository.couchbase.CouchbaseSettings;
 import java.util.Objects;
 
-/** Represents a data structure used to execute an admin operation. */
+/**
+ * Represents a data structure used to execute an admin operation.
+ */
 public final class AdminOperationContext {
 
   private final CouchbaseSettings settings;
   private final AsyncCluster cluster;
   private final String name;
+  private final String docName;
 
   private AdminOperationContext(Builder builder) {
     this.settings = builder.settings;
     this.cluster = builder.cluster;
     this.name = builder.name;
+    this.docName = builder.docName;
   }
 
   public static Builder builder() {
@@ -33,10 +37,16 @@ public final class AdminOperationContext {
     return name;
   }
 
+  public String docName() {
+    return docName;
+  }
+
   public static class Builder {
+
     private CouchbaseSettings settings;
     private AsyncCluster cluster;
     private String name;
+    private String docName;
 
     public Builder settings(CouchbaseSettings settings) {
       this.settings = settings;
@@ -53,6 +63,11 @@ public final class AdminOperationContext {
       return this;
     }
 
+    public Builder docName(String docName) {
+      this.docName = docName;
+      return this;
+    }
+
     /**
      * Constructs an instance of {@link AdminOperationContext} using this builder fields.
      *
@@ -62,6 +77,7 @@ public final class AdminOperationContext {
       Objects.requireNonNull(settings, "settings");
       Objects.requireNonNull(cluster, "cluster");
       Objects.requireNonNull(name, "name");
+      Objects.requireNonNull(docName, "docName");
       return new AdminOperationContext(this);
     }
   }

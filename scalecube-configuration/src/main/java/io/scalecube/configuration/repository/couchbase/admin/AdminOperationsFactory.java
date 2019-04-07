@@ -4,11 +4,17 @@ import com.couchbase.client.java.cluster.BucketSettings;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-/** Factory class for constructing admin operation classes. */
+/**
+ * Factory class for constructing admin operation classes.
+ */
 public abstract class AdminOperationsFactory {
 
   public static Operation<Mono<BucketSettings>> insertBucket() {
     return new InsertBucketOperation();
+  }
+
+  public static Operation<Mono<Boolean>> insertDoc() {
+    return new InsertDocOperation();
   }
 
   public static Operation<Mono<Boolean>> createPrimaryIndex() {

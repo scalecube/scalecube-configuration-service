@@ -26,9 +26,9 @@ public class CreateRepositoryOperation {
             Mono.fromCallable(
                 () -> ConfigurationBucketName.from(ctx.repository(), ctx.settings()).name()))
         .flatMap(
-            bucketName ->
-                ensureBucketNameIsNotInUse(couchbaseAdmin, bucketName)
-                    .then(couchbaseAdmin.createBucket(bucketName)))
+            docName -> ensureBucketNameIsNotInUse(couchbaseAdmin, "configurations")
+                .then(couchbaseAdmin.insertDoc("configurations", docName))
+        )
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
         .doOnError(th -> logger.error("Failed to create repository: {}", ctx.repository(), th))
         .doOnSuccess(

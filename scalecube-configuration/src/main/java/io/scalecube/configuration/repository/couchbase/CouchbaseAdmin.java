@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 import rx.RxReactiveStreams;
 
-/** Represents a class of couchbase admin operations. */
+/**
+ * Represents a class of couchbase admin operations.
+ */
 public final class CouchbaseAdmin {
 
   private static final Logger logger = LoggerFactory.getLogger(CouchbaseAdmin.class);
@@ -60,15 +62,30 @@ public final class CouchbaseAdmin {
         .onErrorResume(
             th ->
                 Mono.from(
-                        RxReactiveStreams.toPublisher(
-                            cluster
-                                .clusterManager()
-                                .map(
-                                    asyncClusterManager -> asyncClusterManager.removeBucket(name))))
+                    RxReactiveStreams.toPublisher(
+                        cluster
+                            .clusterManager()
+                            .map(
+                                asyncClusterManager -> asyncClusterManager.removeBucket(name))))
                     .then(Mono.error(th)))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
         .doOnError(th -> logger.error("createBucket: name: {}, error: {}", name, th))
         .doOnSuccess(result -> logger.debug("createBucket: exit: name: {}", name));
+  }
+
+  /**
+   * Creates a document with the name argument.
+   *
+   * @param docName the document name
+   */
+  public Mono<Boolean> insertDoc(String bucketName, String docName) {
+    return Mono.fromRunnable(() -> logger
+        .debug("insert doc: enter: bucket name: {} and doc name: {}", bucketName, docName))
+        .then(AdminOperationsFactory.insertDoc().execute(operationContext(bucketName, docName)))
+        .doOnSuccess(
+            settings -> logger
+                .debug("insert doc: exit: bucket name: {}, and doc name: {} return: {}", bucketName,
+                    docName, settings));
   }
 
   private Mono<BucketSettings> insertBucket(String name) {
@@ -95,5 +112,10 @@ public final class CouchbaseAdmin {
 
   private AdminOperationContext operationContext(String name) {
     return AdminOperationContext.builder().settings(settings).cluster(cluster).name(name).build();
+  }
+
+  private AdminOperationContext operationContext(String bucketName, String docName) {
+    return AdminOperationContext.builder().settings(settings).cluster(cluster).name(bucketName)
+        .docName(docName).build();
   }
 }
