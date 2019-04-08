@@ -74,18 +74,22 @@ public final class CouchbaseAdmin {
   }
 
   /**
-   * Creates a document with the name argument.
+   * Insert document in config bucket.
    *
-   * @param docName the document name
+   * @param bucketName config bucket name
+   * @param orgId organization id
+   * @param repoName repository name
    */
-  public Mono<Boolean> insertDoc(String bucketName, String docName) {
+  public Mono<Boolean> insertDoc(String bucketName, String orgId, String repoName) {
     return Mono.fromRunnable(() -> logger
-        .debug("insert doc: enter: bucket name: {} and doc name: {}", bucketName, docName))
-        .then(AdminOperationsFactory.insertDoc().execute(operationContext(bucketName, docName)))
+        .debug("insert doc: enter: bucket name: {}; organization id: {}; repo name: {}", bucketName,
+            orgId, repoName))
+        .then(AdminOperationsFactory.insertDoc()
+            .execute(operationContext(bucketName, orgId, repoName)))
         .doOnSuccess(
             settings -> logger
-                .debug("insert doc: exit: bucket name: {}, and doc name: {} return: {}", bucketName,
-                    docName, settings));
+                .debug("insert doc: exit: bucket name: {}; organization id: {}; "
+                    + "repo name: {} return: {}", bucketName, orgId, repoName, settings));
   }
 
   private Mono<BucketSettings> insertBucket(String name) {
@@ -114,8 +118,8 @@ public final class CouchbaseAdmin {
     return AdminOperationContext.builder().settings(settings).cluster(cluster).name(name).build();
   }
 
-  private AdminOperationContext operationContext(String bucketName, String docName) {
+  private AdminOperationContext operationContext(String bucketName, String orgId, String repoName) {
     return AdminOperationContext.builder().settings(settings).cluster(cluster).name(bucketName)
-        .docName(docName).build();
+        .orgId(orgId).repoName(repoName).build();
   }
 }
