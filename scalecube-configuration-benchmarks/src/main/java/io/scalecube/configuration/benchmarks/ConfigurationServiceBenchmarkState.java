@@ -133,7 +133,7 @@ final class ConfigurationServiceBenchmarkState
     return organizationService
         .createOrganization(new CreateOrganizationRequest("benchmarks", "info@scalecube.io", token))
         .doOnSuccess(response -> LOGGER.info("Organization created: {}", response))
-        .doOnError(th -> LOGGER.error("Organization not created: {}", th));
+        .doOnError(th -> LOGGER.error("Organization not created", th));
   }
 
   private Mono<String> createApiKey(
@@ -144,7 +144,7 @@ final class ConfigurationServiceBenchmarkState
         .addOrganizationApiKey(
             new AddOrganizationApiKeyRequest(token, organization.id(), "benchmarksApiKey", claims))
         .doOnSuccess(response -> LOGGER.info("ApiKey created: {}", response))
-        .doOnError(th -> LOGGER.error("ApiKey not created: {}", th))
+        .doOnError(th -> LOGGER.error("ApiKey not created", th))
         .map(response -> response.apiKeys()[0].key())
         .doOnNext(apiKey::set);
   }

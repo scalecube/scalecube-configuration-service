@@ -30,11 +30,7 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
 
   @Override
   public Mono<Document> fetch(String tenant, String repository, String key) {
-    return get(
-        RepositoryEntryKey.builder()
-            .repository(new Repository(tenant, repository))
-            .key(key)
-            .build());
+    return get(new Repository(tenant, repository), key);
   }
 
   @Override
@@ -44,47 +40,39 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
 
   @Override
   public Mono<Document> save(String tenant, String repository, Document document) {
-    return put(repository(tenant, repository, document.key()), document);
-  }
-
-  private RepositoryEntryKey repository(String tenant, String repository, String key) {
-    return RepositoryEntryKey.builder()
-        .key(key)
-        .repository(new Repository(tenant, repository))
-        .build();
+    return put(new Repository(tenant, repository), document.key(), document);
   }
 
   @Override
-  public Mono<String> delete(String tenant, String repository, String key) {
-    return remove(repository(tenant, repository, key));
+  public Mono<Void> delete(String tenant, String repository, String key) {
+    return remove(new Repository(tenant, repository), key);
   }
 
-  private Mono<Document> get(RepositoryEntryKey key) {
-    return Mono.justOrEmpty(getRepository(key.repository()).get(key.key()))
+  private Mono<Document> get(Repository repository, String key) {
+    return Mono.justOrEmpty(getRepository(repository).get(key))
         .switchIfEmpty(
             Mono.defer(
                 () ->
                     Mono.error(
-                        new KeyNotFoundException(String.format("Key '%s' not found", key.key())))));
+                        new KeyNotFoundException(String.format("Key '%s' not found", key)))));
   }
 
-  private Mono<Document> put(RepositoryEntryKey key, Document value) {
+  private Mono<Document> put(Repository repository, String key, Document value) {
     return Mono.create(
         sink -> {
-          sink.success(getRepository(key.repository()).put(key.key(), value));
+          sink.success(getRepository(repository).put(key, value));
         });
   }
 
-  private Mono<String> remove(RepositoryEntryKey key) {
-    return Mono.fromCallable(() -> getRepository(key.repository()))
-        .filter(repository -> repository.containsKey(key.key()))
+  private Mono<Void> remove(Repository repository, String key) {
+    return Mono.fromCallable(() -> getRepository(repository))
+        .filter(repo -> repo.containsKey(key))
         .switchIfEmpty(
             Mono.defer(
                 () ->
-                    Mono.error(
-                        new KeyNotFoundException(String.format("Key '%s' not found", key.key())))))
-        .map(repository -> repository.remove(key.key()))
-        .thenReturn(key.key());
+                    Mono.error(new KeyNotFoundException(String.format("Key '%s' not found", key)))))
+        .map(repo -> repo.remove(key))
+        .then();
   }
 
   private Flux<Document> entries(Repository repository) {

@@ -7,10 +7,10 @@ import reactor.core.publisher.Mono;
 public interface ConfigurationRepository {
 
   /**
-   * Creates a name in underlying data source.
+   * Creates a repository in underlying data source.
    *
-   * @param repository Repository settings
-   * @return True if name created; false otherwise.
+   * @param repository repository settings
+   * @return true if repository created; false otherwise.
    */
   Mono<Boolean> createRepository(Repository repository);
 
@@ -49,7 +49,6 @@ public interface ConfigurationRepository {
    * @param tenant namespace of the repository.
    * @param repository to delete from.
    * @param key of the document to delete.
-   * @return Document instance by a given key.
    */
-  Mono<String> delete(String tenant, String repository, String key);
+  Mono<Void> delete(String tenant, String repository, String key);
 }

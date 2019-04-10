@@ -58,8 +58,6 @@ final class Environment {
     CouchbaseContainer couchbase =
         new CouchbaseContainer(COUCHBASE_DOCKER_IMAGE)
             .withClusterAdmin(COUCHBASE_USERNAME, COUCHBASE_PASSWORD)
-            .withMemoryQuota("1536")
-            .withIndexMemoryQuota("1536")
             .withNetwork(Network.SHARED)
             .withNetworkAliases(COUCHBASE_NETWORK_ALIAS)
             .withCreateContainerCmdModifier(
