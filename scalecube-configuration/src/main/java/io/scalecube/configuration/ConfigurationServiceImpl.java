@@ -2,7 +2,6 @@ package io.scalecube.configuration;
 
 import static java.util.Objects.requireNonNull;
 
-import io.scalecube.cluster.membership.IdGenerator;
 import io.scalecube.configuration.api.AccessRequest;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
@@ -98,13 +97,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .flatMap(
             p ->
                 repository.save(
-                    p.tenant(),
-                    request.repository(),
-                    Document.builder()
-                        .id(IdGenerator.generateId())
-                        .key(request.key())
-                        .value(request.value())
-                        .build()))
+                    p.tenant(), request.repository(), new Document(request.key(), request.value())))
         .thenReturn(ACK)
         .doOnSuccess(result -> logger.debug("save: exit: request: {}", request))
         .doOnError(th -> logger.error("save: request: {}, error:", request, th));
