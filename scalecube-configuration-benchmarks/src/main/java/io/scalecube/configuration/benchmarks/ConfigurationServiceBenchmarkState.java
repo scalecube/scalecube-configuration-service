@@ -90,11 +90,11 @@ final class ConfigurationServiceBenchmarkState
 
     switch (gatewayProtocol.toLowerCase()) {
       case "ws":
-        return Client.onWebsocket(settings);
+        return Client.websocket(settings);
       case "rs":
-        return Client.onRSocket(settings);
+        return Client.rsocket(settings);
       case "http":
-        return Client.onHttp(settings);
+        return Client.http(settings);
       default:
         throw new IllegalStateException(
             String.format(
