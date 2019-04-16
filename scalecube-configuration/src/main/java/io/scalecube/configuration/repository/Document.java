@@ -1,37 +1,20 @@
 package io.scalecube.configuration.repository;
 
-/**
- * Represents a repository data entity.
- */
+/** Represents a repository data entity. */
 public class Document {
 
-  private String id;
-
   private String key;
-
   private Object value;
-
-  public Document() {
-  }
 
   /**
    * Constructs a document object.
-   * @param id document id
+   *
    * @param key entry cluster
    * @param value entry value
    */
-  public Document(String id, String key, Object value) {
-    this.id = id;
+  public Document(String key, Object value) {
     this.key = key;
     this.value = value;
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public String id() {
-    return id;
   }
 
   public String key() {
@@ -44,35 +27,6 @@ public class Document {
 
   @Override
   public String toString() {
-    return super.toString() + String.format(" [id =%s, key=%s, value=%s]", id, key, value);
-  }
-
-  public static final class Builder {
-
-    private String id;
-
-    private String key;
-
-    private Object value;
-
-    public Builder id(String id) {
-      this.id = id;
-      return this;
-    }
-
-    public Builder key(String key) {
-      this.key = key;
-      return this;
-    }
-
-    public Builder value(Object value) {
-      this.value = value;
-      return this;
-    }
-
-    public Document build() {
-      return new Document(id, key, value);
-    }
-
+    return super.toString() + String.format(" [key=%s, value=%s]", key, value);
   }
 }

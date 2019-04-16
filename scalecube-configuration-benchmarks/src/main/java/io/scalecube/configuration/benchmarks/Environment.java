@@ -34,6 +34,8 @@ final class Environment {
   private static final int RS_GATEWAY_PORT = 9090;
   private static final String GATEWAY_NETWORK_ALIAS = "gateway";
 
+  private static final String BUCKET_FULL_ACCESS = "bucket_full_access";
+
   public static void main(String[] args) throws InterruptedException {
     new Environment().start();
     Thread.currentThread().join();
@@ -76,11 +78,20 @@ final class Environment {
     String name = "organizations";
     String password = "123456";
     couchbase.createBucket(
-        DefaultBucketSettings.builder().name(name).password(password).quota(100).build(),
+        DefaultBucketSettings.builder().name(name).password(password).build(),
         UserSettings.build()
             .name(name)
             .password(password)
-            .roles(Collections.singletonList(new UserRole("bucket_full_access", name))),
+            .roles(Collections.singletonList(new UserRole(BUCKET_FULL_ACCESS, name))),
+        true);
+
+    String configName = "configurations";
+    couchbase.createBucket(
+        DefaultBucketSettings.builder().name(configName).password(password).build(),
+        UserSettings.build()
+            .name(configName)
+            .password(password)
+            .roles(Collections.singletonList(new UserRole(BUCKET_FULL_ACCESS, configName))),
         true);
   }
 
@@ -103,7 +114,7 @@ final class Environment {
 
   private void startGateway() {
     GenericContainer gateway =
-        new GenericContainer<>("scalecube/scalecube-services-gateway-runner:2.4.10")
+        new GenericContainer<>("scalecube/scalecube-services-gateway-runner:2.5.3")
             .withExposedPorts(WS_GATEWAY_PORT, HTTP_GATEWAY_PORT, RS_GATEWAY_PORT)
             .withNetwork(Network.SHARED)
             .withNetworkAliases(GATEWAY_NETWORK_ALIAS)
