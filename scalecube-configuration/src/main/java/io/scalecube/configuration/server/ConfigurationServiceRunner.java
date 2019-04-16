@@ -21,6 +21,9 @@ import io.scalecube.security.jwt.DefaultJwtAuthenticator;
 import io.scalecube.services.Microservices;
 import io.scalecube.services.ServiceInfo;
 import io.scalecube.services.ServiceProvider;
+import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
+import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
+import io.scalecube.services.transport.rsocket.RSocketTransportResources;
 import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,20 +48,28 @@ public class ConfigurationServiceRunner {
 
     Microservices microservices =
         Microservices.builder()
+
             .discovery(
-                options ->
-                    options
-                        .seeds(discoveryOptions.seeds())
-                        .port(discoveryOptions.discoveryPort())
-                        .memberHost(discoveryOptions.memberHost())
-                        .memberPort(discoveryOptions.memberPort()))
-            .transport(options -> options.port(discoveryOptions.servicePort()))
+                (serviceEndpoint) ->
+                    new ScalecubeServiceDiscovery(serviceEndpoint)
+                        .options(
+                            opts ->
+                                opts.seedMembers(discoveryOptions.seeds())
+                                    .port(discoveryOptions.discoveryPort())
+                                    .memberHost(discoveryOptions.memberHost())
+                                    .memberPort(discoveryOptions.memberPort())))
+            .transport(
+                opts ->
+                    opts.resources(RSocketTransportResources::new)
+                        .client(RSocketServiceTransport.INSTANCE::clientTransport)
+                        .server(RSocketServiceTransport.INSTANCE::serverTransport)
+                        .port(discoveryOptions.servicePort()))
             .services(createConfigurationService())
             .startAwait();
 
     Logo.from(new PackageInfo())
-        .ip(microservices.serviceAddress().getHostName())
-        .port(microservices.serviceAddress().getPort() + "")
+        .ip(microservices.serviceAddress().host())
+        .port(microservices.serviceAddress().port() + "")
         .draw();
   }
 
@@ -72,7 +83,7 @@ public class ConfigurationServiceRunner {
         new CouchbaseRepository(couchbaseBucket(settings));
 
     return call -> {
-      OrganizationService organizationService = call.create().api(OrganizationService.class);
+      OrganizationService organizationService = call.api(OrganizationService.class);
 
       OrganizationServiceKeyProvider keyProvider =
           new OrganizationServiceKeyProvider(organizationService);
