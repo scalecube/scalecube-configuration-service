@@ -81,7 +81,7 @@ Feature: Integration tests for configuration service - CREATE (Repository).
       |            |
       | null       |
     Then new "repository" shouldn't be created
-    And the user should get an error message: "Please specify a Repository name"
+    And for each request the user should get an error message: "Please specify a Repository name"
 
 
   #MPA-8211 (#6.2)
