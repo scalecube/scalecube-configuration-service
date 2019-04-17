@@ -8,7 +8,7 @@ public class SaveRequest implements AccessRequest {
   private Object token;
   private String repository;
   private String key;
-  private JsonNode value;
+  private Object value;
 
   /**
    * Default constructor.
@@ -36,7 +36,7 @@ public class SaveRequest implements AccessRequest {
     return this.token;
   }
 
-  public JsonNode value() {
+  public Object value() {
     return this.value;
   }
 

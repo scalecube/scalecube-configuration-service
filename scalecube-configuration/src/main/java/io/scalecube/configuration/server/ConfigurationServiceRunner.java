@@ -1,9 +1,7 @@
 package io.scalecube.configuration.server;
 
-import com.couchbase.client.java.AsyncCluster;
-import com.couchbase.client.java.CouchbaseAsyncCluster;
-import com.couchbase.client.java.env.CouchbaseEnvironment;
-import com.couchbase.client.java.env.DefaultCouchbaseEnvironment;
+import com.couchbase.client.java.AsyncBucket;
+import com.couchbase.client.java.CouchbaseCluster;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.app.decoration.Logo;
 import io.scalecube.app.packages.PackageInfo;
@@ -13,7 +11,6 @@ import io.scalecube.configuration.ConfigurationServiceImpl;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.authorization.DefaultPermissions;
 import io.scalecube.configuration.repository.ConfigurationRepository;
-import io.scalecube.configuration.repository.couchbase.CouchbaseAdmin;
 import io.scalecube.configuration.repository.couchbase.CouchbaseRepository;
 import io.scalecube.configuration.repository.couchbase.CouchbaseSettings;
 import io.scalecube.configuration.tokens.OrganizationServiceKeyProvider;
@@ -24,8 +21,10 @@ import io.scalecube.security.jwt.DefaultJwtAuthenticator;
 import io.scalecube.services.Microservices;
 import io.scalecube.services.ServiceInfo;
 import io.scalecube.services.ServiceProvider;
+import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
+import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
+import io.scalecube.services.transport.rsocket.RSocketTransportResources;
 import java.util.Collections;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,39 +48,42 @@ public class ConfigurationServiceRunner {
 
     Microservices microservices =
         Microservices.builder()
+
             .discovery(
-                options ->
-                    options
-                        .seeds(discoveryOptions.seeds())
-                        .port(discoveryOptions.discoveryPort())
-                        .memberHost(discoveryOptions.memberHost())
-                        .memberPort(discoveryOptions.memberPort()))
-            .transport(options -> options.port(discoveryOptions.servicePort()))
+                (serviceEndpoint) ->
+                    new ScalecubeServiceDiscovery(serviceEndpoint)
+                        .options(
+                            opts ->
+                                opts.seedMembers(discoveryOptions.seeds())
+                                    .port(discoveryOptions.discoveryPort())
+                                    .memberHost(discoveryOptions.memberHost())
+                                    .memberPort(discoveryOptions.memberPort())))
+            .transport(
+                opts ->
+                    opts.resources(RSocketTransportResources::new)
+                        .client(RSocketServiceTransport.INSTANCE::clientTransport)
+                        .server(RSocketServiceTransport.INSTANCE::serverTransport)
+                        .port(discoveryOptions.servicePort()))
             .services(createConfigurationService())
             .startAwait();
 
     Logo.from(new PackageInfo())
-        .ip(microservices.serviceAddress().getHostName())
-        .port(microservices.serviceAddress().getPort() + "")
+        .ip(microservices.serviceAddress().host())
+        .port(microservices.serviceAddress().port() + "")
         .draw();
   }
 
   private static ServiceProvider createConfigurationService() {
     ConfigRegistry configRegistry = AppConfiguration.configRegistry();
+
     CouchbaseSettings settings =
         configRegistry.objectProperty("couchbase", CouchbaseSettings.class).value(null);
 
-    CouchbaseEnvironment env = DefaultCouchbaseEnvironment.create();
-
-    CouchbaseAdmin couchbaseAdmin =
-        new CouchbaseAdmin(settings, couchbaseAdminCluster(settings, env));
-
     ConfigurationRepository configurationRepository =
-        new CouchbaseRepository(
-            settings, couchbaseDataAccessCluster(settings, env), couchbaseAdmin);
+        new CouchbaseRepository(couchbaseBucket(settings));
 
     return call -> {
-      OrganizationService organizationService = call.create().api(OrganizationService.class);
+      OrganizationService organizationService = call.api(OrganizationService.class);
 
       OrganizationServiceKeyProvider keyProvider =
           new OrganizationServiceKeyProvider(organizationService);
@@ -102,20 +104,11 @@ public class ConfigurationServiceRunner {
     };
   }
 
-  private static AsyncCluster couchbaseDataAccessCluster(
-      CouchbaseSettings settings, CouchbaseEnvironment env) {
-    return CouchbaseAsyncCluster.create(env, settings.hosts());
-  }
-
-  private static AsyncCluster couchbaseAdminCluster(
-      CouchbaseSettings settings, CouchbaseEnvironment env) {
-    List<String> nodes = settings.hosts();
-    AsyncCluster cluster =
-        nodes.isEmpty()
-            ? CouchbaseAsyncCluster.create(env)
-            : CouchbaseAsyncCluster.create(env, nodes);
-    cluster.authenticate(settings.username(), settings.password());
-    return cluster;
+  private static AsyncBucket couchbaseBucket(CouchbaseSettings settings) {
+    return CouchbaseCluster.create(settings.hosts())
+        .authenticate(settings.username(), settings.password())
+        .openBucket(settings.bucketName())
+        .async();
   }
 
   private static DiscoveryOptions discoveryOptions() {
