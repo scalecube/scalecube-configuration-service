@@ -121,9 +121,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         () -> {
           requireNonNull(request, "request null is invalid");
           requireNonNull(request.token(), "request.token null is invalid");
-          requireNonNull(request.repository(), "request.repository null is invalid");
 
-          if (request.repository().trim().isEmpty()) {
+          if (request.repository() == null || request.repository().trim().isEmpty()) {
             throw new IllegalArgumentException("Please specify repository name");
           }
         });
