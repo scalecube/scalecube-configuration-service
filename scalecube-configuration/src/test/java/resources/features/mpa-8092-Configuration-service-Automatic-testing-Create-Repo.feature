@@ -76,9 +76,17 @@ Feature: Integration tests for configuration service - CREATE (Repository).
   #MPA-8211 (#6.1)
   Scenario: Fail to create Repository with empty or undefined name
     Given a user have got a valid "token" (API key) with assigned "Owner" role
-    When this user requested to create the "repository" with following details related to its name
+    When this user requested to create the "repository" without specifying its name
       | repository |
       |            |
       | null       |
+    Then new "repository" shouldn't be created
+    And the user should get an error message: "Please specify a Repository name"
+
+
+  #MPA-8211 (#6.2)
+  Scenario: Fail to create Repository upon the "repository" (name) key is missed
+    Given a user have got a valid "token" (API key) with assigned "Owner" role
+    When this user requested to create the "repository" without "repository" key name at all
     Then new "repository" shouldn't be created
     And the user should get an error message: "Please specify a Repository name"
