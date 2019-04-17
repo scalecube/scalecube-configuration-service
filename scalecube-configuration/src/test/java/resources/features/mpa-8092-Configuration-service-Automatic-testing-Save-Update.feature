@@ -153,7 +153,7 @@ Feature: Integration tests for configuration service - SAVE/UPDATE.
     And the user should get the "errorMessage":"repository:'Name' not found"
 
 
-  #MPA-8092 (#17) - logic will be implemented by Architect as the nature of the API key (token) is some expiration interim
+  #MPA-8092 (#17) - logic will be implemented by Architect as the nature of the API key (token) is some expiration interim (MPA-8260/8057)
   Scenario: Fail to save (edit) the specific entry in the Repository upon the Owner "token" (API key) was deleted from the Organization
     Given an organization "organizationId" with specified "name" and "email" already created with related "Owner" API key which is stored there
     And the specified name "repository" was created  without any stored entry by applying related "Owner" API key
@@ -164,24 +164,46 @@ Feature: Integration tests for configuration service - SAVE/UPDATE.
 
 
   #MPA-8211 (#17.1)
-  Scenario: Fail to save the entry upon the related key is empty or undefined (null)
+  Scenario: Fail to save/update the entry upon the related key is empty or undefined (null)
     Given the specified name "repository" was created without any entries
     And the user have been granted with valid "token" (API key) assigned by "Admin" role
     When this user requested to save some entries in the relevant "repository" with empty and undefined keys
-      | value | key  |
-      | XAG   |      |
-      | JPY   | null |
+      | value | key  | repository |
+      | XAG   |      | repository |
+      | JPY   | null | repository |
     Then no entry should be stored in the related repository
-    And the user should get an error message: "Please specify a key name"
+    And for each request the user should get an error message: "Please specify a key name"
 
 
   #MPA-8211 (#17.2)
-  Scenario: Fail to save the entry upon the repository name is empty or undefined (null)
+  Scenario: Fail to save/update the entry upon the repository name is empty or undefined (null)
     Given no "repository" was created
     And the user have been granted with valid "token" (API key) assigned by "Admin" role
     When this user requested to save some entries in the some "repository" with empty and undefined name
       | value | key      | repository |
       | XAG   | metal    |            |
       | JPY   | currency | null       |
+    Then no entry should be stored
+    And for each request the user should get an error message: "Please specify a Repository name"
+
+
+  #MPA-8211 (#17.3)
+  Scenario: Fail to save/update the entry upon the related "key" is missed
+    Given the specified name "repository" was created without any entries
+    And the user have been granted with valid "token" (API key) assigned by "Owner" role
+    When this user requested to save an entry in the relevant "repository" without related "key" at all
+      | value | repository |
+      | XAG   | repository |
     Then no entry should be stored in the related repository
+    And the user should get an error message: "Please specify a key name"
+
+
+  #MPA-8211 (#17.4)
+  Scenario: Fail to save/update the entry upon the "repository" key is missed
+    Given no "repository" was created
+    And the user have been granted with valid "token" (API key) assigned by "Admin" role
+    When this user requested to save an entry without related "repository" key at all
+      | value | key   |
+      | XAG   | metal |
+    Then no entry should be stored
     And the user should get an error message: "Please specify a Repository name"

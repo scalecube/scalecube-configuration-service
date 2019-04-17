@@ -59,21 +59,41 @@ Feature: Integration tests for configuration service - FETCH (Single entry).
   Scenario: Fail to delete the entry upon the related key is empty or undefined (null)
     Given the specified name "repository" was created without any entries
     And the user have been granted with valid "token" (API key) assigned by "Owner" role
-    When this user requested to delete specific entry in the relevant "repository" with empty and undefined keys
-      | key  |
-      |      |
-      | null |
-    Then the user should get an error message: "Please specify a key name"
+    When this user requested to delete specific entry from the relevant "repository" with empty and undefined keys
+      | value | key  | repository |
+      | XAG   |      | repository |
+      | USD   | null | repository |
+    Then for each request the user should get an error message: "Please specify a key name"
 
 
   #MPA-8211 (#34.2)
-  Scenario: Fail to get the entry upon the repository name is empty or undefined (null)
+  Scenario: Fail to delete the entry upon the repository name is empty or undefined (null)
     Given no "repository" was created
     And the user have been granted with valid "token" (API key) assigned by "Admin" role
     When this user requested to delete some entry in the some "repository" with empty and undefined name
-      | repository |
-      |            |
-      | null       |
+      | value | key      | repository |
+      | XAG   | metal    |            |
+      | USD   | currency | null       |
+    Then the user should get an error message: "Please specify a Repository name"
+
+
+  #MPA-8211 (#34.3)
+  Scenario: Fail to delete the entry upon the related "key" is missed
+    Given the specified name "repository" was created without any entries
+    And the user have been granted with valid "token" (API key) assigned by "Owner" role
+    When this user requested to delete specific entry from the relevant "repository" without related "key" at all
+      | value | repository |
+      | XAG   | repository |
+    Then the user should get an error message: "Please specify a key name"
+
+
+  #MPA-8211 (#34.4)
+  Scenario: Fail to delete the entry upon the "repository" key is missed
+    Given no "repository" was created
+    And the user have been granted with valid "token" (API key) assigned by "Admin" role
+    When this user requested to delete specific entry without related "repository" key at all
+      | value | key   |
+      | XAG   | metal |
     Then the user should get an error message: "Please specify a Repository name"
 
 
@@ -113,7 +133,7 @@ Feature: Integration tests for configuration service - FETCH (Single entry).
     Then the user should get the "errorMessage":"repository:'Name' not found"
 
 
-  #MPA-8092 (#39) - logic will be implemented by Architect as the nature of the API key (token) is some expiration interim
+  #MPA-8092 (#39) - logic will be implemented by Architect as the nature of the API key (token) is some expiration interim (MPA-8260/8057)
   Scenario: Fail to delete specific entry from the Repository upon the Owner "token" (API key) was deleted from the Organization
     Given an organization "organizationId" with specified "name" and "email" already created with related "Owner" API key which is stored there
     And the specified name "repository" was created without any stored entry by applying related "Owner" API key

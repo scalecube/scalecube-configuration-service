@@ -49,6 +49,14 @@ Feature: Integration tests for configuration service - ENTRIES (All entries).
     Then the user should get an error message: "Please specify a Repository name"
 
 
+  #MPA-8211 (#27.2)
+  Scenario: Fail to get any entry upon the "repository" key is missed
+    Given no "repository" was created
+    And the user have been granted with valid "token" (API key) assigned by "Owner" role
+    When this user requested to get entries without related "repository" key at all
+    Then the user should get an error message: "Please specify a Repository name"
+
+
   #MPA-8092 (#28)
   Scenario: Fail to get any entry from the Repository upon the "token" is invalid (expired)
     Given a user have got an invalid "token" (API key)
@@ -75,7 +83,7 @@ Feature: Integration tests for configuration service - ENTRIES (All entries).
     Then the user should get the "errorMessage":"Repository:'Name' not found"
 
 
-  #MPA-8092 (#31) - logic will be implemented by Architect as the nature of the API key (token) is some expiration interim
+  #MPA-8092 (#31) - logic will be implemented by Architect as the nature of the API key (token) is some expiration interim (MPA-8260/8057)
   Scenario: Fail to get any entry from the Repository upon the Member "token" (API key) was deleted from the Organization
     Given an organization "organizationId" with specified "name" and "email" already created with related "Owner" and "Member" API keys which are stored there
     And the specified name "repository" was created without any stored entry by applying related "Owner" API key
