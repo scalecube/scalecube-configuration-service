@@ -65,8 +65,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             Mono.defer(
                 () -> checkAccess(request.token().toString(), ConfigurationService.CONFIG_FETCH)))
         .flatMap(p -> repository.fetch(p.tenant(), request.repository(), request.key()))
-        .map(Document::value)
-        .map(value -> new FetchResponse(request.key(), value))
+        .map(document -> new FetchResponse(document.key(), document.value()))
         .doOnSuccess(
             result -> logger.debug("fetch: exit: request: {}, result: {}", request, result))
         .doOnError(th -> logger.error("fetch: request: {}, error:", request, th));
