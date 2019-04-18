@@ -64,7 +64,7 @@ Feature: Integration tests for configuration service - CREATE (Repository).
     Then no repository shouldn't be created and the user should get an error message: "Token verification failed"
 
 
-  #MPA-8092 (#6) - logic will be implemented by Architect as the nature of the API key (token) is some expiration interim
+  #MPA-8092 (#6) - logic will be implemented by Architect as the nature of the API key (token) is some expiration interim (MPA-8260/8057)
   Scenario: Fail to create the Repository upon the Owner "token" (API key) was deleted from the Organization
     Given an organization "organizationId" with specified "name" and "email" already created with related "Owner" API key which is stored there
     And the related organization "Owner" has deleted the relevant "Owner" API key from it
