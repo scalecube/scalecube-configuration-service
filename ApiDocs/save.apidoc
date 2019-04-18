@@ -16,7 +16,7 @@
   *
   * @apiSuccess Acknowledgment Empty object
   *
-  * @apiError {String} field empty or undefined key name
+  * @apiError {String} field invalid or non-existent repository
   *
   *
   * @apiErrorExample {json} WebSocket:
@@ -57,7 +57,7 @@
   *          "sid":1,
   *          "d":{
   *                  "errorCode":500,
-  *                  "errorMessage":"Please specify a key name"
+  *                  "errorMessage":"repository: 'Name' not found"
   *          }
   *     }
   *
@@ -92,7 +92,7 @@
   *     {
   *         "data":{
   *         "errorCode":500,
-  *         "errorMessage":"Please specify a key name"
+  *         "errorMessage":"repository: 'Name' not found"
   *         },
   *         "metadata":{
   *             "q":"/io.scalecube.services.error/500"
@@ -120,6 +120,6 @@
   * Error-Response (HTTP):
   *     {
   *        "errorCode":500,
-  *        "errorMessage":"Please specify a key name"
+  *        "errorMessage":"repository: 'Name' not found"
   *     }
   */
