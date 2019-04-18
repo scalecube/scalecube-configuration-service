@@ -10,7 +10,7 @@ import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
-import io.scalecube.configuration.api.FetchRequest;
+import io.scalecube.configuration.api.EntriesRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
 import io.scalecube.configuration.api.SaveRequest;
@@ -74,7 +74,7 @@ final class FetchEntriesTest extends BaseTest {
                         .put("Rounding", "down"))))
         .block(TIMEOUT);
 
-    StepVerifier.create(configurationService.entries(new FetchRequest(ownerToken, repoName)))
+    StepVerifier.create(configurationService.entries(new EntriesRequest(ownerToken, repoName)))
         .assertNext(
             entries -> {
               assertEquals(2, entries.size(), "Fetched entries count");
@@ -90,7 +90,7 @@ final class FetchEntriesTest extends BaseTest {
         .expectComplete()
         .verify();
 
-    StepVerifier.create(configurationService.entries(new FetchRequest(adminToken, repoName)))
+    StepVerifier.create(configurationService.entries(new EntriesRequest(adminToken, repoName)))
         .assertNext(
             entries -> {
               assertEquals(2, entries.size(), "Fetched entries count");
@@ -106,7 +106,7 @@ final class FetchEntriesTest extends BaseTest {
         .expectComplete()
         .verify();
 
-    StepVerifier.create(configurationService.entries(new FetchRequest(memberToken, repoName)))
+    StepVerifier.create(configurationService.entries(new EntriesRequest(memberToken, repoName)))
         .assertNext(
             entries -> {
               assertEquals(2, entries.size(), "Fetched entries count");
@@ -133,7 +133,7 @@ final class FetchEntriesTest extends BaseTest {
 
     String repoName = "NON_EXISTENT_REPO";
 
-    StepVerifier.create(configurationService.entries(new FetchRequest(token, repoName)))
+    StepVerifier.create(configurationService.entries(new EntriesRequest(token, repoName)))
         .expectErrorSatisfies(
             e -> {
               assertEquals(RepositoryNotFoundException.class, e.getClass());
@@ -151,7 +151,7 @@ final class FetchEntriesTest extends BaseTest {
     String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
     String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
 
-    StepVerifier.create(configurationService.entries(new FetchRequest(token, "test-repo")))
+    StepVerifier.create(configurationService.entries(new EntriesRequest(token, "test-repo")))
         .expectErrorSatisfies(
             e -> {
               assertEquals(InvalidAuthenticationToken.class, e.getClass());
@@ -195,7 +195,7 @@ final class FetchEntriesTest extends BaseTest {
 
     TimeUnit.SECONDS.sleep(3);
 
-    StepVerifier.create(configurationService.entries(new FetchRequest(memberToken, repoName)))
+    StepVerifier.create(configurationService.entries(new EntriesRequest(memberToken, repoName)))
         .expectErrorSatisfies(
             e -> {
               assertEquals(InvalidAuthenticationToken.class, e.getClass());
@@ -234,7 +234,7 @@ final class FetchEntriesTest extends BaseTest {
                         .put("Rounding", "down"))))
         .block(TIMEOUT);
 
-    StepVerifier.create(configurationService.entries(new FetchRequest(token2, repoName)))
+    StepVerifier.create(configurationService.entries(new EntriesRequest(token2, repoName)))
         .expectErrorSatisfies(
             e -> {
               assertEquals(RepositoryNotFoundException.class, e.getClass());
@@ -278,7 +278,7 @@ final class FetchEntriesTest extends BaseTest {
             new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, memberToken.name()))
         .block(TIMEOUT);
 
-    StepVerifier.create(configurationService.entries(new FetchRequest(memberToken, repoName)))
+    StepVerifier.create(configurationService.entries(new EntriesRequest(memberToken, repoName)))
         .expectErrorSatisfies(
             e -> {
               assertEquals(InvalidAuthenticationToken.class, e.getClass());

@@ -10,6 +10,7 @@ import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
+import io.scalecube.configuration.api.EntriesRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
@@ -207,7 +208,7 @@ final class SaveEntryTest extends BaseTest {
     StepVerifier.create(
             configurationService
                 .save(new SaveRequest(adminToken, repoName, entryKey, entryValue))
-                .then(configurationService.entries(new FetchRequest(adminToken, repoName))))
+                .then(configurationService.entries(new EntriesRequest(adminToken, repoName))))
         .assertNext(
             entries -> {
               assertEquals(1, entries.size(), "Entries in repository");
