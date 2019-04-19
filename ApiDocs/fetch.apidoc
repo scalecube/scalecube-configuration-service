@@ -130,6 +130,6 @@
   * Error Response (HTTP):
   *    {
   *       "errorCode":500,
-  *       "errorMessage":"key:'Name' not found"
+  *       "errorMessage":"Please specify 'token'"
   *    }
   */
