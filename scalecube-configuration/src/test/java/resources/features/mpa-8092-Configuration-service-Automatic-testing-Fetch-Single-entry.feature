@@ -79,7 +79,7 @@ Feature: Integration tests for configuration service - FETCH (Single entry).
 
 
   #MPA-8211 (#20.3)
-  Scenario: Fail to get the entry upon the related "key" is missed
+  Scenario: Fail to get the entry upon the related "key" name is missed
     Given the specified name "repository" was created without any entries
     And the user have been granted with valid "token" (API key) assigned by "Member" role
     When this user requested to get an entry from the relevant "repository" without related "key" at all

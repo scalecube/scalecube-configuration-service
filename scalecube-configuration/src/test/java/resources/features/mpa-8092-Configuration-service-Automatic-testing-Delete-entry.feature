@@ -78,7 +78,7 @@ Feature: Integration tests for configuration service - FETCH (Single entry).
 
 
   #MPA-8211 (#34.3)
-  Scenario: Fail to delete the entry upon the related "key" is missed
+  Scenario: Fail to delete the entry upon the related "key" name is missed
     Given the specified name "repository" was created without any entries
     And the user have been granted with valid "token" (API key) assigned by "Owner" role
     When this user requested to delete specific entry from the relevant "repository" without related "key" at all

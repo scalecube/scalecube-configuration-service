@@ -188,7 +188,7 @@ Feature: Integration tests for configuration service - SAVE/UPDATE.
 
 
   #MPA-8211 (#17.3)
-  Scenario: Fail to save/update the entry upon the related "key" is missed
+  Scenario: Fail to save/update the entry upon the related "key" name is missed
     Given the specified name "repository" was created without any entries
     And the user have been granted with valid "token" (API key) assigned by "Owner" role
     When this user requested to save an entry in the relevant "repository" without related "key" at all
