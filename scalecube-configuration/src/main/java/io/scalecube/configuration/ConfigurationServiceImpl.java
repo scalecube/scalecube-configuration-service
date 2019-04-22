@@ -1,12 +1,12 @@
 package io.scalecube.configuration;
 
-import static java.util.Objects.requireNonNull;
+import static io.scalecube.configuration.RequestValidator.validate;
 
-import io.scalecube.configuration.api.AccessRequest;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.DeleteRequest;
+import io.scalecube.configuration.api.EntriesRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
@@ -44,7 +44,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> createRepository(CreateRepositoryRequest request) {
-    return validateRequest(request)
+    return validate(request)
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
@@ -59,22 +59,21 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<FetchResponse> fetch(FetchRequest request) {
-    return validateRequest(request)
+    return validate(request)
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
                 () -> checkAccess(request.token().toString(), ConfigurationService.CONFIG_FETCH)))
         .flatMap(p -> repository.fetch(p.tenant(), request.repository(), request.key()))
-        .map(Document::value)
-        .map(value -> new FetchResponse(request.key(), value))
+        .map(document -> new FetchResponse(document.key(), document.value()))
         .doOnSuccess(
             result -> logger.debug("fetch: exit: request: {}, result: {}", request, result))
         .doOnError(th -> logger.error("fetch: request: {}, error:", request, th));
   }
 
   @Override
-  public Mono<List<FetchResponse>> entries(FetchRequest request) {
-    return validateRequest(request)
+  public Mono<List<FetchResponse>> entries(EntriesRequest request) {
+    return validate(request)
         .subscribeOn(scheduler)
         .thenMany(
             Flux.defer(
@@ -89,7 +88,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> save(SaveRequest request) {
-    return validateRequest(request)
+    return validate(request)
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
@@ -105,7 +104,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> delete(DeleteRequest request) {
-    return validateRequest(request)
+    return validate(request)
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
@@ -114,15 +113,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .thenReturn(ACK)
         .doOnSuccess(result -> logger.debug("delete: exit: request: {}", request))
         .doOnError(th -> logger.error("delete: request: {}, error:", request, th));
-  }
-
-  private static Mono<Void> validateRequest(AccessRequest request) {
-    return Mono.fromRunnable(
-        () -> {
-          requireNonNull(request, "request null is invalid");
-          requireNonNull(request.token(), "request.token null is invalid");
-          requireNonNull(request.repository(), "request.repository null is invalid");
-        });
   }
 
   private Mono<Profile> checkAccess(String token, String resource) {

@@ -10,6 +10,7 @@ import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
+import io.scalecube.configuration.api.EntriesRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
 import io.scalecube.configuration.api.SaveRequest;
@@ -226,7 +227,7 @@ final class FetchEntryTest extends BaseTest {
     String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
     String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
 
-    StepVerifier.create(configurationService.entries(new FetchRequest(token, "test-repo", "key")))
+    StepVerifier.create(configurationService.entries(new EntriesRequest(token, "test-repo")))
         .expectErrorSatisfies(
             e -> {
               assertEquals(InvalidAuthenticationToken.class, e.getClass());
@@ -270,7 +271,7 @@ final class FetchEntryTest extends BaseTest {
 
     TimeUnit.SECONDS.sleep(3);
 
-    StepVerifier.create(configurationService.entries(new FetchRequest(adminToken, repoName)))
+    StepVerifier.create(configurationService.entries(new EntriesRequest(adminToken, repoName)))
         .expectErrorSatisfies(
             e -> {
               assertEquals(InvalidAuthenticationToken.class, e.getClass());
@@ -309,7 +310,7 @@ final class FetchEntryTest extends BaseTest {
                         .put("Rounding", "down"))))
         .block(TIMEOUT);
 
-    StepVerifier.create(configurationService.entries(new FetchRequest(token2, repoName)))
+    StepVerifier.create(configurationService.entries(new EntriesRequest(token2, repoName)))
         .expectErrorSatisfies(
             e -> {
               assertEquals(RepositoryNotFoundException.class, e.getClass());
@@ -353,7 +354,7 @@ final class FetchEntryTest extends BaseTest {
             new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, adminToken.name()))
         .block(TIMEOUT);
 
-    StepVerifier.create(configurationService.entries(new FetchRequest(adminToken, repoName)))
+    StepVerifier.create(configurationService.entries(new EntriesRequest(adminToken, repoName)))
         .expectErrorSatisfies(
             e -> {
               assertEquals(InvalidAuthenticationToken.class, e.getClass());
