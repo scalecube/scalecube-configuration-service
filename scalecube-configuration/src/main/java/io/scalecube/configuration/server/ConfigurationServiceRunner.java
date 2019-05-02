@@ -115,7 +115,7 @@ public class ConfigurationServiceRunner {
             .async();
       } catch (Exception e) {
         if (++time == maxTimes) {
-          LOGGER.warn(e.getMessage() + "times: " + time, e);
+          LOGGER.warn(e.getMessage() + " [times: " + time + "]", e);
           throw e;
         }
       }
