@@ -105,10 +105,20 @@ public class ConfigurationServiceRunner {
   }
 
   private static AsyncBucket couchbaseBucket(CouchbaseSettings settings) {
-    return CouchbaseCluster.create(settings.hosts())
-        .authenticate(settings.username(), settings.password())
-        .openBucket(settings.bucketName())
-        .async();
+    int time = 0;
+    int maxTimes = 3;
+    do {
+      try {
+        return CouchbaseCluster.create(settings.hosts())
+            .authenticate(settings.username(), settings.password())
+            .openBucket(settings.bucketName())
+            .async();
+      } catch (Exception e) {
+        if (++time == maxTimes) {
+          throw e;
+        }
+      }
+    } while (true);
   }
 
   private static DiscoveryOptions discoveryOptions() {
