@@ -2,6 +2,7 @@ package io.scalecube.configuration.server;
 
 import com.couchbase.client.java.AsyncBucket;
 import com.couchbase.client.java.CouchbaseCluster;
+import com.couchbase.client.java.env.DefaultCouchbaseEnvironment.Builder;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.app.decoration.Logo;
 import io.scalecube.app.packages.PackageInfo;
@@ -26,6 +27,7 @@ import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
 import io.scalecube.services.transport.rsocket.RSocketTransportResources;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
@@ -107,7 +109,14 @@ public class ConfigurationServiceRunner {
   }
 
   private static AsyncBucket couchbaseBucket(CouchbaseSettings settings) {
-    return Mono.fromCallable(() -> CouchbaseCluster.create(settings.hosts())
+    return Mono.fromCallable(() -> CouchbaseCluster
+        .create(new Builder().managementTimeout(TimeUnit.SECONDS.toMillis(15))
+                .queryTimeout(TimeUnit.SECONDS.toMillis(15))
+                .viewTimeout(TimeUnit.SECONDS.toMillis(15))
+                .searchTimeout(TimeUnit.SECONDS.toMillis(15))
+                .analyticsTimeout(TimeUnit.SECONDS.toMillis(15))
+                .build(),
+            settings.hosts())
         .authenticate(settings.username(), settings.password())
         .openBucket(settings.bucketName())
         .async()).retryBackoff(3, Duration.ofSeconds(1)).block(Duration.ofSeconds(30));
