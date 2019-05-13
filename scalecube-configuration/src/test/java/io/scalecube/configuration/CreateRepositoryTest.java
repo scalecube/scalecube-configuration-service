@@ -10,6 +10,7 @@ import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
+import io.scalecube.configuration.fixtures.ContainersConfigurationServiceFixture;
 import io.scalecube.configuration.fixtures.InMemoryConfigurationServiceFixture;
 import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
 import io.scalecube.test.fixtures.Fixtures;
@@ -24,7 +25,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.test.StepVerifier;
 
 @ExtendWith(Fixtures.class)
-@WithFixture(value = InMemoryConfigurationServiceFixture.class, lifecycle = Lifecycle.PER_METHOD)
+//@WithFixture(value = InMemoryConfigurationServiceFixture.class, lifecycle = Lifecycle.PER_METHOD)
+@WithFixture(value = ContainersConfigurationServiceFixture.class, lifecycle = Lifecycle.PER_METHOD)
 final class CreateRepositoryTest extends BaseTest {
 
   @TestTemplate

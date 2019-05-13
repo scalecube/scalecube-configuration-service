@@ -5,6 +5,12 @@ import com.couchbase.client.java.cluster.UserRole;
 import com.couchbase.client.java.cluster.UserSettings;
 import com.github.dockerjava.api.model.PortBinding;
 import io.scalecube.services.gateway.clientsdk.Client;
+import io.scalecube.services.gateway.clientsdk.ClientCodec;
+import io.scalecube.services.gateway.clientsdk.ClientSettings;
+import io.scalecube.services.gateway.clientsdk.ClientTransport;
+import io.scalecube.services.gateway.clientsdk.websocket.WebsocketClientCodec;
+import io.scalecube.services.gateway.clientsdk.websocket.WebsocketClientTransport;
+import io.scalecube.services.transport.api.DataCodec;
 import io.scalecube.test.fixtures.Fixture;
 import java.io.IOException;
 import java.util.Collections;
@@ -19,6 +25,7 @@ import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.couchbase.CouchbaseContainer;
 import org.testcontainers.vault.VaultContainer;
+import reactor.netty.resources.LoopResources;
 
 public class ContainersConfigurationServiceFixture implements Fixture {
 
@@ -61,15 +68,15 @@ public class ContainersConfigurationServiceFixture implements Fixture {
     setUpOrganizationService(env);
     setUpConfigurationService(env);
 
-//    ClientSettings clientSettings = ClientSettings.builder().host("localhost").port(7070).build();
-//
-//    ClientCodec clientCodec = new WebsocketClientCodec(
-//        DataCodec.getInstance(clientSettings.contentType()));
-//
-//    ClientTransport transport = new WebsocketClientTransport(
-//        clientSettings, clientCodec, LoopResources.create("ws" + "-loop"));
-//
-//    client = new Client(transport, clientCodec);
+    ClientSettings clientSettings = ClientSettings.builder().host("localhost").port(7070).build();
+
+    ClientCodec clientCodec = new WebsocketClientCodec(
+        DataCodec.getInstance(clientSettings.contentType()));
+
+    ClientTransport transport = new WebsocketClientTransport(
+        clientSettings, clientCodec, LoopResources.create("ws" + "-loop"));
+
+    client = new Client(transport, clientCodec);
   }
 
   @Override
