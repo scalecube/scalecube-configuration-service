@@ -20,8 +20,8 @@ import io.scalecube.test.fixtures.WithFixture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -30,7 +30,7 @@ import reactor.test.StepVerifier;
 @ExtendWith(Fixtures.class)
 class ScalecubeConfigurationServiceConfigSourceTest {
 
-  @ParameterizedTest
+  @TestTemplate
   public void testSingleValue(ConfigRegistry configRegistry, ConfigurationService service)
       throws InterruptedException {
 
@@ -72,7 +72,7 @@ class ScalecubeConfigurationServiceConfigSourceTest {
         () -> assertEquals(expected, actual, "Broker Data"));
   }
 
-  @ParameterizedTest
+  @TestTemplate
   public void testChangeValue(ConfigRegistry configRegistry, ConfigurationService service)
       throws InterruptedException {
 
