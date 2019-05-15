@@ -1,25 +1,27 @@
 package io.scalecube.config.service;
 
-import static io.scalecube.services.gateway.clientsdk.Client.http;
 import static io.scalecube.services.gateway.clientsdk.ClientSettings.builder;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.scalecube.config.ConfigProperty;
 import io.scalecube.config.ConfigSourceNotAvailableException;
 import io.scalecube.config.source.ConfigSource;
 import io.scalecube.config.source.LoadedConfigProperty;
-import io.scalecube.config.utils.ObjectMapperHolder;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.EntriesRequest;
-import io.scalecube.configuration.api.FetchResponse;
+import io.scalecube.services.gateway.clientsdk.Client;
+import io.scalecube.services.gateway.clientsdk.ClientCodec;
+import io.scalecube.services.gateway.clientsdk.ClientMessage;
+import io.scalecube.services.gateway.clientsdk.ClientSettings;
 import io.scalecube.services.gateway.clientsdk.ClientSettings.Builder;
+import io.scalecube.services.gateway.clientsdk.http.HttpClientCodec;
+import io.scalecube.services.transport.api.DataCodec;
 import io.scalecube.services.transport.jackson.JacksonCodec;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.netty.http.HttpResources;
@@ -29,11 +31,9 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ScalecubeConfigurationServiceConfigSource.class);
 
-  ConfigurationService service;
-
-  private EntriesRequest requestEntries;
-
-  private final Parsing parsing = new Parsing();
+  private ClientCodec clientCodec;
+  Client client;
+  private ClientMessage requestEntries;
 
   private static URL defaultUrl() {
     try {
@@ -72,44 +72,46 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
     if ("https".equals(service.getProtocol()) || "wss".equals(service.getProtocol())) {
       builder = builder.secure();
     }
-    this.service = http(builder.build()).forService(ConfigurationService.class);
-    requestEntries = new EntriesRequest(token, repository);
-  }
 
-  ScalecubeConfigurationServiceConfigSource(ConfigurationService service) {
-    this.service = service;
+    ClientSettings clientSettings = builder.build();
+    DataCodec dataCodec = DataCodec.getInstance(clientSettings.contentType());
+    clientCodec = new HttpClientCodec(dataCodec);
+    client = Client.http(clientSettings);
+
+    requestEntries =
+        ClientMessage.builder()
+            .qualifier(ConfigurationService.CONFIG_ENTRIES)
+            .data(new EntriesRequest(token, repository))
+            .build();
   }
 
   @Override
   public Map<String, ConfigProperty> loadConfig() {
-    try {
-      return service
-          .entries(requestEntries)
-          .flatMapIterable(Function.identity())
-          .collectMap(FetchResponse::key, this.parsing::fromFetchResponse)
-          .block();
-    } catch (Exception e) {
-      e.printStackTrace();
-      LOGGER.warn("unable to load config properties", e);
-      throw new ConfigSourceNotAvailableException(e);
-    }
+
+    ClientMessage clientMessage =
+        client
+            .requestResponse(requestEntries)
+            .onErrorMap(
+                e -> {
+                  e.printStackTrace();
+                  LOGGER.warn("unable to load config properties", e);
+                  throw new ConfigSourceNotAvailableException(e);
+                })
+            .block();
+
+    TypeReference<List<Entry>> typeReference = new TypeReference<List<Entry>>() {};
+
+    List<Entry> entries = clientCodec.decodeData(clientMessage, typeReference.getType()).data();
+
+    return entries.stream()
+        .collect(
+            Collectors.toMap(
+                entry -> entry.key,
+                entry -> LoadedConfigProperty.withNameAndValue(entry.key, entry.value).build()));
   }
 
-  private static class Parsing {
-    private ObjectWriter writer;
-
-    protected Parsing() {
-      writer = ObjectMapperHolder.getInstance().writer(new MinimalPrettyPrinter());
-    }
-
-    public ConfigProperty fromFetchResponse(FetchResponse fetchResponse) {
-      try {
-        return LoadedConfigProperty.withNameAndValue(
-                fetchResponse.key(), writer.writeValueAsString(fetchResponse.value()))
-            .build();
-      } catch (JsonProcessingException ignoredException) {
-        return LoadedConfigProperty.withNameAndValue(fetchResponse.key(), null).build();
-      }
-    }
+  private static class Entry {
+    private String value;
+    private String key;
   }
 }

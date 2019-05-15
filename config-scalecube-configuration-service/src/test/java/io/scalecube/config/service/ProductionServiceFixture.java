@@ -39,7 +39,7 @@ public class ProductionServiceFixture implements Fixture {
           noSuchElementException);
     }
 
-    this.service = configSource.service;
+    this.service = configSource.client.forService(ConfigurationService.class);
     this.configRegistry =
         ConfigRegistry.create(
             ConfigRegistrySettings.builder()
