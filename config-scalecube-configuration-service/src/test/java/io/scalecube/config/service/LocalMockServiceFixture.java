@@ -4,10 +4,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.scalecube.config.ConfigRegistry;
 import io.scalecube.config.ConfigRegistrySettings;
 import io.scalecube.config.source.SystemPropertiesConfigSource;
-import io.scalecube.config.utils.ObjectMapperHolder;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.DeleteRequest;
@@ -41,7 +41,7 @@ public class LocalMockServiceFixture implements Fixture {
         .then(
             answer -> {
               SaveRequest request = (SaveRequest) answer.getArguments()[0];
-              String value = ObjectMapperHolder.getInstance().writeValueAsString(request.value());
+              JsonNode value = request.value();
               FetchResponse response = new FetchResponse(request.key(), value);
               responses.add(response);
               return Mono.just(acknowledgment);
@@ -77,7 +77,7 @@ public class LocalMockServiceFixture implements Fixture {
                 .addFirstSource("System", new SystemPropertiesConfigSource())
                 .addLastSource(
                     "ScalecubeConfigurationService",
-                    new ScalecubeConfigurationServiceConfigSource(BrokerData.class, service))
+                    new ScalecubeConfigurationServiceConfigSource(service))
                 .reloadIntervalSec(1)
                 .build());
   }

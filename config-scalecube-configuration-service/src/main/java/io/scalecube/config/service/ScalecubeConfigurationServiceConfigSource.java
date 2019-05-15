@@ -33,31 +33,7 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
 
   private EntriesRequest requestEntries;
 
-  private Parsing<?> parsing;
-
-  /**
-   * Create a configuration source that connects to the production environment of scalecube
-   * configuration service.
-   *
-   * @param token the API token
-   * @param repository the name of the repository
-   */
-  public ScalecubeConfigurationServiceConfigSource(String token, String repository) {
-    this(token, repository, Object.class);
-  }
-
-  /**
-   * Create a configuration source that connects to the production environment of scalecube
-   * configuration service.
-   *
-   * @param token the API token
-   * @param repository the name of the repository
-   * @param schema the type of objects this service should prooduce
-   */
-  public ScalecubeConfigurationServiceConfigSource(
-      String token, String repository, Class<?> schema) {
-    this(token, repository, schema, defaultUrl());
-  }
+  private final Parsing parsing = new Parsing();
 
   private static URL defaultUrl() {
     try {
@@ -73,12 +49,20 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
    *
    * @param token the API token
    * @param repository the name of the repository
-   * @param schema the type of objects this service should prooduce
+   */
+  public ScalecubeConfigurationServiceConfigSource(String token, String repository) {
+    this(token, repository, defaultUrl());
+  }
+
+  /**
+   * Create a configuration source that connects to the production environment of scalecube
+   * configuration service.
+   *
+   * @param token the API token
+   * @param repository the name of the repository
    * @param service the URL of this service
    */
-  public ScalecubeConfigurationServiceConfigSource(
-      String token, String repository, Class<?> schema, URL service) {
-    this.parsing = new Parsing<>(schema);
+  public ScalecubeConfigurationServiceConfigSource(String token, String repository, URL service) {
     Builder builder =
         builder()
             .host(service.getHost())
@@ -92,9 +76,8 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
     requestEntries = new EntriesRequest(token, repository);
   }
 
-  ScalecubeConfigurationServiceConfigSource(Class<?> schema, ConfigurationService service) {
+  ScalecubeConfigurationServiceConfigSource(ConfigurationService service) {
     this.service = service;
-    this.parsing = new Parsing<>(schema);
   }
 
   @Override
@@ -112,40 +95,21 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
     }
   }
 
-  private static class Parsing<T> {
-    private Class<T> schema;
+  private static class Parsing {
     private ObjectWriter writer;
 
-    protected Parsing(Class<T> schema) {
-      this.schema = schema;
-      writer = ObjectMapperHolder.getInstance().writer(new MinimalPrettyPrinter()).forType(schema);
+    protected Parsing() {
+      writer = ObjectMapperHolder.getInstance().writer(new MinimalPrettyPrinter());
     }
 
     public ConfigProperty fromFetchResponse(FetchResponse fetchResponse) {
-      System.out.println(
-              "ScalecubeConfigurationServiceConfigSource.Parsing.fromFetchResponse()"
-              + "type of fetchResponse.value() is"
-              + fetchResponse.value().getClass().getCanonicalName());
-      if (schema.isInstance(fetchResponse.value())) {
-        try {
-          return LoadedConfigProperty.withNameAndValue(
-                  fetchResponse.key(), writer.writeValueAsString(fetchResponse.value()))
-              .build();
-        } catch (JsonProcessingException ignoredException) {
-          // fallback to simple string
-        }
-      }
       try {
-        String valueAsString =
-            writer.writeValueAsString(
-                ObjectMapperHolder.getInstance().convertValue(fetchResponse.value(), schema));
-        return LoadedConfigProperty.forNameAndValue(fetchResponse.key(), valueAsString);
-      } catch (Exception ignoredException) {
-        // fallback to simple string
+        return LoadedConfigProperty.withNameAndValue(
+                fetchResponse.key(), writer.writeValueAsString(fetchResponse.value()))
+            .build();
+      } catch (JsonProcessingException ignoredException) {
+        return LoadedConfigProperty.withNameAndValue(fetchResponse.key(), null).build();
       }
-      return LoadedConfigProperty.withNameAndValue(
-              fetchResponse.key(), String.valueOf(fetchResponse.value()))
-          .build();
     }
   }
 }

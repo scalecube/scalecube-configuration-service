@@ -32,7 +32,7 @@ public class ProductionServiceFixture implements Fixture {
     try {
       configSource =
           new ScalecubeConfigurationServiceConfigSource(
-              token.valueOrThrow(), repository.valueOrThrow(), BrokerData.class);
+              token.valueOrThrow(), repository.valueOrThrow());
     } catch (NoSuchElementException noSuchElementException) {
       throw new TestAbortedException(
           "missing test configuration, please set token and repository in system properties / environment variables",
