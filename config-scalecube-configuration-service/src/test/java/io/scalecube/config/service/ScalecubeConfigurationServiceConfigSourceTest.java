@@ -119,7 +119,7 @@ class ScalecubeConfigurationServiceConfigSourceTest {
 
   private BiConsumer<BrokerData, BrokerData> onNewValue(CountDownLatch... latches) {
     return (BrokerData oldValue, BrokerData newValue) -> {
-      System.out.println(newValue);
+      System.out.println("ScalecubeConfigurationServiceConfigSourceTest.onNewValue():" + newValue.toString());
       for (CountDownLatch latch : latches) {
         latch.countDown();
       }

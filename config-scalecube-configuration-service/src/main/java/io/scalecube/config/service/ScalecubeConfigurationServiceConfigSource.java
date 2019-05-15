@@ -10,7 +10,6 @@ import io.scalecube.config.ConfigProperty;
 import io.scalecube.config.ConfigSourceNotAvailableException;
 import io.scalecube.config.source.ConfigSource;
 import io.scalecube.config.source.LoadedConfigProperty;
-import io.scalecube.config.source.LoadedObjectConfigProperty;
 import io.scalecube.config.utils.ObjectMapperHolder;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.EntriesRequest;
@@ -123,6 +122,10 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
     }
 
     public ConfigProperty fromFetchResponse(FetchResponse fetchResponse) {
+      System.out.println(
+              "ScalecubeConfigurationServiceConfigSource.Parsing.fromFetchResponse()"
+              + "type of fetchResponse.value() is"
+              + fetchResponse.value().getClass().getCanonicalName());
       if (schema.isInstance(fetchResponse.value())) {
         try {
           return LoadedConfigProperty.withNameAndValue(
@@ -136,7 +139,7 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
         String valueAsString =
             writer.writeValueAsString(
                 ObjectMapperHolder.getInstance().convertValue(fetchResponse.value(), schema));
-        return LoadedObjectConfigProperty.forNameAndValue(fetchResponse.key(), valueAsString);
+        return LoadedConfigProperty.forNameAndValue(fetchResponse.key(), valueAsString);
       } catch (Exception ignoredException) {
         // fallback to simple string
       }
