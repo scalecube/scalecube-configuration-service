@@ -1,11 +1,13 @@
 package io.scalecube.configuration.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 /**
  * Represents a response to a fetch request.
  */
 public class FetchResponse {
 
-  private Object value;
+  private JsonNode value;
   private String key;
 
   /**
@@ -22,12 +24,12 @@ public class FetchResponse {
    * @param key fetch key
    * @param value fetch value
    */
-  public FetchResponse(String key, Object value) {
+  public FetchResponse(String key, JsonNode value) {
     this.value = value;
     this.key = key;
   }
 
-  public Object value() {
+  public JsonNode value() {
     return this.value;
   }
 
