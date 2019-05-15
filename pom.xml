@@ -23,7 +23,7 @@
   </scm>
 
   <properties>
-    <scalecube.config.version>0.3.10-SNAPSHOT</scalecube.config.version>
+    <scalecube.config.version>0.3.10</scalecube.config.version>
     <scalecube-services.version>2.5.7</scalecube-services.version>
     <scalecube-security-jwt.version>1.0.7</scalecube-security-jwt.version>
     <reactor.version>Californium-SR5</reactor.version>
