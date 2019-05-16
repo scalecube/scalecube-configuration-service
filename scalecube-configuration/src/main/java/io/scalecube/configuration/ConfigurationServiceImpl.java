@@ -92,7 +92,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
-                () -> checkAccess(request.token().toString(), ConfigurationService.CONFIG_SAVE)))
+                () -> checkAccess(request.token(), ConfigurationService.CONFIG_SAVE)))
         .flatMap(
             p ->
                 repository.save(

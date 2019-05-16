@@ -262,7 +262,7 @@ final class FetchEntriesTest extends BaseTest {
         .then(
             configurationService.save(
                 new SaveRequest(
-                    ownerToken,
+                    ownerToken.toString(),
                     repoName,
                     entryKey,
                     OBJECT_MAPPER

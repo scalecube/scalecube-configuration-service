@@ -11,6 +11,10 @@ public class JacksonTranslationService implements TranslationService {
   private static final ObjectMapper objectMapper =
       new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
+  public static ObjectMapper objectMapper() {
+    return objectMapper;
+  }
+
   @Override
   public <T> byte[] encode(T source, Class<T> sourceType) {
     try {

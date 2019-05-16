@@ -8,6 +8,7 @@ import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.error.DocumentAlreadyExistsException;
 import com.couchbase.client.java.error.DocumentDoesNotExistException;
 import com.couchbase.client.java.error.subdoc.PathNotFoundException;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.scalecube.configuration.repository.ConfigurationRepository;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.Repository;
@@ -15,6 +16,7 @@ import io.scalecube.configuration.repository.exception.DataAccessException;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
+import java.util.List;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import rx.Observable;
@@ -68,13 +70,10 @@ public class CouchbaseRepository implements ConfigurationRepository {
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
         .map(
             value -> {
-              if (value instanceof JsonObject) {
-                return new Document(key, ((JsonObject) value).toMap());
-              } else if (value instanceof JsonArray) {
-                return new Document(key, ((JsonArray) value).toList());
-              } else {
-                return new Document(key, value);
-              }
+              JsonNode node = 
+                  JacksonTranslationService.objectMapper().convertValue(value, JsonNode.class);
+              
+              return new Document(key, node);
             });
   }
 
@@ -92,7 +91,9 @@ public class CouchbaseRepository implements ConfigurationRepository {
                                         String.format(REPOSITORY_NOT_FOUND, tenant, repository)))))
                     .map(AbstractDocument::content)
                     .flatMap(content -> Observable.from(content.toMap().entrySet()))
-                    .map(entry -> new Document(entry.getKey(), entry.getValue()))))
+                    .map(entry -> new Document(entry.getKey(), 
+                        JacksonTranslationService.objectMapper()
+                        .convertValue(entry.getValue(), JsonNode.class)))))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible);
   }
 
