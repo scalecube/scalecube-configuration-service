@@ -1,4 +1,4 @@
-package io.scalecube.configuration;
+package io.scalecube.configuration.scenario;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.scalecube.account.api.ApiKey;
@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
 import reactor.test.StepVerifier;
 
-abstract class BaseTest {
+abstract class BaseScenario {
 
   static final Duration TIMEOUT = Duration.ofSeconds(1);
   static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
