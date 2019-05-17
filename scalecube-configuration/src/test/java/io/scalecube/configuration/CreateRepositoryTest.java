@@ -10,7 +10,7 @@ import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
-import io.scalecube.configuration.fixtures.ContainersConfigurationServiceFixture;
+import io.scalecube.configuration.fixtures.InMemoryConfigurationServiceFixture;
 import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
 import io.scalecube.test.fixtures.Fixtures;
 import io.scalecube.test.fixtures.WithFixture;
@@ -24,22 +24,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.test.StepVerifier;
 
 @ExtendWith(Fixtures.class)
-//@WithFixture(value = InMemoryConfigurationServiceFixture.class, lifecycle = Lifecycle.PER_METHOD)
-@WithFixture(value = ContainersConfigurationServiceFixture.class, lifecycle = Lifecycle.PER_METHOD)
+@WithFixture(value = InMemoryConfigurationServiceFixture.class, lifecycle = Lifecycle.PER_METHOD)
 final class CreateRepositoryTest extends BaseTest {
-
-  private static final String TEST_REPOSITORY_NAME = "TEST_REPOSITORY_NAME";
 
   @TestTemplate
   @DisplayName("#1 Successful Repository creation applying the \"Owner\" API key")
   void createRepositoryByOwner(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, TEST_ORG_NAME).id();
+    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
     String token = getApiKey(organizationService, orgId, Role.Owner).key();
 
     StepVerifier.create(
-        configurationService
-            .createRepository(new CreateRepositoryRequest(token, TEST_REPOSITORY_NAME)))
+            configurationService.createRepository(new CreateRepositoryRequest(token, "test-repo")))
         .expectNextCount(1)
         .expectComplete()
         .verify();
@@ -59,13 +55,13 @@ final class CreateRepositoryTest extends BaseTest {
     String repoName = "test-repo";
 
     StepVerifier.create(
-        configurationService.createRepository(new CreateRepositoryRequest(token1, repoName)))
+            configurationService.createRepository(new CreateRepositoryRequest(token1, repoName)))
         .expectNextCount(1)
         .expectComplete()
         .verify();
 
     StepVerifier.create(
-        configurationService.createRepository(new CreateRepositoryRequest(token2, repoName)))
+            configurationService.createRepository(new CreateRepositoryRequest(token2, repoName)))
         .expectNextCount(1)
         .expectComplete()
         .verify();
@@ -81,8 +77,8 @@ final class CreateRepositoryTest extends BaseTest {
     String memberToken = getApiKey(organizationService, orgId, Role.Member).key();
 
     StepVerifier.create(
-        configurationService.createRepository(
-            new CreateRepositoryRequest(adminToken, "test-repo")))
+            configurationService.createRepository(
+                new CreateRepositoryRequest(adminToken, "test-repo")))
         .expectErrorSatisfies(
             e -> {
               assertEquals(AccessControlException.class, e.getClass());
@@ -91,8 +87,8 @@ final class CreateRepositoryTest extends BaseTest {
         .verify();
 
     StepVerifier.create(
-        configurationService.createRepository(
-            new CreateRepositoryRequest(memberToken, "test-repo")))
+            configurationService.createRepository(
+                new CreateRepositoryRequest(memberToken, "test-repo")))
         .expectErrorSatisfies(
             e -> {
               assertEquals(AccessControlException.class, e.getClass());
@@ -115,7 +111,7 @@ final class CreateRepositoryTest extends BaseTest {
         .block(TIMEOUT);
 
     StepVerifier.create(
-        configurationService.createRepository(new CreateRepositoryRequest(token, repoName)))
+            configurationService.createRepository(new CreateRepositoryRequest(token, repoName)))
         .expectErrorSatisfies(
             e -> {
               assertEquals(RepositoryAlreadyExistsException.class, e.getClass());
@@ -134,7 +130,7 @@ final class CreateRepositoryTest extends BaseTest {
     String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
 
     StepVerifier.create(
-        configurationService.createRepository(new CreateRepositoryRequest(token, "test-repo")))
+            configurationService.createRepository(new CreateRepositoryRequest(token, "test-repo")))
         .expectErrorSatisfies(
             e -> {
               assertEquals(InvalidAuthenticationToken.class, e.getClass());
@@ -163,7 +159,7 @@ final class CreateRepositoryTest extends BaseTest {
     TimeUnit.SECONDS.sleep(3);
 
     StepVerifier.create(
-        configurationService.createRepository(new CreateRepositoryRequest(token, "test-repo")))
+            configurationService.createRepository(new CreateRepositoryRequest(token, "test-repo")))
         .expectErrorSatisfies(
             e -> {
               assertEquals(InvalidAuthenticationToken.class, e.getClass());
@@ -191,8 +187,8 @@ final class CreateRepositoryTest extends BaseTest {
         .block(TIMEOUT);
 
     StepVerifier.create(
-        configurationService.createRepository(
-            new CreateRepositoryRequest(ownerKey.key(), "test-repo")))
+            configurationService.createRepository(
+                new CreateRepositoryRequest(ownerKey.key(), "test-repo")))
         .expectErrorSatisfies(
             e -> {
               assertEquals(InvalidAuthenticationToken.class, e.getClass());
