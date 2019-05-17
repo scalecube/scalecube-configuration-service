@@ -103,7 +103,7 @@ public final class InMemoryConfigurationServiceFixture implements Fixture {
     Builder organization1InfoBuilder =
         OrganizationInfo.builder()
             .id(organizationId1)
-            .name("Test Organization 1")
+            .name("Test_Organization_Name_1")
             .email("info@scalecube.io")
             .apiKeys(
                 new ApiKey[] {
@@ -118,7 +118,7 @@ public final class InMemoryConfigurationServiceFixture implements Fixture {
     Builder organization2InfoBuilder =
         OrganizationInfo.builder()
             .id(organizationId2)
-            .name("Test Organization 2")
+            .name("Test_Organization_Name_2")
             .email("info@scalecube.io")
             .apiKeys(
                 new ApiKey[] {

@@ -18,7 +18,7 @@ import reactor.test.StepVerifier;
 
 abstract class BaseScenario {
 
-  static final Duration TIMEOUT = Duration.ofSeconds(1);
+  protected static final Duration TIMEOUT = Duration.ofSeconds(1);
   static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   //  static final Token AUTH0_TOKEN = new Token("auth0_token");
   protected static final Token AUTH0_TOKEN = new Token(
@@ -31,7 +31,7 @@ abstract class BaseScenario {
     StepVerifier.setDefaultTimeout(TIMEOUT);
   }
 
-  OrganizationInfo getOrganization(
+  protected OrganizationInfo getOrganization(
       OrganizationService organizationService, String organizationName) {
     GetMembershipResponse membership =
         organizationService
@@ -53,7 +53,7 @@ abstract class BaseScenario {
     return getApiKey(organizationService, organizationId, role, true);
   }
 
-  ApiKey getApiKey(OrganizationService organizationService, String organizationId, Role role) {
+  protected ApiKey getApiKey(OrganizationService organizationService, String organizationId, Role role) {
     return getApiKey(organizationService, organizationId, role, false);
   }
 

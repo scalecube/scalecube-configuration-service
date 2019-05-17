@@ -149,7 +149,7 @@ public class CreateRepositoryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     organizationService
-        .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, "ORG-TEST"))
+        .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, orgId))
         .block(TIMEOUT);
 
     TimeUnit.SECONDS.sleep(3);
