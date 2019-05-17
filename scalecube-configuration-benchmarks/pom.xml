@@ -13,7 +13,7 @@
 
   <properties>
     <scalecube-benchmarks.version>1.2.2</scalecube-benchmarks.version>
-    <scalecube-organization.version>2.1.0</scalecube-organization.version>
+    <scalecube-organization.version>2.1.6</scalecube-organization.version>
     <testcontainers.version>1.10.5</testcontainers.version>
     <hamcrest-all.version>1.3</hamcrest-all.version>
   </properties>
