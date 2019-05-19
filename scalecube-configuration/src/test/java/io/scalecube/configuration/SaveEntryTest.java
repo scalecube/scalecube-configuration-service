@@ -454,7 +454,7 @@ final class SaveEntryTest extends BaseTest {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.save(new SaveRequest(token.toString(), repoName, entryKey, entryValue)))
+            configurationService.save(new SaveRequest(token, repoName, entryKey, entryValue)))
         .expectErrorSatisfies(
             e -> {
               assertEquals(InvalidAuthenticationToken.class, e.getClass());

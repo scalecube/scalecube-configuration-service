@@ -355,7 +355,7 @@ final class DeleteEntryTest extends BaseTest {
         .then(
             configurationService.save(
                 new SaveRequest(
-                    token.toString(),
+                    token,
                     repoName,
                     entryKey,
                     OBJECT_MAPPER
