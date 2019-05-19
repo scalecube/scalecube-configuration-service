@@ -82,15 +82,11 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
    *
    * @param token the API token
    * @param repository the name of the repository
-   * @param service the URL of this service
+   * @param service the actual configuration service 
    */
   public ScalecubeConfigurationServiceConfigSource(String token, String repository, ConfigurationService service) {
     this.service = service;
     requestEntries = new EntriesRequest(token, repository);
-  }
-  
-  ScalecubeConfigurationServiceConfigSource(ConfigurationService service) {
-    this.service = service;
   }
 
   @Override

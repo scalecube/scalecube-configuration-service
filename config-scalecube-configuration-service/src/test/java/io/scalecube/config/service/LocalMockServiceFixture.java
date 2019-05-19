@@ -74,13 +74,17 @@ public class LocalMockServiceFixture implements Fixture {
                                       new InternalServiceException(
                                           500, "Key '" + request.key() + "' not found")));
             });
+    
+    String token = null;
+    String repo = null;
+    
     configRegistry =
         ConfigRegistry.create(
             ConfigRegistrySettings.builder()
                 .addFirstSource("System", new SystemPropertiesConfigSource())
                 .addLastSource(
                     "ScalecubeConfigurationService",
-                    new ScalecubeConfigurationServiceConfigSource(service))
+                    new ScalecubeConfigurationServiceConfigSource(token, repo, service))
                 .reloadIntervalSec(1)
                 .build());
   }
