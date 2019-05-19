@@ -50,7 +50,7 @@ class ScalecubeConfigurationServiceConfigSourceTest {
 
     ObjectConfigProperty<BrokerData> configProperty =
         configRegistry.objectProperty(
-            documentKey, ObjectMapperHolder.parseJsonTo(BrokerData.class));
+            documentKey, ObjectMapperHolder.parseJsonAs(BrokerData.class));
     configProperty.addCallback(this.onNewValue(latch));
     BrokerData expected =
         new BrokerData(
@@ -94,7 +94,7 @@ class ScalecubeConfigurationServiceConfigSourceTest {
 
     ObjectConfigProperty<BrokerData> configProperty =
         configRegistry.objectProperty(
-            documentKey, ObjectMapperHolder.parseJsonTo(BrokerData.class));
+            documentKey, ObjectMapperHolder.parseJsonAs(BrokerData.class));
 
     configProperty.addCallback(this.onNewValue(latchForFirst, latchForSecond));
 

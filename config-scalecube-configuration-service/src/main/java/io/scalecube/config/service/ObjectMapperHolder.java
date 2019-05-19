@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.scalecube.config.ConfigRegistry;
 import io.scalecube.config.utils.ThrowableUtil;
 import java.io.IOException;
 import java.util.function.Function;
@@ -35,7 +36,14 @@ public class ObjectMapperHolder {
     return objectMapper;
   }
 
-  public static <T> Function<String, T> parseJsonTo(Class<? extends T> toType) {
+  /**
+   * Parse a Json into type. This is a helper method for config registry.
+   *
+   * @param toType the type the json represents
+   * @return a function that will parse the json
+   * @see ConfigRegistry#objectProperty(String, Function)
+   */
+  public static <T> Function<String, T> parseJsonAs(Class<? extends T> toType) {
     return src -> {
       try {
         return objectMapper.readerFor(toType).readValue(src);
