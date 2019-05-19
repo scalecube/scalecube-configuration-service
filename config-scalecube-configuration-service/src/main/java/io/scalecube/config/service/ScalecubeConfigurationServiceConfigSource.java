@@ -10,7 +10,6 @@ import io.scalecube.config.ConfigProperty;
 import io.scalecube.config.ConfigSourceNotAvailableException;
 import io.scalecube.config.source.ConfigSource;
 import io.scalecube.config.source.LoadedConfigProperty;
-import io.scalecube.config.utils.ObjectMapperHolder;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.EntriesRequest;
 import io.scalecube.configuration.api.FetchResponse;

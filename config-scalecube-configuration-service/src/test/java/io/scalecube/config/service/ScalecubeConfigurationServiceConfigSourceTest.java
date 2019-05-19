@@ -45,11 +45,12 @@ class ScalecubeConfigurationServiceConfigSourceTest {
         .block();
     Mono<FetchResponse> fetch = service.fetch(new FetchRequest(token, repository, documentKey));
     StepVerifier.create(fetch).expectError();
-    
+
     TimeUnit.SECONDS.sleep(2); // wait for the property to be empty
 
     ObjectConfigProperty<BrokerData> configProperty =
-        configRegistry.jsonObjectProperty(documentKey, BrokerData.class);
+        configRegistry.objectProperty(
+            documentKey, ObjectMapperHolder.parseJsonTo(BrokerData.class));
     configProperty.addCallback(this.onNewValue(latch));
     BrokerData expected =
         new BrokerData(
@@ -92,7 +93,8 @@ class ScalecubeConfigurationServiceConfigSourceTest {
     TimeUnit.SECONDS.sleep(2); // wait for the property to be empty
 
     ObjectConfigProperty<BrokerData> configProperty =
-        configRegistry.jsonObjectProperty(documentKey, BrokerData.class);
+        configRegistry.objectProperty(
+            documentKey, ObjectMapperHolder.parseJsonTo(BrokerData.class));
 
     configProperty.addCallback(this.onNewValue(latchForFirst, latchForSecond));
 
@@ -119,7 +121,8 @@ class ScalecubeConfigurationServiceConfigSourceTest {
 
   private BiConsumer<BrokerData, BrokerData> onNewValue(CountDownLatch... latches) {
     return (BrokerData oldValue, BrokerData newValue) -> {
-      System.out.println("ScalecubeConfigurationServiceConfigSourceTest.onNewValue():" + newValue.toString());
+      System.out.println(
+          "ScalecubeConfigurationServiceConfigSourceTest.onNewValue():" + newValue.toString());
       for (CountDownLatch latch : latches) {
         latch.countDown();
       }
