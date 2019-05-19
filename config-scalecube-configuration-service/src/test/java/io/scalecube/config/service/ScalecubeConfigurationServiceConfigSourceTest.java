@@ -25,7 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-@WithFixture(LocalMockServiceFixture.class)
+//@WithFixture(LocalMockServiceFixture.class)
 @WithFixture(ProductionServiceFixture.class)
 @ExtendWith(Fixtures.class)
 class ScalecubeConfigurationServiceConfigSourceTest {

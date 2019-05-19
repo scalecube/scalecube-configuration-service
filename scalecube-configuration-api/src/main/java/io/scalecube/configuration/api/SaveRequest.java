@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 /** Represents a request to save an entry in a repository. */
 public class SaveRequest implements AccessRequest {
 
-  private String token;
+  private Object token;
   private String repository;
   private String key;
-  private JsonNode value;
+  private Object value;
 
   /**
    * Default constructor.
@@ -25,18 +25,18 @@ public class SaveRequest implements AccessRequest {
    * @param key the entry key
    * @param value the entry value
    */
-  public SaveRequest(String token, String repository, String key, JsonNode value) {
+  public SaveRequest(Object token, String repository, String key, JsonNode value) {
     this.token = token;
     this.repository = repository;
     this.key = key;
     this.value = value;
   }
 
-  public String token() {
+  public Object token() {
     return this.token;
   }
 
-  public JsonNode value() {
+  public Object value() {
     return this.value;
   }
 

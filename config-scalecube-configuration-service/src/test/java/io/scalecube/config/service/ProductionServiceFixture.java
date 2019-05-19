@@ -7,6 +7,8 @@ import io.scalecube.config.source.SystemEnvironmentConfigSource;
 import io.scalecube.config.source.SystemPropertiesConfigSource;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.test.fixtures.Fixture;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.NoSuchElementException;
 import org.opentest4j.TestAbortedException;
 
@@ -32,11 +34,17 @@ public class ProductionServiceFixture implements Fixture {
     try {
       configSource =
           new ScalecubeConfigurationServiceConfigSource(
-              token.valueOrThrow(), repository.valueOrThrow());
+              token.valueOrThrow(), repository.valueOrThrow(),
+              new URL("https", "configuration-service-http.genesis.om2.com", 443, "/")
+              );
     } catch (NoSuchElementException noSuchElementException) {
       throw new TestAbortedException(
           "missing test configuration, please set token and repository in system properties / environment variables",
           noSuchElementException);
+    } catch (MalformedURLException ignoredException) {
+      throw new TestAbortedException(
+          "missing test configuration, please set token and repository in system properties / environment variables",
+          ignoredException);
     }
 
     this.service = configSource.service;

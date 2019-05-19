@@ -16,8 +16,11 @@ import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.SaveRequest;
 import io.scalecube.services.exceptions.InternalServiceException;
 import io.scalecube.test.fixtures.Fixture;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.imageio.stream.ImageOutputStream;
+import org.junit.vintage.engine.execution.RunnerExecutor;
 import org.opentest4j.TestAbortedException;
 import reactor.core.publisher.Mono;
 
@@ -41,7 +44,7 @@ public class LocalMockServiceFixture implements Fixture {
         .then(
             answer -> {
               SaveRequest request = (SaveRequest) answer.getArguments()[0];
-              JsonNode value = request.value();
+              JsonNode value = (JsonNode) request.value();
               FetchResponse response = new FetchResponse(request.key(), value);
               responses.add(response);
               return Mono.just(acknowledgment);
