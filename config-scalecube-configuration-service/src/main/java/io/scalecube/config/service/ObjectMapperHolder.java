@@ -11,9 +11,30 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.scalecube.config.ConfigRegistry;
 import io.scalecube.config.utils.ThrowableUtil;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.function.Function;
 
-/** Holder class for {@link ObjectMapper}. */
+/**
+ * Holder class for {@link ObjectMapper}. The {@link ObjectMapper} is
+ *
+ * <ul>
+ *   <li>using any accessor with any visibility to read / write your objects
+ *   <li>supporting java 8 time and {@link Optional}s
+ *   <li>not failing on unknown properties
+ *   <li>not failing on empty values
+ *   <li>putting null on any unknown value of enums
+ *   <li>not writing (using {@link ObjectMapper#writer() or similar methods} dates as timestamp
+ *   <li>writing (using {@link ObjectMapper#writer() or similar methods} enums as strings
+ * </ul>
+ *
+ * @see Jdk8Module
+ * @see JavaTimeModule
+ * @see DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
+ * @see SerializationFeature.FAIL_ON_EMPTY_BEANS
+ * @see DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL
+ * @see SerializationFeature.WRITE_DATES_AS_TIMESTAMPS
+ * @see SerializationFeature.WRITE_ENUMS_USING_TO_STRING
+ */
 public class ObjectMapperHolder {
 
   private static ObjectMapper objectMapper = initMapper();
