@@ -27,7 +27,7 @@
     <scalecube.config.version>0.3.11</scalecube.config.version>
     <scalecube-services.version>2.5.10</scalecube-services.version>
     <scalecube-security-jwt.version>1.0.7</scalecube-security-jwt.version>
-    <reactor.version>Californium-SR5</reactor.version>
+    <reactor.version>Californium-SR8</reactor.version>
     <jackson.version>2.9.8</jackson.version>
     <netty.version>4.1.34.Final</netty.version>
     <couchbase-client-version>2.7.3</couchbase-client-version>
