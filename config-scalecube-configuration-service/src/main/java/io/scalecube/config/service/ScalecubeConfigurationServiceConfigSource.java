@@ -130,7 +130,8 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
                 fetchResponse.key(), writer.writeValueAsString(fetchResponse.value()))
             .build();
       } catch (JsonProcessingException ignoredException) {
-        return LoadedConfigProperty.withNameAndValue(fetchResponse.key(), null).build();
+        LOGGER.warn("unable to parse", ignoredException);
+        return null;
       }
     }
   }
