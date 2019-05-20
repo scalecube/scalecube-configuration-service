@@ -45,6 +45,12 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
       this.service = service;
     }
 
+    /**
+     * Create a ScalecubeConfigurationServiceConfigSource from this builder.
+     *
+     * @return a new ScalecubeConfigurationServiceConfigSource.
+     * @throws errors if some values are wrong.
+     */
     public ScalecubeConfigurationServiceConfigSource build() {
       if (Objects.requireNonNull(this.token, "Missing token").isEmpty()) {
         throw new IllegalArgumentException("Missing token");
@@ -130,8 +136,7 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
                 fetchResponse.key(), writer.writeValueAsString(fetchResponse.value()))
             .build();
       } catch (JsonProcessingException ignoredException) {
-        LOGGER.warn("unable to parse", ignoredException);
-        return null;
+        return LoadedConfigProperty.withNameAndValue(fetchResponse.key(), null).build();
       }
     }
   }
