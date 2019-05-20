@@ -120,7 +120,7 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
   private static class Parsing {
     private ObjectWriter writer;
 
-    protected Parsing() {
+    private Parsing() {
       writer = ObjectMapperHolder.getInstance().writer(new MinimalPrettyPrinter());
     }
 
