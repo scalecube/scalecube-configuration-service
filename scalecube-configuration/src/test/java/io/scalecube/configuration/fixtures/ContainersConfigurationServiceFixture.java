@@ -5,10 +5,7 @@ import com.couchbase.client.java.cluster.UserRole;
 import com.couchbase.client.java.cluster.UserSettings;
 import com.github.dockerjava.api.model.PortBinding;
 import io.scalecube.account.api.OrganizationService;
-import io.scalecube.config.AppConfiguration;
 import io.scalecube.configuration.api.ConfigurationService;
-import io.scalecube.server.DiscoveryOptions;
-import io.scalecube.services.Microservices;
 import io.scalecube.services.gateway.clientsdk.Client;
 import io.scalecube.services.gateway.clientsdk.ClientSettings;
 import io.scalecube.test.fixtures.Fixture;
@@ -64,6 +61,12 @@ public class ContainersConfigurationServiceFixture implements Fixture {
   private OrganizationService organizationService;
   private Future<?> orgServiceFuture;
 
+  private CouchbaseContainer couchbaseContainer;
+  private VaultContainer vaultContainer;
+  private GenericContainer gatewayContainer;
+  private GenericContainer organizationServiceContainer;
+  private GenericContainer configurationServiceContainer;
+
   public ContainersConfigurationServiceFixture() throws NoSuchAlgorithmException {
     KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
     keyPairGenerator.initialize(2048);
@@ -72,17 +75,17 @@ public class ContainersConfigurationServiceFixture implements Fixture {
 
   @Override
   public void setUp() throws TestAbortedException {
-//    setUpCouchbase();
-//    setUpVault();
-//    setUpGateway()
-//
-//    Map<String, String> env = new HashMap<>();
-//    env.put("VAULT_ADDR", String.format(VAULT_ADDR_PATTERN, VAULT_NETWORK_ALIAS, VAULT_PORT));
-//    env.put("VAULT_SECRETS_PATH", VAULT_SECRETS_PATH);
-//    env.put("VAULT_TOKEN", VAULT_TOKEN);
-//
-//    setUpOrganizationService(env);
-//    setUpConfigurationService(env);
+    setUpCouchbase();
+    setUpVault();
+    setUpGateway();
+
+    Map<String, String> env = new HashMap<>();
+    env.put("VAULT_ADDR", String.format(VAULT_ADDR_PATTERN, VAULT_NETWORK_ALIAS, VAULT_PORT));
+    env.put("VAULT_SECRETS_PATH", VAULT_SECRETS_PATH);
+    env.put("VAULT_TOKEN", VAULT_TOKEN);
+
+    setUpOrganizationService(env);
+    setUpConfigurationService(env);
 
     ClientSettings clientSettings = ClientSettings.builder()
         .loopResources(LoopResources.create("ws" + "-loop")).host("localhost").port(7070).build();
@@ -111,54 +114,42 @@ public class ContainersConfigurationServiceFixture implements Fixture {
 
   @Override
   public void tearDown() {
+    configurationServiceContainer.stop();
+    organizationServiceContainer.start();
+    gatewayContainer.stop();
+    vaultContainer.stop();
+    couchbaseContainer.stop();
   }
 
   private void setUpOrganizationService(Map<String, String> env) {
+    env.put("JAVA_OPTS", "-Dio.scalecube.organization.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801 "
+        + "-Dkey.cache.ttl=2 -Dkey.cache.refresh.interval=1");
 
-
-
-    env.put("JAVA_OPTS", "-Dio.scalecube.organization.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801 -Dkey.cache.ttl=2");
-//    System.setProperty("-Dkey.cache.ttl=2");
-    System.setProperty("io.scalecube.organization.seed", "1");
-    System.setProperty("io.scalecube.organization.servicePort", "1");
-....
-//    ;
-//    private Integer discoveryPort;
-//    private String memberHost;
-//    private Integer memberPort;
-
-
-    DiscoveryOptions discoveryOptions =
-        AppConfiguration.configRegistry()
-            .objectProperty("io.scalecube.organization", DiscoveryOptions.class)
-            .value()
-            .orElseThrow(() -> new IllegalStateException("Couldn't load discovery options"));
-
-    Microservices.builder().....
-
-
-    new GenericContainer<>("scalecube/scalecube-organization:latest")
+    organizationServiceContainer = new GenericContainer<>("scalecube/scalecube-organization:latest")
         .withNetwork(Network.SHARED)
         .withNetworkAliases("scalecube-organization")
         .withCreateContainerCmdModifier(cmd -> cmd.withName("scalecube-organization"))
-        .withEnv(env)
-        .start();
+        .withEnv(env);
+
+    organizationServiceContainer.start();
   }
 
   private void setUpConfigurationService(Map<String, String> env) {
     env.put("JAVA_OPTS", "-Dio.scalecube.configuration.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801");
 
-    new GenericContainer<>("scalecube/scalecube-configuration:latest")
+    configurationServiceContainer = new GenericContainer<>(
+        "scalecube/scalecube-configuration:latest")
         .withNetwork(Network.SHARED)
         .withNetworkAliases("scalecube-configuration")
         .withCreateContainerCmdModifier(cmd -> cmd.withName("scalecube-configuration"))
         .withEnv(env)
-        .waitingFor(new LogMessageWaitStrategy().withRegEx("^.*scalecube.*Running.*$"))
-        .start();
+        .waitingFor(new LogMessageWaitStrategy().withRegEx("^.*scalecube.*Running.*$"));
+
+    configurationServiceContainer.start();
   }
 
   private void setUpGateway() {
-    GenericContainer gateway =
+    gatewayContainer =
         new GenericContainer<>("scalecube/scalecube-services-gateway-runner:2.5.3")
             .withExposedPorts(WS_GATEWAY_PORT, HTTP_GATEWAY_PORT, RS_GATEWAY_PORT)
             .withNetwork(Network.SHARED)
@@ -172,11 +163,12 @@ public class ContainersConfigurationServiceFixture implements Fixture {
                       PortBinding.parse(RS_GATEWAY_PORT + ":" + RS_GATEWAY_PORT));
                 })
             .waitingFor(new HostPortWaitStrategy());
-    gateway.start();
+
+    gatewayContainer.start();
   }
 
   private void setUpVault() {
-    VaultContainer<?> vault =
+    vaultContainer =
         new VaultContainer<>(VAULT_DOCKER_IMAGE)
             .withVaultPort(VAULT_PORT)
             .withVaultToken(VAULT_TOKEN)
@@ -188,12 +180,11 @@ public class ContainersConfigurationServiceFixture implements Fixture {
             .withNetworkAliases(VAULT_NETWORK_ALIAS)
             .withCreateContainerCmdModifier(cmd -> cmd.withName(VAULT_NETWORK_ALIAS))
             .waitingFor(new LogMessageWaitStrategy().withRegEx("^.*Vault server started!.*$"));
-    vault.start();
+    vaultContainer.start();
   }
 
-
   private void setUpCouchbase() {
-    CouchbaseContainer couchbase =
+    couchbaseContainer =
         new CouchbaseContainer(COUCHBASE_DOCKER_IMAGE)
             .withClusterAdmin(COUCHBASE_USERNAME, COUCHBASE_PASSWORD)
             .withNetwork(Network.SHARED)
@@ -203,17 +194,17 @@ public class ContainersConfigurationServiceFixture implements Fixture {
                   cmd.withName(COUCHBASE_NETWORK_ALIAS);
                   cmd.withPortBindings(PortBinding.parse("8091:8091"));
                 });
-    couchbase.start();
-    couchbase.initCluster();
+    couchbaseContainer.start();
+    couchbaseContainer.initCluster();
     try {
-      couchbase.callCouchbaseRestAPI("/settings/indexes", "storageMode=forestdb");
+      couchbaseContainer.callCouchbaseRestAPI("/settings/indexes", "storageMode=forestdb");
     } catch (IOException e) {
       logger.warn("Couchbase set up issues", e);
     }
 
     String password = "123456";
-    createBucket(couchbase, "organizations", password);
-    createBucket(couchbase, "configurations", password);
+    createBucket(couchbaseContainer, "organizations", password);
+    createBucket(couchbaseContainer, "configurations", password);
   }
 
   private void createBucket(CouchbaseContainer couchbase, String name, String password) {
