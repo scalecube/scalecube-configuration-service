@@ -112,7 +112,6 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
           .collectMap(FetchResponse::key, this.parsing::fromFetchResponse)
           .block();
     } catch (Exception e) {
-      e.printStackTrace();
       LOGGER.warn("unable to load config properties", e);
       throw new ConfigSourceNotAvailableException(e);
     }
