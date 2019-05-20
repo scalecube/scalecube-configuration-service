@@ -2,12 +2,14 @@ package io.scalecube.config.service;
 
 import io.scalecube.config.ConfigRegistry;
 import io.scalecube.config.ConfigRegistrySettings;
+import io.scalecube.config.ObjectConfigProperty;
 import io.scalecube.config.StringConfigProperty;
 import io.scalecube.config.source.SystemEnvironmentConfigSource;
 import io.scalecube.config.source.SystemPropertiesConfigSource;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.test.fixtures.Fixture;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.NoSuchElementException;
 import org.opentest4j.TestAbortedException;
 
@@ -28,13 +30,23 @@ public class ProductionServiceFixture implements Fixture {
 
     StringConfigProperty token = registry.stringProperty("token");
     StringConfigProperty repository = registry.stringProperty("repository");
-
+    ObjectConfigProperty<URL> url =
+        registry.objectProperty(
+            "url",
+            schema -> {
+              try {
+                return new URL(schema);
+              } catch (MalformedURLException ignoredException) {
+                return null;
+              }
+            });
     ScalecubeConfigurationServiceConfigSource configSource;
     try {
       configSource =
           ScalecubeConfigurationServiceConfigSource.builder()
               .token(token.valueOrThrow())
               .repository(repository.valueOrThrow())
+              .url(url.value(null))
               .build();
     } catch (NoSuchElementException noSuchElementException) {
       throw new TestAbortedException(

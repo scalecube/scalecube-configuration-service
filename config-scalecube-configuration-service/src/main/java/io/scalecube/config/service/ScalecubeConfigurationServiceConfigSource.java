@@ -9,14 +9,11 @@ import io.scalecube.config.ConfigProperty;
 import io.scalecube.config.ConfigSourceNotAvailableException;
 import io.scalecube.config.source.ConfigSource;
 import io.scalecube.config.source.LoadedConfigProperty;
-import io.scalecube.config.utils.ThrowableUtil;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.EntriesRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.services.gateway.clientsdk.ClientSettings;
-import io.scalecube.services.gateway.clientsdk.ClientSettings.Builder;
 import io.scalecube.services.transport.jackson.JacksonCodec;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Objects;
@@ -39,10 +36,14 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
   public static class Builder {
     private String token;
     private String repository;
-    private URL url = ScalecubeConfigurationServiceConfigSource.defaultUrl();
-    private ConfigurationService service;
+    private URL url = null;
+    private ConfigurationService service = null;
 
-    public Builder() {}
+    private Builder() {}
+
+    private Builder(ConfigurationService service) {
+      this.service = service;
+    }
 
     public ScalecubeConfigurationServiceConfigSource build() {
       if (Objects.requireNonNull(this.token, "Missing token").isEmpty()) {
@@ -52,6 +53,7 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
         throw new IllegalArgumentException("Missing repository");
       }
       if (this.service == null) {
+        Objects.requireNonNull(this.url);
         ClientSettings.Builder builder =
             ClientSettings.builder()
                 .host(url.getHost())
@@ -63,6 +65,8 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
         }
         this.service = http(builder.build()).forService(ConfigurationService.class);
       }
+      Objects.requireNonNull(this.service, "No URL and no Service was set");
+
       return new ScalecubeConfigurationServiceConfigSource(this);
     }
 
@@ -75,18 +79,19 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
       this.repository = repository;
       return this;
     }
+
+    public Builder url(URL url) {
+      this.url = url;
+      return this;
+    }
   }
 
   public static Builder builder() {
     return new Builder();
   }
 
-  private static URL defaultUrl() {
-    try {
-      return new URL("https", "configuration-service-http.genesis.om2.com", 443, "/");
-    } catch (MalformedURLException urlException) {
-      throw ThrowableUtil.propagate(urlException);
-    }
+  static Builder builder(ConfigurationService service) {
+    return new Builder(service);
   }
 
   public ScalecubeConfigurationServiceConfigSource(Builder builder) {
