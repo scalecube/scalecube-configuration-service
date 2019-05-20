@@ -158,6 +158,11 @@
       <artifactId>vault</artifactId>
       <version>${testcontainers.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.auth0</groupId>
+      <artifactId>auth0</artifactId>
+      <version>1.13.2</version>
+    </dependency>
 
   </dependencies>
 
