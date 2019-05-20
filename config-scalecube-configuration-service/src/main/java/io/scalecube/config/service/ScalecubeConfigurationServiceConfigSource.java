@@ -10,6 +10,7 @@ import io.scalecube.config.ConfigProperty;
 import io.scalecube.config.ConfigSourceNotAvailableException;
 import io.scalecube.config.source.ConfigSource;
 import io.scalecube.config.source.LoadedConfigProperty;
+import io.scalecube.config.utils.ThrowableUtil;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.EntriesRequest;
 import io.scalecube.configuration.api.FetchResponse;
@@ -28,17 +29,17 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ScalecubeConfigurationServiceConfigSource.class);
 
-  ConfigurationService service;
+  private final ConfigurationService service;
 
-  private EntriesRequest requestEntries;
+  private final EntriesRequest requestEntries;
 
   private final Parsing parsing = new Parsing();
 
   private static URL defaultUrl() {
     try {
       return new URL("https", "configuration-service-http.genesis.om2.com", 443, "/");
-    } catch (MalformedURLException ignoredException) {
-      return null;
+    } catch (MalformedURLException urlException) {
+      throw ThrowableUtil.propagate(urlException);
     }
   }
 
@@ -89,6 +90,9 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
     requestEntries = new EntriesRequest(token, repository);
   }
 
+  ConfigurationService service() {
+    return service;
+  }
   @Override
   public Map<String, ConfigProperty> loadConfig() {
     try {

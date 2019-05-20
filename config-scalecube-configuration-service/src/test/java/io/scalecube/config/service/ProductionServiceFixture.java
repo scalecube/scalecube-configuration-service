@@ -47,7 +47,7 @@ public class ProductionServiceFixture implements Fixture {
           ignoredException);
     }
 
-    this.service = configSource.service;
+    this.service = configSource.service();
     this.configRegistry =
         ConfigRegistry.create(
             ConfigRegistrySettings.builder()

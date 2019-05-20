@@ -69,8 +69,7 @@ public class ObjectMapperHolder {
       try {
         return objectMapper.readerFor(toType).readValue(src);
       } catch (IOException exception) {
-        ThrowableUtil.propagate(exception);
-        return null;
+        throw ThrowableUtil.propagate(exception);
       }
     };
   }
