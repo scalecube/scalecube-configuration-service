@@ -1,10 +1,9 @@
 package io.scalecube.config.service.example;
 
 class Person {
-  public Person() {}
 
   private String name;
-  private Integer age;
+  private int age;
 
   @Override
   public String toString() {
