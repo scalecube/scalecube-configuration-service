@@ -45,6 +45,11 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
       this.service = service;
     }
 
+    /**
+     * Returns {@code ScalecubeConfigurationServiceConfigSource} instance.
+     *
+     * @return {@code ScalecubeConfigurationServiceConfigSource} instance
+     */
     public ScalecubeConfigurationServiceConfigSource build() {
       if (Objects.requireNonNull(this.token, "Missing token").isEmpty()) {
         throw new IllegalArgumentException("Missing token");
