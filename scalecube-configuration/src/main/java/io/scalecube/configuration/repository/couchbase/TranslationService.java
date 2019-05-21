@@ -12,7 +12,7 @@ public interface TranslationService {
   <T> byte[] encode(T source, Class<T> sourceType);
 
   /**
-   * Decodes the byte array into the target
+   * Decodes the byte array into the target.
    *
    * @param source the source formatted document.
    * @return a properly populated object to work with.
