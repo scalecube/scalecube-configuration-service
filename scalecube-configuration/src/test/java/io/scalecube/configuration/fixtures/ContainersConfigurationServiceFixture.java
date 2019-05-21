@@ -1,6 +1,8 @@
 package io.scalecube.configuration.fixtures;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.couchbase.client.java.cluster.DefaultBucketSettings;
 import com.couchbase.client.java.cluster.UserRole;
@@ -8,6 +10,10 @@ import com.couchbase.client.java.cluster.UserSettings;
 import com.github.dockerjava.api.model.PortBinding;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Token;
+import io.scalecube.config.ConfigProperty;
+import io.scalecube.config.ConfigRegistry;
+import io.scalecube.config.ConfigRegistrySettings;
+import io.scalecube.config.source.LoadedConfigProperty;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.config.AppConfiguration;
@@ -34,7 +40,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
-import org.mockito.Mockito;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.opentest4j.TestAbortedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,10 +167,10 @@ public class ContainersConfigurationServiceFixture implements Fixture {
                   cmd.withPortBindings(
                       PortBinding.parse(WS_GATEWAY_PORT + ":" + WS_GATEWAY_PORT),
                       PortBinding.parse(HTTP_GATEWAY_PORT + ":" + HTTP_GATEWAY_PORT),
-                      PortBinding.parse(RS_GATEWAY_PORT + ":" + RS_GATEWAY_PORT));
+                      PortBinding.parse(RS_GATEWAY_PORT + ":" + RS_GATEWAY_PORT),
+                      PortBinding.parse("4801:4801"));
                 })
             .waitingFor(new HostPortWaitStrategy());
-
     gatewayContainer.start();
   }
 
@@ -236,16 +243,6 @@ public class ContainersConfigurationServiceFixture implements Fixture {
   }
 
   private void setUpOrganizationService(Map<String, String> env1) {
-//    env.put("JAVA_OPTS", "-Dio.scalecube.organization.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801 "
-//        + "-Dkey.cache.ttl=2 -Dkey.cache.refresh.interval=1");
-//
-//    organizationServiceContainer = new GenericContainer<>("scalecube/scalecube-organization:latest")
-//        .withNetwork(Network.SHARED)
-//        .withNetworkAliases("scalecube-organization")
-//        .withCreateContainerCmdModifier(cmd -> cmd.withName("scalecube-organization"))
-//        .withEnv(env);
-//
-//    organizationServiceContainer.start();
 
     setVaultEnvVars();
 
@@ -278,11 +275,8 @@ public class ContainersConfigurationServiceFixture implements Fixture {
   }
 
   private OrganizationService createOrganizationService() {
-    CouchbaseSettings settings =
-        AppConfiguration.configRegistry()
-            .objectProperty(couchbaseSettingsBindingMap(), CouchbaseSettings.class)
-            .value()
-            .orElseThrow(() -> new IllegalStateException("Couldn't load couchbase settings"));
+
+    CouchbaseSettings settings = couchbaseSettings();
 
     CouchbaseRepositoryFactory factory = new CouchbaseRepositoryFactory(settings);
 
@@ -293,10 +287,39 @@ public class ContainersConfigurationServiceFixture implements Fixture {
     return new OrganizationServiceImpl(factory.organizations(), keyStore, tokenVerifier);
   }
 
-  private TokenVerifier mockTokenVerifier() {
-    TokenVerifier tokenVerifier = Mockito.mock(TokenVerifier.class);
+  private CouchbaseSettings couchbaseSettings() {
 
-    Mockito.when(tokenVerifier.verify(any(Token.class))).thenAnswer(i ->
+    Map<String, String> map = new HashMap<String, String>() {{
+      put("couchbase.hosts", "localhost");
+      put("couchbase.organizationsBucketName", "organizations");
+      put("couchbase.username", "localhost");
+      put("couchbase.password", "123456");
+    }};
+
+    Map<String, ConfigProperty> configMap =
+        map.entrySet().stream()
+            .map(LoadedConfigProperty::withNameAndValue)
+            .map(LoadedConfigProperty.Builder::build)
+            .collect(Collectors.toMap(LoadedConfigProperty::name, Function.identity()));
+
+    ConfigRegistry configRegistry;
+
+    ConfigRegistrySettings.Builder builder =
+        ConfigRegistrySettings.builder();
+
+    builder.addLastSource("add", () -> configMap);
+
+    configRegistry = ConfigRegistry.create(builder.build());
+
+    return configRegistry.objectProperty("couchbase", CouchbaseSettings.class)
+        .value()
+        .orElseThrow(() -> new IllegalStateException("Couldn't load couchbase settings"));
+  }
+
+  private TokenVerifier mockTokenVerifier() {
+    TokenVerifier tokenVerifier = mock(TokenVerifier.class);
+
+    when(tokenVerifier.verify(any(Token.class))).thenAnswer(i ->
         {
           if (((Token) i.getArguments()[0]).token().equals("AUTH0_TOKEN")) {
             return Profile.builder().build();
