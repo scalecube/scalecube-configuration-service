@@ -34,6 +34,10 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
   private final Parsing parsing = new Parsing();
 
   public static class Builder {
+
+    private static final int HTTP_PORT = 80;
+    private static final int HTTPS_PORT = 443;
+
     private String token;
     private String repository;
     private URL url = null;
@@ -63,11 +67,24 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
         ClientSettings.Builder builder =
             ClientSettings.builder()
                 .host(url.getHost())
-                .port(url.getPort())
                 .contentType(JacksonCodec.CONTENT_TYPE)
                 .loopResources(HttpResources.get());
-        if ("https".equals(url.getProtocol()) || "wss".equals(url.getProtocol())) {
+
+        if ("https".equals(url.getProtocol())) {
+          if (url.getPort() != -1) {
+            builder.port(url.getPort());
+          } else {
+            builder.port(HTTPS_PORT);
+          }
           builder = builder.secure();
+        } else if ("http".equals(url.getProtocol())) {
+          if (url.getPort() != -1) {
+            builder.port(url.getPort());
+          } else {
+            builder.port(HTTP_PORT);
+          }
+        } else {
+          throw new IllegalArgumentException("Unkowon protocol");
         }
         this.service = http(builder.build()).forService(ConfigurationService.class);
       }
