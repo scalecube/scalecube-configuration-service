@@ -72,8 +72,8 @@ public class LocalMockServiceFixture implements Fixture {
                                           500, "Key '" + request.key() + "' not found")));
             });
 
-    String token = "";
-    String repository = "";
+    String token = "42";
+    String repository = "cafe-42";
 
     configRegistry =
         ConfigRegistry.create(
