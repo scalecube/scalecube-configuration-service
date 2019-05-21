@@ -53,7 +53,6 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
      * Create a ScalecubeConfigurationServiceConfigSource from this builder.
      *
      * @return a new ScalecubeConfigurationServiceConfigSource.
-     * @throws errors if some values are wrong.
      */
     public ScalecubeConfigurationServiceConfigSource build() {
       if (Objects.requireNonNull(this.token, "Missing token").isEmpty()) {
