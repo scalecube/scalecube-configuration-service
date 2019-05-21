@@ -26,6 +26,7 @@
   <properties>
     <scalecube.config.version>0.3.11</scalecube.config.version>
     <scalecube-services.version>2.6.0</scalecube-services.version>
+    <scalecube-services-gateway.version>2.7.0</scalecube-services-gateway.version>
     <scalecube-security-jwt.version>1.0.7</scalecube-security-jwt.version>
     <reactor.version>Californium-SR8</reactor.version>
     <jackson.version>2.9.8</jackson.version>
@@ -86,11 +87,6 @@
       <dependency>
         <groupId>io.scalecube</groupId>
         <artifactId>scalecube-services-api</artifactId>
-        <version>${scalecube-services.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.scalecube</groupId>
-        <artifactId>scalecube-services-bytebuf-codec</artifactId>
         <version>${scalecube-services.version}</version>
       </dependency>
 
