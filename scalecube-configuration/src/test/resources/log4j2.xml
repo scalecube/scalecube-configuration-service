@@ -11,6 +11,13 @@
     </Console>
   </Appenders>
 
+<!--  <Loggers>-->
+<!--    <Logger name="io.scalecube.configuration" level="${env:confLogLevel:-DEBUG}"/>-->
+<!--    <Root level="${env:logLevel:-WARN}">-->
+<!--      <AppenderRef ref="FILE"/>-->
+<!--    </Root>-->
+<!--  </Loggers>-->
+
   <Loggers>
     <Root level="${env:logLevel:-DEBUG}">
       <AppenderRef ref="STDOUT"/>
