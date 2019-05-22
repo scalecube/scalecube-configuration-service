@@ -81,7 +81,6 @@ public class ContainersConfigurationServiceFixture implements Fixture {
   private static final String BUCKET_FULL_ACCESS = "bucket_full_access";
   public static final String ORGANIZATIONS_BUCKET = "organizations";
 
-  //  private Environment environment;
   private Client client;
 
   private final KeyPair keyPair;
@@ -108,7 +107,7 @@ public class ContainersConfigurationServiceFixture implements Fixture {
 
   @Override
   public void setUp() throws TestAbortedException {
-    Testcontainers.exposeHostPorts(4804);
+//    Testcontainers.exposeHostPorts(4804);
 
     setUpCouchbase();
     setUpVault();
@@ -156,50 +155,10 @@ public class ContainersConfigurationServiceFixture implements Fixture {
   @Override
   public void tearDown() {
     configurationServiceContainer.stop();
-    organizationServiceContainer.stop();
+//    organizationServiceContainer.stop();
     gatewayContainer.stop();
     vaultContainer.stop();
     couchbaseContainer.stop();
-  }
-
-  private void setUpGateway() {
-    gatewayContainer =
-        new GenericContainer<>("scalecube/scalecube-services-gateway-runner:2.5.3")
-            .withExposedPorts(WS_GATEWAY_PORT, HTTP_GATEWAY_PORT, RS_GATEWAY_PORT,
-                DISCOVERY_GATEWAY_PORT)
-            .withNetwork(Network.SHARED)
-            .withNetworkAliases(GATEWAY_NETWORK_ALIAS)
-            .withCreateContainerCmdModifier(
-                cmd -> {
-                  cmd.withName(GATEWAY_NETWORK_ALIAS);
-                  cmd.withPortBindings(
-                      PortBinding.parse(WS_GATEWAY_PORT + ":" + WS_GATEWAY_PORT),
-                      PortBinding.parse(HTTP_GATEWAY_PORT + ":" + HTTP_GATEWAY_PORT),
-                      PortBinding.parse(RS_GATEWAY_PORT + ":" + RS_GATEWAY_PORT),
-                      PortBinding.parse(DISCOVERY_GATEWAY_PORT + ":" + DISCOVERY_GATEWAY_PORT));
-                })
-            .waitingFor(new HostPortWaitStrategy());
-    gatewayContainer.start();
-  }
-
-  private void setUpVault() {
-    vaultContainer =
-        new VaultContainer<>(VAULT_DOCKER_IMAGE)
-            .withVaultPort(VAULT_PORT)
-            .withVaultToken(VAULT_TOKEN)
-            .withSecretInVault(VAULT_SECRETS_PATH,
-                "couchbase.hosts=" + COUCHBASE_NETWORK_ALIAS,
-                "couchbase.username=" + COUCHBASE_USERNAME,
-                "couchbase.password=" + COUCHBASE_PASSWORD)
-            .withNetwork(Network.SHARED)
-            .withNetworkAliases(VAULT_NETWORK_ALIAS)
-            .withCreateContainerCmdModifier(
-                cmd -> {
-                  cmd.withName(VAULT_NETWORK_ALIAS);
-                  cmd.withPortBindings(PortBinding.parse("8200:8200"));
-                })
-            .waitingFor(new LogMessageWaitStrategy().withRegEx("^.*Vault server started!.*$"));
-    vaultContainer.start();
   }
 
   private void setUpCouchbase() {
@@ -225,18 +184,49 @@ public class ContainersConfigurationServiceFixture implements Fixture {
     createBucket(couchbaseContainer, "configurations", COUCHBASE_PASSWORD);
   }
 
-  private void createBucket(CouchbaseContainer couchbase, String name, String password) {
-    couchbase.createBucket(
-        DefaultBucketSettings.builder().name(name).password(password).build(),
-        UserSettings.build()
-            .name(name)
-            .password(password)
-            .roles(Collections.singletonList(new UserRole(BUCKET_FULL_ACCESS, name))),
-        true);
+  private void setUpVault() {
+    vaultContainer =
+        new VaultContainer<>(VAULT_DOCKER_IMAGE)
+            .withVaultPort(VAULT_PORT)
+            .withVaultToken(VAULT_TOKEN)
+            .withSecretInVault(VAULT_SECRETS_PATH,
+                "couchbase.hosts=" + COUCHBASE_NETWORK_ALIAS,
+                "couchbase.username=" + COUCHBASE_USERNAME,
+                "couchbase.password=" + COUCHBASE_PASSWORD)
+            .withNetwork(Network.SHARED)
+            .withNetworkAliases(VAULT_NETWORK_ALIAS)
+            .withCreateContainerCmdModifier(
+                cmd -> {
+                  cmd.withName(VAULT_NETWORK_ALIAS);
+                  cmd.withPortBindings(PortBinding.parse("8200:8200"));
+                })
+            .waitingFor(new LogMessageWaitStrategy().withRegEx("^.*Vault server started!.*$"));
+    vaultContainer.start();
+  }
+
+  private void setUpGateway() {
+    gatewayContainer =
+        new GenericContainer<>("scalecube/scalecube-services-gateway-runner:2.5.10")
+            .withExposedPorts(WS_GATEWAY_PORT, HTTP_GATEWAY_PORT, RS_GATEWAY_PORT,
+                DISCOVERY_GATEWAY_PORT)
+            .withNetwork(Network.SHARED)
+            .withNetworkAliases(GATEWAY_NETWORK_ALIAS)
+            .withCreateContainerCmdModifier(
+                cmd -> {
+                  cmd.withName(GATEWAY_NETWORK_ALIAS);
+                  cmd.withPortBindings(
+                      PortBinding.parse(WS_GATEWAY_PORT + ":" + WS_GATEWAY_PORT),
+                      PortBinding.parse(HTTP_GATEWAY_PORT + ":" + HTTP_GATEWAY_PORT),
+                      PortBinding.parse(RS_GATEWAY_PORT + ":" + RS_GATEWAY_PORT),
+                      PortBinding.parse(DISCOVERY_GATEWAY_PORT + ":" + DISCOVERY_GATEWAY_PORT));
+                })
+            .waitingFor(new HostPortWaitStrategy());
+    gatewayContainer.start();
   }
 
   private void setUpConfigurationService(Map<String, String> env) {
-    env.put("JAVA_OPTS", "-Dio.scalecube.configuration.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801");
+    env.put("JAVA_OPTS", "-Dio.scalecube.configuration.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801 "
+        + "-Dkey.cache.ttl=2 -Dkey.cache.refresh.interval=1");
 
     configurationServiceContainer = new GenericContainer<>(
         "scalecube/scalecube-configuration:latest")
@@ -250,40 +240,67 @@ public class ContainersConfigurationServiceFixture implements Fixture {
   }
 
   private void setUpOrganizationService(Map<String, String> env) {
+    env.put("JAVA_OPTS", "-Dio.scalecube.organization.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801");
 
-    setVaultEnvVars();
+    new GenericContainer<>("scalecube/scalecube-organization:latest")
+        .withNetwork(Network.SHARED)
+        .withNetworkAliases("scalecube-organization")
+        .withCreateContainerCmdModifier(cmd -> cmd.withName("scalecube-organization"))
+        .withEnv(env)
+        .start();
 
-    DiscoveryOptions discoveryOptions =
-        AppConfiguration.configRegistry()
-            .objectProperty("io.scalecube.organization", DiscoveryOptions.class)
-            .value()
-            .orElseThrow(() -> new IllegalStateException("Couldn't load discovery options"));
+//    env.put("JAVA_OPTS", "-Dio.scalecube.organization.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801");
+//
+//    new GenericContainer<>("scalecube/scalecube-organization:latest")
+//        .withNetwork(Network.SHARED)
+//        .withNetworkAliases("scalecube-organization")
+//        .withCreateContainerCmdModifier(cmd -> cmd.withName("scalecube-organization"))
+//        .withEnv(env)
+//        .start();
 
-    LOGGER.info("Starting organization service on {}", discoveryOptions);
+//    setVaultEnvVars();
+//
+//    DiscoveryOptions discoveryOptions =
+//        AppConfiguration.configRegistry()
+//            .objectProperty("io.scalecube.organization", DiscoveryOptions.class)
+//            .value()
+//            .orElseThrow(() -> new IllegalStateException("Couldn't load discovery options"));
+//
+//    LOGGER.info("Starting organization service on {}", discoveryOptions);
+//
+//    Address seedAddress = Address.create(
+//        gatewayContainer.getContainerInfo().getNetworkSettings().getNetworks().get("bridge")
+//            .getGateway(), 4804);
+//
+//    Microservices.builder()
+//        .discovery(
+//            (serviceEndpoint) ->
+//                new ScalecubeServiceDiscovery(serviceEndpoint)
+//                    .options(
+//                        opts ->
+//                            opts.seedMembers(seedAddress)
+////                            opts.seedMembers(discoveryOptions.seeds())
+//                                .port(discoveryOptions.discoveryPort())
+//                                .memberHost(discoveryOptions.memberHost())
+//                                .memberPort(discoveryOptions.memberPort())))
+//        .transport(
+//            opts ->
+//                opts.resources(RSocketTransportResources::new)
+//                    .client(RSocketServiceTransport.INSTANCE::clientTransport)
+//                    .server(RSocketServiceTransport.INSTANCE::serverTransport)
+//                    .port(discoveryOptions.servicePort()))
+//        .services(createOrganizationService())
+//        .startAwait();
+  }
 
-    Address seedAddress = Address.create(
-        gatewayContainer.getContainerInfo().getNetworkSettings().getNetworks().get("bridge")
-            .getGateway(), 4804);
-
-    Microservices.builder()
-        .discovery(
-            (serviceEndpoint) ->
-                new ScalecubeServiceDiscovery(serviceEndpoint)
-                    .options(
-                        opts ->
-                            opts.seedMembers(seedAddress)
-//                            opts.seedMembers(discoveryOptions.seeds())
-                                .port(discoveryOptions.discoveryPort())
-                                .memberHost(discoveryOptions.memberHost())
-                                .memberPort(discoveryOptions.memberPort())))
-        .transport(
-            opts ->
-                opts.resources(RSocketTransportResources::new)
-                    .client(RSocketServiceTransport.INSTANCE::clientTransport)
-                    .server(RSocketServiceTransport.INSTANCE::serverTransport)
-                    .port(discoveryOptions.servicePort()))
-        .services(createOrganizationService())
-        .startAwait();
+  private void createBucket(CouchbaseContainer couchbase, String name, String password) {
+    couchbase.createBucket(
+        DefaultBucketSettings.builder().name(name).password(password).build(),
+        UserSettings.build()
+            .name(name)
+            .password(password)
+            .roles(Collections.singletonList(new UserRole(BUCKET_FULL_ACCESS, name))),
+        true);
   }
 
   private OrganizationService createOrganizationService() {
@@ -302,7 +319,7 @@ public class ContainersConfigurationServiceFixture implements Fixture {
   private CouchbaseSettings couchbaseSettings() {
 
     Map<String, String> map = new HashMap<String, String>() {{
-      put("couchbase.hosts", String.format(VAULT_ADDR_PATTERN, "localhost", VAULT_PORT));
+      put("couchbase.hosts", String.format(VAULT_ADDR_PATTERN, COUCHBASE_NETWORK_ALIAS, VAULT_PORT));
       put("couchbase.organizationsBucketName", ORGANIZATIONS_BUCKET);
       put("couchbase.username", COUCHBASE_USERNAME);
       put("couchbase.password", COUCHBASE_PASSWORD);
