@@ -255,25 +255,12 @@ public class ContainersConfigurationServiceFixture implements Fixture {
 
     setVaultEnvVars();
 
-//    DiscoveryOptions discoveryOptions =
-//        AppConfiguration.configRegistry()
-//            .objectProperty("io.scalecube.organization", DiscoveryOptions.class)
-//            .value()
-//            .orElseThrow(() -> new IllegalStateException("Couldn't load discovery options"));
-//
-//    LOGGER.info("Starting organization service on {}", discoveryOptions);
-
     Address seedAddress = Address.create(
         gatewayContainer.getContainerInfo().getNetworkSettings().getNetworks().entrySet().iterator()
             .next().getValue().getGateway()
         , 4801);
 
-//    String memberHost =
-////        seedAddress.host();
-
-//    String memberHost =
-//        gatewayContainer.getContainerInfo().getNetworkSettings().getNetworks().entrySet().iterator()
-//            .next().getValue().getIpAddress();
+    String memberHost = seedAddress.host();
 
     Microservices.builder()
         .discovery(
@@ -282,21 +269,15 @@ public class ContainersConfigurationServiceFixture implements Fixture {
                     .options(
                         opts ->
                             opts.seedMembers(seedAddress)
-//                            opts.seedMembers(discoveryOptions.seeds())
-//                                .port(discoveryOptions.discoveryPort())
                                 .port(4804)
-//                                .memberHost(discoveryOptions.memberHost())
-//                                .memberHost(memberHost)
-//                                .memberPort(discoveryOptions.memberPort())
-//                                .memberPort(4801)
+                                .memberHost(memberHost)
+
                     ))
         .transport(
             opts ->
                 opts.resources(RSocketTransportResources::new)
                     .client(RSocketServiceTransport.INSTANCE::clientTransport)
                     .server(RSocketServiceTransport.INSTANCE::serverTransport)
-//                    .port(discoveryOptions.servicePort())
-//                    .port(5801)
         )
         .services(createOrganizationService())
         .startAwait();
@@ -343,7 +324,6 @@ public class ContainersConfigurationServiceFixture implements Fixture {
   private CouchbaseSettings couchbaseSettings() {
 
     Map<String, String> map = new HashMap<String, String>() {{
-//      put("couchbase.hosts", String.format(VAULT_ADDR_PATTERN, COUCHBASE_NETWORK_ALIAS, VAULT_PORT));
       put("couchbase.hosts", String.format(VAULT_ADDR_PATTERN, "localhost", COUCHBASE_PORT));
       put("couchbase.organizationsBucketName", ORGANIZATIONS_BUCKET);
       put("couchbase.username", COUCHBASE_USERNAME);
@@ -384,15 +364,4 @@ public class ContainersConfigurationServiceFixture implements Fixture {
 
     return tokenVerifier;
   }
-
-//  private static Map<String, String> couchbaseSettingsBindingMap() {
-//    Map<String, String> bindingMap = new HashMap<>();
-//
-//    bindingMap.put("hosts", "couchbase.hosts");
-//    bindingMap.put("username", "couchbase.username");
-//    bindingMap.put("password", "couchbase.password");
-//    bindingMap.put("organizationsBucketName", "organizations.bucket");
-//
-//    return bindingMap;
-//  }
 }
