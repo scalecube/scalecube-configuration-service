@@ -1,53 +1,24 @@
 package io.scalecube.configuration.fixtures;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.couchbase.client.java.cluster.DefaultBucketSettings;
 import com.couchbase.client.java.cluster.UserRole;
 import com.couchbase.client.java.cluster.UserSettings;
 import com.github.dockerjava.api.model.PortBinding;
 import io.scalecube.account.api.OrganizationService;
-import io.scalecube.account.api.Token;
-import io.scalecube.config.ConfigProperty;
-import io.scalecube.config.ConfigRegistry;
-import io.scalecube.config.ConfigRegistrySettings;
-import io.scalecube.config.source.LoadedConfigProperty;
 import io.scalecube.configuration.api.ConfigurationService;
-import io.scalecube.organization.OrganizationServiceImpl;
-import io.scalecube.organization.config.AppConfiguration;
-import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
-import io.scalecube.organization.repository.couchbase.CouchbaseSettings;
-import io.scalecube.organization.server.DiscoveryOptions;
-import io.scalecube.organization.tokens.InvalidTokenException;
-import io.scalecube.organization.tokens.TokenVerifier;
-import io.scalecube.organization.tokens.store.KeyStore;
-import io.scalecube.organization.tokens.store.VaultKeyStore;
-import io.scalecube.security.api.Profile;
-import io.scalecube.services.Microservices;
-import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
 import io.scalecube.services.gateway.clientsdk.Client;
-import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
-import io.scalecube.services.transport.rsocket.RSocketTransportResources;
 import io.scalecube.test.fixtures.Fixture;
-import io.scalecube.transport.Address;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.opentest4j.TestAbortedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
@@ -76,11 +47,11 @@ public class ContainersConfigurationServiceFixture implements Fixture {
   private static final int WS_GATEWAY_PORT = 7070;
   private static final int HTTP_GATEWAY_PORT = 8080;
   private static final int RS_GATEWAY_PORT = 9090;
-  private static final int DISCOVERY_GATEWAY_PORT = 4801;
   private static final String GATEWAY_NETWORK_ALIAS = "gateway";
 
   private static final String BUCKET_FULL_ACCESS = "bucket_full_access";
   public static final String ORGANIZATIONS_BUCKET = "organizations";
+  public static final String CONFIGURATIONS_BUCKET = "configurations";
 
   private Client client;
 
@@ -108,7 +79,6 @@ public class ContainersConfigurationServiceFixture implements Fixture {
 
   @Override
   public void setUp() throws TestAbortedException {
-//    Testcontainers.exposeHostPorts(4804);
 
     setUpCouchbase();
     setUpVault();
@@ -121,12 +91,6 @@ public class ContainersConfigurationServiceFixture implements Fixture {
 
     setUpOrganizationService(env);
     setUpConfigurationService(env);
-
-    try {
-      Thread.currentThread().join();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
 
 //    ClientSettings clientSettings = ClientSettings.builder()
 //        .loopResources(LoopResources.create("ws" + "-loop")).host("localhost").port(7070).build();
@@ -156,7 +120,7 @@ public class ContainersConfigurationServiceFixture implements Fixture {
   @Override
   public void tearDown() {
     configurationServiceContainer.stop();
-//    organizationServiceContainer.stop();
+    organizationServiceContainer.stop();
     gatewayContainer.stop();
     vaultContainer.stop();
     couchbaseContainer.stop();
@@ -171,7 +135,7 @@ public class ContainersConfigurationServiceFixture implements Fixture {
             .withCreateContainerCmdModifier(
                 cmd -> {
                   cmd.withName(COUCHBASE_NETWORK_ALIAS);
-                  cmd.withPortBindings(PortBinding.parse("8091:8091"));
+                  cmd.withPortBindings(PortBinding.parse(COUCHBASE_PORT + ":" + COUCHBASE_PORT));
                 });
     couchbaseContainer.start();
     couchbaseContainer.initCluster();
@@ -182,7 +146,7 @@ public class ContainersConfigurationServiceFixture implements Fixture {
     }
 
     createBucket(couchbaseContainer, ORGANIZATIONS_BUCKET, COUCHBASE_PASSWORD);
-    createBucket(couchbaseContainer, "configurations", COUCHBASE_PASSWORD);
+    createBucket(couchbaseContainer, CONFIGURATIONS_BUCKET, COUCHBASE_PASSWORD);
   }
 
   private void setUpVault() {
@@ -199,7 +163,7 @@ public class ContainersConfigurationServiceFixture implements Fixture {
             .withCreateContainerCmdModifier(
                 cmd -> {
                   cmd.withName(VAULT_NETWORK_ALIAS);
-                  cmd.withPortBindings(PortBinding.parse("8200:8200"));
+                  cmd.withPortBindings(PortBinding.parse(VAULT_PORT + ":" + VAULT_PORT));
                 })
             .waitingFor(new LogMessageWaitStrategy().withRegEx("^.*Vault server started!.*$"));
     vaultContainer.start();
@@ -208,8 +172,7 @@ public class ContainersConfigurationServiceFixture implements Fixture {
   private void setUpGateway() {
     gatewayContainer =
         new GenericContainer<>("scalecube/scalecube-services-gateway-runner:2.5.10")
-            .withExposedPorts(WS_GATEWAY_PORT, HTTP_GATEWAY_PORT, RS_GATEWAY_PORT,
-                DISCOVERY_GATEWAY_PORT)
+            .withExposedPorts(WS_GATEWAY_PORT, HTTP_GATEWAY_PORT, RS_GATEWAY_PORT)
             .withNetwork(Network.SHARED)
             .withNetworkAliases(GATEWAY_NETWORK_ALIAS)
             .withCreateContainerCmdModifier(
@@ -218,8 +181,7 @@ public class ContainersConfigurationServiceFixture implements Fixture {
                   cmd.withPortBindings(
                       PortBinding.parse(WS_GATEWAY_PORT + ":" + WS_GATEWAY_PORT),
                       PortBinding.parse(HTTP_GATEWAY_PORT + ":" + HTTP_GATEWAY_PORT),
-                      PortBinding.parse(RS_GATEWAY_PORT + ":" + RS_GATEWAY_PORT),
-                      PortBinding.parse(DISCOVERY_GATEWAY_PORT + ":" + DISCOVERY_GATEWAY_PORT)
+                      PortBinding.parse(RS_GATEWAY_PORT + ":" + RS_GATEWAY_PORT)
                   );
                 })
             .waitingFor(new HostPortWaitStrategy());
@@ -242,45 +204,17 @@ public class ContainersConfigurationServiceFixture implements Fixture {
   }
 
   private void setUpOrganizationService(Map<String, String> env) {
-//    env.put("JAVA_OPTS", "-Dio.scalecube.organization.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801");
-//
-//    new GenericContainer<>("scalecube/scalecube-organization:latest")
-//        .withNetwork(Network.SHARED)
-//        .withNetworkAliases("scalecube-organization")
-//        .withCreateContainerCmdModifier(cmd -> cmd.withName("scalecube-organization"))
-//        .withEnv(env)
-//        .start();
-//
-//    if(true) return;
+    env.put("JAVA_OPTS", "-Dio.scalecube.organization.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801");
+    env.put("mockTokenVerifier", "true");
 
-    setVaultEnvVars();
+    organizationServiceContainer =
+        new GenericContainer<>("scalecube/scalecube-organization:latest")
+            .withNetwork(Network.SHARED)
+            .withNetworkAliases("scalecube-organization")
+            .withCreateContainerCmdModifier(cmd -> cmd.withName("scalecube-organization"))
+            .withEnv(env);
 
-    Address seedAddress = Address.create(
-        gatewayContainer.getContainerInfo().getNetworkSettings().getNetworks().entrySet().iterator()
-            .next().getValue().getGateway()
-        , 4801);
-
-    String memberHost = seedAddress.host();
-
-    Microservices.builder()
-        .discovery(
-            (serviceEndpoint) ->
-                new ScalecubeServiceDiscovery(serviceEndpoint)
-                    .options(
-                        opts ->
-                            opts.seedMembers(seedAddress)
-                                .port(4804)
-                                .memberHost(memberHost)
-
-                    ))
-        .transport(
-            opts ->
-                opts.resources(RSocketTransportResources::new)
-                    .client(RSocketServiceTransport.INSTANCE::clientTransport)
-                    .server(RSocketServiceTransport.INSTANCE::serverTransport)
-        )
-        .services(createOrganizationService())
-        .startAwait();
+    organizationServiceContainer.start();
   }
 
   private void createBucket(CouchbaseContainer couchbase, String name, String password) {
@@ -291,77 +225,5 @@ public class ContainersConfigurationServiceFixture implements Fixture {
             .password(password)
             .roles(Collections.singletonList(new UserRole(BUCKET_FULL_ACCESS, name))),
         true);
-  }
-
-  private static void setVaultEnvVars() {
-    try {
-      Map<String, String> env = System.getenv();
-      Class<?> cl = env.getClass();
-      Field field = cl.getDeclaredField("m");
-      field.setAccessible(true);
-      Map<String, String> writableEnv = (Map<String, String>) field.get(env);
-      writableEnv.put("VAULT_ADDR", String.format(VAULT_ADDR_PATTERN, "localhost", VAULT_PORT));
-      writableEnv.put("VAULT_SECRETS_PATH", VAULT_SECRETS_PATH);
-      writableEnv.put("VAULT_TOKEN", VAULT_TOKEN);
-    } catch (Exception e) {
-      throw new IllegalStateException("Failed to set environment variable", e);
-    }
-  }
-
-  private OrganizationService createOrganizationService() {
-
-    CouchbaseSettings couchbaseSettings = couchbaseSettings();
-
-    CouchbaseRepositoryFactory factory = new CouchbaseRepositoryFactory(couchbaseSettings);
-
-    KeyStore keyStore = new VaultKeyStore();
-
-    TokenVerifier tokenVerifier = mockTokenVerifier();
-
-    return new OrganizationServiceImpl(factory.organizations(), keyStore, tokenVerifier);
-  }
-
-  private CouchbaseSettings couchbaseSettings() {
-
-    Map<String, String> map = new HashMap<String, String>() {{
-      put("couchbase.hosts", String.format(VAULT_ADDR_PATTERN, "localhost", COUCHBASE_PORT));
-      put("couchbase.organizationsBucketName", ORGANIZATIONS_BUCKET);
-      put("couchbase.username", COUCHBASE_USERNAME);
-      put("couchbase.password", COUCHBASE_PASSWORD);
-    }};
-
-    Map<String, ConfigProperty> configMap =
-        map.entrySet().stream()
-            .map(LoadedConfigProperty::withNameAndValue)
-            .map(LoadedConfigProperty.Builder::build)
-            .collect(Collectors.toMap(LoadedConfigProperty::name, Function.identity()));
-
-    ConfigRegistry configRegistry;
-
-    ConfigRegistrySettings.Builder builder =
-        ConfigRegistrySettings.builder();
-
-    builder.addLastSource("couchbaseDB", () -> configMap);
-
-    configRegistry = ConfigRegistry.create(builder.build());
-
-    return configRegistry.objectProperty("couchbase", CouchbaseSettings.class)
-        .value()
-        .orElseThrow(() -> new IllegalStateException("Couldn't load couchbase settings"));
-  }
-
-  private TokenVerifier mockTokenVerifier() {
-    TokenVerifier tokenVerifier = mock(TokenVerifier.class);
-
-    when(tokenVerifier.verify(any(Token.class))).thenAnswer(i ->
-        {
-          if (((Token) i.getArguments()[0]).token().equals("AUTH0_TOKEN")) {
-            return Profile.builder().build();
-          }
-          throw new InvalidTokenException("Token verification failed");
-        }
-    );
-
-    return tokenVerifier;
   }
 }
