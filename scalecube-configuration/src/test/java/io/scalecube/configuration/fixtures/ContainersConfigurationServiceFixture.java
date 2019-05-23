@@ -64,6 +64,7 @@ public class ContainersConfigurationServiceFixture implements Fixture {
   private static final String COUCHBASE_USERNAME = "admin";
   private static final String COUCHBASE_PASSWORD = "123456";
   private static final String COUCHBASE_NETWORK_ALIAS = "couchbase";
+  private static final int COUCHBASE_PORT = 8091;
 
   private static final String VAULT_DOCKER_IMAGE = "vault:0.9.5";
   private static final int VAULT_PORT = 8200;
@@ -218,7 +219,8 @@ public class ContainersConfigurationServiceFixture implements Fixture {
                       PortBinding.parse(WS_GATEWAY_PORT + ":" + WS_GATEWAY_PORT),
                       PortBinding.parse(HTTP_GATEWAY_PORT + ":" + HTTP_GATEWAY_PORT),
                       PortBinding.parse(RS_GATEWAY_PORT + ":" + RS_GATEWAY_PORT),
-                      PortBinding.parse(DISCOVERY_GATEWAY_PORT + ":" + DISCOVERY_GATEWAY_PORT));
+                      PortBinding.parse(DISCOVERY_GATEWAY_PORT + ":" + DISCOVERY_GATEWAY_PORT)
+                  );
                 })
             .waitingFor(new HostPortWaitStrategy());
     gatewayContainer.start();
@@ -240,15 +242,6 @@ public class ContainersConfigurationServiceFixture implements Fixture {
   }
 
   private void setUpOrganizationService(Map<String, String> env) {
-    env.put("JAVA_OPTS", "-Dio.scalecube.organization.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801");
-
-    new GenericContainer<>("scalecube/scalecube-organization:latest")
-        .withNetwork(Network.SHARED)
-        .withNetworkAliases("scalecube-organization")
-        .withCreateContainerCmdModifier(cmd -> cmd.withName("scalecube-organization"))
-        .withEnv(env)
-        .start();
-
 //    env.put("JAVA_OPTS", "-Dio.scalecube.organization.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801");
 //
 //    new GenericContainer<>("scalecube/scalecube-organization:latest")
@@ -257,9 +250,11 @@ public class ContainersConfigurationServiceFixture implements Fixture {
 //        .withCreateContainerCmdModifier(cmd -> cmd.withName("scalecube-organization"))
 //        .withEnv(env)
 //        .start();
-
-//    setVaultEnvVars();
 //
+//    if(true) return;
+
+    setVaultEnvVars();
+
 //    DiscoveryOptions discoveryOptions =
 //        AppConfiguration.configRegistry()
 //            .objectProperty("io.scalecube.organization", DiscoveryOptions.class)
@@ -267,30 +262,44 @@ public class ContainersConfigurationServiceFixture implements Fixture {
 //            .orElseThrow(() -> new IllegalStateException("Couldn't load discovery options"));
 //
 //    LOGGER.info("Starting organization service on {}", discoveryOptions);
-//
-//    Address seedAddress = Address.create(
-//        gatewayContainer.getContainerInfo().getNetworkSettings().getNetworks().get("bridge")
-//            .getGateway(), 4804);
-//
-//    Microservices.builder()
-//        .discovery(
-//            (serviceEndpoint) ->
-//                new ScalecubeServiceDiscovery(serviceEndpoint)
-//                    .options(
-//                        opts ->
-//                            opts.seedMembers(seedAddress)
-////                            opts.seedMembers(discoveryOptions.seeds())
+
+    Address seedAddress = Address.create(
+        gatewayContainer.getContainerInfo().getNetworkSettings().getNetworks().entrySet().iterator()
+            .next().getValue().getGateway()
+        , 4801);
+
+//    String memberHost =
+////        seedAddress.host();
+
+//    String memberHost =
+//        gatewayContainer.getContainerInfo().getNetworkSettings().getNetworks().entrySet().iterator()
+//            .next().getValue().getIpAddress();
+
+    Microservices.builder()
+        .discovery(
+            (serviceEndpoint) ->
+                new ScalecubeServiceDiscovery(serviceEndpoint)
+                    .options(
+                        opts ->
+                            opts.seedMembers(seedAddress)
+//                            opts.seedMembers(discoveryOptions.seeds())
 //                                .port(discoveryOptions.discoveryPort())
+                                .port(4804)
 //                                .memberHost(discoveryOptions.memberHost())
-//                                .memberPort(discoveryOptions.memberPort())))
-//        .transport(
-//            opts ->
-//                opts.resources(RSocketTransportResources::new)
-//                    .client(RSocketServiceTransport.INSTANCE::clientTransport)
-//                    .server(RSocketServiceTransport.INSTANCE::serverTransport)
-//                    .port(discoveryOptions.servicePort()))
-//        .services(createOrganizationService())
-//        .startAwait();
+//                                .memberHost(memberHost)
+//                                .memberPort(discoveryOptions.memberPort())
+//                                .memberPort(4801)
+                    ))
+        .transport(
+            opts ->
+                opts.resources(RSocketTransportResources::new)
+                    .client(RSocketServiceTransport.INSTANCE::clientTransport)
+                    .server(RSocketServiceTransport.INSTANCE::serverTransport)
+//                    .port(discoveryOptions.servicePort())
+//                    .port(5801)
+        )
+        .services(createOrganizationService())
+        .startAwait();
   }
 
   private void createBucket(CouchbaseContainer couchbase, String name, String password) {
@@ -303,11 +312,26 @@ public class ContainersConfigurationServiceFixture implements Fixture {
         true);
   }
 
+  private static void setVaultEnvVars() {
+    try {
+      Map<String, String> env = System.getenv();
+      Class<?> cl = env.getClass();
+      Field field = cl.getDeclaredField("m");
+      field.setAccessible(true);
+      Map<String, String> writableEnv = (Map<String, String>) field.get(env);
+      writableEnv.put("VAULT_ADDR", String.format(VAULT_ADDR_PATTERN, "localhost", VAULT_PORT));
+      writableEnv.put("VAULT_SECRETS_PATH", VAULT_SECRETS_PATH);
+      writableEnv.put("VAULT_TOKEN", VAULT_TOKEN);
+    } catch (Exception e) {
+      throw new IllegalStateException("Failed to set environment variable", e);
+    }
+  }
+
   private OrganizationService createOrganizationService() {
 
-    CouchbaseSettings settings = couchbaseSettings();
+    CouchbaseSettings couchbaseSettings = couchbaseSettings();
 
-    CouchbaseRepositoryFactory factory = new CouchbaseRepositoryFactory(settings);
+    CouchbaseRepositoryFactory factory = new CouchbaseRepositoryFactory(couchbaseSettings);
 
     KeyStore keyStore = new VaultKeyStore();
 
@@ -319,7 +343,8 @@ public class ContainersConfigurationServiceFixture implements Fixture {
   private CouchbaseSettings couchbaseSettings() {
 
     Map<String, String> map = new HashMap<String, String>() {{
-      put("couchbase.hosts", String.format(VAULT_ADDR_PATTERN, COUCHBASE_NETWORK_ALIAS, VAULT_PORT));
+//      put("couchbase.hosts", String.format(VAULT_ADDR_PATTERN, COUCHBASE_NETWORK_ALIAS, VAULT_PORT));
+      put("couchbase.hosts", String.format(VAULT_ADDR_PATTERN, "localhost", COUCHBASE_PORT));
       put("couchbase.organizationsBucketName", ORGANIZATIONS_BUCKET);
       put("couchbase.username", COUCHBASE_USERNAME);
       put("couchbase.password", COUCHBASE_PASSWORD);
@@ -336,7 +361,7 @@ public class ContainersConfigurationServiceFixture implements Fixture {
     ConfigRegistrySettings.Builder builder =
         ConfigRegistrySettings.builder();
 
-    builder.addLastSource("add", () -> configMap);
+    builder.addLastSource("couchbaseDB", () -> configMap);
 
     configRegistry = ConfigRegistry.create(builder.build());
 
@@ -360,29 +385,14 @@ public class ContainersConfigurationServiceFixture implements Fixture {
     return tokenVerifier;
   }
 
-  private static Map<String, String> couchbaseSettingsBindingMap() {
-    Map<String, String> bindingMap = new HashMap<>();
-
-    bindingMap.put("hosts", "couchbase.hosts");
-    bindingMap.put("username", "couchbase.username");
-    bindingMap.put("password", "couchbase.password");
-    bindingMap.put("organizationsBucketName", "organizations.bucket");
-
-    return bindingMap;
-  }
-
-  private static void setVaultEnvVars() {
-    try {
-      Map<String, String> env = System.getenv();
-      Class<?> cl = env.getClass();
-      Field field = cl.getDeclaredField("m");
-      field.setAccessible(true);
-      Map<String, String> writableEnv = (Map<String, String>) field.get(env);
-      writableEnv.put("VAULT_ADDR", String.format(VAULT_ADDR_PATTERN, "localhost", VAULT_PORT));
-      writableEnv.put("VAULT_SECRETS_PATH", VAULT_SECRETS_PATH);
-      writableEnv.put("VAULT_TOKEN", VAULT_TOKEN);
-    } catch (Exception e) {
-      throw new IllegalStateException("Failed to set environment variable", e);
-    }
-  }
+//  private static Map<String, String> couchbaseSettingsBindingMap() {
+//    Map<String, String> bindingMap = new HashMap<>();
+//
+//    bindingMap.put("hosts", "couchbase.hosts");
+//    bindingMap.put("username", "couchbase.username");
+//    bindingMap.put("password", "couchbase.password");
+//    bindingMap.put("organizationsBucketName", "organizations.bucket");
+//
+//    return bindingMap;
+//  }
 }
