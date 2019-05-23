@@ -19,7 +19,7 @@
 <!--  </Loggers>-->
 
   <Loggers>
-    <Root level="${env:logLevel:-DEBUG}">
+    <Root level="${env:logLevel:-INFO}">
       <AppenderRef ref="STDOUT"/>
     </Root>
   </Loggers>

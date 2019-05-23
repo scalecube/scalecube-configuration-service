@@ -7,6 +7,7 @@ import com.github.dockerjava.api.model.PortBinding;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.services.gateway.clientsdk.Client;
+import io.scalecube.services.gateway.clientsdk.ClientSettings;
 import io.scalecube.test.fixtures.Fixture;
 import java.io.IOException;
 import java.security.KeyPair;
@@ -25,6 +26,7 @@ import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.couchbase.CouchbaseContainer;
 import org.testcontainers.vault.VaultContainer;
+import reactor.netty.resources.LoopResources;
 
 public class ContainersConfigurationServiceFixture implements Fixture {
 
@@ -92,12 +94,19 @@ public class ContainersConfigurationServiceFixture implements Fixture {
     setUpOrganizationService(env);
     setUpConfigurationService(env);
 
-//    ClientSettings clientSettings = ClientSettings.builder()
-//        .loopResources(LoopResources.create("ws" + "-loop")).host("localhost").port(7070).build();
-//
-//    client = Client.websocket(clientSettings);
-//    organizationService = client.forService(OrganizationService.class);
-//    configurationService = client.forService(ConfigurationService.class);
+    try {
+      // Env run
+      Thread.currentThread().join();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    ClientSettings clientSettings = ClientSettings.builder()
+        .loopResources(LoopResources.create("ws" + "-loop")).host("localhost").port(7070).build();
+
+    client = Client.websocket(clientSettings);
+    organizationService = client.forService(OrganizationService.class);
+    configurationService = client.forService(ConfigurationService.class);
   }
 
   @Override
@@ -119,11 +128,11 @@ public class ContainersConfigurationServiceFixture implements Fixture {
 
   @Override
   public void tearDown() {
-    configurationServiceContainer.stop();
-    organizationServiceContainer.stop();
-    gatewayContainer.stop();
-    vaultContainer.stop();
-    couchbaseContainer.stop();
+//    configurationServiceContainer.stop();
+//    organizationServiceContainer.stop();
+//    gatewayContainer.stop();
+//    vaultContainer.stop();
+//    couchbaseContainer.stop();
   }
 
   private void setUpCouchbase() {
@@ -188,6 +197,21 @@ public class ContainersConfigurationServiceFixture implements Fixture {
     gatewayContainer.start();
   }
 
+  private void setUpOrganizationService(Map<String, String> env) {
+    env.put("JAVA_OPTS", "-Dio.scalecube.organization.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801");
+    env.put("mockTokenVerifier", "true");
+
+    organizationServiceContainer =
+        new GenericContainer<>("scalecube/scalecube-organization:latest")
+            .withNetwork(Network.SHARED)
+            .withNetworkAliases("scalecube-organization")
+            .withCreateContainerCmdModifier(cmd -> cmd.withName("scalecube-organization"))
+            .withEnv(env)
+            .waitingFor(new LogMessageWaitStrategy().withRegEx("^.*joined the cluster.*$"));
+
+    organizationServiceContainer.start();
+  }
+
   private void setUpConfigurationService(Map<String, String> env) {
     env.put("JAVA_OPTS", "-Dio.scalecube.configuration.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801 "
         + "-Dkey.cache.ttl=2 -Dkey.cache.refresh.interval=1");
@@ -201,20 +225,6 @@ public class ContainersConfigurationServiceFixture implements Fixture {
         .waitingFor(new LogMessageWaitStrategy().withRegEx("^.*scalecube.*Running.*$"));
 
     configurationServiceContainer.start();
-  }
-
-  private void setUpOrganizationService(Map<String, String> env) {
-    env.put("JAVA_OPTS", "-Dio.scalecube.organization.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801");
-    env.put("mockTokenVerifier", "true");
-
-    organizationServiceContainer =
-        new GenericContainer<>("scalecube/scalecube-organization:latest")
-            .withNetwork(Network.SHARED)
-            .withNetworkAliases("scalecube-organization")
-            .withCreateContainerCmdModifier(cmd -> cmd.withName("scalecube-organization"))
-            .withEnv(env);
-
-    organizationServiceContainer.start();
   }
 
   private void createBucket(CouchbaseContainer couchbase, String name, String password) {
