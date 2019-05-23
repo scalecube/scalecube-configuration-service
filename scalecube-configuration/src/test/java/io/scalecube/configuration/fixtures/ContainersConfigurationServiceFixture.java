@@ -75,31 +75,31 @@ public class ContainersConfigurationServiceFixture implements Fixture {
     keyPair = keyPairGenerator.generateKeyPair();
   }
 
-  public static void main(String[] args) throws Exception {
-    new ContainersConfigurationServiceFixture().setUp();
-  }
+//  public static void main(String[] args) throws Exception {
+//    new ContainersConfigurationServiceFixture().setUp();
+//  }
 
   @Override
   public void setUp() throws TestAbortedException {
 
-    setUpCouchbase();
-    setUpVault();
-    setUpGateway();
-
-    Map<String, String> env = new HashMap<>();
-    env.put("VAULT_ADDR", String.format(VAULT_ADDR_PATTERN, VAULT_NETWORK_ALIAS, VAULT_PORT));
-    env.put("VAULT_SECRETS_PATH", VAULT_SECRETS_PATH);
-    env.put("VAULT_TOKEN", VAULT_TOKEN);
-
-    setUpOrganizationService(env);
-    setUpConfigurationService(env);
-
-    try {
-      // Env run
-      Thread.currentThread().join();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+//    setUpCouchbase();
+//    setUpVault();
+//    setUpGateway();
+//
+//    Map<String, String> env = new HashMap<>();
+//    env.put("VAULT_ADDR", String.format(VAULT_ADDR_PATTERN, VAULT_NETWORK_ALIAS, VAULT_PORT));
+//    env.put("VAULT_SECRETS_PATH", VAULT_SECRETS_PATH);
+//    env.put("VAULT_TOKEN", VAULT_TOKEN);
+//
+//    setUpOrganizationService(env);
+//    setUpConfigurationService(env);
+//
+//    try {
+//      // Env run
+//      Thread.currentThread().join();
+//    } catch (InterruptedException e) {
+//      e.printStackTrace();
+//    }
 
     ClientSettings clientSettings = ClientSettings.builder()
         .loopResources(LoopResources.create("ws" + "-loop")).host("localhost").port(7070).build();

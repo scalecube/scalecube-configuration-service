@@ -1,6 +1,7 @@
 package io.scalecube.configuration.scenario;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
@@ -10,9 +11,10 @@ import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
-import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
+import io.scalecube.services.exceptions.InternalServiceException;
 import io.scalecube.test.fixtures.Fixtures;
 import java.security.AccessControlException;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -77,7 +79,8 @@ public class CreateRepositoryScenario extends BaseScenario {
             new CreateRepositoryRequest(adminToken, "test-repo")))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(AccessControlException.class, e.getClass());
+              assertTrue(
+                  e instanceof AccessControlException || e instanceof InternalServiceException);
               assertEquals("Permission denied", e.getMessage());
             })
         .verify();
@@ -87,7 +90,8 @@ public class CreateRepositoryScenario extends BaseScenario {
             new CreateRepositoryRequest(memberToken, "test-repo")))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(AccessControlException.class, e.getClass());
+              assertTrue(
+                  e instanceof AccessControlException || e instanceof InternalServiceException);
               assertEquals("Permission denied", e.getMessage());
             })
         .verify();
@@ -110,7 +114,8 @@ public class CreateRepositoryScenario extends BaseScenario {
         configurationService.createRepository(new CreateRepositoryRequest(token, repoName)))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(RepositoryAlreadyExistsException.class, e.getClass());
+              assertTrue(
+                  e instanceof InvalidAuthenticationToken || e instanceof InternalServiceException);
               assertEquals(
                   String.format("Repository with name: '%s' already exists", repoName),
                   e.getMessage());
@@ -120,7 +125,7 @@ public class CreateRepositoryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName("#4 Fail to create the Repository upon the \"token\" is invalid (expired)")
-  void createRepositoryUsingExpiredToken(
+  protected void createRepositoryUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
     String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
@@ -158,10 +163,12 @@ public class CreateRepositoryScenario extends BaseScenario {
         configurationService.createRepository(new CreateRepositoryRequest(token, "test-repo")))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(InvalidAuthenticationToken.class, e.getClass());
+              assertTrue(
+                  e instanceof InvalidAuthenticationToken || e instanceof InternalServiceException);
+
               assertEquals("Token verification failed", e.getMessage());
             })
-        .verify();
+        .verify(Duration.ZERO);
   }
 
   @Disabled("Feature is not implemented")

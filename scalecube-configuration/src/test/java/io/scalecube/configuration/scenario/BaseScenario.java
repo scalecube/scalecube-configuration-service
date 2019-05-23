@@ -1,9 +1,5 @@
 package io.scalecube.configuration.scenario;
 
-import com.auth0.client.auth.AuthAPI;
-import com.auth0.exception.Auth0Exception;
-import com.auth0.json.auth.TokenHolder;
-import com.auth0.net.AuthRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.GetMembershipRequest;
@@ -16,31 +12,16 @@ import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import java.time.Duration;
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
 import reactor.test.StepVerifier;
 
 abstract class BaseScenario {
 
-  protected static final Duration TIMEOUT = Duration.ofSeconds(1);
+  protected static final Duration TIMEOUT = Duration.ofSeconds(5);
   static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-  protected static final Token AUTH0_TOKEN = new Token(
-      ((Supplier<String>) () -> {
-        AuthAPI authAPI = new AuthAPI("itestsoauth.eu.auth0.com",
-            "FbUh6PxUVaH1ZSy7Of03gSu7323NpiZF",
-            "szOZdb5x6shfSI02VqVPobcIAyTuTL3C-m3kfN8T-a1nj0EHVtjGtYtS6rPq9B78");
-        AuthRequest authRequest = authAPI.requestToken("https://itestsoauth.eu.auth0.com/api/v2/");
-        TokenHolder holder = null;
-        try {
-          holder = authRequest.execute();
-        } catch (Auth0Exception e) {
-          e.printStackTrace();
-        }
-        return holder.getAccessToken();
-      }).get());
-
+  protected static final Token AUTH0_TOKEN = new Token("AUTH0_TOKEN_MOCK");
   protected static final String ORGANIZATION_1 = "Test_Organization_Name_1";
   protected static final String ORGANIZATION_2 = "Test_Organization_Name_2";
 
