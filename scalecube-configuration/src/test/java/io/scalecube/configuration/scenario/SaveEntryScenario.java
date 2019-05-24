@@ -68,7 +68,7 @@ public class SaveEntryScenario extends BaseScenario {
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
-              Map actualValues = (Map) entry.value();
+              Map actualValues = valueMap(entry.value());
               assertEquals(entryValue.size(), actualValues.size());
               assertEquals(entryValue.findValue("name").textValue(), actualValues.get("name"));
               assertEquals(entryValue.findValue("DecimalPrecision").asInt(),
@@ -118,7 +118,7 @@ public class SaveEntryScenario extends BaseScenario {
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
-              Map actualValues = (Map) entry.value();
+              Map actualValues = valueMap(entry.value());
               assertEquals(entryValue.size(), actualValues.size());
               assertEquals(entryValue.findValue("name").textValue(), actualValues.get("name"));
               assertEquals(entryValue.findValue("DecimalPrecision").asInt(),
@@ -139,7 +139,7 @@ public class SaveEntryScenario extends BaseScenario {
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
-              Map actualValues = (Map) entry.value();
+              Map actualValues = valueMap(entry.value());
               assertEquals(entryValue.size(), actualValues.size());
               assertEquals(entryValue.findValue("name").textValue(), actualValues.get("name"));
               assertEquals(entryValue.findValue("DecimalPrecision").asInt(),
@@ -196,7 +196,7 @@ public class SaveEntryScenario extends BaseScenario {
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
-              Map actualValues = (Map) entry.value();
+              Map actualValues = valueMap(entry.value());
               assertEquals(entryValue2.size(), actualValues.size());
               assertEquals(entryValue2.findValue("name").textValue(), actualValues.get("name"));
               assertEquals(entryValue2.findValue("DecimalPrecision").asInt(),
@@ -213,7 +213,7 @@ public class SaveEntryScenario extends BaseScenario {
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
-              Map actualValues = (Map) entry.value();
+              Map actualValues = valueMap(entry.value());
               assertEquals(entryValue1.size(), actualValues.size());
               assertEquals(entryValue1.findValue("name").textValue(), actualValues.get("name"));
               assertEquals(entryValue1.findValue("DecimalPrecision").asInt(),
@@ -263,7 +263,7 @@ public class SaveEntryScenario extends BaseScenario {
               FetchResponse entry = entries.get(0);
 
               assertEquals(entryKey, entry.key(), "Fetched entry key");
-              Map actualValues = (Map) entry.value();
+              Map actualValues = valueMap(entry.value());
               assertEquals(entryValue.size(), actualValues.size());
               assertEquals(entryValue.findValue("name").textValue(), actualValues.get("name"));
               assertEquals(entryValue.findValue("DecimalPrecision").asInt(),
@@ -308,7 +308,7 @@ public class SaveEntryScenario extends BaseScenario {
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
-              Map actualValues = (Map) entry.value();
+              Map actualValues = valueMap(entry.value());
               assertEquals(entryValue.size(), actualValues.size());
               assertEquals(entryValue.findValue("name").textValue(), actualValues.get("name"));
               assertEquals(entryValue.findValue("DecimalPrecision").textValue(),

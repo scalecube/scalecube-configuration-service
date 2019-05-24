@@ -81,7 +81,7 @@ public class FetchEntryScenario extends BaseScenario {
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
-              Map actualValues = (Map) entry.value();
+              Map actualValues = valueMap(entry.value());
               assertEquals(entryValue1.size(), actualValues.size());
               assertEquals(entryValue1.findValue("name").textValue(), actualValues.get("name"));
               assertEquals(entryValue1.findValue("DecimalPrecision").asInt(),
@@ -99,7 +99,7 @@ public class FetchEntryScenario extends BaseScenario {
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
-              Map actualValues = (Map) entry.value();
+              Map actualValues = valueMap(entry.value());
               assertEquals(entryValue1.size(), actualValues.size());
               assertEquals(entryValue1.findValue("name").textValue(), actualValues.get("name"));
               assertEquals(entryValue1.findValue("DecimalPrecision").asInt(),
@@ -117,7 +117,7 @@ public class FetchEntryScenario extends BaseScenario {
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
-              Map actualValues = (Map) entry.value();
+              Map actualValues = valueMap(entry.value());
               assertEquals(entryValue1.size(), actualValues.size());
               assertEquals(entryValue1.findValue("name").textValue(), actualValues.get("name"));
               assertEquals(entryValue1.findValue("DecimalPrecision").asInt(),
@@ -176,7 +176,7 @@ public class FetchEntryScenario extends BaseScenario {
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
-              Map actualValues = (Map) entry.value();
+              Map actualValues = valueMap(entry.value());
               assertEquals(entryValue1.size(), actualValues.size());
               assertEquals(entryValue1.findValue("name").textValue(), actualValues.get("name"));
               assertEquals(entryValue1.findValue("DecimalPrecision").asInt(),

@@ -12,6 +12,7 @@ import io.scalecube.configuration.ITInitBase;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
+import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
 import io.scalecube.services.exceptions.InternalServiceException;
 import io.scalecube.test.fixtures.Fixtures;
 import java.security.AccessControlException;
@@ -122,8 +123,8 @@ public class CreateRepositoryScenario extends BaseScenario {
         configurationService.createRepository(new CreateRepositoryRequest(token, repoName)))
         .expectErrorSatisfies(
             e -> {
-              assertTrue(
-                  e instanceof InvalidAuthenticationToken || e instanceof InternalServiceException);
+              assertTrue(e instanceof RepositoryAlreadyExistsException
+                  || e instanceof InternalServiceException);
               assertEquals(
                   String.format("Repository with name: '%s' already exists", repoName),
                   e.getMessage());

@@ -159,7 +159,7 @@ public class DeleteEntryScenario extends BaseScenario {
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Entry key in " + repoName2);
-              Map actualValues = (Map) entry.value();
+              Map actualValues = valueMap(entry.value());
               assertEquals(entryValue2.size(), actualValues.size());
               assertEquals(entryValue2.findValue("name").textValue(), actualValues.get("name"));
               assertEquals(entryValue2.findValue("DecimalPrecision").asInt(), actualValues.get("DecimalPrecision"));

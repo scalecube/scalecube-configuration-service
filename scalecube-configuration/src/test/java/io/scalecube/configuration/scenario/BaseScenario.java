@@ -1,6 +1,9 @@
 package io.scalecube.configuration.scenario;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.GetMembershipRequest;
 import io.scalecube.account.api.GetMembershipResponse;
@@ -12,8 +15,11 @@ import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.configuration.ITInitBase;
 import java.time.Duration;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -104,5 +110,24 @@ public abstract class BaseScenario {
         .filter(apiKey -> role.name().equals(apiKey.claims().get("role")))
         .findAny()
         .orElseThrow(() -> new IllegalStateException("ApiKey is null"));
+  }
+
+  protected static Map valueMap(Object value) {
+    if (value instanceof Map) {
+      return (Map) value;
+    }
+
+    if (value instanceof ObjectNode) {
+      Iterable iterable = () -> ((ObjectNode) value).fields();
+      return (Map) StreamSupport.stream(iterable.spliterator(), false)
+          .collect(Collectors.toMap(e -> ((Map.Entry) e).getKey(),
+              e -> {
+                Object val = ((Map.Entry) e).getValue();
+                return val instanceof TextNode ? ((TextNode) val).textValue()
+                    : ((IntNode) val).intValue();
+              }));
+    }
+
+    throw new UnsupportedOperationException(value + "type is unsupported");
   }
 }
