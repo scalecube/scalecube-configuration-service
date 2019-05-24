@@ -69,6 +69,10 @@ public class ITInitBase {
         new AddOrganizationApiKeyRequest(AUTH0_TOKEN, org2Id, API_KEY_NAME_2_ADMIN,
             TEST_API_ADMIN_CLAIMS)).block();
 
+    organizationService.addOrganizationApiKey(
+        new AddOrganizationApiKeyRequest(AUTH0_TOKEN, org2Id, API_KEY_NAME_2_MEMBER,
+            TEST_API_MEMBER_CLAIMS)).block();
+
     TimeUnit.MILLISECONDS.sleep(1500);
   }
 
