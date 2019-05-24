@@ -21,7 +21,7 @@ import reactor.test.StepVerifier;
 
 public abstract class BaseScenario {
 
-  public static final Duration TIMEOUT = Duration.ofSeconds(10);
+  public static final Duration TIMEOUT = Duration.ofSeconds(15);
   static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   public static final Token AUTH0_TOKEN = new Token("AUTH0_TOKEN_MOCK");

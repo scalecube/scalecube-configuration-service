@@ -10,13 +10,10 @@ import io.scalecube.services.gateway.clientsdk.Client;
 import io.scalecube.services.gateway.clientsdk.ClientSettings;
 import io.scalecube.test.fixtures.Fixture;
 import java.io.IOException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.opentest4j.TestAbortedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,11 +54,8 @@ public class ContainersConfigurationServiceFixture implements Fixture {
 
   private Client client;
 
-  private final KeyPair keyPair;
-
   private ConfigurationService configurationService;
   private OrganizationService organizationService;
-  private Future<?> orgServiceFuture;
 
   private CouchbaseContainer couchbaseContainer;
   private VaultContainer vaultContainer;
@@ -69,37 +63,20 @@ public class ContainersConfigurationServiceFixture implements Fixture {
   private GenericContainer organizationServiceContainer;
   private GenericContainer configurationServiceContainer;
 
-  public ContainersConfigurationServiceFixture() throws NoSuchAlgorithmException {
-    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-    keyPairGenerator.initialize(2048);
-    keyPair = keyPairGenerator.generateKeyPair();
-  }
-//
-//  public static void main(String[] args) throws Exception {
-//    new ContainersConfigurationServiceFixture().setUp();
-//  }
-
   @Override
   public void setUp() throws TestAbortedException {
 
-//    setUpCouchbase();
-//    setUpVault();
-//    setUpGateway();
-//
-//    Map<String, String> env = new HashMap<>();
-//    env.put("VAULT_ADDR", String.format(VAULT_ADDR_PATTERN, VAULT_NETWORK_ALIAS, VAULT_PORT));
-//    env.put("VAULT_SECRETS_PATH", VAULT_SECRETS_PATH);
-//    env.put("VAULT_TOKEN", VAULT_TOKEN);
-//
-//    setUpOrganizationService(env);
-//    setUpConfigurationService(env);
-//
-//    try {
-//      // Env run
-//      Thread.currentThread().join();
-//    } catch (InterruptedException e) {
-//      e.printStackTrace();
-//    }
+    setUpCouchbase();
+    setUpVault();
+    setUpGateway();
+
+    Map<String, String> env = new HashMap<>();
+    env.put("VAULT_ADDR", String.format(VAULT_ADDR_PATTERN, VAULT_NETWORK_ALIAS, VAULT_PORT));
+    env.put("VAULT_SECRETS_PATH", VAULT_SECRETS_PATH);
+    env.put("VAULT_TOKEN", VAULT_TOKEN);
+
+    setUpOrganizationService(env);
+    setUpConfigurationService(env);
 
     ClientSettings clientSettings = ClientSettings.builder()
         .loopResources(LoopResources.create("ws" + "-loop")).host("localhost").port(7070).build();
@@ -128,11 +105,18 @@ public class ContainersConfigurationServiceFixture implements Fixture {
 
   @Override
   public void tearDown() {
-//    configurationServiceContainer.stop();
-//    organizationServiceContainer.stop();
-//    gatewayContainer.stop();
-//    vaultContainer.stop();
-//    couchbaseContainer.stop();
+    configurationServiceContainer.stop();
+    organizationServiceContainer.stop();
+    gatewayContainer.stop();
+    vaultContainer.stop();
+    couchbaseContainer.stop();
+
+    try {
+      //Waiting for docker cluster fully down and disappeared before next test
+      TimeUnit.SECONDS.sleep(5);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
   }
 
   private void setUpCouchbase() {
@@ -198,8 +182,8 @@ public class ContainersConfigurationServiceFixture implements Fixture {
   }
 
   private void setUpOrganizationService(Map<String, String> env) {
-    env.put("JAVA_OPTS", "-Dio.scalecube.organization.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801");
-    env.put("mockTokenVerifier", "true");
+    env.put("JAVA_OPTS", "-Dio.scalecube.organization.seeds=" + GATEWAY_NETWORK_ALIAS
+        + ":4801 -DmockTokenVerifier=true");
 
     organizationServiceContainer =
         new GenericContainer<>("scalecube/scalecube-organization:latest")
