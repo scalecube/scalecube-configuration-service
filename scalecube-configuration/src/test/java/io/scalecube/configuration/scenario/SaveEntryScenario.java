@@ -1,6 +1,7 @@
 package io.scalecube.configuration.scenario;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.scalecube.account.api.ApiKey;
@@ -8,6 +9,7 @@ import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
 import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
+import io.scalecube.configuration.ITInitBase;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.EntriesRequest;
@@ -15,22 +17,28 @@ import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
 import io.scalecube.configuration.api.SaveRequest;
-import io.scalecube.configuration.fixtures.InMemoryConfigurationServiceFixture;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
+import io.scalecube.services.exceptions.InternalServiceException;
 import io.scalecube.test.fixtures.Fixtures;
-import io.scalecube.test.fixtures.WithFixture;
 import java.security.AccessControlException;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.test.StepVerifier;
 
 @ExtendWith(Fixtures.class)
 public class SaveEntryScenario extends BaseScenario {
+
+  public SaveEntryScenario(ITInitBase itInitBase) {
+    super(itInitBase);
+  }
+
+  public SaveEntryScenario() {
+  }
 
   @TestTemplate
   @DisplayName("#7 Successful save of specific entry (instrument) applying the \"Owner\" API key")
@@ -54,13 +62,21 @@ public class SaveEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService
-                .save(new SaveRequest(token, repoName, entryKey, entryValue))
-                .then(configurationService.fetch(new FetchRequest(token, repoName, entryKey))))
+        configurationService
+            .save(new SaveRequest(token, repoName, entryKey, entryValue))
+            .then(configurationService.fetch(new FetchRequest(token, repoName, entryKey))))
         .assertNext(
             entry -> {
-              assertEquals(entryKey, entry.key(), "Saved entry key");
-              assertEquals(entryValue, entry.value(), "Saved entry value");
+              assertEquals(entryKey, entry.key(), "Fetched entry key");
+              Map actualValues = (Map) entry.value();
+              assertEquals(entryValue.size(), actualValues.size());
+              assertEquals(entryValue.findValue("name").textValue(), actualValues.get("name"));
+              assertEquals(entryValue.findValue("DecimalPrecision").asInt(),
+                  actualValues.get("DecimalPrecision"));
+              assertEquals(entryValue.findValue("instrumentId").textValue(),
+                  actualValues.get("instrumentId"));
+              assertEquals(entryValue.findValue("Rounding").textValue(),
+                  actualValues.get("Rounding"));
             })
         .expectComplete()
         .verify();
@@ -95,27 +111,43 @@ public class SaveEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService
-                .save(new SaveRequest(adminToken, repoName1, entryKey, entryValue))
-                .then(
-                    configurationService.fetch(new FetchRequest(adminToken, repoName1, entryKey))))
+        configurationService
+            .save(new SaveRequest(adminToken, repoName1, entryKey, entryValue))
+            .then(
+                configurationService.fetch(new FetchRequest(adminToken, repoName1, entryKey))))
         .assertNext(
             entry -> {
-              assertEquals(entryKey, entry.key(), "Saved entry key");
-              assertEquals(entryValue, entry.value(), "Saved entry value");
+              assertEquals(entryKey, entry.key(), "Fetched entry key");
+              Map actualValues = (Map) entry.value();
+              assertEquals(entryValue.size(), actualValues.size());
+              assertEquals(entryValue.findValue("name").textValue(), actualValues.get("name"));
+              assertEquals(entryValue.findValue("DecimalPrecision").asInt(),
+                  actualValues.get("DecimalPrecision"));
+              assertEquals(entryValue.findValue("instrumentId").textValue(),
+                  actualValues.get("instrumentId"));
+              assertEquals(entryValue.findValue("Rounding").textValue(),
+                  actualValues.get("Rounding"));
             })
         .expectComplete()
         .verify();
 
     StepVerifier.create(
-            configurationService
-                .save(new SaveRequest(adminToken, repoName2, entryKey, entryValue))
-                .then(
-                    configurationService.fetch(new FetchRequest(adminToken, repoName2, entryKey))))
+        configurationService
+            .save(new SaveRequest(adminToken, repoName2, entryKey, entryValue))
+            .then(
+                configurationService.fetch(new FetchRequest(adminToken, repoName2, entryKey))))
         .assertNext(
             entry -> {
-              assertEquals(entryKey, entry.key(), "Saved entry key");
-              assertEquals(entryValue, entry.value(), "Saved entry value");
+              assertEquals(entryKey, entry.key(), "Fetched entry key");
+              Map actualValues = (Map) entry.value();
+              assertEquals(entryValue.size(), actualValues.size());
+              assertEquals(entryValue.findValue("name").textValue(), actualValues.get("name"));
+              assertEquals(entryValue.findValue("DecimalPrecision").asInt(),
+                  actualValues.get("DecimalPrecision"));
+              assertEquals(entryValue.findValue("instrumentId").textValue(),
+                  actualValues.get("instrumentId"));
+              assertEquals(entryValue.findValue("Rounding").textValue(),
+                  actualValues.get("Rounding"));
             })
         .expectComplete()
         .verify();
@@ -158,13 +190,21 @@ public class SaveEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService
-                .save(new SaveRequest(token, repoName1, entryKey, entryValue2))
-                .then(configurationService.fetch(new FetchRequest(token, repoName1, entryKey))))
+        configurationService
+            .save(new SaveRequest(token, repoName1, entryKey, entryValue2))
+            .then(configurationService.fetch(new FetchRequest(token, repoName1, entryKey))))
         .assertNext(
             entry -> {
-              assertEquals(entryKey, entry.key(), "Saved entry key");
-              assertEquals(entryValue2, entry.value(), "Saved entry value");
+              assertEquals(entryKey, entry.key(), "Fetched entry key");
+              Map actualValues = (Map) entry.value();
+              assertEquals(entryValue2.size(), actualValues.size());
+              assertEquals(entryValue2.findValue("name").textValue(), actualValues.get("name"));
+              assertEquals(entryValue2.findValue("DecimalPrecision").asInt(),
+                  actualValues.get("DecimalPrecision"));
+              assertEquals(entryValue2.findValue("instrumentId").textValue(),
+                  actualValues.get("instrumentId"));
+              assertEquals(entryValue2.findValue("Rounding").textValue(),
+                  actualValues.get("Rounding"));
             })
         .expectComplete()
         .verify();
@@ -172,8 +212,16 @@ public class SaveEntryScenario extends BaseScenario {
     StepVerifier.create(configurationService.fetch(new FetchRequest(token, repoName2, entryKey)))
         .assertNext(
             entry -> {
-              assertEquals(entryKey, entry.key(), "Saved entry key");
-              assertEquals(entryValue1, entry.value(), "Saved entry value");
+              assertEquals(entryKey, entry.key(), "Fetched entry key");
+              Map actualValues = (Map) entry.value();
+              assertEquals(entryValue1.size(), actualValues.size());
+              assertEquals(entryValue1.findValue("name").textValue(), actualValues.get("name"));
+              assertEquals(entryValue1.findValue("DecimalPrecision").asInt(),
+                  actualValues.get("DecimalPrecision"));
+              assertEquals(entryValue1.findValue("instrumentId").textValue(),
+                  actualValues.get("instrumentId"));
+              assertEquals(entryValue1.findValue("Rounding").textValue(),
+                  actualValues.get("Rounding"));
             })
         .expectComplete()
         .verify();
@@ -205,16 +253,25 @@ public class SaveEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService
-                .save(new SaveRequest(adminToken, repoName, entryKey, entryValue))
-                .then(configurationService.entries(new EntriesRequest(adminToken, repoName))))
+        configurationService
+            .save(new SaveRequest(adminToken, repoName, entryKey, entryValue))
+            .then(configurationService.entries(new EntriesRequest(adminToken, repoName))))
         .assertNext(
             entries -> {
               assertEquals(1, entries.size(), "Entries in repository");
 
               FetchResponse entry = entries.get(0);
-              assertEquals(entryKey, entry.key(), "Saved entry key");
-              assertEquals(entryValue, entry.value(), "Saved entry value");
+
+              assertEquals(entryKey, entry.key(), "Fetched entry key");
+              Map actualValues = (Map) entry.value();
+              assertEquals(entryValue.size(), actualValues.size());
+              assertEquals(entryValue.findValue("name").textValue(), actualValues.get("name"));
+              assertEquals(entryValue.findValue("DecimalPrecision").asInt(),
+                  actualValues.get("DecimalPrecision"));
+              assertEquals(entryValue.findValue("instrumentId").textValue(),
+                  actualValues.get("instrumentId"));
+              assertEquals(entryValue.findValue("Rounding").textValue(),
+                  actualValues.get("Rounding"));
             })
         .expectComplete()
         .verify();
@@ -245,13 +302,21 @@ public class SaveEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService
-                .save(new SaveRequest(token, repoName, entryKey, entryValue))
-                .then(configurationService.fetch(new FetchRequest(token, repoName, entryKey))))
+        configurationService
+            .save(new SaveRequest(token, repoName, entryKey, entryValue))
+            .then(configurationService.fetch(new FetchRequest(token, repoName, entryKey))))
         .assertNext(
             entry -> {
-              assertEquals(entryKey, entry.key(), "Saved entry key");
-              assertEquals(entryValue, entry.value(), "Saved entry value");
+              assertEquals(entryKey, entry.key(), "Fetched entry key");
+              Map actualValues = (Map) entry.value();
+              assertEquals(entryValue.size(), actualValues.size());
+              assertEquals(entryValue.findValue("name").textValue(), actualValues.get("name"));
+              assertEquals(entryValue.findValue("DecimalPrecision").textValue(),
+                  actualValues.get("DecimalPrecision"));
+              assertEquals(entryValue.findValue("instrumentId").textValue(),
+                  actualValues.get("instrumentId"));
+              assertEquals(entryValue.findValue("Rounding").textValue(),
+                  actualValues.get("Rounding"));
             })
         .expectComplete()
         .verify();
@@ -281,10 +346,12 @@ public class SaveEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.save(new SaveRequest(memberToken, repoName, entryKey, entryValue)))
+        configurationService.save(new SaveRequest(memberToken, repoName, entryKey, entryValue)))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(AccessControlException.class, e.getClass());
+              assertTrue(
+                  e instanceof AccessControlException || e instanceof InternalServiceException);
+
               assertEquals("Permission denied", e.getMessage());
             })
         .verify();
@@ -309,11 +376,13 @@ public class SaveEntryScenario extends BaseScenario {
             .put("Rounding", "down");
 
     StepVerifier.create(
-            configurationService.save(
-                new SaveRequest(adminToken, nonExistingRepoName, entryKey, entryValue)))
+        configurationService.save(
+            new SaveRequest(adminToken, nonExistingRepoName, entryKey, entryValue)))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(RepositoryNotFoundException.class, e.getClass());
+              assertTrue(
+                  e instanceof RepositoryNotFoundException
+                      || e instanceof InternalServiceException);
               assertEquals(
                   String.format("Repository '%s-%s' not found", orgId, nonExistingRepoName),
                   e.getMessage());
@@ -324,7 +393,7 @@ public class SaveEntryScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#14 Fail to save (edit) the specific entry in the Repository upon the \"token\" is invalid (expired)")
-  void saveEntryUsingExpiredToken(
+  protected void saveEntryUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
     String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
@@ -340,10 +409,11 @@ public class SaveEntryScenario extends BaseScenario {
             .put("Rounding", "down");
 
     StepVerifier.create(
-            configurationService.save(new SaveRequest(token, repoName, entryKey, entryValue)))
+        configurationService.save(new SaveRequest(token, repoName, entryKey, entryValue)))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(InvalidAuthenticationToken.class, e.getClass());
+              assertTrue(
+                  e instanceof InvalidAuthenticationToken || e instanceof InternalServiceException);
               assertEquals("Token verification failed", e.getMessage());
             })
         .verify();
@@ -373,16 +443,17 @@ public class SaveEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     organizationService
-        .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, "ORG-TEST"))
+        .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, orgId))
         .block(TIMEOUT);
 
     TimeUnit.SECONDS.sleep(3);
 
     StepVerifier.create(
-            configurationService.save(new SaveRequest(token, repoName, entryKey, entryValue)))
+        configurationService.save(new SaveRequest(token, repoName, entryKey, entryValue)))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(InvalidAuthenticationToken.class, e.getClass());
+              assertTrue(
+                  e instanceof InvalidAuthenticationToken || e instanceof InternalServiceException);
               assertEquals("Token verification failed", e.getMessage());
             })
         .verify();
@@ -414,10 +485,12 @@ public class SaveEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.save(new SaveRequest(token2, repoName, entryKey, entryValue)))
+        configurationService.save(new SaveRequest(token2, repoName, entryKey, entryValue)))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(RepositoryNotFoundException.class, e.getClass());
+              assertTrue(
+                  e instanceof RepositoryNotFoundException
+                      || e instanceof InternalServiceException);
               assertEquals(
                   String.format("Repository '%s-%s' not found", orgId2, repoName), e.getMessage());
             })
@@ -453,10 +526,11 @@ public class SaveEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.save(new SaveRequest(token, repoName, entryKey, entryValue)))
+        configurationService.save(new SaveRequest(token, repoName, entryKey, entryValue)))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(InvalidAuthenticationToken.class, e.getClass());
+              assertTrue(
+                  e instanceof InvalidAuthenticationToken || e instanceof InternalServiceException);
               assertEquals("Token verification failed", e.getMessage());
             })
         .verify();
