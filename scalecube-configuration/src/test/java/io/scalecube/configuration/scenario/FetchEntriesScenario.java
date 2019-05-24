@@ -8,28 +8,34 @@ import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
 import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
+import io.scalecube.configuration.ITInitBase;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.EntriesRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
 import io.scalecube.configuration.api.SaveRequest;
-import io.scalecube.configuration.fixtures.InMemoryConfigurationServiceFixture;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
+import io.scalecube.services.exceptions.InternalServiceException;
 import io.scalecube.test.fixtures.Fixtures;
-import io.scalecube.test.fixtures.WithFixture;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.test.StepVerifier;
 
 @ExtendWith(Fixtures.class)
 public class FetchEntriesScenario extends BaseScenario {
+
+  public FetchEntriesScenario(ITInitBase itInitBase) {
+    super(itInitBase);
+  }
+
+  public FetchEntriesScenario() {
+  }
 
   @TestTemplate
   @DisplayName(
@@ -135,7 +141,9 @@ public class FetchEntriesScenario extends BaseScenario {
     StepVerifier.create(configurationService.entries(new EntriesRequest(token, repoName)))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(RepositoryNotFoundException.class, e.getClass());
+              assertTrue(
+                  e instanceof RepositoryNotFoundException
+                      || e instanceof InternalServiceException);
               assertEquals(
                   String.format("Repository '%s-%s' not found", orgId, repoName), e.getMessage());
             })
@@ -145,7 +153,7 @@ public class FetchEntriesScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#28 Fail to get any entry from the Repository upon the \"token\" is invalid (expired)")
-  void fetchEntriesUsingExpiredToken(
+  protected void fetchEntriesUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
     String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
@@ -153,7 +161,8 @@ public class FetchEntriesScenario extends BaseScenario {
     StepVerifier.create(configurationService.entries(new EntriesRequest(token, "test-repo")))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(InvalidAuthenticationToken.class, e.getClass());
+              assertTrue(
+                  e instanceof InvalidAuthenticationToken || e instanceof InternalServiceException);
               assertEquals("Token verification failed", e.getMessage());
             })
         .verify();
@@ -189,7 +198,7 @@ public class FetchEntriesScenario extends BaseScenario {
         .block(TIMEOUT);
 
     organizationService
-        .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, "ORG-TEST"))
+        .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, orgId))
         .block(TIMEOUT);
 
     TimeUnit.SECONDS.sleep(3);
@@ -197,7 +206,8 @@ public class FetchEntriesScenario extends BaseScenario {
     StepVerifier.create(configurationService.entries(new EntriesRequest(memberToken, repoName)))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(InvalidAuthenticationToken.class, e.getClass());
+              assertTrue(
+                  e instanceof InvalidAuthenticationToken || e instanceof InternalServiceException);
               assertEquals("Token verification failed", e.getMessage());
             })
         .verify();
@@ -236,7 +246,9 @@ public class FetchEntriesScenario extends BaseScenario {
     StepVerifier.create(configurationService.entries(new EntriesRequest(token2, repoName)))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(RepositoryNotFoundException.class, e.getClass());
+              assertTrue(
+                  e instanceof RepositoryNotFoundException
+                      || e instanceof InternalServiceException);
               assertEquals(
                   String.format("Repository '%s-%s' not found", orgId2, repoName), e.getMessage());
             })
