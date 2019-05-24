@@ -1,6 +1,7 @@
 package io.scalecube.configuration.scenario;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.scalecube.account.api.ApiKey;
@@ -8,28 +9,35 @@ import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
 import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
+import io.scalecube.configuration.ITInitBase;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.DeleteRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
 import io.scalecube.configuration.api.SaveRequest;
-import io.scalecube.configuration.fixtures.InMemoryConfigurationServiceFixture;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
+import io.scalecube.services.exceptions.InternalServiceException;
 import io.scalecube.test.fixtures.Fixtures;
-import io.scalecube.test.fixtures.WithFixture;
 import java.security.AccessControlException;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.test.StepVerifier;
 
 @ExtendWith(Fixtures.class)
 public class DeleteEntryScenario extends BaseScenario {
+
+  public DeleteEntryScenario(ITInitBase itInitBase) {
+    super(itInitBase);
+  }
+
+  public DeleteEntryScenario() {
+  }
 
   @TestTemplate
   @DisplayName(
@@ -73,25 +81,27 @@ public class DeleteEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService
-                .delete(new DeleteRequest(ownerToken, repoName, entryKey1))
-                .then(
-                    configurationService.fetch(new FetchRequest(ownerToken, repoName, entryKey1))))
+        configurationService
+            .delete(new DeleteRequest(ownerToken, repoName, entryKey1))
+            .then(
+                configurationService.fetch(new FetchRequest(ownerToken, repoName, entryKey1))))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(KeyNotFoundException.class, e.getClass());
+              assertTrue(
+                  e instanceof KeyNotFoundException || e instanceof InternalServiceException);
               assertEquals(String.format("Key '%s' not found", entryKey1), e.getMessage());
             })
         .verify();
 
     StepVerifier.create(
-            configurationService
-                .delete(new DeleteRequest(adminToken, repoName, entryKey2))
-                .then(
-                    configurationService.fetch(new FetchRequest(adminToken, repoName, entryKey2))))
+        configurationService
+            .delete(new DeleteRequest(adminToken, repoName, entryKey2))
+            .then(
+                configurationService.fetch(new FetchRequest(adminToken, repoName, entryKey2))))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(KeyNotFoundException.class, e.getClass());
+              assertTrue(
+                  e instanceof KeyNotFoundException || e instanceof InternalServiceException);
               assertEquals(String.format("Key '%s' not found", entryKey2), e.getMessage());
             })
         .verify();
@@ -134,12 +144,13 @@ public class DeleteEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService
-                .delete(new DeleteRequest(token, repoName1, entryKey))
-                .then(configurationService.fetch(new FetchRequest(token, repoName1, entryKey))))
+        configurationService
+            .delete(new DeleteRequest(token, repoName1, entryKey))
+            .then(configurationService.fetch(new FetchRequest(token, repoName1, entryKey))))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(KeyNotFoundException.class, e.getClass());
+              assertTrue(
+                  e instanceof KeyNotFoundException || e instanceof InternalServiceException);
               assertEquals(String.format("Key '%s' not found", entryKey), e.getMessage());
             })
         .verify();
@@ -148,7 +159,12 @@ public class DeleteEntryScenario extends BaseScenario {
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Entry key in " + repoName2);
-              assertEquals(entryValue2, entry.value(), "Entry value in " + repoName2);
+              Map actualValues = (Map) entry.value();
+              assertEquals(entryValue2.size(), actualValues.size());
+              assertEquals(entryValue2.findValue("name").textValue(), actualValues.get("name"));
+              assertEquals(entryValue2.findValue("DecimalPrecision").asInt(), actualValues.get("DecimalPrecision"));
+              assertEquals(entryValue2.findValue("instrumentId").textValue(), actualValues.get("instrumentId"));
+              assertEquals(entryValue2.findValue("Rounding").textValue(), actualValues.get("Rounding"));
             })
         .expectComplete()
         .verify();
@@ -183,13 +199,14 @@ public class DeleteEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService
-                .delete(new DeleteRequest(memberToken, repoName, entryKey))
-                .then(
-                    configurationService.fetch(new FetchRequest(memberToken, repoName, entryKey))))
+        configurationService
+            .delete(new DeleteRequest(memberToken, repoName, entryKey))
+            .then(
+                configurationService.fetch(new FetchRequest(memberToken, repoName, entryKey))))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(AccessControlException.class, e.getClass());
+              assertTrue(
+                  e instanceof AccessControlException || e instanceof InternalServiceException);
               assertEquals("Permission denied", e.getMessage());
             })
         .verify();
@@ -225,12 +242,13 @@ public class DeleteEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService
-                .delete(new DeleteRequest(adminToken, repoName, nonExistingEntryKey))
-                .then(configurationService.fetch(new FetchRequest(adminToken, repoName, entryKey))))
+        configurationService
+            .delete(new DeleteRequest(adminToken, repoName, nonExistingEntryKey))
+            .then(configurationService.fetch(new FetchRequest(adminToken, repoName, entryKey))))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(KeyNotFoundException.class, e.getClass());
+              assertTrue(
+                  e instanceof KeyNotFoundException || e instanceof InternalServiceException);
               assertEquals(
                   String.format("Key '%s' not found", nonExistingEntryKey), e.getMessage());
             })
@@ -240,7 +258,7 @@ public class DeleteEntryScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#36 Fail to delete specific entry from the Repository upon the \"token\" is invalid (expired)")
-  void deleteEntryUsingExpiredToken(
+  protected void deleteEntryUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
     String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
@@ -248,7 +266,8 @@ public class DeleteEntryScenario extends BaseScenario {
     StepVerifier.create(configurationService.delete(new DeleteRequest(token, "test-repo", "key")))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(InvalidAuthenticationToken.class, e.getClass());
+              assertTrue(
+                  e instanceof InvalidAuthenticationToken || e instanceof InternalServiceException);
               assertEquals("Token verification failed", e.getMessage());
             })
         .verify();
@@ -283,7 +302,7 @@ public class DeleteEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     organizationService
-        .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, "ORG-TEST"))
+        .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, orgId))
         .block(TIMEOUT);
 
     TimeUnit.SECONDS.sleep(3);
@@ -291,7 +310,8 @@ public class DeleteEntryScenario extends BaseScenario {
     StepVerifier.create(configurationService.delete(new DeleteRequest(token, repoName, entryKey)))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(InvalidAuthenticationToken.class, e.getClass());
+              assertTrue(
+                  e instanceof InvalidAuthenticationToken || e instanceof InternalServiceException);
               assertEquals("Token verification failed", e.getMessage());
             })
         .verify();
@@ -330,7 +350,9 @@ public class DeleteEntryScenario extends BaseScenario {
     StepVerifier.create(configurationService.delete(new DeleteRequest(token2, repoName, entryKey)))
         .expectErrorSatisfies(
             e -> {
-              assertEquals(RepositoryNotFoundException.class, e.getClass());
+              assertTrue(
+                  e instanceof RepositoryNotFoundException
+                      || e instanceof InternalServiceException);
               assertEquals(
                   String.format("Repository '%s-%s' not found", orgId2, repoName), e.getMessage());
             })

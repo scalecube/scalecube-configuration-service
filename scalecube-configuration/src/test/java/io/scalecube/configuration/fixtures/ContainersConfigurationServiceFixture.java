@@ -74,7 +74,7 @@ public class ContainersConfigurationServiceFixture implements Fixture {
     keyPairGenerator.initialize(2048);
     keyPair = keyPairGenerator.generateKeyPair();
   }
-
+//
 //  public static void main(String[] args) throws Exception {
 //    new ContainersConfigurationServiceFixture().setUp();
 //  }

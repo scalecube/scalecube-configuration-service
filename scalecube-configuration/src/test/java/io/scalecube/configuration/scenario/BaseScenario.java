@@ -10,24 +10,50 @@ import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
+import io.scalecube.configuration.ITInitBase;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import reactor.test.StepVerifier;
 
-abstract class BaseScenario {
+public abstract class BaseScenario {
 
-  protected static final Duration TIMEOUT = Duration.ofSeconds(5);
+  public static final Duration TIMEOUT = Duration.ofSeconds(10);
   static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-  protected static final Token AUTH0_TOKEN = new Token("AUTH0_TOKEN_MOCK");
-  protected static final String ORGANIZATION_1 = "Test_Organization_Name_1";
-  protected static final String ORGANIZATION_2 = "Test_Organization_Name_2";
+  public static final Token AUTH0_TOKEN = new Token("AUTH0_TOKEN_MOCK");
+  public static final String ORGANIZATION_1 = "Test_Organization_Name_1";
+  public static final String ORGANIZATION_2 = "Test_Organization_Name_2";
+
+  private ITInitBase itInitBase;
+
+  public BaseScenario(ITInitBase itInitBase) {
+    this.itInitBase = itInitBase;
+  }
+
+  public BaseScenario() {
+  }
 
   @BeforeAll
   static void beforeAll() {
     StepVerifier.setDefaultTimeout(TIMEOUT);
+  }
+
+  @BeforeEach
+  void before(OrganizationService organizationService) throws InterruptedException {
+    if (itInitBase != null) {
+      itInitBase.before(organizationService);
+    }
+  }
+
+  @AfterEach
+  void after(OrganizationService organizationService) throws InterruptedException {
+    if (itInitBase != null) {
+      itInitBase.after(organizationService);
+    }
   }
 
   protected OrganizationInfo getOrganization(

@@ -8,6 +8,7 @@ import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
 import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
+import io.scalecube.configuration.ITInitBase;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
@@ -24,6 +25,13 @@ import reactor.test.StepVerifier;
 
 @ExtendWith(Fixtures.class)
 public class CreateRepositoryScenario extends BaseScenario {
+
+  public CreateRepositoryScenario(ITInitBase itInitBase) {
+    super(itInitBase);
+  }
+
+  public CreateRepositoryScenario() {
+  }
 
   @TestTemplate
   @DisplayName("#1 Successful Repository creation applying the \"Owner\" API key")
