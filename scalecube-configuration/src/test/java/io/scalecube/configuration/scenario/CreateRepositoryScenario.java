@@ -1,4 +1,4 @@
-package io.scalecube.configuration;
+package io.scalecube.configuration.scenario;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -10,22 +10,15 @@ import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
-import io.scalecube.configuration.fixtures.InMemoryConfigurationServiceFixture;
 import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
-import io.scalecube.test.fixtures.Fixtures;
-import io.scalecube.test.fixtures.WithFixture;
 import java.security.AccessControlException;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.test.StepVerifier;
 
-@ExtendWith(Fixtures.class)
-@WithFixture(value = InMemoryConfigurationServiceFixture.class, lifecycle = Lifecycle.PER_METHOD)
-final class CreateRepositoryTest extends BaseTest {
+public class CreateRepositoryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName("#1 Successful Repository creation applying the \"Owner\" API key")

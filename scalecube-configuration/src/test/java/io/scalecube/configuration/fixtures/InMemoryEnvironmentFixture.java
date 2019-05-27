@@ -40,14 +40,14 @@ import org.mockito.ArgumentMatchers;
 import org.opentest4j.TestAbortedException;
 import reactor.core.publisher.Mono;
 
-public final class InMemoryConfigurationServiceFixture implements Fixture {
+public final class InMemoryEnvironmentFixture implements Fixture {
 
   private final KeyPair keyPair;
 
   private ConfigurationService configurationService;
   private OrganizationService organizationService;
 
-  public InMemoryConfigurationServiceFixture() throws NoSuchAlgorithmException {
+  public InMemoryEnvironmentFixture() throws NoSuchAlgorithmException {
     KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
     keyPairGenerator.initialize(2048);
     keyPair = keyPairGenerator.generateKeyPair();
