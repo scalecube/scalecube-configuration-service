@@ -8,7 +8,7 @@ import io.scalecube.test.fixtures.WithFixture;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-@WithFixture(value = ContainersConfigurationServiceFixture.class, lifecycle = Lifecycle.PER_METHOD)
+@WithFixture(value = ContainersConfigurationServiceFixture.class, lifecycle = Lifecycle.PER_CLASS)
 public class DeleteEntryIT extends DeleteEntryScenario {
 
   public DeleteEntryIT() {
