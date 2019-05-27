@@ -1,80 +1,97 @@
 package io.scalecube.configuration.scenario;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.scalecube.account.api.AddOrganizationApiKeyRequest;
 import io.scalecube.account.api.ApiKey;
-import io.scalecube.account.api.GetMembershipRequest;
-import io.scalecube.account.api.GetMembershipResponse;
-import io.scalecube.account.api.GetOrganizationRequest;
+import io.scalecube.account.api.CreateOrganizationRequest;
 import io.scalecube.account.api.GetOrganizationResponse;
 import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
+import java.io.IOException;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
+import org.opentest4j.TestAbortedException;
+import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 import reactor.test.StepVerifier;
 
-abstract class BaseScenario {
+public abstract class BaseScenario {
 
-  static final Duration TIMEOUT = Duration.ofSeconds(1);
+  public static final int API_KEY_TTL_IN_SECONDS = 3;
+
+  static final Duration TIMEOUT = Duration.ofSeconds(10);
   static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   static final Token AUTH0_TOKEN = new Token("auth0_token");
-  static final String ORGANIZATION_1 = "Test Organization 1";
-  static final String ORGANIZATION_2 = "Test Organization 2";
 
   @BeforeAll
   static void beforeAll() {
     StepVerifier.setDefaultTimeout(TIMEOUT);
   }
 
-  OrganizationInfo getOrganization(
-      OrganizationService organizationService, String organizationName) {
-    GetMembershipResponse membership =
-        organizationService
-            .getUserOrganizationsMembership(new GetMembershipRequest(AUTH0_TOKEN))
-            .block(TIMEOUT);
-
-    return Stream.of(
-            Optional.ofNullable(membership)
-                .orElseThrow(() -> new IllegalStateException("Membership is null"))
-                .organizations())
-        .filter(organizationInfo -> organizationName.equals(organizationInfo.name()))
-        .findAny()
-        .orElseThrow(
-            () -> new IllegalStateException("Organization '" + organizationName + "' not found"));
+  OrganizationInfo createOrganization(OrganizationService organizationService) {
+    return organizationService
+        .createOrganization(
+            new CreateOrganizationRequest(
+                RandomStringUtils.randomAlphabetic(10), "info@scalecube.io", AUTH0_TOKEN))
+        .block(TIMEOUT);
   }
 
   ApiKey getExpiredApiKey(
       OrganizationService organizationService, String organizationId, Role role) {
-    return getApiKey(organizationService, organizationId, role, true);
+    ApiKey apiKey = createApiKey(organizationService, organizationId, role);
+
+    try {
+      TimeUnit.SECONDS.sleep(API_KEY_TTL_IN_SECONDS + 1);
+    } catch (InterruptedException e) {
+      throw new TestAbortedException("Error on creating expired api key", e);
+    }
+
+    return apiKey;
   }
 
-  ApiKey getApiKey(OrganizationService organizationService, String organizationId, Role role) {
-    return getApiKey(organizationService, organizationId, role, false);
-  }
+  ApiKey createApiKey(OrganizationService organizationService, String organizationId, Role role) {
+    Map<String, String> claims = new HashMap<>();
+    claims.put("aud", organizationId);
+    claims.put("role", role.name());
 
-  private ApiKey getApiKey(
-      OrganizationService organizationService, String organizationId, Role role, boolean expired) {
+    String apiKeyName = RandomStringUtils.randomAlphabetic(5);
+
     GetOrganizationResponse organization =
         organizationService
-            .getOrganization(new GetOrganizationRequest(AUTH0_TOKEN, organizationId))
+            .addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(AUTH0_TOKEN, organizationId, apiKeyName, claims))
             .block(TIMEOUT);
 
     return Stream.of(
             Optional.ofNullable(organization)
                 .orElseThrow(() -> new IllegalStateException("Organization is null"))
                 .apiKeys())
-        .filter(
-            apiKey -> {
-              if (expired) {
-                return apiKey.name().equals("expired");
-              }
-              return true;
-            })
         .filter(apiKey -> role.name().equals(apiKey.claims().get("role")))
         .findAny()
         .orElseThrow(() -> new IllegalStateException("ApiKey is null"));
+  }
+
+  ObjectNode parse(Object value) {
+    try {
+      String json;
+
+      if (value instanceof LinkedHashMap) {
+        json = OBJECT_MAPPER.writeValueAsString(value);
+      } else {
+        json = value.toString();
+      }
+
+      return OBJECT_MAPPER.readValue(json, ObjectNode.class);
+    } catch (IOException e) {
+      throw new TestAbortedException("Error during parsing value as json", e);
+    }
   }
 }

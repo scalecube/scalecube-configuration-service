@@ -12,15 +12,11 @@ import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.DeleteRequest;
 import io.scalecube.configuration.api.FetchRequest;
-import io.scalecube.configuration.api.InvalidAuthenticationToken;
 import io.scalecube.configuration.api.SaveRequest;
-import io.scalecube.configuration.repository.exception.KeyNotFoundException;
-import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
-import java.security.AccessControlException;
 import java.util.concurrent.TimeUnit;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
+import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 import reactor.test.StepVerifier;
 
 public class DeleteEntryScenario extends BaseScenario {
@@ -30,11 +26,11 @@ public class DeleteEntryScenario extends BaseScenario {
       "#32 Successful delete of the specific entry from the related Repository applying managers' API keys: \"Owner\" and \"Admin\"")
   void deleteEntry(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String ownerToken = getApiKey(organizationService, orgId, Role.Owner).key();
-    String adminToken = getApiKey(organizationService, orgId, Role.Admin).key();
+    String orgId = createOrganization(organizationService).id();
+    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
+    String adminToken = createApiKey(organizationService, orgId, Role.Admin).key();
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey1 = "KEY-FOR-PRECIOUS-METAL-123";
     String entryKey2 = "KEY-FOR-CURRENCY-999";
 
@@ -71,11 +67,7 @@ public class DeleteEntryScenario extends BaseScenario {
                 .delete(new DeleteRequest(ownerToken, repoName, entryKey1))
                 .then(
                     configurationService.fetch(new FetchRequest(ownerToken, repoName, entryKey1))))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(KeyNotFoundException.class, e.getClass());
-              assertEquals(String.format("Key '%s' not found", entryKey1), e.getMessage());
-            })
+        .expectErrorMessage(String.format("Key '%s' not found", entryKey1))
         .verify();
 
     StepVerifier.create(
@@ -83,11 +75,7 @@ public class DeleteEntryScenario extends BaseScenario {
                 .delete(new DeleteRequest(adminToken, repoName, entryKey2))
                 .then(
                     configurationService.fetch(new FetchRequest(adminToken, repoName, entryKey2))))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(KeyNotFoundException.class, e.getClass());
-              assertEquals(String.format("Key '%s' not found", entryKey2), e.getMessage());
-            })
+        .expectErrorMessage(String.format("Key '%s' not found", entryKey2))
         .verify();
   }
 
@@ -96,11 +84,11 @@ public class DeleteEntryScenario extends BaseScenario {
       "#33 Successful delete one of the identical keys (entries) from the related Repository applying some of the managers' API keys")
   void deleteEntryWithIdenticalKey(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String token = getApiKey(organizationService, orgId, Role.Owner).key();
+    String orgId = createOrganization(organizationService).id();
+    String token = createApiKey(organizationService, orgId, Role.Owner).key();
 
-    String repoName1 = "test-repo1";
-    String repoName2 = "test-repo2";
+    String repoName1 = RandomStringUtils.randomAlphabetic(5);
+    String repoName2 = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
     ObjectNode entryValue1 =
         OBJECT_MAPPER
@@ -131,18 +119,14 @@ public class DeleteEntryScenario extends BaseScenario {
             configurationService
                 .delete(new DeleteRequest(token, repoName1, entryKey))
                 .then(configurationService.fetch(new FetchRequest(token, repoName1, entryKey))))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(KeyNotFoundException.class, e.getClass());
-              assertEquals(String.format("Key '%s' not found", entryKey), e.getMessage());
-            })
+        .expectErrorMessage(String.format("Key '%s' not found", entryKey))
         .verify();
 
     StepVerifier.create(configurationService.fetch(new FetchRequest(token, repoName2, entryKey)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Entry key in " + repoName2);
-              assertEquals(entryValue2, entry.value(), "Entry value in " + repoName2);
+              assertEquals(entryValue2, parse(entry.value()), "Entry value in " + repoName2);
             })
         .expectComplete()
         .verify();
@@ -153,11 +137,11 @@ public class DeleteEntryScenario extends BaseScenario {
       "#34 Fail to delete a specific entry upon the restricted permission due to applying the \"Member\" API key")
   void deleteEntryByMember(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String ownerToken = getApiKey(organizationService, orgId, Role.Owner).key();
-    String memberToken = getApiKey(organizationService, orgId, Role.Member).key();
+    String orgId = createOrganization(organizationService).id();
+    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
+    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
 
     configurationService
@@ -181,11 +165,7 @@ public class DeleteEntryScenario extends BaseScenario {
                 .delete(new DeleteRequest(memberToken, repoName, entryKey))
                 .then(
                     configurationService.fetch(new FetchRequest(memberToken, repoName, entryKey))))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(AccessControlException.class, e.getClass());
-              assertEquals("Permission denied", e.getMessage());
-            })
+        .expectErrorMessage("Permission denied")
         .verify();
   }
 
@@ -194,11 +174,11 @@ public class DeleteEntryScenario extends BaseScenario {
       "#35 Fail to delete a non-existent entry from the related Repository applying the \"Admin\" API key")
   void deleteNonExistingEntryByAdmin(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String ownerToken = getApiKey(organizationService, orgId, Role.Owner).key();
-    String adminToken = getApiKey(organizationService, orgId, Role.Admin).key();
+    String orgId = createOrganization(organizationService).id();
+    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
+    String adminToken = createApiKey(organizationService, orgId, Role.Admin).key();
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
     String nonExistingEntryKey = "NON_EXISTING_KEY";
 
@@ -222,12 +202,7 @@ public class DeleteEntryScenario extends BaseScenario {
             configurationService
                 .delete(new DeleteRequest(adminToken, repoName, nonExistingEntryKey))
                 .then(configurationService.fetch(new FetchRequest(adminToken, repoName, entryKey))))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(KeyNotFoundException.class, e.getClass());
-              assertEquals(
-                  String.format("Key '%s' not found", nonExistingEntryKey), e.getMessage());
-            })
+        .expectErrorMessage(String.format("Key '%s' not found", nonExistingEntryKey))
         .verify();
   }
 
@@ -236,15 +211,13 @@ public class DeleteEntryScenario extends BaseScenario {
       "#36 Fail to delete specific entry from the Repository upon the \"token\" is invalid (expired)")
   void deleteEntryUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
+    String orgId = createOrganization(organizationService).id();
     String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
 
-    StepVerifier.create(configurationService.delete(new DeleteRequest(token, "test-repo", "key")))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(InvalidAuthenticationToken.class, e.getClass());
-              assertEquals("Token verification failed", e.getMessage());
-            })
+    String repository = RandomStringUtils.randomAlphabetic(5);
+
+    StepVerifier.create(configurationService.delete(new DeleteRequest(token, repository, "key")))
+        .expectErrorMessage("Token verification failed")
         .verify();
   }
 
@@ -254,10 +227,10 @@ public class DeleteEntryScenario extends BaseScenario {
   void deleteEntryForDeletedOrganization(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String token = getApiKey(organizationService, orgId, Role.Owner).key();
+    String orgId = createOrganization(organizationService).id();
+    String token = createApiKey(organizationService, orgId, Role.Owner).key();
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
 
     configurationService
@@ -277,17 +250,13 @@ public class DeleteEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     organizationService
-        .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, "ORG-TEST"))
+        .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, orgId))
         .block(TIMEOUT);
 
     TimeUnit.SECONDS.sleep(3);
 
     StepVerifier.create(configurationService.delete(new DeleteRequest(token, repoName, entryKey)))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(InvalidAuthenticationToken.class, e.getClass());
-              assertEquals("Token verification failed", e.getMessage());
-            })
+        .expectErrorMessage("Token verification failed")
         .verify();
   }
 
@@ -296,13 +265,13 @@ public class DeleteEntryScenario extends BaseScenario {
       "#38 Fail to delete specific entry from the Repository upon the Owner applied some of the API keys from another Organization")
   void deleteEntryUsingTokenOfAnotherOrganization(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId1 = getOrganization(organizationService, ORGANIZATION_1).id();
-    String token1 = getApiKey(organizationService, orgId1, Role.Owner).key();
+    String orgId1 = createOrganization(organizationService).id();
+    String token1 = createApiKey(organizationService, orgId1, Role.Owner).key();
 
-    String orgId2 = getOrganization(organizationService, ORGANIZATION_2).id();
-    String token2 = getApiKey(organizationService, orgId2, Role.Admin).key();
+    String orgId2 = createOrganization(organizationService).id();
+    String token2 = createApiKey(organizationService, orgId2, Role.Admin).key();
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
 
     configurationService
@@ -322,33 +291,28 @@ public class DeleteEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(configurationService.delete(new DeleteRequest(token2, repoName, entryKey)))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(RepositoryNotFoundException.class, e.getClass());
-              assertEquals(
-                  String.format("Repository '%s-%s' not found", orgId2, repoName), e.getMessage());
-            })
+        .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId2, repoName))
         .verify();
   }
 
-  @Disabled("Feature is not implemented")
   @TestTemplate
   @DisplayName(
       "#39 Fail to delete specific entry from the Repository upon the Owner \"token\" (API key) was deleted from the Organization")
   void deleteEntryUsingDeletedToken(
-      ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    ApiKey token = getApiKey(organizationService, orgId, Role.Owner);
+      ConfigurationService configurationService, OrganizationService organizationService)
+      throws InterruptedException {
+    String orgId = createOrganization(organizationService).id();
+    ApiKey token = createApiKey(organizationService, orgId, Role.Owner);
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(token, repoName))
+        .createRepository(new CreateRepositoryRequest(token.key(), repoName))
         .then(
             configurationService.save(
                 new SaveRequest(
-                    token,
+                    token.key(),
                     repoName,
                     entryKey,
                     OBJECT_MAPPER
@@ -364,12 +328,11 @@ public class DeleteEntryScenario extends BaseScenario {
             new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, token.name()))
         .block(TIMEOUT);
 
-    StepVerifier.create(configurationService.delete(new DeleteRequest(token, repoName, entryKey)))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(InvalidAuthenticationToken.class, e.getClass());
-              assertEquals("Token verification failed", e.getMessage());
-            })
+    TimeUnit.SECONDS.sleep(3);
+
+    StepVerifier.create(
+            configurationService.delete(new DeleteRequest(token.key(), repoName, entryKey)))
+        .expectErrorMessage("Token verification failed")
         .verify();
   }
 }

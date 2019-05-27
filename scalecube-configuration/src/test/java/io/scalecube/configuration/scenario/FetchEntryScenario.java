@@ -12,14 +12,11 @@ import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.EntriesRequest;
 import io.scalecube.configuration.api.FetchRequest;
-import io.scalecube.configuration.api.InvalidAuthenticationToken;
 import io.scalecube.configuration.api.SaveRequest;
-import io.scalecube.configuration.repository.exception.KeyNotFoundException;
-import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
 import java.util.concurrent.TimeUnit;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
+import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 import reactor.test.StepVerifier;
 
 public class FetchEntryScenario extends BaseScenario {
@@ -29,12 +26,12 @@ public class FetchEntryScenario extends BaseScenario {
       "#18 Successful get of a specific entry from the related Repository applying the all related API keys: \"Owner\", \"Admin\", \"Member\"")
   void fetchEntry(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String ownerToken = getApiKey(organizationService, orgId, Role.Owner).key();
-    String adminToken = getApiKey(organizationService, orgId, Role.Admin).key();
-    String memberToken = getApiKey(organizationService, orgId, Role.Member).key();
+    String orgId = createOrganization(organizationService).id();
+    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
+    String adminToken = createApiKey(organizationService, orgId, Role.Admin).key();
+    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey1 = "KEY-FOR-PRECIOUS-METAL-123";
     String entryKey2 = "KEY-FOR-CURRENCY-999";
     ObjectNode entryValue1 =
@@ -67,7 +64,7 @@ public class FetchEntryScenario extends BaseScenario {
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
-              assertEquals(entryValue1, entry.value(), "Fetched entry value");
+              assertEquals(entryValue1, parse(entry.value()), "Fetched entry value");
             })
         .expectComplete()
         .verify();
@@ -77,7 +74,7 @@ public class FetchEntryScenario extends BaseScenario {
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
-              assertEquals(entryValue1, entry.value(), "Fetched entry value");
+              assertEquals(entryValue1, parse(entry.value()), "Fetched entry value");
             })
         .expectComplete()
         .verify();
@@ -87,7 +84,7 @@ public class FetchEntryScenario extends BaseScenario {
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
-              assertEquals(entryValue1, entry.value(), "Fetched entry value");
+              assertEquals(entryValue1, parse(entry.value()), "Fetched entry value");
             })
         .expectComplete()
         .verify();
@@ -98,11 +95,11 @@ public class FetchEntryScenario extends BaseScenario {
       "#19 Successful get one of the identical entries from the related Repository applying some of the related API keys: \"Owner\", \"Admin\", \"Member\"")
   void fetchIdenticalEntry(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String ownerToken = getApiKey(organizationService, orgId, Role.Owner).key();
-    String memberToken = getApiKey(organizationService, orgId, Role.Member).key();
+    String orgId = createOrganization(organizationService).id();
+    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
+    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
 
-    String repoName1 = "test-repo1";
+    String repoName1 = RandomStringUtils.randomAlphabetic(5);
     String repoName2 = "test-repo2";
     String entryKey1 = "KEY-FOR-PRECIOUS-METAL-123";
     ObjectNode entryValue1 =
@@ -138,7 +135,7 @@ public class FetchEntryScenario extends BaseScenario {
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
-              assertEquals(entryValue1, entry.value(), "Fetched entry value");
+              assertEquals(entryValue1, parse(entry.value()), "Fetched entry value");
             })
         .expectComplete()
         .verify();
@@ -149,10 +146,10 @@ public class FetchEntryScenario extends BaseScenario {
       "#20 Fail to get the non-existent entry from the existent Repository applying some of the accessible API keys: \"Owner\", \"Admin\", \"Member\"")
   void fetchNonExistentEntry(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String ownerToken = getApiKey(organizationService, orgId, Role.Owner).key();
+    String orgId = createOrganization(organizationService).id();
+    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey1 = "KEY-FOR-PRECIOUS-METAL-123";
     String entryKey2 = "KEY-FOR-CURRENCY-999";
     ObjectNode entryValue1 =
@@ -184,11 +181,7 @@ public class FetchEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService.fetch(new FetchRequest(ownerToken, repoName, nonExistentKey)))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(KeyNotFoundException.class, e.getClass());
-              assertEquals(String.format("Key '%s' not found", nonExistentKey), e.getMessage());
-            })
+        .expectErrorMessage(String.format("Key '%s' not found", nonExistentKey))
         .verify();
   }
 
@@ -197,18 +190,13 @@ public class FetchEntryScenario extends BaseScenario {
       "#21 Fail to get any entry from the non-existent Repository applying some of the accessible API keys: \"Owner\", \"Admin\", \"Member\"")
   void fetchEntryFromNonExistentRepository(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String token = getApiKey(organizationService, orgId, Role.Admin).key();
+    String orgId = createOrganization(organizationService).id();
+    String token = createApiKey(organizationService, orgId, Role.Admin).key();
 
     String repoName = "NON_EXISTENT_REPO";
 
     StepVerifier.create(configurationService.fetch(new FetchRequest(token, repoName, "key")))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(RepositoryNotFoundException.class, e.getClass());
-              assertEquals(
-                  String.format("Repository '%s-%s' not found", orgId, repoName), e.getMessage());
-            })
+        .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId, repoName))
         .verify();
   }
 
@@ -217,15 +205,11 @@ public class FetchEntryScenario extends BaseScenario {
       "#22 Fail to get the specific entry from the Repository upon the \"token\" is invalid (expired)")
   void fetchEntryUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
+    String orgId = createOrganization(organizationService).id();
     String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
 
     StepVerifier.create(configurationService.entries(new EntriesRequest(token, "test-repo")))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(InvalidAuthenticationToken.class, e.getClass());
-              assertEquals("Token verification failed", e.getMessage());
-            })
+        .expectErrorMessage("Token verification failed")
         .verify();
   }
 
@@ -235,11 +219,11 @@ public class FetchEntryScenario extends BaseScenario {
   void fetchEntryForDeletedOrganization(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String ownerToken = getApiKey(organizationService, orgId, Role.Owner).key();
-    String adminToken = getApiKey(organizationService, orgId, Role.Admin).key();
+    String orgId = createOrganization(organizationService).id();
+    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
+    String adminToken = createApiKey(organizationService, orgId, Role.Admin).key();
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
 
     configurationService
@@ -259,17 +243,13 @@ public class FetchEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     organizationService
-        .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, "ORG-TEST"))
+        .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, orgId))
         .block(TIMEOUT);
 
     TimeUnit.SECONDS.sleep(3);
 
     StepVerifier.create(configurationService.entries(new EntriesRequest(adminToken, repoName)))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(InvalidAuthenticationToken.class, e.getClass());
-              assertEquals("Token verification failed", e.getMessage());
-            })
+        .expectErrorMessage("Token verification failed")
         .verify();
   }
 
@@ -278,13 +258,13 @@ public class FetchEntryScenario extends BaseScenario {
       "#24 Fail to get the specific entry from the Repository upon the Owner applied some of the API keys from another Organization")
   void fetchEntryUsingTokenOfAnotherOrganization(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId1 = getOrganization(organizationService, ORGANIZATION_1).id();
-    String token1 = getApiKey(organizationService, orgId1, Role.Owner).key();
+    String orgId1 = createOrganization(organizationService).id();
+    String token1 = createApiKey(organizationService, orgId1, Role.Owner).key();
 
-    String orgId2 = getOrganization(organizationService, ORGANIZATION_2).id();
-    String token2 = getApiKey(organizationService, orgId2, Role.Member).key();
+    String orgId2 = createOrganization(organizationService).id();
+    String token2 = createApiKey(organizationService, orgId2, Role.Member).key();
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
 
     configurationService
@@ -304,34 +284,29 @@ public class FetchEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(configurationService.entries(new EntriesRequest(token2, repoName)))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(RepositoryNotFoundException.class, e.getClass());
-              assertEquals(
-                  String.format("Repository '%s-%s' not found", orgId2, repoName), e.getMessage());
-            })
+        .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId2, repoName))
         .verify();
   }
 
-  @Disabled("Feature is not implemented")
   @TestTemplate
   @DisplayName(
       "#25 Fail to get the specific entry in the Repository upon the Admin \"token\" (API key) was deleted from the Organization")
   void fetchEntryUsingDeletedToken(
-      ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    ApiKey ownerToken = getApiKey(organizationService, orgId, Role.Owner);
-    ApiKey adminToken = getApiKey(organizationService, orgId, Role.Admin);
+      ConfigurationService configurationService, OrganizationService organizationService)
+      throws InterruptedException {
+    String orgId = createOrganization(organizationService).id();
+    ApiKey ownerToken = createApiKey(organizationService, orgId, Role.Owner);
+    ApiKey adminToken = createApiKey(organizationService, orgId, Role.Admin);
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerToken.key(), repoName))
         .then(
             configurationService.save(
                 new SaveRequest(
-                    ownerToken,
+                    ownerToken.key(),
                     repoName,
                     entryKey,
                     OBJECT_MAPPER
@@ -347,12 +322,11 @@ public class FetchEntryScenario extends BaseScenario {
             new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, adminToken.name()))
         .block(TIMEOUT);
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(adminToken, repoName)))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(InvalidAuthenticationToken.class, e.getClass());
-              assertEquals("Token verification failed", e.getMessage());
-            })
+    TimeUnit.SECONDS.sleep(3);
+
+    StepVerifier.create(
+            configurationService.entries(new EntriesRequest(adminToken.key(), repoName)))
+        .expectErrorMessage("Token verification failed")
         .verify();
   }
 }
