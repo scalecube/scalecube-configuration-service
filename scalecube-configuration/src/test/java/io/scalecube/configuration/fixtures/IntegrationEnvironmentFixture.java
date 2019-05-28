@@ -45,7 +45,10 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.opentest4j.TestAbortedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.couchbase.CouchbaseContainer;
 import org.testcontainers.vault.VaultContainer;
@@ -53,6 +56,8 @@ import reactor.core.publisher.Mono;
 import reactor.netty.resources.LoopResources;
 
 public final class IntegrationEnvironmentFixture implements Fixture {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(IntegrationEnvironmentFixture.class);
 
   private static final String COUCHBASE_DOCKER_IMAGE = "couchbase:community-6.0.0";
   private static final String COUCHBASE_USERNAME = "admin";
@@ -77,6 +82,8 @@ public final class IntegrationEnvironmentFixture implements Fixture {
 
   @Override
   public void setUp() throws TestAbortedException {
+    LOGGER.info("### Start environment");
+
     try {
       Map<String, String> env = new HashMap<>();
       env.put("VAULT_ADDR", String.format(VAULT_ADDR_PATTERN, "localhost", VAULT_PORT));
@@ -102,6 +109,8 @@ public final class IntegrationEnvironmentFixture implements Fixture {
     } catch (Exception e) {
       throw new TestAbortedException("Error on environment set up", e);
     }
+
+    LOGGER.info("### Environment is running");
   }
 
   @Override
@@ -111,6 +120,8 @@ public final class IntegrationEnvironmentFixture implements Fixture {
 
   @Override
   public void tearDown() {
+    LOGGER.info("### Stop environment");
+
     if (configurationService != null) {
       configurationService.shutdown().block();
     }
@@ -126,9 +137,19 @@ public final class IntegrationEnvironmentFixture implements Fixture {
     if (couchbase != null) {
       couchbase.stop();
     }
+
+    try {
+      TimeUnit.SECONDS.sleep(10);
+    } catch (InterruptedException e) {
+      throw new TestAbortedException("Error on stopping environment", e);
+    }
+
+    LOGGER.info("### Environment is stopped");
   }
 
   private CouchbaseContainer startCouchbase() {
+    LOGGER.info("### Start couchbase");
+
     CouchbaseContainer couchbase =
         new CouchbaseContainer(COUCHBASE_DOCKER_IMAGE)
             .withClusterAdmin(COUCHBASE_USERNAME, COUCHBASE_PASSWORD)
@@ -164,6 +185,8 @@ public final class IntegrationEnvironmentFixture implements Fixture {
   }
 
   private VaultContainer startVault() {
+    LOGGER.info("### Start vault");
+
     VaultContainer<?> vault =
         new VaultContainer<>(VAULT_DOCKER_IMAGE)
             .withVaultPort(VAULT_PORT)
@@ -186,6 +209,8 @@ public final class IntegrationEnvironmentFixture implements Fixture {
   }
 
   private Microservices startGateway() {
+    LOGGER.info("### Start gateway");
+
     return Microservices.builder()
         .discovery(
             serviceEndpoint ->
@@ -201,6 +226,8 @@ public final class IntegrationEnvironmentFixture implements Fixture {
   }
 
   private Microservices startOrganizationService() {
+    LOGGER.info("### Start organization service");
+
     return Microservices.builder()
         .discovery(
             serviceEndpoint ->
@@ -251,6 +278,8 @@ public final class IntegrationEnvironmentFixture implements Fixture {
   }
 
   private Microservices startConfigurationService() {
+    LOGGER.info("### Start configuration service");
+
     ConfigRegistry configRegistry = AppConfiguration.configRegistry();
 
     DiscoveryOptions discoveryOptions =
