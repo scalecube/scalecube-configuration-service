@@ -107,6 +107,7 @@ public final class IntegrationEnvironmentFixture implements Fixture {
 
       client = Client.websocket(settings);
     } catch (Exception e) {
+      LOGGER.error("### Error on environment set up", e);
       throw new TestAbortedException("Error on environment set up", e);
     }
 
@@ -122,25 +123,26 @@ public final class IntegrationEnvironmentFixture implements Fixture {
   public void tearDown() {
     LOGGER.info("### Stop environment");
 
-    if (configurationService != null) {
-      configurationService.shutdown().block();
-    }
-    if (organizationService != null) {
-      organizationService.shutdown().block();
-    }
-    if (gateway != null) {
-      gateway.shutdown().block();
-    }
-    if (vault != null) {
-      vault.stop();
-    }
-    if (couchbase != null) {
-      couchbase.stop();
-    }
-
     try {
+      if (configurationService != null) {
+        configurationService.shutdown().block();
+      }
+      if (organizationService != null) {
+        organizationService.shutdown().block();
+      }
+      if (gateway != null) {
+        gateway.shutdown().block();
+      }
+      if (vault != null) {
+        vault.stop();
+      }
+      if (couchbase != null) {
+        couchbase.stop();
+      }
+
       TimeUnit.SECONDS.sleep(10);
-    } catch (InterruptedException e) {
+    } catch (Exception e) {
+      LOGGER.error("### Error on stopping environment", e);
       throw new TestAbortedException("Error on stopping environment", e);
     }
 
@@ -196,10 +198,13 @@ public final class IntegrationEnvironmentFixture implements Fixture {
                 "couchbase.hosts=localhost",
                 "couchbase.username=" + COUCHBASE_USERNAME,
                 "couchbase.password=" + COUCHBASE_PASSWORD,
+                "organizations.bucket=organizations",
                 "token.expiration=" + API_KEY_TTL_IN_SECONDS * 1000,
                 "io.scalecube.configuration.seeds=localhost:4801",
                 "io.scalecube.configuration.discoveryPort=4803",
                 "io.scalecube.configuration.servicePort=5803",
+                "couchbase.bucketName=configurations",
+                "api.keys.path.pattern=%s/api-keys/",
                 "key.cache.ttl=2",
                 "key.cache.refresh.interval=1")
             .waitingFor(new LogMessageWaitStrategy().withRegEx("^.*Vault server started!.*$"));
@@ -254,10 +259,10 @@ public final class IntegrationEnvironmentFixture implements Fixture {
     TokenVerifier tokenVerifier =
         token -> {
           Map<String, Object> claims = new HashMap<>();
-          claims.put("aud", "424242");
+          claims.put("aud", "scalecube");
           claims.put("role", "Owner");
 
-          return Profile.builder().userId("test_user_id").claims(claims).build();
+          return Profile.builder().userId("scalecube_test_user").claims(claims).build();
         };
 
     return new OrganizationServiceImpl(
