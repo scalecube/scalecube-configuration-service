@@ -19,7 +19,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
-import org.opentest4j.TestAbortedException;
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 import reactor.test.StepVerifier;
 
@@ -51,7 +50,7 @@ public abstract class BaseScenario {
     try {
       TimeUnit.SECONDS.sleep(API_KEY_TTL_IN_SECONDS + 1);
     } catch (InterruptedException e) {
-      throw new TestAbortedException("Error on creating expired api key", e);
+      throw new RuntimeException("Error on creating expired api key", e);
     }
 
     return apiKey;
@@ -91,7 +90,7 @@ public abstract class BaseScenario {
 
       return OBJECT_MAPPER.readValue(json, ObjectNode.class);
     } catch (IOException e) {
-      throw new TestAbortedException("Error during parsing value as json", e);
+      throw new RuntimeException("Error during parsing value as json", e);
     }
   }
 }

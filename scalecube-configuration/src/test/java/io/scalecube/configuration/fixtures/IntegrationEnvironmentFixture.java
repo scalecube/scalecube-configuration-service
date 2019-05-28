@@ -108,7 +108,7 @@ public final class IntegrationEnvironmentFixture implements Fixture {
       client = Client.websocket(settings);
     } catch (Exception e) {
       LOGGER.error("### Error on environment set up", e);
-      throw new TestAbortedException("Error on environment set up", e);
+      throw new RuntimeException("Error on environment set up", e);
     }
 
     LOGGER.info("### Environment is running");
@@ -143,7 +143,7 @@ public final class IntegrationEnvironmentFixture implements Fixture {
       TimeUnit.SECONDS.sleep(10);
     } catch (Exception e) {
       LOGGER.error("### Error on stopping environment", e);
-      throw new TestAbortedException("Error on stopping environment", e);
+      throw new RuntimeException("Error on stopping environment", e);
     }
 
     LOGGER.info("### Environment is stopped");
