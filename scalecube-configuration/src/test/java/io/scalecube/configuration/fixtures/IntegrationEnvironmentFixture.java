@@ -108,6 +108,9 @@ public final class IntegrationEnvironmentFixture implements Fixture {
       client = Client.websocket(settings);
     } catch (Exception e) {
       LOGGER.error("### Error on environment set up", e);
+
+      tearDown();
+
       throw new RuntimeException("Error on environment set up", e);
     }
 
