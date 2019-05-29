@@ -1,5 +1,6 @@
 package io.scalecube.configuration.fixtures;
 
+import static io.scalecube.configuration.fixtures.EnvUtils.setEnv;
 import static io.scalecube.configuration.scenario.BaseScenario.API_KEY_TTL_IN_SECONDS;
 
 import com.couchbase.client.java.AsyncBucket;
@@ -37,7 +38,6 @@ import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
 import io.scalecube.services.transport.rsocket.RSocketTransportResources;
 import io.scalecube.transport.Address;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
@@ -79,16 +79,14 @@ final class IntegrationEnvironment {
     LOGGER.info("### Start environment");
 
     try {
-      Map<String, String> env = new HashMap<>();
-      env.put("VAULT_ADDR", String.format(VAULT_ADDR_PATTERN, "localhost", VAULT_PORT));
-      env.put("VAULT_SECRETS_PATH", VAULT_SECRETS_PATH);
-      env.put("VAULT_TOKEN", VAULT_TOKEN);
-
-      setEnv(env);
-
       couchbase = startCouchbase();
       vault = startVault();
       gateway = startGateway();
+
+      setEnv("VAULT_ADDR", String.format(VAULT_ADDR_PATTERN, "localhost", VAULT_PORT));
+      setEnv("VAULT_SECRETS_PATH", VAULT_SECRETS_PATH);
+      setEnv("VAULT_TOKEN", VAULT_TOKEN);
+
       organizationService = startOrganizationService();
       configurationService = startConfigurationService();
 
@@ -346,34 +344,5 @@ final class IntegrationEnvironment {
                     .async())
         .retryBackoff(3, Duration.ofSeconds(1))
         .block(Duration.ofSeconds(30));
-  }
-
-  private void setEnv(Map<String, String> newenv) throws Exception {
-    try {
-      Class<?> processEnvironmentClass = Class.forName("java.lang.ProcessEnvironment");
-      Field theEnvironmentField = processEnvironmentClass.getDeclaredField("theEnvironment");
-      theEnvironmentField.setAccessible(true);
-      Map<String, String> env = (Map<String, String>) theEnvironmentField.get(null);
-      env.putAll(newenv);
-      Field theCaseInsensitiveEnvironmentField =
-          processEnvironmentClass.getDeclaredField("theCaseInsensitiveEnvironment");
-      theCaseInsensitiveEnvironmentField.setAccessible(true);
-      Map<String, String> cienv =
-          (Map<String, String>) theCaseInsensitiveEnvironmentField.get(null);
-      cienv.putAll(newenv);
-    } catch (NoSuchFieldException e) {
-      Class[] classes = Collections.class.getDeclaredClasses();
-      Map<String, String> env = System.getenv();
-      for (Class cl : classes) {
-        if ("java.util.Collections$UnmodifiableMap".equals(cl.getName())) {
-          Field field = cl.getDeclaredField("m");
-          field.setAccessible(true);
-          Object obj = field.get(env);
-          Map<String, String> map = (Map<String, String>) obj;
-          map.clear();
-          map.putAll(newenv);
-        }
-      }
-    }
   }
 }
