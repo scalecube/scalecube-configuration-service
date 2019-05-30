@@ -174,6 +174,9 @@ final class IntegrationEnvironment {
             .roles(Collections.singletonList(new UserRole(BUCKET_FULL_ACCESS, configName))),
         true);
 
+    couchbase.getCouchbaseCluster().disconnect();
+    couchbase.getCouchbaseEnvironment().shutdown();
+
     return couchbase;
   }
 
