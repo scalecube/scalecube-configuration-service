@@ -44,7 +44,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> createRepository(CreateRepositoryRequest request) {
-    return validate(request)
+    return Mono.fromRunnable(() -> logger.debug("createRepository: enter: request: {}", request))
+        .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
@@ -59,7 +60,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<FetchResponse> fetch(FetchRequest request) {
-    return validate(request)
+    return Mono.fromRunnable(() -> logger.debug("fetch: enter: request: {}", request))
+        .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
@@ -73,7 +75,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<List<FetchResponse>> entries(EntriesRequest request) {
-    return validate(request)
+    return Mono.fromRunnable(() -> logger.debug("entries: enter: request: {}", request))
+        .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
         .thenMany(
             Flux.defer(
@@ -88,7 +91,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> save(SaveRequest request) {
-    return validate(request)
+    return Mono.fromRunnable(() -> logger.debug("save: enter: request: {}", request))
+        .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
@@ -104,7 +108,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> delete(DeleteRequest request) {
-    return validate(request)
+    return Mono.fromRunnable(() -> logger.debug("delete: enter: request: {}", request))
+        .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
