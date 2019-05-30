@@ -58,6 +58,7 @@ final class IntegrationEnvironment {
   private static final String COUCHBASE_DOCKER_IMAGE = "couchbase:community-6.0.0";
   private static final String COUCHBASE_USERNAME = "admin";
   private static final String COUCHBASE_PASSWORD = "123456";
+  private static final String BUCKET_FULL_ACCESS = "bucket_full_access";
 
   private static final String VAULT_DOCKER_IMAGE = "vault:0.9.5";
   private static final int VAULT_PORT = 8200;
@@ -65,9 +66,15 @@ final class IntegrationEnvironment {
   private static final String VAULT_SECRETS_PATH = "secret/configuration-service/dev";
   private static final String VAULT_ADDR_PATTERN = "http://%s:%d";
 
-  private static final int WS_GATEWAY_PORT = 7070;
+  private static final int GATEWAY_WS_PORT = 7070;
+  private static final int GATEWAY_DISCOVERY_PORT = 4801;
+  private static final int GATEWAY_TRANSPORT_PORT = 5801;
 
-  private static final String BUCKET_FULL_ACCESS = "bucket_full_access";
+  private static final int ORG_SERVICE_DISCOVERY_PORT = 4802;
+  private static final int ORG_SERVICE_TRANSPORT_PORT = 5802;
+
+  private static final int CONF_SERVICE_DISCOVERY_PORT = 4803;
+  private static final int CONF_SERVICE_TRANSPORT_PORT = 5803;
 
   private CouchbaseContainer couchbase;
   private VaultContainer vault;
@@ -75,7 +82,7 @@ final class IntegrationEnvironment {
   private Microservices organizationService;
   private Microservices configurationService;
 
-  public void start() {
+  void start() {
     LOGGER.info("### Start environment");
 
     try {
@@ -101,7 +108,7 @@ final class IntegrationEnvironment {
     LOGGER.info("### Environment is running");
   }
 
-  public void stop() {
+  void stop() {
     LOGGER.info("### Stop environment");
 
     try {
@@ -184,9 +191,9 @@ final class IntegrationEnvironment {
                 "couchbase.password=" + COUCHBASE_PASSWORD,
                 "organizations.bucket=organizations",
                 "token.expiration=" + API_KEY_TTL_IN_SECONDS * 1000,
-                "io.scalecube.configuration.seeds=localhost:4801",
-                "io.scalecube.configuration.discoveryPort=4803",
-                "io.scalecube.configuration.servicePort=5803",
+                "io.scalecube.configuration.seeds=localhost:" + GATEWAY_DISCOVERY_PORT,
+                "io.scalecube.configuration.discoveryPort=" + CONF_SERVICE_DISCOVERY_PORT,
+                "io.scalecube.configuration.servicePort=" + CONF_SERVICE_TRANSPORT_PORT,
                 "couchbase.bucketName=configurations",
                 "api.keys.path.pattern=%s/api-keys/",
                 "key.cache.ttl=2",
@@ -205,14 +212,15 @@ final class IntegrationEnvironment {
     return Microservices.builder()
         .discovery(
             serviceEndpoint ->
-                new ScalecubeServiceDiscovery(serviceEndpoint).options(opts -> opts.port(4801)))
+                new ScalecubeServiceDiscovery(serviceEndpoint)
+                    .options(opts -> opts.port(GATEWAY_DISCOVERY_PORT)))
         .transport(
             opts ->
                 opts.resources(RSocketTransportResources::new)
                     .client(RSocketServiceTransport.INSTANCE::clientTransport)
                     .server(RSocketServiceTransport.INSTANCE::serverTransport)
-                    .port(5801))
-        .gateway(options -> new WebsocketGateway(options.port(WS_GATEWAY_PORT)))
+                    .port(GATEWAY_TRANSPORT_PORT))
+        .gateway(options -> new WebsocketGateway(options.port(GATEWAY_WS_PORT)))
         .startAwait();
   }
 
@@ -224,13 +232,15 @@ final class IntegrationEnvironment {
             serviceEndpoint ->
                 new ScalecubeServiceDiscovery(serviceEndpoint)
                     .options(
-                        opts -> opts.seedMembers(Address.create("localhost", 4801)).port(4802)))
+                        opts ->
+                            opts.seedMembers(Address.create("localhost", GATEWAY_DISCOVERY_PORT))
+                                .port(ORG_SERVICE_DISCOVERY_PORT)))
         .transport(
             opts ->
                 opts.resources(RSocketTransportResources::new)
                     .client(RSocketServiceTransport.INSTANCE::clientTransport)
                     .server(RSocketServiceTransport.INSTANCE::serverTransport)
-                    .port(5802))
+                    .port(ORG_SERVICE_TRANSPORT_PORT))
         .services(createOrganizationService())
         .startAwait();
   }
