@@ -2,6 +2,8 @@ package io.scalecube.configuration.fixtures;
 
 import static io.scalecube.configuration.fixtures.EnvUtils.setEnv;
 import static io.scalecube.configuration.scenario.BaseScenario.API_KEY_TTL_IN_SECONDS;
+import static io.scalecube.configuration.scenario.BaseScenario.KEY_CACHE_REFRESH_INTERVAL;
+import static io.scalecube.configuration.scenario.BaseScenario.KEY_CACHE_TTL;
 
 import com.couchbase.client.java.AsyncBucket;
 import com.couchbase.client.java.CouchbaseCluster;
@@ -199,8 +201,8 @@ final class IntegrationEnvironment {
                 "io.scalecube.configuration.servicePort=" + CONF_SERVICE_TRANSPORT_PORT,
                 "couchbase.bucketName=configurations",
                 "api.keys.path.pattern=%s/api-keys/",
-                "key.cache.ttl=2",
-                "key.cache.refresh.interval=1")
+                "key.cache.ttl=" + KEY_CACHE_TTL,
+                "key.cache.refresh.interval=" + KEY_CACHE_REFRESH_INTERVAL)
             .withCreateContainerCmdModifier(
                 cmd -> cmd.withName("vault-" + RandomStringUtils.randomAlphabetic(5)))
             .waitingFor(new LogMessageWaitStrategy().withRegEx("^.*Vault server started!.*$"));

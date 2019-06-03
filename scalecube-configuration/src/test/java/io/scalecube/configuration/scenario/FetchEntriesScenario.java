@@ -175,7 +175,7 @@ public class FetchEntriesScenario extends BaseScenario {
         .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, orgId))
         .block(TIMEOUT);
 
-    TimeUnit.SECONDS.sleep(3);
+    TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(configurationService.entries(new EntriesRequest(memberToken, repoName)))
         .expectErrorMessage("Token verification failed")
@@ -251,7 +251,7 @@ public class FetchEntriesScenario extends BaseScenario {
             new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, memberToken.name()))
         .block(TIMEOUT);
 
-    TimeUnit.SECONDS.sleep(3);
+    TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
             configurationService.entries(new EntriesRequest(memberToken.key(), repoName)))

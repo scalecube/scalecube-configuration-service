@@ -353,7 +353,7 @@ public class SaveEntryScenario extends BaseScenario {
         .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, orgId))
         .block(TIMEOUT);
 
-    TimeUnit.SECONDS.sleep(3);
+    TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
             configurationService.save(new SaveRequest(token, repoName, entryKey, entryValue)))
@@ -420,7 +420,7 @@ public class SaveEntryScenario extends BaseScenario {
             new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, token.name()))
         .block(TIMEOUT);
 
-    TimeUnit.SECONDS.sleep(3);
+    TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
             configurationService.save(new SaveRequest(token.key(), repoName, entryKey, entryValue)))

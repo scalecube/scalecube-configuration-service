@@ -24,6 +24,8 @@ import reactor.test.StepVerifier;
 
 public abstract class BaseScenario {
 
+  public static final int KEY_CACHE_TTL = 1;
+  public static final int KEY_CACHE_REFRESH_INTERVAL = 1;
   public static final int API_KEY_TTL_IN_SECONDS = 3;
 
   static final Duration TIMEOUT = Duration.ofSeconds(10);

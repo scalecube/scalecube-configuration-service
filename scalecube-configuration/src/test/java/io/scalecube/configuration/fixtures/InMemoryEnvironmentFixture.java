@@ -1,6 +1,8 @@
 package io.scalecube.configuration.fixtures;
 
 import static io.scalecube.configuration.scenario.BaseScenario.API_KEY_TTL_IN_SECONDS;
+import static io.scalecube.configuration.scenario.BaseScenario.KEY_CACHE_REFRESH_INTERVAL;
+import static io.scalecube.configuration.scenario.BaseScenario.KEY_CACHE_TTL;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -60,8 +62,8 @@ public final class InMemoryEnvironmentFixture implements Fixture {
 
     ConfigurationRepository repository = new InMemoryConfigurationRepository();
 
-    System.setProperty("key.cache.ttl", "2");
-    System.setProperty("key.cache.refresh.interval", "1");
+    System.setProperty("key.cache.ttl", String.valueOf(KEY_CACHE_TTL));
+    System.setProperty("key.cache.refresh.interval", String.valueOf(KEY_CACHE_REFRESH_INTERVAL));
 
     OrganizationServiceKeyProvider keyProvider =
         new OrganizationServiceKeyProvider(organizationService);

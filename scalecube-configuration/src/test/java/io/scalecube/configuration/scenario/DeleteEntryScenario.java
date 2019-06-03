@@ -253,7 +253,7 @@ public class DeleteEntryScenario extends BaseScenario {
         .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, orgId))
         .block(TIMEOUT);
 
-    TimeUnit.SECONDS.sleep(3);
+    TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(configurationService.delete(new DeleteRequest(token, repoName, entryKey)))
         .expectErrorMessage("Token verification failed")
@@ -328,7 +328,7 @@ public class DeleteEntryScenario extends BaseScenario {
             new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, token.name()))
         .block(TIMEOUT);
 
-    TimeUnit.SECONDS.sleep(3);
+    TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
             configurationService.delete(new DeleteRequest(token.key(), repoName, entryKey)))
