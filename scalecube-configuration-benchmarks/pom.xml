@@ -37,12 +37,12 @@
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-services-gateway-clientsdk</artifactId>
-      <version>${scalecube-services.version}</version>
+      <version>${scalecube-services-gateway.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
-      <artifactId>scalecube-services-gateway-websocket</artifactId>
-      <version>${scalecube-services.version}</version>
+      <artifactId>scalecube-services-gateway-netty</artifactId>
+      <version>${scalecube-services-gateway.version}</version>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
