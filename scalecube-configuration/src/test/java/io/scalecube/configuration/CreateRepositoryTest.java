@@ -123,7 +123,7 @@ final class CreateRepositoryTest extends BaseTest {
   }
 
   @TestTemplate
-  @DisplayName("#4 Fail to create the Repository upon the \"token\" is invalid (expired)")
+  @DisplayName("#4 Fail to create the Repository upon the \"apiKey\" is invalid (expired)")
   void createRepositoryUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
@@ -171,7 +171,7 @@ final class CreateRepositoryTest extends BaseTest {
   @Disabled("Feature is not implemented")
   @TestTemplate
   @DisplayName(
-      "#6 Fail to create the Repository upon the Owner \"token\" (API key) was deleted from the Organization")
+      "#6 Fail to create the Repository upon the Owner \"apiKey\" (API key) was deleted from the Organization")
   void createRepositoryUsingDeletedToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = getOrganization(organizationService, ORGANIZATION_1).id();

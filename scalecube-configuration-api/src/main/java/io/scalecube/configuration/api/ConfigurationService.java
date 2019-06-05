@@ -10,8 +10,8 @@ import reactor.core.publisher.Mono;
  * service may save fetch list and delete entries from their store. read operations such as fetch
  * and listing requires read level permissions. write operations such as save and delete requires
  * write level operations. to verify the permissions each request to the configuration service
- * consists with a Token, this token is created and managed by the account service. the
- * configuration service validates the token with the account service.
+ * consists with a Token, this apiKey is created and managed by the account service. the
+ * configuration service validates the apiKey with the account service.
  */
 @Service("configuration")
 public interface ConfigurationService {

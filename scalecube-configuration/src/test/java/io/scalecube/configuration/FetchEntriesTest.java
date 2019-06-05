@@ -145,7 +145,7 @@ final class FetchEntriesTest extends BaseTest {
 
   @TestTemplate
   @DisplayName(
-      "#28 Fail to get any entry from the Repository upon the \"token\" is invalid (expired)")
+      "#28 Fail to get any entry from the Repository upon the \"apiKey\" is invalid (expired)")
   void fetchEntriesUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
@@ -247,7 +247,7 @@ final class FetchEntriesTest extends BaseTest {
   @Disabled("Feature is not implemented")
   @TestTemplate
   @DisplayName(
-      "#31 Fail to get any entry from the Repository upon the Member \"token\" (API key) was deleted from the Organization")
+      "#31 Fail to get any entry from the Repository upon the Member \"apiKey\" (API key) was deleted from the Organization")
   void fetchEntriesUsingDeletedToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = getOrganization(organizationService, ORGANIZATION_1).id();

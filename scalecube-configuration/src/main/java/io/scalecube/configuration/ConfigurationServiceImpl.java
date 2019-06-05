@@ -50,7 +50,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             Mono.defer(
                 () ->
                     checkAccess(
-                        request.token().toString(), ConfigurationService.CONFIG_CREATE_REPO)))
+                        request.apiKey().toString(), ConfigurationService.CONFIG_CREATE_REPO)))
         .flatMap(p -> repository.createRepository(new Repository(p.tenant(), request.repository())))
         .map(b -> ACK)
         .doOnSuccess(result -> logger.debug("createRepository: exit: request: {}", request))
@@ -63,7 +63,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
-                () -> checkAccess(request.token().toString(), ConfigurationService.CONFIG_FETCH)))
+                () -> checkAccess(request.apiKey().toString(), ConfigurationService.CONFIG_FETCH)))
         .flatMap(p -> repository.fetch(p.tenant(), request.repository(), request.key()))
         .map(document -> new FetchResponse(document.key(), document.value()))
         .doOnSuccess(
@@ -77,7 +77,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .thenMany(
             Flux.defer(
-                () -> checkAccess(request.token().toString(), ConfigurationService.CONFIG_ENTRIES)))
+                () -> checkAccess(request.apiKey().toString(),
+                    ConfigurationService.CONFIG_ENTRIES)))
         .flatMap(p -> repository.fetchAll(p.tenant(), request.repository()))
         .map(doc -> new FetchResponse(doc.key(), doc.value()))
         .collectList()
@@ -92,7 +93,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
-                () -> checkAccess(request.token().toString(), ConfigurationService.CONFIG_SAVE)))
+                () -> checkAccess(request.apiKey().toString(), ConfigurationService.CONFIG_SAVE)))
         .flatMap(
             p ->
                 repository.save(
@@ -108,7 +109,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
-                () -> checkAccess(request.token().toString(), ConfigurationService.CONFIG_DELETE)))
+                () -> checkAccess(request.apiKey().toString(), ConfigurationService.CONFIG_DELETE)))
         .flatMap(p -> repository.delete(p.tenant(), request.repository(), request.key()))
         .thenReturn(ACK)
         .doOnSuccess(result -> logger.debug("delete: exit: request: {}", request))

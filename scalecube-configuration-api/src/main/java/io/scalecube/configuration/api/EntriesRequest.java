@@ -3,7 +3,7 @@ package io.scalecube.configuration.api;
 public class EntriesRequest implements AccessRequest {
 
   protected String repository;
-  private Object token;
+  private Object apiKey;
 
   /**
    * Only for serialization/deserialization.
@@ -15,11 +15,11 @@ public class EntriesRequest implements AccessRequest {
   /**
    * Constructs a EntriesRequest object.
    *
-   * @param token The request token
+   * @param apiKey The request apiKey
    * @param repository The repository name
    */
-  public EntriesRequest(Object token, String repository) {
-    this.token = token;
+  public EntriesRequest(Object apiKey, String repository) {
+    this.apiKey = apiKey;
     this.repository = repository;
   }
 
@@ -27,12 +27,12 @@ public class EntriesRequest implements AccessRequest {
     return repository;
   }
 
-  public Object token() {
-    return this.token;
+  public Object apiKey() {
+    return this.apiKey;
   }
 
   @Override
   public String toString() {
-    return "EntriesRequest [repository=" + repository + ", token=" + token + "]";
+    return "EntriesRequest [repository=" + repository + ", apiKey=" + apiKey + "]";
   }
 }

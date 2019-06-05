@@ -240,7 +240,7 @@ final class DeleteEntryTest extends BaseTest {
 
   @TestTemplate
   @DisplayName(
-      "#36 Fail to delete specific entry from the Repository upon the \"token\" is invalid (expired)")
+      "#36 Fail to delete specific entry from the Repository upon the \"apiKey\" is invalid (expired)")
   void deleteEntryUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
@@ -341,7 +341,7 @@ final class DeleteEntryTest extends BaseTest {
   @Disabled("Feature is not implemented")
   @TestTemplate
   @DisplayName(
-      "#39 Fail to delete specific entry from the Repository upon the Owner \"token\" (API key) was deleted from the Organization")
+      "#39 Fail to delete specific entry from the Repository upon the Owner \"apiKey\" (API key) was deleted from the Organization")
   void deleteEntryUsingDeletedToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
