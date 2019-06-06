@@ -25,7 +25,7 @@
   *         "q":"/configuration/fetch",
   *         "sid": 1,
   *         "d":{
-  *         "apiKey": "API-KEY",
+  *         "APIKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -70,7 +70,7 @@
   *         "q": "/configuration/fetch"
   *         },
   *         "data":{
-  *         "apiKey": "API-KEY",
+  *         "APIKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -110,7 +110,7 @@
   *
   * Body:
   *     {
-  *         "apiKey": "API-KEY",
+  *         "APIKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *     }

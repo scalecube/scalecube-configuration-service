@@ -23,7 +23,7 @@
   *         "q":"/configuration/entries",
   *         "sid": 1,
   *         "d":{
-  *         "apiKey": "API-KEY",
+  *         "APIKey": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -94,7 +94,7 @@
   *         "q": "/configuration/entries"
   *         },
   *         "data":{
-  *         "apiKey": "API-KEY",
+  *         "APIKey": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -161,7 +161,7 @@
   *
   * Body:
   *     {
-  *         "apiKey": "API-KEY",
+  *         "APIKey": "API-KEY",
   *         "repository": "specifiedRepoName"
   *     }
   *
