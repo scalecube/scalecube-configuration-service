@@ -8,7 +8,7 @@
   * @apiDescription This operation enable to delete a specific entry (setting(s) - single object) which relates to relevant key in the Repository.
   * This method requires a write level permission granted for managers's API keys with related roles <b>Owner</b> either <b>Admin</b> only.
   *
-  * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
+  * @apiParam {Object} apiKey The requested API key (apiKey) which assigned with relevant role (permission level)
   * @apiParam {String} repository Specified name of the repository
   * @apiParam {String} key Specified key name for relevant configuration settings (objects) in the repository
   *
@@ -22,7 +22,7 @@
   *         "q":"/configuration/delete",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "APIKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -59,7 +59,7 @@
   *         "q": "/configuration/delete"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "APIKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -90,7 +90,7 @@
   *
   * Body:
   *     {
-  *         "token": "API-TOKEN",
+  *         "APIKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *     }

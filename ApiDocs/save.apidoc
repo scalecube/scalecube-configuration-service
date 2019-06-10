@@ -9,7 +9,7 @@
   * This method requires a write level permission granted for managers's API keys with related roles <b>Owner</b> either <b>Admin</b> only.
   * Upon the specified setting(s) was (were) saved then each could be updated i.e. overwritten by the common method applying the related key.
   *
-  * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
+  * @apiParam {Object} apiKey The requested API key (apiKey) which assigned with relevant role (permission level)
   * @apiParam {String} repository Specified name of the repository
   * @apiParam {String} key Specified key name for relevant configuration settings (objects) in the repository
   * @apiParam {JsonNode} value Specified node of settings (objects) to be stored either updated in the related repository
@@ -26,7 +26,7 @@
   *         "q": "/configuration/save",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "APIKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName",
   *         "value": {
@@ -68,7 +68,7 @@
   *         "q": "/configuration/save"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "APIKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName",
   *         "value": {
@@ -101,7 +101,7 @@
   * @apiErrorExample {json} HTTP:
   * Request:
   *     {
-  *         "token": "API-TOKEN",
+  *         "APIKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName",
   *         "value": {

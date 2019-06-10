@@ -3,7 +3,7 @@ package io.scalecube.configuration.api;
 /** Represents a request to delete a repository entry. */
 public class DeleteRequest implements AccessRequest {
 
-  private Object token;
+  private Object apiKey;
   private String repository;
   private String key;
 
@@ -17,18 +17,18 @@ public class DeleteRequest implements AccessRequest {
   /**
    * Constructs a delete entry request object.
    *
-   * @param token request token
+   * @param apiKey request apiKey
    * @param repository repository name
    * @param key entry to delete
    */
-  public DeleteRequest(Object token, String repository, String key) {
-    this.token = token;
+  public DeleteRequest(Object apiKey, String repository, String key) {
+    this.apiKey = apiKey;
     this.repository = repository;
     this.key = key;
   }
 
-  public Object token() {
-    return token;
+  public Object apiKey() {
+    return apiKey;
   }
 
   public String repository() {
@@ -42,8 +42,8 @@ public class DeleteRequest implements AccessRequest {
   @Override
   public String toString() {
     return "DeleteRequest{"
-        + "token="
-        + token
+        + "apiKey="
+        + apiKey
         + ", repository='"
         + repository
         + '\''

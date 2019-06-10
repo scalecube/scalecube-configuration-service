@@ -8,14 +8,14 @@
   * @apiDescription This operation enable to get all entries (setting(s) - array of objects) by retrieving all the keys from
   * the relevant Repository. This method requires a read level permission which is granted for all related API key roles (Owner | Admin | Member).
   *
-  * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
+  * @apiParam {Object} apiKey The requested API key (apiKey) which assigned with relevant role (permission level)
   * @apiParam {String} repository Specified name of the repository
   *
   * @apiSuccess {Object[]} entries List of all entries from the relevant configuration settings in the repository (Array of Objects)
   * @apiSuccess {Object} entries.value Json node of settings (objects) stored in the repository
   * @apiSuccess {String} entries.key Specified key name for relevant configuration settings (objects) in the repository
   *
-  * @apiError {String} field invalid API key (token)
+  * @apiError {String} field invalid API key (apiKey)
   *
   * @apiErrorExample {json} WebSocket
   * Request:
@@ -23,7 +23,7 @@
   *         "q":"/configuration/entries",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "APIKey": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -94,7 +94,7 @@
   *         "q": "/configuration/entries"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "APIKey": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -161,7 +161,7 @@
   *
   * Body:
   *     {
-  *         "token": "API-TOKEN",
+  *         "APIKey": "API-KEY",
   *         "repository": "specifiedRepoName"
   *     }
   *

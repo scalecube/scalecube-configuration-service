@@ -304,7 +304,7 @@ public class SaveEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#14 Fail to save (edit) the specific entry in the Repository upon the \"token\" is invalid (expired)")
+      "#14 Fail to save (edit) the specific entry in the Repository upon the \"apiKey\" is invalid (expired)")
   void saveEntryUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -394,7 +394,7 @@ public class SaveEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#17 Fail to save (edit) the specific entry in the Repository upon the Owner \"token\" (API key) was deleted from the Organization")
+      "#17 Fail to save (edit) the specific entry in the Repository upon the Owner \"apiKey\" (API key) was deleted from the Organization")
   void saveEntryUsingDeletedToken(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {

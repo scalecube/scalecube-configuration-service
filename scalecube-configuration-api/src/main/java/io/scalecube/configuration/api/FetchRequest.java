@@ -5,7 +5,7 @@ public class FetchRequest implements AccessRequest {
 
   protected String repository;
   protected String key;
-  private Object token;
+  private Object apiKey;
 
   /**
    * Default constructor.
@@ -17,12 +17,12 @@ public class FetchRequest implements AccessRequest {
   /**
    * Constructs a FetchRequest object.
    *
-   * @param token The request token
+   * @param apiKey The request apiKey
    * @param repository The repository name
    * @param key The requested data key
    */
-  public FetchRequest(Object token, String repository, String key) {
-    this.token = token;
+  public FetchRequest(Object apiKey, String repository, String key) {
+    this.apiKey = apiKey;
     this.repository = repository;
     this.key = key;
   }
@@ -30,11 +30,11 @@ public class FetchRequest implements AccessRequest {
   /**
    * Constructs a FetchRequest object.
    *
-   * @param token The request token
+   * @param apiKey The request apiKey
    * @param repository The repository name
    */
-  public FetchRequest(Object token, String repository) {
-    this(token, repository, null);
+  public FetchRequest(Object apiKey, String repository) {
+    this(apiKey, repository, null);
   }
 
   public String repository() {
@@ -45,12 +45,12 @@ public class FetchRequest implements AccessRequest {
     return key;
   }
 
-  public Object token() {
-    return this.token;
+  public Object apiKey() {
+    return this.apiKey;
   }
 
   @Override
   public String toString() {
-    return "FetchRequest [repository=" + repository + ", key=" + key + ", token=" + token + "]";
+    return "FetchRequest [repository=" + repository + ", key=" + key + ", apiKey=" + apiKey + "]";
   }
 }
