@@ -99,7 +99,9 @@ public final class CouchbaseExceptionTranslator {
     }
 
     if (ex instanceof RequestCancelledException || ex instanceof BackpressureException) {
-      return new OperationCancellationException(ex.getMessage(), ex);
+      return new DataAccessException(
+          "There is a temporary problem with the service. Please try again in a few seconds.",
+          new OperationCancellationException(ex.getMessage(), ex));
     }
 
     if (ex instanceof ViewDoesNotExistException
@@ -108,8 +110,14 @@ public final class CouchbaseExceptionTranslator {
       return new InvalidDataAccessResourceUsageException(ex.getMessage(), ex);
     }
 
-    if (ex instanceof TemporaryLockFailureException || ex instanceof TemporaryFailureException) {
+    if (ex instanceof TemporaryLockFailureException) {
       return new TransientDataAccessResourceException(ex.getMessage(), ex);
+    }
+
+    if (ex instanceof TemporaryFailureException) {
+      return new DataAccessException(
+          "There is a temporary problem with the service. Please try again in a few seconds.",
+          new TransientDataAccessResourceException(ex.getMessage(), ex));
     }
 
     if (ex != null && ex.getCause() instanceof TimeoutException) {
