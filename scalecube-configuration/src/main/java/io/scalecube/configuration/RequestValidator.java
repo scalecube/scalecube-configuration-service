@@ -12,7 +12,7 @@ final class RequestValidator {
   static Mono<Void> validate(CreateRepositoryRequest request) {
     return Mono.fromRunnable(
         () -> {
-          validateToken(request.token());
+          validateToken(request.apiKey());
           validateRepository(request.repository());
         });
   }
@@ -20,7 +20,7 @@ final class RequestValidator {
   static Mono<Void> validate(FetchRequest request) {
     return Mono.fromRunnable(
         () -> {
-          validateToken(request.token());
+          validateToken(request.apiKey());
           validateRepository(request.repository());
           validateKey(request.key());
         });
@@ -29,7 +29,7 @@ final class RequestValidator {
   static Mono<Void> validate(EntriesRequest request) {
     return Mono.fromRunnable(
         () -> {
-          validateToken(request.token());
+          validateToken(request.apiKey());
           validateRepository(request.repository());
         });
   }
@@ -37,7 +37,7 @@ final class RequestValidator {
   static Mono<Void> validate(SaveRequest request) {
     return Mono.fromRunnable(
         () -> {
-          validateToken(request.token());
+          validateToken(request.apiKey());
           validateRepository(request.repository());
           validateKey(request.key());
         });
@@ -46,7 +46,7 @@ final class RequestValidator {
   static Mono<Void> validate(DeleteRequest request) {
     return Mono.fromRunnable(
         () -> {
-          validateToken(request.token());
+          validateToken(request.apiKey());
           validateRepository(request.repository());
           validateKey(request.key());
         });
@@ -60,7 +60,7 @@ final class RequestValidator {
 
   private static void validateToken(Object token) {
     if (token == null || token.toString().trim().isEmpty()) {
-      throw new IllegalArgumentException("Please specify 'token'");
+      throw new IllegalArgumentException("Please specify 'APIKey'");
     }
   }
 

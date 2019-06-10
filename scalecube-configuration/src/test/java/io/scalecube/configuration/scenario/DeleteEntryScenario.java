@@ -208,7 +208,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#36 Fail to delete specific entry from the Repository upon the \"token\" is invalid (expired)")
+      "#36 Fail to delete specific entry from the Repository upon the \"apiKey\" is invalid (expired)")
   void deleteEntryUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -297,7 +297,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#39 Fail to delete specific entry from the Repository upon the Owner \"token\" (API key) was deleted from the Organization")
+      "#39 Fail to delete specific entry from the Repository upon the Owner \"apiKey\" (API key) was deleted from the Organization")
   void deleteEntryUsingDeletedToken(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {

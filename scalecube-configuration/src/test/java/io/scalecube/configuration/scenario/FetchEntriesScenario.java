@@ -131,7 +131,7 @@ public class FetchEntriesScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#28 Fail to get any entry from the Repository upon the \"token\" is invalid (expired)")
+      "#28 Fail to get any entry from the Repository upon the \"apiKey\" is invalid (expired)")
   void fetchEntriesUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -219,7 +219,7 @@ public class FetchEntriesScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#31 Fail to get any entry from the Repository upon the Member \"token\" (API key) was deleted from the Organization")
+      "#31 Fail to get any entry from the Repository upon the Member \"apiKey\" (API key) was deleted from the Organization")
   void fetchEntriesUsingDeletedToken(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {

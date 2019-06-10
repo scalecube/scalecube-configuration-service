@@ -25,7 +25,7 @@
   *         "q":"/configuration/fetch",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -70,7 +70,7 @@
   *         "q": "/configuration/fetch"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -110,7 +110,7 @@
   *
   * Body:
   *     {
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *     }
@@ -171,7 +171,7 @@
   *         "q":"/configuration/createRepository",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -209,7 +209,7 @@
   *         "q": "/configuration/createRepository"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -241,7 +241,7 @@
   *
   * Body:
   *     {
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *     }
   *
@@ -281,7 +281,7 @@
   *         "q":"/configuration/entries",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -352,7 +352,7 @@
   *         "q": "/configuration/entries"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -419,7 +419,7 @@
   *
   * Body:
   *     {
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *     }
   *
@@ -527,7 +527,7 @@
   *         "q":"/configuration/delete",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -564,7 +564,7 @@
   *         "q": "/configuration/delete"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -595,7 +595,7 @@
   *
   * Body:
   *     {
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *     }
@@ -638,7 +638,7 @@
   *         "q": "/configuration/save",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName",
   *         "value": {
@@ -680,7 +680,7 @@
   *         "q": "/configuration/save"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName",
   *         "value": {
@@ -713,7 +713,7 @@
   * @apiErrorExample {json} HTTP:
   * Request:
   *     {
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName",
   *         "value": {
@@ -915,7 +915,7 @@
   *         "q":"/configuration/fetch",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -960,7 +960,7 @@
   *         "q": "/configuration/fetch"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -1000,7 +1000,7 @@
   *
   * Body:
   *     {
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *     }
@@ -1045,7 +1045,7 @@
   *         "q":"/configuration/createRepository",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -1083,7 +1083,7 @@
   *         "q": "/configuration/createRepository"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -1115,7 +1115,7 @@
   *
   * Body:
   *     {
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *     }
   *
@@ -1276,7 +1276,7 @@
   *         "q": "/configuration/save",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName",
   *         "value": {
@@ -1318,7 +1318,7 @@
   *         "q": "/configuration/save"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName",
   *         "value": {
@@ -1351,7 +1351,7 @@
   * @apiErrorExample {json} HTTP:
   * Request:
   *     {
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName",
   *         "value": {
@@ -1412,7 +1412,7 @@
   *         "q":"/configuration/delete",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -1449,7 +1449,7 @@
   *         "q": "/configuration/delete"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -1480,7 +1480,7 @@
   *
   * Body:
   *     {
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *     }
@@ -1520,7 +1520,7 @@
   *         "q":"/configuration/entries",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -1591,7 +1591,7 @@
   *         "q": "/configuration/entries"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -1658,7 +1658,7 @@
   *
   * Body:
   *     {
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *     }
   *
@@ -1769,7 +1769,7 @@
   *         "q":"/configuration/fetch",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -1814,7 +1814,7 @@
   *         "q": "/configuration/fetch"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -1854,7 +1854,7 @@
   *
   * Body:
   *     {
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *     }
@@ -1899,7 +1899,7 @@
   *         "q":"/configuration/createRepository",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -1937,7 +1937,7 @@
   *         "q": "/configuration/createRepository"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -1969,7 +1969,7 @@
   *
   * Body:
   *     {
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *     }
   *
@@ -2130,7 +2130,7 @@
   *         "q": "/configuration/save",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName",
   *         "value": {
@@ -2172,7 +2172,7 @@
   *         "q": "/configuration/save"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName",
   *         "value": {
@@ -2205,7 +2205,7 @@
   * @apiErrorExample {json} HTTP:
   * Request:
   *     {
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName",
   *         "value": {
@@ -2266,7 +2266,7 @@
   *         "q":"/configuration/delete",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -2303,7 +2303,7 @@
   *         "q": "/configuration/delete"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -2334,7 +2334,7 @@
   *
   * Body:
   *     {
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *     }
@@ -2374,7 +2374,7 @@
   *         "q":"/configuration/entries",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -2445,7 +2445,7 @@
   *         "q": "/configuration/entries"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -2512,7 +2512,7 @@
   *
   * Body:
   *     {
-  *         "token": "API-TOKEN",
+  *         "token": "API-KEY",
   *         "repository": "specifiedRepoName"
   *     }
   *
