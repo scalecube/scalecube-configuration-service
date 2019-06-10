@@ -1,9 +1,9 @@
 package io.scalecube.configuration.authorization;
 
 import io.scalecube.account.api.Role;
+import io.scalecube.configuration.api.InvalidPermissionsException;
 import io.scalecube.security.api.Authorizer;
 import io.scalecube.security.api.Profile;
-import java.security.AccessControlException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,9 +51,9 @@ public class Permissions implements Authorizer {
   public Mono<Profile> authorize(Profile profile, String resource) {
     return Mono.just(profile)
         .filter(p -> isInRole(p, rolesByResource(resource)))
-        .switchIfEmpty(Mono.error(() -> new AccessControlException("Permission denied")));
+        .switchIfEmpty(Mono.defer(() -> Mono.error(InvalidPermissionsException::new)));
   }
-  
+
   public static class Builder {
 
     private final Map<String, Set<String>> permissions = new HashMap<>();

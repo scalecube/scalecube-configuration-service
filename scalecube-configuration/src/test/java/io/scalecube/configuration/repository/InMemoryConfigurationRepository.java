@@ -58,10 +58,7 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   }
 
   private Mono<Document> put(Repository repository, String key, Document value) {
-    return Mono.create(
-        sink -> {
-          sink.success(getRepository(repository).put(key, value));
-        });
+    return Mono.create(sink -> sink.success(getRepository(repository).put(key, value)));
   }
 
   private Mono<Void> remove(Repository repository, String key) {
