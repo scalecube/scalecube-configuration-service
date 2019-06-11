@@ -59,6 +59,15 @@ public interface ConfigurationService {
   Mono<Acknowledgment> createEntry(SaveRequest request);
 
   /**
+   * Update request requires write level permissions to update entry to the store.
+   *
+   * @param request includes the name of the repository, key, value to update.
+   * @return acknowledgement when updated.
+   */
+  @ServiceMethod
+  Mono<Acknowledgment> updateEntry(SaveRequest request);
+
+  /**
    * delete request requires write level permissions to delete entry from the store.
    *
    * @param request includes the name of the repository, key to delete.

@@ -25,6 +25,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class ConfigurationServiceImpl implements ConfigurationService {
 
@@ -105,6 +106,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .thenReturn(ACK)
         .doOnSuccess(result -> logger.debug("createEntry: exit: request: {}", request))
         .doOnError(th -> logger.error("createEntry: request: {}, error:", request, th));
+  }
+
+  @Override
+  public Mono<Acknowledgment> updateEntry(SaveRequest request) {
+    throw new NotImplementedException();
   }
 
   @Override

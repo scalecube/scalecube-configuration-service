@@ -15,13 +15,13 @@
         "repository": "REPO-NAME"
       }
     }
-
-  }, {
+  },
+    {
     "id": "3",
-    "text": "saveUpdateEntry",
+    "text": "createEntry",
     "backColor": "black",
     "data": {
-      "q": "/configuration/save",
+      "q": "/configuration/createEntry",
       "sid": 2,
       "d": {
         "APIKey": "API-KEY",
@@ -32,11 +32,26 @@
     }
   },
     {
-      "id": "4",
-      "text": "fetchRepoEntrySingle",
+      "id": "3",
+      "text": "updateEntry",
       "backColor": "black",
       "data": {
-        "q": "/configuration/fetch",
+        "q": "/configuration/updateEntry",
+        "sid": 2,
+        "d": {
+          "APIKey": "API-KEY",
+          "repository": "REPO-NAME",
+          "key": "KEY-NAME",
+          "value": "JSON-DATA"
+        }
+      }
+    },
+    {
+      "id": "4",
+      "text": "readEntry",
+      "backColor": "black",
+      "data": {
+        "q": "/configuration/readEntry",
         "sid": 3,
         "d": {
           "APIKey": "API-KEY",
@@ -47,10 +62,10 @@
     },
     {
       "id": "5",
-      "text": "fetchRepoEntryAll",
+      "text": "readList",
       "backColor": "black",
       "data": {
-        "q": "/configuration/entries",
+        "q": "/configuration/readList",
         "sid": 4,
         "d": {
           "APIKey": "API-KEY",
@@ -63,7 +78,7 @@
       "text": "deleteEntry",
       "backColor": "black",
       "data": {
-        "q": "/configuration/delete",
+        "q": "/configuration/deleteEntry",
         "sid": 5,
         "d": {
           "APIKey": "API-KEY",
