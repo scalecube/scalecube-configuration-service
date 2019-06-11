@@ -29,7 +29,7 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   }
 
   @Override
-  public Mono<Document> fetch(String tenant, String repository, String key) {
+  public Mono<Document> readEntry(String tenant, String repository, String key) {
     return get(new Repository(tenant, repository), key);
   }
 

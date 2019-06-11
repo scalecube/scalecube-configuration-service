@@ -60,17 +60,17 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<FetchResponse> fetch(FetchRequest request) {
-    return Mono.fromRunnable(() -> logger.debug("fetch: enter: request: {}", request))
+    return Mono.fromRunnable(() -> logger.debug("readEntry: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
                 () -> checkAccess(request.apiKey().toString(), ConfigurationService.CONFIG_FETCH)))
-        .flatMap(p -> repository.fetch(p.tenant(), request.repository(), request.key()))
+        .flatMap(p -> repository.readEntry(p.tenant(), request.repository(), request.key()))
         .map(document -> new FetchResponse(document.key(), document.value()))
         .doOnSuccess(
-            result -> logger.debug("fetch: exit: request: {}, result: {}", request, result))
-        .doOnError(th -> logger.error("fetch: request: {}, error:", request, th));
+            result -> logger.debug("readEntry: exit: request: {}, result: {}", request, result))
+        .doOnError(th -> logger.error("readEntry: request: {}, error:", request, th));
   }
 
   @Override

@@ -22,7 +22,7 @@ public interface ConfigurationRepository {
    * @param key of the document to fetch.
    * @return Document instance by a given key.
    */
-  Mono<Document> fetch(String tenant, String repository, String key);
+  Mono<Document> readEntry(String tenant, String repository, String key);
 
   /**
    * Fetch all keys from a tenant repository.
