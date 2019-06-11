@@ -47,7 +47,7 @@ public interface ConfigurationService {
    * @return list of FetchResponses per each entry in the repository.
    */
   @ServiceMethod
-  Mono<List<FetchResponse>> readList(EntriesRequest request);
+  Mono<List<FetchResponse>> readList(ReadListRequest request);
 
   /**
    * Save request requires write level permissions to save (create or update) entry to the store.

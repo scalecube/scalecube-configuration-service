@@ -2,7 +2,7 @@ package io.scalecube.configuration;
 
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.DeleteEntryRequest;
-import io.scalecube.configuration.api.EntriesRequest;
+import io.scalecube.configuration.api.ReadListRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.SaveRequest;
 import reactor.core.publisher.Mono;
@@ -26,7 +26,7 @@ final class RequestValidator {
         });
   }
 
-  static Mono<Void> validate(EntriesRequest request) {
+  static Mono<Void> validate(ReadListRequest request) {
     return Mono.fromRunnable(
         () -> {
           validateToken(request.apiKey());

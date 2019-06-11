@@ -10,7 +10,7 @@ import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
-import io.scalecube.configuration.api.EntriesRequest;
+import io.scalecube.configuration.api.ReadListRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.SaveRequest;
@@ -197,7 +197,7 @@ public class SaveEntryScenario extends BaseScenario {
     StepVerifier.create(
             configurationService
                 .createEntry(new SaveRequest(adminToken, repoName, entryKey, entryValue))
-                .then(configurationService.readList(new EntriesRequest(adminToken, repoName))))
+                .then(configurationService.readList(new ReadListRequest(adminToken, repoName))))
         .assertNext(
             entries -> {
               assertEquals(1, entries.size(), "Entries in repository");

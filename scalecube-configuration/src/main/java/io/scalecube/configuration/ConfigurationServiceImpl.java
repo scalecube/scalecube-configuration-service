@@ -6,7 +6,7 @@ import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.DeleteEntryRequest;
-import io.scalecube.configuration.api.EntriesRequest;
+import io.scalecube.configuration.api.ReadListRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
@@ -76,7 +76,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   @Override
-  public Mono<List<FetchResponse>> readList(EntriesRequest request) {
+  public Mono<List<FetchResponse>> readList(ReadListRequest request) {
     return Mono.fromRunnable(() -> logger.debug("readList: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)

@@ -4,7 +4,7 @@ import io.scalecube.benchmarks.BenchmarkSettings;
 import io.scalecube.benchmarks.metrics.BenchmarkTimer;
 import io.scalecube.benchmarks.metrics.BenchmarkTimer.Context;
 import io.scalecube.configuration.api.ConfigurationService;
-import io.scalecube.configuration.api.EntriesRequest;
+import io.scalecube.configuration.api.ReadListRequest;
 
 public final class ReadAllConfigValuesBenchmark {
 
@@ -25,7 +25,7 @@ public final class ReadAllConfigValuesBenchmark {
               BenchmarkTimer timer = state.timer("timer");
 
               return i -> {
-                EntriesRequest request = new EntriesRequest(state.apiKey(), "benchmarks-repo");
+                ReadListRequest request = new ReadListRequest(state.apiKey(), "benchmarks-repo");
 
                 Context time = timer.time();
 

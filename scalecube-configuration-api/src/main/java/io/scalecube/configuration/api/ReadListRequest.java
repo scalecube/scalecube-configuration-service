@@ -1,6 +1,6 @@
 package io.scalecube.configuration.api;
 
-public class EntriesRequest implements AccessRequest {
+public class ReadListRequest implements AccessRequest {
 
   protected String repository;
   private Object apiKey;
@@ -10,15 +10,15 @@ public class EntriesRequest implements AccessRequest {
    *
    * @deprecated for instantiation purposes.
    */
-  EntriesRequest() {}
+  ReadListRequest() {}
 
   /**
-   * Constructs a EntriesRequest object.
+   * Constructs a ReadListRequest object.
    *
    * @param apiKey The request apiKey
    * @param repository The repository name
    */
-  public EntriesRequest(Object apiKey, String repository) {
+  public ReadListRequest(Object apiKey, String repository) {
     this.apiKey = apiKey;
     this.repository = repository;
   }
@@ -33,6 +33,6 @@ public class EntriesRequest implements AccessRequest {
 
   @Override
   public String toString() {
-    return "EntriesRequest [repository=" + repository + ", apiKey=" + apiKey + "]";
+    return "ReadListRequest [repository=" + repository + ", apiKey=" + apiKey + "]";
   }
 }

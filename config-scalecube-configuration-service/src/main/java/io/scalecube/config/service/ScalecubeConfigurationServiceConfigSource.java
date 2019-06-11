@@ -10,7 +10,7 @@ import io.scalecube.config.ConfigSourceNotAvailableException;
 import io.scalecube.config.source.ConfigSource;
 import io.scalecube.config.source.LoadedConfigProperty;
 import io.scalecube.configuration.api.ConfigurationService;
-import io.scalecube.configuration.api.EntriesRequest;
+import io.scalecube.configuration.api.ReadListRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.services.gateway.clientsdk.ClientSettings;
 import io.scalecube.services.transport.jackson.JacksonCodec;
@@ -29,7 +29,7 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
 
   private final ConfigurationService service;
 
-  private final EntriesRequest requestEntries;
+  private final ReadListRequest requestEntries;
 
   private final Parsing parsing = new Parsing();
 
@@ -118,7 +118,7 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
 
   public ScalecubeConfigurationServiceConfigSource(Builder builder) {
     this.service = builder.service;
-    this.requestEntries = new EntriesRequest(builder.token, builder.repository);
+    this.requestEntries = new ReadListRequest(builder.token, builder.repository);
   }
 
   ConfigurationService service() {
