@@ -20,6 +20,7 @@ public interface ConfigurationService {
   String CONFIG_READ_ENTRY = "configuration/readEntry";
   String CONFIG_READ_LIST = "configuration/readList";
   String CONFIG_CREATE_ENTRY = "configuration/createEntry";
+  String CONFIG_UPDATE_ENTRY = "configuration/updateEntry";
   String CONFIG_DELETE_ENTRY = "configuration/deleteEntry";
 
   /**
