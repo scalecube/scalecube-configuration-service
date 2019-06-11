@@ -20,11 +20,11 @@ import org.junit.jupiter.api.TestTemplate;
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 import reactor.test.StepVerifier;
 
-public class SaveEntryScenario extends BaseScenario {
+public class CreateEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName("#7 Successful createEntry of specific entry (instrument) applying the \"Owner\" API key")
-  void saveEntry(
+  void createEntry(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
     String token = createApiKey(organizationService, orgId, Role.Owner).key();
@@ -59,7 +59,7 @@ public class SaveEntryScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#8 Successful creation the identical entries for different Repositories applying the \"Admin\" API key")
-  void saveEntryToDifferentRepositories(
+  void createEntryForDifferentRepositories(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
     String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
@@ -172,7 +172,7 @@ public class SaveEntryScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#10 No change for the successful update of the existing entry with the same values applying the \"Admin\" API key")
-  void saveEntryTwice(
+  void createEntryTwice(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
     String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
@@ -212,10 +212,10 @@ public class SaveEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#11 Successful createion the specific entries applying the \"Owner\" API key for:\n"
+      "#11 Successful creation the specific entries applying the \"Owner\" API key for:\n"
           + "  - values that reach at least a 1000 chars (no quantity validation for input)\n"
           + "  - values which chars are symbols and spaces (no chars validation for input)")
-  void saveEntryWith1000charsAndSpecialSymbols(
+  void createEntryWith1000CharsAndSpecialSymbols(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
     String token = createApiKey(organizationService, orgId, Role.Owner).key();
@@ -250,7 +250,7 @@ public class SaveEntryScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#12 Fail to creation a specific entry upon the restricted permission due to applying the \"Member\" API key")
-  void saveEntryByMember(
+  void createEntryByMember(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
     String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
@@ -279,7 +279,7 @@ public class SaveEntryScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#13 Fail to createEntry (edit) the specific entry applying the \"Admin\" either \"Owner\" API key upon the specified Repository doesn't exist")
-  void saveEntryToNonExistingRepository(
+  void createEntryForNonExistingRepository(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
     String adminToken = createApiKey(organizationService, orgId, Role.Admin).key();
@@ -305,7 +305,7 @@ public class SaveEntryScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#14 Fail to creation (edit) the specific entry in the Repository upon the \"apiKey\" is invalid (expired)")
-  void saveEntryUsingExpiredToken(
+  void createEntryUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
     String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
@@ -329,7 +329,7 @@ public class SaveEntryScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#15 Fail to createEntry (edit) the specific entry in the Repository upon the Owner deleted the Organization with related \"Owner\" API key")
-  void saveEntryForDeletedOrganization(
+  void createEntryForDeletedOrganization(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
     String orgId = createOrganization(organizationService).id();
@@ -364,7 +364,7 @@ public class SaveEntryScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#16 Fail to creation (edit) the specific entry in the Repository upon the Owner applied some of the manager's API key from another Organization")
-  void saveEntryUsingTokenOfAnotherOrganization(
+  void createEntryUsingTokenOfAnotherOrganization(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId1 = createOrganization(organizationService).id();
     String token1 = createApiKey(organizationService, orgId1, Role.Owner).key();
@@ -395,7 +395,7 @@ public class SaveEntryScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#17 Fail to creation (edit) the specific entry in the Repository upon the Owner \"apiKey\" (API key) was deleted from the Organization")
-  void saveEntryUsingDeletedToken(
+  void createEntryUsingDeletedToken(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
     String orgId = createOrganization(organizationService).id();

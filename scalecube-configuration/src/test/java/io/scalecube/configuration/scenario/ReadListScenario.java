@@ -21,12 +21,12 @@ import org.junit.jupiter.api.TestTemplate;
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 import reactor.test.StepVerifier;
 
-public class FetchEntriesScenario extends BaseScenario {
+public class ReadListScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
       "#26 Successful get of the all existent entries list from the related Repository applying the all related API keys: \"Owner\", \"Admin\", \"Member\"")
-  void fetchEntries(
+  void readEntries(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
     String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
@@ -117,7 +117,7 @@ public class FetchEntriesScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#27 Fail to get any entry from the non-existent Repository applying some of the accessible API keys: \"Owner\", \"Admin\", \"Member\"")
-  void fetchEntriesFromNonExistentRepository(
+  void readEntriesFromNonExistentRepository(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
     String token = createApiKey(organizationService, orgId, Role.Admin).key();
@@ -132,7 +132,7 @@ public class FetchEntriesScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#28 Fail to get any entry from the Repository upon the \"apiKey\" is invalid (expired)")
-  void fetchEntriesUsingExpiredToken(
+  void readEntriesUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
     String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
@@ -145,7 +145,7 @@ public class FetchEntriesScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#29 Fail to get any entry from the Repository upon the Owner deleted the Organization with related \"Member\" API key")
-  void fetchEntriesForDeletedOrganization(
+  void readEntriesForDeletedOrganization(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
     String orgId = createOrganization(organizationService).id();
@@ -185,7 +185,7 @@ public class FetchEntriesScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#30 Fail to get any entry from the Repository upon the Owner applied some of the API keys from another Organization")
-  void fetchEntriesUsingTokenOfAnotherOrganization(
+  void readEntriesUsingTokenOfAnotherOrganization(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId1 = createOrganization(organizationService).id();
     String token1 = createApiKey(organizationService, orgId1, Role.Owner).key();
@@ -220,7 +220,7 @@ public class FetchEntriesScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#31 Fail to get any entry from the Repository upon the Member \"apiKey\" (API key) was deleted from the Organization")
-  void fetchEntriesUsingDeletedToken(
+  void readEntriesUsingDeletedToken(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
     String orgId = createOrganization(organizationService).id();
