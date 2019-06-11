@@ -12,7 +12,7 @@ import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.DeleteEntryRequest;
-import io.scalecube.configuration.api.FetchRequest;
+import io.scalecube.configuration.api.ReadEntryRequest;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
@@ -66,7 +66,7 @@ public class DeleteEntryScenario extends BaseScenario {
             configurationService
                 .deleteEntry(new DeleteEntryRequest(ownerToken, repoName, entryKey1))
                 .then(
-                    configurationService.readEntry(new FetchRequest(ownerToken, repoName, entryKey1))))
+                    configurationService.readEntry(new ReadEntryRequest(ownerToken, repoName, entryKey1))))
         .expectErrorMessage(String.format("Key '%s' not found", entryKey1))
         .verify();
 
@@ -74,7 +74,7 @@ public class DeleteEntryScenario extends BaseScenario {
             configurationService
                 .deleteEntry(new DeleteEntryRequest(adminToken, repoName, entryKey2))
                 .then(
-                    configurationService.readEntry(new FetchRequest(adminToken, repoName, entryKey2))))
+                    configurationService.readEntry(new ReadEntryRequest(adminToken, repoName, entryKey2))))
         .expectErrorMessage(String.format("Key '%s' not found", entryKey2))
         .verify();
   }
@@ -118,11 +118,11 @@ public class DeleteEntryScenario extends BaseScenario {
     StepVerifier.create(
             configurationService
                 .deleteEntry(new DeleteEntryRequest(token, repoName1, entryKey))
-                .then(configurationService.readEntry(new FetchRequest(token, repoName1, entryKey))))
+                .then(configurationService.readEntry(new ReadEntryRequest(token, repoName1, entryKey))))
         .expectErrorMessage(String.format("Key '%s' not found", entryKey))
         .verify();
 
-    StepVerifier.create(configurationService.readEntry(new FetchRequest(token, repoName2, entryKey)))
+    StepVerifier.create(configurationService.readEntry(new ReadEntryRequest(token, repoName2, entryKey)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Entry key in " + repoName2);
@@ -164,7 +164,7 @@ public class DeleteEntryScenario extends BaseScenario {
             configurationService
                 .deleteEntry(new DeleteEntryRequest(memberToken, repoName, entryKey))
                 .then(
-                    configurationService.readEntry(new FetchRequest(memberToken, repoName, entryKey))))
+                    configurationService.readEntry(new ReadEntryRequest(memberToken, repoName, entryKey))))
         .expectErrorMessage("Permission denied")
         .verify();
   }
@@ -201,7 +201,7 @@ public class DeleteEntryScenario extends BaseScenario {
     StepVerifier.create(
             configurationService
                 .deleteEntry(new DeleteEntryRequest(adminToken, repoName, nonExistingEntryKey))
-                .then(configurationService.readEntry(new FetchRequest(adminToken, repoName, entryKey))))
+                .then(configurationService.readEntry(new ReadEntryRequest(adminToken, repoName, entryKey))))
         .expectErrorMessage(String.format("Key '%s' not found", nonExistingEntryKey))
         .verify();
   }

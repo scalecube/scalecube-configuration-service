@@ -38,7 +38,7 @@ public interface ConfigurationService {
    * @return json object from the store.
    */
   @ServiceMethod
-  Mono<FetchResponse> readEntry(FetchRequest request);
+  Mono<FetchResponse> readEntry(ReadEntryRequest request);
 
   /**
    * Entries request requires read level permissions to list all entries objects from the store.

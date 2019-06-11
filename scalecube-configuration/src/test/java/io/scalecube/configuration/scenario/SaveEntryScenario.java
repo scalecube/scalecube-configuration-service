@@ -10,8 +10,8 @@ import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
+import io.scalecube.configuration.api.ReadEntryRequest;
 import io.scalecube.configuration.api.ReadListRequest;
-import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.CreateEntryRequest;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +46,7 @@ public class SaveEntryScenario extends BaseScenario {
     StepVerifier.create(
             configurationService
                 .createEntry(new CreateEntryRequest(token, repoName, entryKey, entryValue))
-                .then(configurationService.readEntry(new FetchRequest(token, repoName, entryKey))))
+                .then(configurationService.readEntry(new ReadEntryRequest(token, repoName, entryKey))))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Saved entry key");
@@ -88,7 +88,7 @@ public class SaveEntryScenario extends BaseScenario {
             configurationService
                 .createEntry(new CreateEntryRequest(adminToken, repoName1, entryKey, entryValue))
                 .then(
-                    configurationService.readEntry(new FetchRequest(adminToken, repoName1, entryKey))))
+                    configurationService.readEntry(new ReadEntryRequest(adminToken, repoName1, entryKey))))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Saved entry key");
@@ -101,7 +101,7 @@ public class SaveEntryScenario extends BaseScenario {
             configurationService
                 .createEntry(new CreateEntryRequest(adminToken, repoName2, entryKey, entryValue))
                 .then(
-                    configurationService.readEntry(new FetchRequest(adminToken, repoName2, entryKey))))
+                    configurationService.readEntry(new ReadEntryRequest(adminToken, repoName2, entryKey))))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Saved entry key");
@@ -150,7 +150,7 @@ public class SaveEntryScenario extends BaseScenario {
     StepVerifier.create(
             configurationService
                 .createEntry(new CreateEntryRequest(token, repoName1, entryKey, entryValue2))
-                .then(configurationService.readEntry(new FetchRequest(token, repoName1, entryKey))))
+                .then(configurationService.readEntry(new ReadEntryRequest(token, repoName1, entryKey))))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Saved entry key");
@@ -159,7 +159,7 @@ public class SaveEntryScenario extends BaseScenario {
         .expectComplete()
         .verify();
 
-    StepVerifier.create(configurationService.readEntry(new FetchRequest(token, repoName2, entryKey)))
+    StepVerifier.create(configurationService.readEntry(new ReadEntryRequest(token, repoName2, entryKey)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Saved entry key");
@@ -237,7 +237,7 @@ public class SaveEntryScenario extends BaseScenario {
     StepVerifier.create(
             configurationService
                 .createEntry(new CreateEntryRequest(token, repoName, entryKey, entryValue))
-                .then(configurationService.readEntry(new FetchRequest(token, repoName, entryKey))))
+                .then(configurationService.readEntry(new ReadEntryRequest(token, repoName, entryKey))))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Saved entry key");

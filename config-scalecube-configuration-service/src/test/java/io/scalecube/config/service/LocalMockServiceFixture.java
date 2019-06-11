@@ -12,7 +12,7 @@ import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateEntryRequest;
 import io.scalecube.configuration.api.DeleteEntryRequest;
-import io.scalecube.configuration.api.FetchRequest;
+import io.scalecube.configuration.api.ReadEntryRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.services.exceptions.InternalServiceException;
 import io.scalecube.test.fixtures.Fixture;
@@ -56,7 +56,7 @@ public class LocalMockServiceFixture implements Fixture {
     when(service.readEntry(any()))
         .then(
             answer -> {
-              FetchRequest request = (FetchRequest) answer.getArguments()[0];
+              ReadEntryRequest request = (ReadEntryRequest) answer.getArguments()[0];
               return Mono.just(
                       responses
                           .stream()

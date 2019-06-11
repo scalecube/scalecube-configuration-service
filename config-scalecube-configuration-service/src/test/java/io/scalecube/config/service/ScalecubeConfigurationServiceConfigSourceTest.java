@@ -12,7 +12,7 @@ import io.scalecube.config.ObjectConfigProperty;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.DeleteEntryRequest;
-import io.scalecube.configuration.api.FetchRequest;
+import io.scalecube.configuration.api.ReadEntryRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.CreateEntryRequest;
 import io.scalecube.test.fixtures.Fixtures;
@@ -43,7 +43,7 @@ class ScalecubeConfigurationServiceConfigSourceTest {
         .deleteEntry(new DeleteEntryRequest(token, repository, documentKey))
         .onErrorReturn(new Acknowledgment()) // delete only if needed.
         .block();
-    Mono<FetchResponse> fetch = service.readEntry(new FetchRequest(token, repository, documentKey));
+    Mono<FetchResponse> fetch = service.readEntry(new ReadEntryRequest(token, repository, documentKey));
     StepVerifier.create(fetch).expectError();
 
     TimeUnit.SECONDS.sleep(2); // wait for the property to be empty
@@ -88,7 +88,7 @@ class ScalecubeConfigurationServiceConfigSourceTest {
         .deleteEntry(new DeleteEntryRequest(token, repository, documentKey))
         .onErrorReturn(new Acknowledgment()) // delete only if needed.
         .block();
-    Mono<FetchResponse> fetch = service.readEntry(new FetchRequest(token, repository, documentKey));
+    Mono<FetchResponse> fetch = service.readEntry(new ReadEntryRequest(token, repository, documentKey));
     StepVerifier.create(fetch).expectError();
     TimeUnit.SECONDS.sleep(2); // wait for the property to be empty
 
