@@ -81,6 +81,9 @@ class Scratch {
   }
 }
 
+/**
+ * todo: should be deleted after experiments
+ */
 @Disabled
 public class CouchbaseExperimentalTest {
 
