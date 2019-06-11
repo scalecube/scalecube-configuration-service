@@ -65,7 +65,7 @@ public class FetchEntriesScenario extends BaseScenario {
                         .put("Rounding", "down"))))
         .block(TIMEOUT);
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(ownerToken, repoName)))
+    StepVerifier.create(configurationService.readList(new EntriesRequest(ownerToken, repoName)))
         .assertNext(
             entries -> {
               assertEquals(2, entries.size(), "Fetched entries count");
@@ -81,7 +81,7 @@ public class FetchEntriesScenario extends BaseScenario {
         .expectComplete()
         .verify();
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(adminToken, repoName)))
+    StepVerifier.create(configurationService.readList(new EntriesRequest(adminToken, repoName)))
         .assertNext(
             entries -> {
               assertEquals(2, entries.size(), "Fetched entries count");
@@ -97,7 +97,7 @@ public class FetchEntriesScenario extends BaseScenario {
         .expectComplete()
         .verify();
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(memberToken, repoName)))
+    StepVerifier.create(configurationService.readList(new EntriesRequest(memberToken, repoName)))
         .assertNext(
             entries -> {
               assertEquals(2, entries.size(), "Fetched entries count");
@@ -124,7 +124,7 @@ public class FetchEntriesScenario extends BaseScenario {
 
     String repoName = "NON_EXISTENT_REPO";
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(token, repoName)))
+    StepVerifier.create(configurationService.readList(new EntriesRequest(token, repoName)))
         .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId, repoName))
         .verify();
   }
@@ -137,7 +137,7 @@ public class FetchEntriesScenario extends BaseScenario {
     String orgId = createOrganization(organizationService).id();
     String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(token, "test-repo")))
+    StepVerifier.create(configurationService.readList(new EntriesRequest(token, "test-repo")))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
@@ -177,7 +177,7 @@ public class FetchEntriesScenario extends BaseScenario {
 
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(memberToken, repoName)))
+    StepVerifier.create(configurationService.readList(new EntriesRequest(memberToken, repoName)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
@@ -212,7 +212,7 @@ public class FetchEntriesScenario extends BaseScenario {
                         .put("Rounding", "down"))))
         .block(TIMEOUT);
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(token2, repoName)))
+    StepVerifier.create(configurationService.readList(new EntriesRequest(token2, repoName)))
         .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId2, repoName))
         .verify();
   }
@@ -254,7 +254,7 @@ public class FetchEntriesScenario extends BaseScenario {
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
-            configurationService.entries(new EntriesRequest(memberToken.key(), repoName)))
+            configurationService.readList(new EntriesRequest(memberToken.key(), repoName)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }

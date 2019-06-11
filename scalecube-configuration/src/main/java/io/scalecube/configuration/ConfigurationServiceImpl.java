@@ -74,8 +74,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   @Override
-  public Mono<List<FetchResponse>> entries(EntriesRequest request) {
-    return Mono.fromRunnable(() -> logger.debug("entries: enter: request: {}", request))
+  public Mono<List<FetchResponse>> readList(EntriesRequest request) {
+    return Mono.fromRunnable(() -> logger.debug("readList: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
         .thenMany(
@@ -86,8 +86,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .map(doc -> new FetchResponse(doc.key(), doc.value()))
         .collectList()
         .doOnSuccess(
-            result -> logger.debug("entries: exit: request: {}, result: {}", request, result))
-        .doOnError(th -> logger.error("entries: request: {}, error:", request, th));
+            result -> logger.debug("readList: exit: request: {}, result: {}", request, result))
+        .doOnError(th -> logger.error("readList: request: {}, error:", request, th));
   }
 
   @Override

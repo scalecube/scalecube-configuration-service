@@ -208,7 +208,7 @@ public class FetchEntryScenario extends BaseScenario {
     String orgId = createOrganization(organizationService).id();
     String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(token, "test-repo")))
+    StepVerifier.create(configurationService.readList(new EntriesRequest(token, "test-repo")))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
@@ -248,7 +248,7 @@ public class FetchEntryScenario extends BaseScenario {
 
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(adminToken, repoName)))
+    StepVerifier.create(configurationService.readList(new EntriesRequest(adminToken, repoName)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
@@ -283,7 +283,7 @@ public class FetchEntryScenario extends BaseScenario {
                         .put("Rounding", "down"))))
         .block(TIMEOUT);
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(token2, repoName)))
+    StepVerifier.create(configurationService.readList(new EntriesRequest(token2, repoName)))
         .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId2, repoName))
         .verify();
   }
@@ -325,7 +325,7 @@ public class FetchEntryScenario extends BaseScenario {
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
-            configurationService.entries(new EntriesRequest(adminToken.key(), repoName)))
+            configurationService.readList(new EntriesRequest(adminToken.key(), repoName)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }

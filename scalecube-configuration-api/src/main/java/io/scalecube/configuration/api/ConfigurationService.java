@@ -18,7 +18,7 @@ public interface ConfigurationService {
 
   String CONFIG_CREATE_REPO = "configuration/createRepository";
   String CONFIG_FETCH = "configuration/readEntry";
-  String CONFIG_ENTRIES = "configuration/entries";
+  String CONFIG_ENTRIES = "configuration/readList";
   String CONFIG_SAVE = "configuration/createEntry";
   String CONFIG_DELETE = "configuration/deleteEntry";
 
@@ -47,7 +47,7 @@ public interface ConfigurationService {
    * @return list of FetchResponses per each entry in the repository.
    */
   @ServiceMethod
-  Mono<List<FetchResponse>> entries(EntriesRequest request);
+  Mono<List<FetchResponse>> readList(EntriesRequest request);
 
   /**
    * Save request requires write level permissions to save (create or update) entry to the store.

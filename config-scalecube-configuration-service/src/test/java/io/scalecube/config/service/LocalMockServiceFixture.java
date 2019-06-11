@@ -32,7 +32,7 @@ public class LocalMockServiceFixture implements Fixture {
     List<FetchResponse> responses = new ArrayList<>();
     Acknowledgment acknowledgment = new Acknowledgment();
     service = mock(ConfigurationService.class);
-    when(service.entries(any()))
+    when(service.readList(any()))
         .then(
             answer -> {
               return Mono.just(responses);

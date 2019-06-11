@@ -197,7 +197,7 @@ public class SaveEntryScenario extends BaseScenario {
     StepVerifier.create(
             configurationService
                 .createEntry(new SaveRequest(adminToken, repoName, entryKey, entryValue))
-                .then(configurationService.entries(new EntriesRequest(adminToken, repoName))))
+                .then(configurationService.readList(new EntriesRequest(adminToken, repoName))))
         .assertNext(
             entries -> {
               assertEquals(1, entries.size(), "Entries in repository");

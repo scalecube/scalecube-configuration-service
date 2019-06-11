@@ -129,7 +129,7 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
   public Map<String, ConfigProperty> loadConfig() {
     try {
       return service
-          .entries(requestEntries)
+          .readList(requestEntries)
           .flatMapIterable(Function.identity())
           .collectMap(FetchResponse::key, this.parsing::fromFetchResponse)
           .block();

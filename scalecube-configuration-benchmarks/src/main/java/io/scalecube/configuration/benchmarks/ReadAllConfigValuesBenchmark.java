@@ -29,7 +29,7 @@ public final class ReadAllConfigValuesBenchmark {
 
                 Context time = timer.time();
 
-                return configurationService.entries(request).doOnSuccess(response -> time.stop());
+                return configurationService.readList(request).doOnSuccess(response -> time.stop());
               };
             });
   }
