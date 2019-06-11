@@ -1,10 +1,10 @@
 package io.scalecube.configuration;
 
+import io.scalecube.configuration.api.CreateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.DeleteEntryRequest;
-import io.scalecube.configuration.api.ReadListRequest;
 import io.scalecube.configuration.api.ReadEntryRequest;
-import io.scalecube.configuration.api.CreateEntryRequest;
+import io.scalecube.configuration.api.ReadListRequest;
 import reactor.core.publisher.Mono;
 
 final class RequestValidator {

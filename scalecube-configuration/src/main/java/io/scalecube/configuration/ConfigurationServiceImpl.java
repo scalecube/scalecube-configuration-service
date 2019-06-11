@@ -4,13 +4,13 @@ import static io.scalecube.configuration.RequestValidator.validate;
 
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
+import io.scalecube.configuration.api.CreateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.DeleteEntryRequest;
-import io.scalecube.configuration.api.ReadEntryRequest;
-import io.scalecube.configuration.api.ReadListRequest;
-import io.scalecube.configuration.api.ReadEntryResponse;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
-import io.scalecube.configuration.api.CreateEntryRequest;
+import io.scalecube.configuration.api.ReadEntryRequest;
+import io.scalecube.configuration.api.ReadEntryResponse;
+import io.scalecube.configuration.api.ReadListRequest;
 import io.scalecube.configuration.repository.ConfigurationRepository;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.Repository;
