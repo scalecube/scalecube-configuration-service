@@ -34,7 +34,7 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   }
 
   @Override
-  public Flux<Document> fetchAll(String tenant, String repository) {
+  public Flux<Document> readList(String tenant, String repository) {
     return entries(new Repository(tenant, repository));
   }
 

@@ -31,7 +31,7 @@ public interface ConfigurationRepository {
    * @param repository to fetch from.
    * @return stream of Document instances in the repository.
    */
-  Flux<Document> fetchAll(String tenant, String repository);
+  Flux<Document> readList(String tenant, String repository);
 
   /**
    * Save a key from a tenant repository by key.

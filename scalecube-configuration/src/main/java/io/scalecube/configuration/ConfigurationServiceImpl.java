@@ -82,7 +82,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             Flux.defer(
                 () -> checkAccess(request.apiKey().toString(),
                     ConfigurationService.CONFIG_ENTRIES)))
-        .flatMap(p -> repository.fetchAll(p.tenant(), request.repository()))
+        .flatMap(p -> repository.readList(p.tenant(), request.repository()))
         .map(doc -> new FetchResponse(doc.key(), doc.value()))
         .collectList()
         .doOnSuccess(
