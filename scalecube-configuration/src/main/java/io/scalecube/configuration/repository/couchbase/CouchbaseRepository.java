@@ -97,7 +97,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
   }
 
   @Override
-  public Mono<Document> save(String tenant, String repository, Document document) {
+  public Mono<Document> createEntry(String tenant, String repository, Document document) {
     return Mono.from(
             RxReactiveStreams.toPublisher(
                 bucket.mapAdd(tenant + DELIMITER + repository, document.key(), document.value())))

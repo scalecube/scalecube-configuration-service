@@ -92,7 +92,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> save(SaveRequest request) {
-    return Mono.fromRunnable(() -> logger.debug("save: enter: request: {}", request))
+    return Mono.fromRunnable(() -> logger.debug("createEntry: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
         .then(
@@ -100,11 +100,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 () -> checkAccess(request.apiKey().toString(), ConfigurationService.CONFIG_SAVE)))
         .flatMap(
             p ->
-                repository.save(
+                repository.createEntry(
                     p.tenant(), request.repository(), new Document(request.key(), request.value())))
         .thenReturn(ACK)
-        .doOnSuccess(result -> logger.debug("save: exit: request: {}", request))
-        .doOnError(th -> logger.error("save: request: {}, error:", request, th));
+        .doOnSuccess(result -> logger.debug("createEntry: exit: request: {}", request))
+        .doOnError(th -> logger.error("createEntry: request: {}, error:", request, th));
   }
 
   @Override

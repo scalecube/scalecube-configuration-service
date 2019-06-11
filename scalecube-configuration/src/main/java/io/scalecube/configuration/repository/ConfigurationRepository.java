@@ -41,7 +41,7 @@ public interface ConfigurationRepository {
    * @param doc the document to save.
    * @return Document instance by a given key.
    */
-  Mono<Document> save(String tenant, String repository, Document doc);
+  Mono<Document> createEntry(String tenant, String repository, Document doc);
 
   /**
    * Delete a key from a tenant repository by key.

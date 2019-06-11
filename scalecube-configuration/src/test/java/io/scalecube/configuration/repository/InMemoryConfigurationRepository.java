@@ -39,7 +39,7 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   }
 
   @Override
-  public Mono<Document> save(String tenant, String repository, Document document) {
+  public Mono<Document> createEntry(String tenant, String repository, Document document) {
     return put(new Repository(tenant, repository), document.key(), document);
   }
 
