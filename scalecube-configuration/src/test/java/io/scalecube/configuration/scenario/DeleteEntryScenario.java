@@ -23,7 +23,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#32 Successful deleteEntry of the specific entry from the related Repository applying managers' API keys: \"Owner\" and \"Admin\"")
+      "#32 Successful delete of the specific entry from the related Repository applying managers' API keys: \"Owner\" and \"Admin\"")
   void deleteEntry(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -81,7 +81,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#33 Successful deleteEntry one of the identical keys (entries) from the related Repository applying some of the managers' API keys")
+      "#33 Successful delete one of the identical keys (entries) from the related Repository applying some of the managers' API keys")
   void deleteEntryWithIdenticalKey(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -134,7 +134,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#34 Fail to deleteEntry a specific entry upon the restricted permission due to applying the \"Member\" API key")
+      "#34 Fail to delete a specific entry upon the restricted permission due to applying the \"Member\" API key")
   void deleteEntryByMember(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -171,7 +171,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#35 Fail to deleteEntry a non-existent entry from the related Repository applying the \"Admin\" API key")
+      "#35 Fail to delete a non-existent entry from the related Repository applying the \"Admin\" API key")
   void deleteNonExistingEntryByAdmin(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -208,7 +208,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#36 Fail to deleteEntry specific entry from the Repository upon the \"apiKey\" is invalid (expired)")
+      "#36 Fail to delete specific entry from the Repository upon the \"apiKey\" is invalid (expired)")
   void deleteEntryUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -223,7 +223,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#37 Fail to deleteEntry specific entry from the Repository upon the Owner deleted the Organization with related \"Owner\" API key")
+      "#37 Fail to delete specific entry from the Repository upon the Owner deleted the Organization with related \"Owner\" API key")
   void deleteEntryForDeletedOrganization(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
@@ -262,7 +262,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#38 Fail to deleteEntry specific entry from the Repository upon the Owner applied some of the API keys from another Organization")
+      "#38 Fail to delete specific entry from the Repository upon the Owner applied some of the API keys from another Organization")
   void deleteEntryUsingTokenOfAnotherOrganization(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId1 = createOrganization(organizationService).id();
@@ -297,7 +297,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#39 Fail to deleteEntry specific entry from the Repository upon the Owner \"apiKey\" (API key) was deleted from the Organization")
+      "#39 Fail to delete specific entry from the Repository upon the Owner \"apiKey\" (API key) was deleted from the Organization")
   void deleteEntryUsingDeletedToken(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
