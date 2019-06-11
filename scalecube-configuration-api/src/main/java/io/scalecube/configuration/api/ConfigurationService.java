@@ -20,7 +20,7 @@ public interface ConfigurationService {
   String CONFIG_FETCH = "configuration/readEntry";
   String CONFIG_ENTRIES = "configuration/entries";
   String CONFIG_SAVE = "configuration/createEntry";
-  String CONFIG_DELETE = "configuration/delete";
+  String CONFIG_DELETE = "configuration/deleteEntry";
 
   /**
    * Request to create a configuration repository and requires a write level permissions.
@@ -65,5 +65,5 @@ public interface ConfigurationService {
    * @return acknowledgement when deleted.
    */
   @ServiceMethod
-  Mono<Acknowledgment> delete(DeleteRequest request);
+  Mono<Acknowledgment> deleteEntry(DeleteRequest request);
 }

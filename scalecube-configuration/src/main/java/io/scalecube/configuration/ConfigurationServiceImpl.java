@@ -108,7 +108,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   @Override
-  public Mono<Acknowledgment> delete(DeleteRequest request) {
+  public Mono<Acknowledgment> deleteEntry(DeleteRequest request) {
     return Mono.fromRunnable(() -> logger.debug("deleteEntry: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)

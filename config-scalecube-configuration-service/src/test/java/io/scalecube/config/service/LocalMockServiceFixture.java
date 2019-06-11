@@ -46,7 +46,7 @@ public class LocalMockServiceFixture implements Fixture {
               responses.add(response);
               return Mono.just(acknowledgment);
             });
-    when(service.delete(any()))
+    when(service.deleteEntry(any()))
         .then(
             answer -> {
               DeleteRequest request = (DeleteRequest) answer.getArguments()[0];
