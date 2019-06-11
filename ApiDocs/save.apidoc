@@ -26,7 +26,7 @@
   *         "q": "/configuration/save",
   *         "sid": 1,
   *         "d":{
-  *         "APIKey": "API-KEY",
+  *         "apiKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName",
   *         "value": {
@@ -68,7 +68,7 @@
   *         "q": "/configuration/save"
   *         },
   *         "data":{
-  *         "APIKey": "API-KEY",
+  *         "apiKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName",
   *         "value": {
@@ -101,7 +101,7 @@
   * @apiErrorExample {json} HTTP:
   * Request:
   *     {
-  *         "APIKey": "API-KEY",
+  *         "apiKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName",
   *         "value": {
