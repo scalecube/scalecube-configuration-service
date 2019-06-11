@@ -44,7 +44,7 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   }
 
   @Override
-  public Mono<Void> delete(String tenant, String repository, String key) {
+  public Mono<Void> deleteEntry(String tenant, String repository, String key) {
     return remove(new Repository(tenant, repository), key);
   }
 

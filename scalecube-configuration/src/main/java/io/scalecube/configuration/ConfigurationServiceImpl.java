@@ -109,16 +109,16 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> delete(DeleteRequest request) {
-    return Mono.fromRunnable(() -> logger.debug("delete: enter: request: {}", request))
+    return Mono.fromRunnable(() -> logger.debug("deleteEntry: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
                 () -> checkAccess(request.apiKey().toString(), ConfigurationService.CONFIG_DELETE)))
-        .flatMap(p -> repository.delete(p.tenant(), request.repository(), request.key()))
+        .flatMap(p -> repository.deleteEntry(p.tenant(), request.repository(), request.key()))
         .thenReturn(ACK)
-        .doOnSuccess(result -> logger.debug("delete: exit: request: {}", request))
-        .doOnError(th -> logger.error("delete: request: {}, error:", request, th));
+        .doOnSuccess(result -> logger.debug("deleteEntry: exit: request: {}", request))
+        .doOnError(th -> logger.error("deleteEntry: request: {}, error:", request, th));
   }
 
   private Mono<Profile> checkAccess(String token, String resource) {

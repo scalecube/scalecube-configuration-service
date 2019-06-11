@@ -118,7 +118,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
   }
 
   @Override
-  public Mono<Void> delete(String tenant, String repository, String key) {
+  public Mono<Void> deleteEntry(String tenant, String repository, String key) {
     return readEntry(tenant, repository, key)
         .then(
             Mono.from(

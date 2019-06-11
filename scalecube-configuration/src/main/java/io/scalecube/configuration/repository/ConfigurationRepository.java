@@ -50,5 +50,5 @@ public interface ConfigurationRepository {
    * @param repository to delete from.
    * @param key of the document to delete.
    */
-  Mono<Void> delete(String tenant, String repository, String key);
+  Mono<Void> deleteEntry(String tenant, String repository, String key);
 }
