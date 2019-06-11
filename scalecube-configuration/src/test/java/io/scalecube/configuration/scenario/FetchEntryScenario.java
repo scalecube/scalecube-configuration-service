@@ -12,7 +12,7 @@ import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.ReadListRequest;
 import io.scalecube.configuration.api.FetchRequest;
-import io.scalecube.configuration.api.SaveRequest;
+import io.scalecube.configuration.api.CreateEntryRequest;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
@@ -53,10 +53,10 @@ public class FetchEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
             configurationService.createEntry(
-                new SaveRequest(ownerToken, repoName, entryKey1, entryValue1)))
+                new CreateEntryRequest(ownerToken, repoName, entryKey1, entryValue1)))
         .then(
             configurationService.createEntry(
-                new SaveRequest(ownerToken, repoName, entryKey2, entryValue2)))
+                new CreateEntryRequest(ownerToken, repoName, entryKey2, entryValue2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -124,10 +124,10 @@ public class FetchEntryScenario extends BaseScenario {
                 new CreateRepositoryRequest(ownerToken, repoName2)))
         .then(
             configurationService.createEntry(
-                new SaveRequest(ownerToken, repoName1, entryKey1, entryValue1)))
+                new CreateEntryRequest(ownerToken, repoName1, entryKey1, entryValue1)))
         .then(
             configurationService.createEntry(
-                new SaveRequest(ownerToken, repoName2, entryKey1, entryValue2)))
+                new CreateEntryRequest(ownerToken, repoName2, entryKey1, entryValue2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -171,10 +171,10 @@ public class FetchEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
             configurationService.createEntry(
-                new SaveRequest(ownerToken, repoName, entryKey1, entryValue1)))
+                new CreateEntryRequest(ownerToken, repoName, entryKey1, entryValue1)))
         .then(
             configurationService.createEntry(
-                new SaveRequest(ownerToken, repoName, entryKey2, entryValue2)))
+                new CreateEntryRequest(ownerToken, repoName, entryKey2, entryValue2)))
         .block(TIMEOUT);
 
     String nonExistentKey = "NON_EXISTENT_KEY";
@@ -230,7 +230,7 @@ public class FetchEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
             configurationService.createEntry(
-                new SaveRequest(
+                new CreateEntryRequest(
                     ownerToken,
                     repoName,
                     entryKey,
@@ -271,7 +271,7 @@ public class FetchEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(token1, repoName))
         .then(
             configurationService.createEntry(
-                new SaveRequest(
+                new CreateEntryRequest(
                     token1,
                     repoName,
                     entryKey,
@@ -305,7 +305,7 @@ public class FetchEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken.key(), repoName))
         .then(
             configurationService.createEntry(
-                new SaveRequest(
+                new CreateEntryRequest(
                     ownerToken.key(),
                     repoName,
                     entryKey,

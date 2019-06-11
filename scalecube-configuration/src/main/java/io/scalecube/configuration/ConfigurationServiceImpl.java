@@ -10,7 +10,7 @@ import io.scalecube.configuration.api.ReadListRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
-import io.scalecube.configuration.api.SaveRequest;
+import io.scalecube.configuration.api.CreateEntryRequest;
 import io.scalecube.configuration.repository.ConfigurationRepository;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.Repository;
@@ -93,7 +93,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   @Override
-  public Mono<Acknowledgment> createEntry(SaveRequest request) {
+  public Mono<Acknowledgment> createEntry(CreateEntryRequest request) {
     return Mono.fromRunnable(() -> logger.debug("createEntry: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
@@ -111,7 +111,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   @Override
-  public Mono<Acknowledgment> updateEntry(SaveRequest request) {
+  public Mono<Acknowledgment> updateEntry(CreateEntryRequest request) {
     throw new NotImplementedException();
   }
 

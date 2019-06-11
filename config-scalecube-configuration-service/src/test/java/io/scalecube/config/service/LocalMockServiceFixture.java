@@ -10,10 +10,10 @@ import io.scalecube.config.ConfigRegistrySettings;
 import io.scalecube.config.source.SystemPropertiesConfigSource;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
+import io.scalecube.configuration.api.CreateEntryRequest;
 import io.scalecube.configuration.api.DeleteEntryRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.FetchResponse;
-import io.scalecube.configuration.api.SaveRequest;
 import io.scalecube.services.exceptions.InternalServiceException;
 import io.scalecube.test.fixtures.Fixture;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class LocalMockServiceFixture implements Fixture {
     when(service.createEntry(any()))
         .then(
             answer -> {
-              SaveRequest request = (SaveRequest) answer.getArguments()[0];
+              CreateEntryRequest request = (CreateEntryRequest) answer.getArguments()[0];
               JsonNode value = (JsonNode) request.value();
               FetchResponse response = new FetchResponse(request.key(), value);
               responses.add(response);

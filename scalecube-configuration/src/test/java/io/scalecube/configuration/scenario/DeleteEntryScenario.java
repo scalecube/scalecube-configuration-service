@@ -9,10 +9,10 @@ import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
+import io.scalecube.configuration.api.CreateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.DeleteEntryRequest;
 import io.scalecube.configuration.api.FetchRequest;
-import io.scalecube.configuration.api.SaveRequest;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
@@ -38,7 +38,7 @@ public class DeleteEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
             configurationService.createEntry(
-                new SaveRequest(
+                new CreateEntryRequest(
                     ownerToken,
                     repoName,
                     entryKey1,
@@ -50,7 +50,7 @@ public class DeleteEntryScenario extends BaseScenario {
                         .put("Rounding", "down"))))
         .then(
             configurationService.createEntry(
-                new SaveRequest(
+                new CreateEntryRequest(
                     ownerToken,
                     repoName,
                     entryKey2,
@@ -107,12 +107,12 @@ public class DeleteEntryScenario extends BaseScenario {
 
     configurationService
         .createRepository(new CreateRepositoryRequest(token, repoName1))
-        .then(configurationService.createEntry(new SaveRequest(token, repoName1, entryKey, entryValue1)))
+        .then(configurationService.createEntry(new CreateEntryRequest(token, repoName1, entryKey, entryValue1)))
         .block(TIMEOUT);
 
     configurationService
         .createRepository(new CreateRepositoryRequest(token, repoName2))
-        .then(configurationService.createEntry(new SaveRequest(token, repoName2, entryKey, entryValue2)))
+        .then(configurationService.createEntry(new CreateEntryRequest(token, repoName2, entryKey, entryValue2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -148,7 +148,7 @@ public class DeleteEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
             configurationService.createEntry(
-                new SaveRequest(
+                new CreateEntryRequest(
                     ownerToken,
                     repoName,
                     entryKey,
@@ -186,7 +186,7 @@ public class DeleteEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
             configurationService.createEntry(
-                new SaveRequest(
+                new CreateEntryRequest(
                     ownerToken,
                     repoName,
                     entryKey,
@@ -237,7 +237,7 @@ public class DeleteEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(token, repoName))
         .then(
             configurationService.createEntry(
-                new SaveRequest(
+                new CreateEntryRequest(
                     token,
                     repoName,
                     entryKey,
@@ -278,7 +278,7 @@ public class DeleteEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(token1, repoName))
         .then(
             configurationService.createEntry(
-                new SaveRequest(
+                new CreateEntryRequest(
                     token1,
                     repoName,
                     entryKey,
@@ -311,7 +311,7 @@ public class DeleteEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(token.key(), repoName))
         .then(
             configurationService.createEntry(
-                new SaveRequest(
+                new CreateEntryRequest(
                     token.key(),
                     repoName,
                     entryKey,

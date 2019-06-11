@@ -9,10 +9,10 @@ import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
+import io.scalecube.configuration.api.CreateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.ReadListRequest;
 import io.scalecube.configuration.api.FetchResponse;
-import io.scalecube.configuration.api.SaveRequest;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -41,7 +41,7 @@ public class FetchEntriesScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
             configurationService.createEntry(
-                new SaveRequest(
+                new CreateEntryRequest(
                     ownerToken,
                     repoName,
                     entryKey1,
@@ -53,7 +53,7 @@ public class FetchEntriesScenario extends BaseScenario {
                         .put("Rounding", "down"))))
         .then(
             configurationService.createEntry(
-                new SaveRequest(
+                new CreateEntryRequest(
                     ownerToken,
                     repoName,
                     entryKey2,
@@ -159,7 +159,7 @@ public class FetchEntriesScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
             configurationService.createEntry(
-                new SaveRequest(
+                new CreateEntryRequest(
                     ownerToken,
                     repoName,
                     entryKey,
@@ -200,7 +200,7 @@ public class FetchEntriesScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(token1, repoName))
         .then(
             configurationService.createEntry(
-                new SaveRequest(
+                new CreateEntryRequest(
                     token1,
                     repoName,
                     entryKey,
@@ -234,7 +234,7 @@ public class FetchEntriesScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken.key(), repoName))
         .then(
             configurationService.createEntry(
-                new SaveRequest(
+                new CreateEntryRequest(
                     ownerToken.key(),
                     repoName,
                     entryKey,

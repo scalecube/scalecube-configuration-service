@@ -56,7 +56,7 @@ public interface ConfigurationService {
    * @return acknowledgement when saved.
    */
   @ServiceMethod
-  Mono<Acknowledgment> createEntry(SaveRequest request);
+  Mono<Acknowledgment> createEntry(CreateEntryRequest request);
 
   /**
    * Update request requires write level permissions to update entry to the store.
@@ -65,7 +65,7 @@ public interface ConfigurationService {
    * @return acknowledgement when updated.
    */
   @ServiceMethod
-  Mono<Acknowledgment> updateEntry(SaveRequest request);
+  Mono<Acknowledgment> updateEntry(CreateEntryRequest request);
 
   /**
    * delete request requires write level permissions to delete entry from the store.

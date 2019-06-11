@@ -12,8 +12,8 @@ import io.scalecube.account.api.Token;
 import io.scalecube.benchmarks.BenchmarkSettings;
 import io.scalecube.benchmarks.BenchmarkState;
 import io.scalecube.configuration.api.ConfigurationService;
+import io.scalecube.configuration.api.CreateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
-import io.scalecube.configuration.api.SaveRequest;
 import io.scalecube.services.gateway.clientsdk.Client;
 import io.scalecube.services.gateway.clientsdk.ClientSettings;
 import io.scalecube.services.gateway.clientsdk.ClientSettings.Builder;
@@ -168,7 +168,7 @@ final class ConfigurationServiceBenchmarkState
   private Mono<Void> saveConfigProperty(
       ConfigurationService configurationService, String apiKey, String key, JsonNode value) {
     return configurationService
-        .createEntry(new SaveRequest(apiKey, "benchmarks-repo", key, value))
+        .createEntry(new CreateEntryRequest(apiKey, "benchmarks-repo", key, value))
         .doOnSuccess(response -> LOGGER.info("Config created: {}={}", key, value))
         .doOnError(th -> LOGGER.error("Config not created: ", th))
         .then();
