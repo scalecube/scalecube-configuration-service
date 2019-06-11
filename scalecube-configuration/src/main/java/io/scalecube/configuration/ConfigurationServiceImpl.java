@@ -8,7 +8,7 @@ import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.DeleteEntryRequest;
 import io.scalecube.configuration.api.ReadEntryRequest;
 import io.scalecube.configuration.api.ReadListRequest;
-import io.scalecube.configuration.api.FetchResponse;
+import io.scalecube.configuration.api.ReadEntryResponse;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
 import io.scalecube.configuration.api.CreateEntryRequest;
 import io.scalecube.configuration.repository.ConfigurationRepository;
@@ -60,7 +60,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   @Override
-  public Mono<FetchResponse> readEntry(ReadEntryRequest request) {
+  public Mono<ReadEntryResponse> readEntry(ReadEntryRequest request) {
     return Mono.fromRunnable(() -> logger.debug("readEntry: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
@@ -69,14 +69,14 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 () -> checkAccess(request.apiKey().toString(),
                     ConfigurationService.CONFIG_READ_ENTRY)))
         .flatMap(p -> repository.readEntry(p.tenant(), request.repository(), request.key()))
-        .map(document -> new FetchResponse(document.key(), document.value()))
+        .map(document -> new ReadEntryResponse(document.key(), document.value()))
         .doOnSuccess(
             result -> logger.debug("readEntry: exit: request: {}, result: {}", request, result))
         .doOnError(th -> logger.error("readEntry: request: {}, error:", request, th));
   }
 
   @Override
-  public Mono<List<FetchResponse>> readList(ReadListRequest request) {
+  public Mono<List<ReadEntryResponse>> readList(ReadListRequest request) {
     return Mono.fromRunnable(() -> logger.debug("readList: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
@@ -85,7 +85,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 () -> checkAccess(request.apiKey().toString(),
                     ConfigurationService.CONFIG_READ_LIST)))
         .flatMap(p -> repository.readList(p.tenant(), request.repository()))
-        .map(doc -> new FetchResponse(doc.key(), doc.value()))
+        .map(doc -> new ReadEntryResponse(doc.key(), doc.value()))
         .collectList()
         .doOnSuccess(
             result -> logger.debug("readList: exit: request: {}, result: {}", request, result))

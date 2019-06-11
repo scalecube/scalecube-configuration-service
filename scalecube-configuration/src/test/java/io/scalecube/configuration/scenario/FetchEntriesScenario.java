@@ -11,8 +11,8 @@ import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
+import io.scalecube.configuration.api.ReadEntryResponse;
 import io.scalecube.configuration.api.ReadListRequest;
-import io.scalecube.configuration.api.FetchResponse;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -71,7 +71,7 @@ public class FetchEntriesScenario extends BaseScenario {
               assertEquals(2, entries.size(), "Fetched entries count");
 
               List<String> entriesKeys =
-                  entries.stream().map(FetchResponse::key).collect(Collectors.toList());
+                  entries.stream().map(ReadEntryResponse::key).collect(Collectors.toList());
 
               assertTrue(
                   entriesKeys.contains(entryKey1), "Entry " + entryKey1 + " found in response");
@@ -87,7 +87,7 @@ public class FetchEntriesScenario extends BaseScenario {
               assertEquals(2, entries.size(), "Fetched entries count");
 
               List<String> entriesKeys =
-                  entries.stream().map(FetchResponse::key).collect(Collectors.toList());
+                  entries.stream().map(ReadEntryResponse::key).collect(Collectors.toList());
 
               assertTrue(
                   entriesKeys.contains(entryKey1), "Entry " + entryKey1 + " found in response");
@@ -103,7 +103,7 @@ public class FetchEntriesScenario extends BaseScenario {
               assertEquals(2, entries.size(), "Fetched entries count");
 
               List<String> entriesKeys =
-                  entries.stream().map(FetchResponse::key).collect(Collectors.toList());
+                  entries.stream().map(ReadEntryResponse::key).collect(Collectors.toList());
 
               assertTrue(
                   entriesKeys.contains(entryKey1), "Entry " + entryKey1 + " found in response");

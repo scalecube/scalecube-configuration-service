@@ -13,7 +13,7 @@ import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateEntryRequest;
 import io.scalecube.configuration.api.DeleteEntryRequest;
 import io.scalecube.configuration.api.ReadEntryRequest;
-import io.scalecube.configuration.api.FetchResponse;
+import io.scalecube.configuration.api.ReadEntryResponse;
 import io.scalecube.services.exceptions.InternalServiceException;
 import io.scalecube.test.fixtures.Fixture;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class LocalMockServiceFixture implements Fixture {
   @Override
   public void setUp() throws TestAbortedException {
 
-    List<FetchResponse> responses = new ArrayList<>();
+    List<ReadEntryResponse> responses = new ArrayList<>();
     Acknowledgment acknowledgment = new Acknowledgment();
     service = mock(ConfigurationService.class);
     when(service.readList(any()))
@@ -42,7 +42,7 @@ public class LocalMockServiceFixture implements Fixture {
             answer -> {
               CreateEntryRequest request = (CreateEntryRequest) answer.getArguments()[0];
               JsonNode value = (JsonNode) request.value();
-              FetchResponse response = new FetchResponse(request.key(), value);
+              ReadEntryResponse response = new ReadEntryResponse(request.key(), value);
               responses.add(response);
               return Mono.just(acknowledgment);
             });

@@ -11,8 +11,8 @@ import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.ReadEntryRequest;
+import io.scalecube.configuration.api.ReadEntryResponse;
 import io.scalecube.configuration.api.ReadListRequest;
-import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.CreateEntryRequest;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
@@ -202,7 +202,7 @@ public class SaveEntryScenario extends BaseScenario {
             entries -> {
               assertEquals(1, entries.size(), "Entries in repository");
 
-              FetchResponse entry = entries.get(0);
+              ReadEntryResponse entry = entries.get(0);
               assertEquals(entryKey, entry.key(), "Saved entry key");
               assertEquals(entryValue, parse(entry.value()), "Saved entry value");
             })

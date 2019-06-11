@@ -38,7 +38,7 @@ public interface ConfigurationService {
    * @return json object from the store.
    */
   @ServiceMethod
-  Mono<FetchResponse> readEntry(ReadEntryRequest request);
+  Mono<ReadEntryResponse> readEntry(ReadEntryRequest request);
 
   /**
    * Entries request requires read level permissions to list all entries objects from the store.
@@ -47,7 +47,7 @@ public interface ConfigurationService {
    * @return list of FetchResponses per each entry in the repository.
    */
   @ServiceMethod
-  Mono<List<FetchResponse>> readList(ReadListRequest request);
+  Mono<List<ReadEntryResponse>> readList(ReadListRequest request);
 
   /**
    * Save request requires write level permissions to save (create or update) entry to the store.

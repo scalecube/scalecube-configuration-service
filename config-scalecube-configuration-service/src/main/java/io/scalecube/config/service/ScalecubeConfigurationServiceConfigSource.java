@@ -10,8 +10,8 @@ import io.scalecube.config.ConfigSourceNotAvailableException;
 import io.scalecube.config.source.ConfigSource;
 import io.scalecube.config.source.LoadedConfigProperty;
 import io.scalecube.configuration.api.ConfigurationService;
+import io.scalecube.configuration.api.ReadEntryResponse;
 import io.scalecube.configuration.api.ReadListRequest;
-import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.services.gateway.clientsdk.ClientSettings;
 import io.scalecube.services.transport.jackson.JacksonCodec;
 import java.net.URL;
@@ -131,7 +131,7 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
       return service
           .readList(requestEntries)
           .flatMapIterable(Function.identity())
-          .collectMap(FetchResponse::key, this.parsing::fromFetchResponse)
+          .collectMap(ReadEntryResponse::key, this.parsing::fromFetchResponse)
           .block();
     } catch (Exception e) {
       LOGGER.warn("unable to load config properties", e);
@@ -146,13 +146,13 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
       writer = ObjectMapperHolder.getInstance().writer(new MinimalPrettyPrinter());
     }
 
-    public ConfigProperty fromFetchResponse(FetchResponse fetchResponse) {
+    public ConfigProperty fromFetchResponse(ReadEntryResponse readEntryResponse) {
       try {
         return LoadedConfigProperty.withNameAndValue(
-                fetchResponse.key(), writer.writeValueAsString(fetchResponse.value()))
+                readEntryResponse.key(), writer.writeValueAsString(readEntryResponse.value()))
             .build();
       } catch (JsonProcessingException ignoredException) {
-        return LoadedConfigProperty.withNameAndValue(fetchResponse.key(), null).build();
+        return LoadedConfigProperty.withNameAndValue(readEntryResponse.key(), null).build();
       }
     }
   }
