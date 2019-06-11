@@ -53,7 +53,7 @@ public class LocalMockServiceFixture implements Fixture {
               responses.removeIf(response -> request.key().equals(response.key()));
               return Mono.just(acknowledgment);
             });
-    when(service.fetch(any()))
+    when(service.readEntry(any()))
         .then(
             answer -> {
               FetchRequest request = (FetchRequest) answer.getArguments()[0];

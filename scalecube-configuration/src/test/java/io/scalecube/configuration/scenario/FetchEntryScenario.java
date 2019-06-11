@@ -60,7 +60,7 @@ public class FetchEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.fetch(new FetchRequest(ownerToken, repoName, entryKey1)))
+            configurationService.readEntry(new FetchRequest(ownerToken, repoName, entryKey1)))
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
@@ -70,7 +70,7 @@ public class FetchEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.fetch(new FetchRequest(adminToken, repoName, entryKey1)))
+            configurationService.readEntry(new FetchRequest(adminToken, repoName, entryKey1)))
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
@@ -80,7 +80,7 @@ public class FetchEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.fetch(new FetchRequest(memberToken, repoName, entryKey1)))
+            configurationService.readEntry(new FetchRequest(memberToken, repoName, entryKey1)))
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
@@ -131,7 +131,7 @@ public class FetchEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.fetch(new FetchRequest(memberToken, repoName1, entryKey1)))
+            configurationService.readEntry(new FetchRequest(memberToken, repoName1, entryKey1)))
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
@@ -180,7 +180,7 @@ public class FetchEntryScenario extends BaseScenario {
     String nonExistentKey = "NON_EXISTENT_KEY";
 
     StepVerifier.create(
-            configurationService.fetch(new FetchRequest(ownerToken, repoName, nonExistentKey)))
+            configurationService.readEntry(new FetchRequest(ownerToken, repoName, nonExistentKey)))
         .expectErrorMessage(String.format("Key '%s' not found", nonExistentKey))
         .verify();
   }
@@ -195,7 +195,7 @@ public class FetchEntryScenario extends BaseScenario {
 
     String repoName = "NON_EXISTENT_REPO";
 
-    StepVerifier.create(configurationService.fetch(new FetchRequest(token, repoName, "key")))
+    StepVerifier.create(configurationService.readEntry(new FetchRequest(token, repoName, "key")))
         .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId, repoName))
         .verify();
   }

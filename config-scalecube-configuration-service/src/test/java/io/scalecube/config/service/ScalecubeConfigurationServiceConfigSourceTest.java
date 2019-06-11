@@ -43,7 +43,7 @@ class ScalecubeConfigurationServiceConfigSourceTest {
         .delete(new DeleteRequest(token, repository, documentKey))
         .onErrorReturn(new Acknowledgment()) // delete only if needed.
         .block();
-    Mono<FetchResponse> fetch = service.fetch(new FetchRequest(token, repository, documentKey));
+    Mono<FetchResponse> fetch = service.readEntry(new FetchRequest(token, repository, documentKey));
     StepVerifier.create(fetch).expectError();
 
     TimeUnit.SECONDS.sleep(2); // wait for the property to be empty
@@ -88,7 +88,7 @@ class ScalecubeConfigurationServiceConfigSourceTest {
         .delete(new DeleteRequest(token, repository, documentKey))
         .onErrorReturn(new Acknowledgment()) // delete only if needed.
         .block();
-    Mono<FetchResponse> fetch = service.fetch(new FetchRequest(token, repository, documentKey));
+    Mono<FetchResponse> fetch = service.readEntry(new FetchRequest(token, repository, documentKey));
     StepVerifier.create(fetch).expectError();
     TimeUnit.SECONDS.sleep(2); // wait for the property to be empty
 

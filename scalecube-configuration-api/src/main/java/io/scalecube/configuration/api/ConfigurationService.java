@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 public interface ConfigurationService {
 
   String CONFIG_CREATE_REPO = "configuration/createRepository";
-  String CONFIG_FETCH = "configuration/fetch";
+  String CONFIG_FETCH = "configuration/readEntry";
   String CONFIG_ENTRIES = "configuration/entries";
   String CONFIG_SAVE = "configuration/save";
   String CONFIG_DELETE = "configuration/delete";
@@ -38,7 +38,7 @@ public interface ConfigurationService {
    * @return json object from the store.
    */
   @ServiceMethod
-  Mono<FetchResponse> fetch(FetchRequest request);
+  Mono<FetchResponse> readEntry(FetchRequest request);
 
   /**
    * Entries request requires read level permissions to list all entries objects from the store.

@@ -59,7 +59,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   @Override
-  public Mono<FetchResponse> fetch(FetchRequest request) {
+  public Mono<FetchResponse> readEntry(FetchRequest request) {
     return Mono.fromRunnable(() -> logger.debug("readEntry: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)

@@ -34,7 +34,7 @@ public final class ReadConfigValueBenchmark {
                 Context time = timer.time();
 
                 return configurationService
-                    .fetch(fetchRequest)
+                    .readEntry(fetchRequest)
                     .doOnSuccess(response -> time.stop());
               };
             });
