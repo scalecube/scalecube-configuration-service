@@ -17,10 +17,10 @@ import reactor.core.publisher.Mono;
 public interface ConfigurationService {
 
   String CONFIG_CREATE_REPO = "configuration/createRepository";
-  String CONFIG_FETCH = "configuration/readEntry";
-  String CONFIG_ENTRIES = "configuration/readList";
-  String CONFIG_SAVE = "configuration/createEntry";
-  String CONFIG_DELETE = "configuration/deleteEntry";
+  String CONFIG_READ_ENTRY = "configuration/readEntry";
+  String CONFIG_READ_LIST = "configuration/readList";
+  String CONFIG_CREATE_ENTRY = "configuration/createEntry";
+  String CONFIG_DELETE_ENTRY = "configuration/deleteEntry";
 
   /**
    * Request to create a configuration repository and requires a write level permissions.

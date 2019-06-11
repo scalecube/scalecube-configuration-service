@@ -66,7 +66,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
-                () -> checkAccess(request.apiKey().toString(), ConfigurationService.CONFIG_FETCH)))
+                () -> checkAccess(request.apiKey().toString(), ConfigurationService.CONFIG_READ_ENTRY)))
         .flatMap(p -> repository.readEntry(p.tenant(), request.repository(), request.key()))
         .map(document -> new FetchResponse(document.key(), document.value()))
         .doOnSuccess(
@@ -82,7 +82,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .thenMany(
             Flux.defer(
                 () -> checkAccess(request.apiKey().toString(),
-                    ConfigurationService.CONFIG_ENTRIES)))
+                    ConfigurationService.CONFIG_READ_LIST)))
         .flatMap(p -> repository.readList(p.tenant(), request.repository()))
         .map(doc -> new FetchResponse(doc.key(), doc.value()))
         .collectList()
@@ -98,7 +98,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
-                () -> checkAccess(request.apiKey().toString(), ConfigurationService.CONFIG_SAVE)))
+                () -> checkAccess(request.apiKey().toString(), ConfigurationService.CONFIG_CREATE_ENTRY)))
         .flatMap(
             p ->
                 repository.createEntry(
@@ -120,7 +120,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
-                () -> checkAccess(request.apiKey().toString(), ConfigurationService.CONFIG_DELETE)))
+                () -> checkAccess(request.apiKey().toString(), ConfigurationService.CONFIG_DELETE_ENTRY)))
         .flatMap(p -> repository.deleteEntry(p.tenant(), request.repository(), request.key()))
         .thenReturn(ACK)
         .doOnSuccess(result -> logger.debug("deleteEntry: exit: request: {}", request))
