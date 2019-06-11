@@ -66,7 +66,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
-                () -> checkAccess(request.apiKey().toString(), ConfigurationService.CONFIG_READ_ENTRY)))
+                () -> checkAccess(request.apiKey().toString(),
+                    ConfigurationService.CONFIG_READ_ENTRY)))
         .flatMap(p -> repository.readEntry(p.tenant(), request.repository(), request.key()))
         .map(document -> new FetchResponse(document.key(), document.value()))
         .doOnSuccess(
@@ -98,7 +99,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
-                () -> checkAccess(request.apiKey().toString(), ConfigurationService.CONFIG_CREATE_ENTRY)))
+                () -> checkAccess(request.apiKey().toString(),
+                    ConfigurationService.CONFIG_CREATE_ENTRY)))
         .flatMap(
             p ->
                 repository.createEntry(
@@ -120,7 +122,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
-                () -> checkAccess(request.apiKey().toString(), ConfigurationService.CONFIG_DELETE_ENTRY)))
+                () -> checkAccess(request.apiKey().toString(),
+                    ConfigurationService.CONFIG_DELETE_ENTRY)))
         .flatMap(p -> repository.deleteEntry(p.tenant(), request.repository(), request.key()))
         .thenReturn(ACK)
         .doOnSuccess(result -> logger.debug("deleteEntry: exit: request: {}", request))
