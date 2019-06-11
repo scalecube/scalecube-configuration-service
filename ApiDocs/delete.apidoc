@@ -22,7 +22,7 @@
   *         "q":"/configuration/delete",
   *         "sid": 1,
   *         "d":{
-  *         "APIKey": "API-KEY",
+  *         "apiKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -59,7 +59,7 @@
   *         "q": "/configuration/delete"
   *         },
   *         "data":{
-  *         "APIKey": "API-KEY",
+  *         "apiKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -90,7 +90,7 @@
   *
   * Body:
   *     {
-  *         "APIKey": "API-KEY",
+  *         "apiKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *     }

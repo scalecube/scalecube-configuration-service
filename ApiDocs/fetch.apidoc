@@ -25,7 +25,7 @@
   *         "q":"/configuration/fetch",
   *         "sid": 1,
   *         "d":{
-  *         "APIKey": "API-KEY",
+  *         "apiKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -70,7 +70,7 @@
   *         "q": "/configuration/fetch"
   *         },
   *         "data":{
-  *         "APIKey": "API-KEY",
+  *         "apiKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -110,7 +110,7 @@
   *
   * Body:
   *     {
-  *         "APIKey": "API-KEY",
+  *         "apiKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *     }
@@ -130,6 +130,6 @@
   * Error Response (HTTP):
   *    {
   *       "errorCode":500,
-  *       "errorMessage":"Please specify 'APIKey'"
+  *       "errorMessage":"Please specify 'apiKey'"
   *    }
   */

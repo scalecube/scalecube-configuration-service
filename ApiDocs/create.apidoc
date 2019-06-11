@@ -21,7 +21,7 @@
   *         "q":"/configuration/createRepository",
   *         "sid": 1,
   *         "d":{
-  *         "APIKey": "API-KEY",
+  *         "apiKey": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -59,7 +59,7 @@
   *         "q": "/configuration/createRepository"
   *         },
   *         "data":{
-  *         "APIKey": "API-KEY",
+  *         "apiKey": "API-KEY",
   *         "repository": "specifiedRepoName"
   *         }
   *     }
@@ -91,7 +91,7 @@
   *
   * Body:
   *     {
-  *         "APIKey": "API-KEY",
+  *         "apiKey": "API-KEY",
   *         "repository": "specifiedRepoName"
   *     }
   *
