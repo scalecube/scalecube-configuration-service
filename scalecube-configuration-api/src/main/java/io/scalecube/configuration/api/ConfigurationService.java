@@ -74,5 +74,5 @@ public interface ConfigurationService {
    * @return acknowledgement when deleted.
    */
   @ServiceMethod
-  Mono<Acknowledgment> deleteEntry(DeleteRequest request);
+  Mono<Acknowledgment> deleteEntry(DeleteEntryRequest request);
 }

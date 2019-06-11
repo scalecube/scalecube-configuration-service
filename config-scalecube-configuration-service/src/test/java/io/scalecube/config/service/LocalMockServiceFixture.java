@@ -10,7 +10,7 @@ import io.scalecube.config.ConfigRegistrySettings;
 import io.scalecube.config.source.SystemPropertiesConfigSource;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
-import io.scalecube.configuration.api.DeleteRequest;
+import io.scalecube.configuration.api.DeleteEntryRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.SaveRequest;
@@ -49,7 +49,7 @@ public class LocalMockServiceFixture implements Fixture {
     when(service.deleteEntry(any()))
         .then(
             answer -> {
-              DeleteRequest request = (DeleteRequest) answer.getArguments()[0];
+              DeleteEntryRequest request = (DeleteEntryRequest) answer.getArguments()[0];
               responses.removeIf(response -> request.key().equals(response.key()));
               return Mono.just(acknowledgment);
             });

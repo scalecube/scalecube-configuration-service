@@ -5,7 +5,7 @@ import static io.scalecube.configuration.RequestValidator.validate;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
-import io.scalecube.configuration.api.DeleteRequest;
+import io.scalecube.configuration.api.DeleteEntryRequest;
 import io.scalecube.configuration.api.EntriesRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.FetchResponse;
@@ -116,7 +116,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   @Override
-  public Mono<Acknowledgment> deleteEntry(DeleteRequest request) {
+  public Mono<Acknowledgment> deleteEntry(DeleteEntryRequest request) {
     return Mono.fromRunnable(() -> logger.debug("deleteEntry: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)

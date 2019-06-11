@@ -10,7 +10,7 @@ import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
-import io.scalecube.configuration.api.DeleteRequest;
+import io.scalecube.configuration.api.DeleteEntryRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.SaveRequest;
 import java.util.concurrent.TimeUnit;
@@ -64,7 +64,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService
-                .deleteEntry(new DeleteRequest(ownerToken, repoName, entryKey1))
+                .deleteEntry(new DeleteEntryRequest(ownerToken, repoName, entryKey1))
                 .then(
                     configurationService.readEntry(new FetchRequest(ownerToken, repoName, entryKey1))))
         .expectErrorMessage(String.format("Key '%s' not found", entryKey1))
@@ -72,7 +72,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService
-                .deleteEntry(new DeleteRequest(adminToken, repoName, entryKey2))
+                .deleteEntry(new DeleteEntryRequest(adminToken, repoName, entryKey2))
                 .then(
                     configurationService.readEntry(new FetchRequest(adminToken, repoName, entryKey2))))
         .expectErrorMessage(String.format("Key '%s' not found", entryKey2))
@@ -117,7 +117,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService
-                .deleteEntry(new DeleteRequest(token, repoName1, entryKey))
+                .deleteEntry(new DeleteEntryRequest(token, repoName1, entryKey))
                 .then(configurationService.readEntry(new FetchRequest(token, repoName1, entryKey))))
         .expectErrorMessage(String.format("Key '%s' not found", entryKey))
         .verify();
@@ -162,7 +162,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService
-                .deleteEntry(new DeleteRequest(memberToken, repoName, entryKey))
+                .deleteEntry(new DeleteEntryRequest(memberToken, repoName, entryKey))
                 .then(
                     configurationService.readEntry(new FetchRequest(memberToken, repoName, entryKey))))
         .expectErrorMessage("Permission denied")
@@ -200,7 +200,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService
-                .deleteEntry(new DeleteRequest(adminToken, repoName, nonExistingEntryKey))
+                .deleteEntry(new DeleteEntryRequest(adminToken, repoName, nonExistingEntryKey))
                 .then(configurationService.readEntry(new FetchRequest(adminToken, repoName, entryKey))))
         .expectErrorMessage(String.format("Key '%s' not found", nonExistingEntryKey))
         .verify();
@@ -216,7 +216,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
     String repository = RandomStringUtils.randomAlphabetic(5);
 
-    StepVerifier.create(configurationService.deleteEntry(new DeleteRequest(token, repository, "key")))
+    StepVerifier.create(configurationService.deleteEntry(new DeleteEntryRequest(token, repository, "key")))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
@@ -255,7 +255,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
-    StepVerifier.create(configurationService.deleteEntry(new DeleteRequest(token, repoName, entryKey)))
+    StepVerifier.create(configurationService.deleteEntry(new DeleteEntryRequest(token, repoName, entryKey)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
@@ -290,7 +290,7 @@ public class DeleteEntryScenario extends BaseScenario {
                         .put("Rounding", "down"))))
         .block(TIMEOUT);
 
-    StepVerifier.create(configurationService.deleteEntry(new DeleteRequest(token2, repoName, entryKey)))
+    StepVerifier.create(configurationService.deleteEntry(new DeleteEntryRequest(token2, repoName, entryKey)))
         .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId2, repoName))
         .verify();
   }
@@ -331,7 +331,7 @@ public class DeleteEntryScenario extends BaseScenario {
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
-            configurationService.deleteEntry(new DeleteRequest(token.key(), repoName, entryKey)))
+            configurationService.deleteEntry(new DeleteEntryRequest(token.key(), repoName, entryKey)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }

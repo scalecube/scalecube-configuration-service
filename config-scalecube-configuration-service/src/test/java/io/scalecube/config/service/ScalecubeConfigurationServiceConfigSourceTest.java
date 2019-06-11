@@ -11,7 +11,7 @@ import io.scalecube.config.ConfigRegistry;
 import io.scalecube.config.ObjectConfigProperty;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
-import io.scalecube.configuration.api.DeleteRequest;
+import io.scalecube.configuration.api.DeleteEntryRequest;
 import io.scalecube.configuration.api.FetchRequest;
 import io.scalecube.configuration.api.FetchResponse;
 import io.scalecube.configuration.api.SaveRequest;
@@ -40,7 +40,7 @@ class ScalecubeConfigurationServiceConfigSourceTest {
     String repository = configRegistry.stringValue("repository", "repository");
 
     service
-        .deleteEntry(new DeleteRequest(token, repository, documentKey))
+        .deleteEntry(new DeleteEntryRequest(token, repository, documentKey))
         .onErrorReturn(new Acknowledgment()) // delete only if needed.
         .block();
     Mono<FetchResponse> fetch = service.readEntry(new FetchRequest(token, repository, documentKey));
@@ -85,7 +85,7 @@ class ScalecubeConfigurationServiceConfigSourceTest {
     String repository = configRegistry.stringValue("repository", "repository");
 
     service
-        .deleteEntry(new DeleteRequest(token, repository, documentKey))
+        .deleteEntry(new DeleteEntryRequest(token, repository, documentKey))
         .onErrorReturn(new Acknowledgment()) // delete only if needed.
         .block();
     Mono<FetchResponse> fetch = service.readEntry(new FetchRequest(token, repository, documentKey));

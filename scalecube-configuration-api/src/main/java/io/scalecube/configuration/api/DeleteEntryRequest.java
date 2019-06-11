@@ -1,7 +1,7 @@
 package io.scalecube.configuration.api;
 
 /** Represents a request to delete a repository entry. */
-public class DeleteRequest implements AccessRequest {
+public class DeleteEntryRequest implements AccessRequest {
 
   private Object apiKey;
   private String repository;
@@ -12,7 +12,7 @@ public class DeleteRequest implements AccessRequest {
    *
    * @deprecated only for serialization/deserialization.
    */
-  DeleteRequest() {}
+  DeleteEntryRequest() {}
 
   /**
    * Constructs a delete entry request object.
@@ -21,7 +21,7 @@ public class DeleteRequest implements AccessRequest {
    * @param repository repository name
    * @param key entry to delete
    */
-  public DeleteRequest(Object apiKey, String repository, String key) {
+  public DeleteEntryRequest(Object apiKey, String repository, String key) {
     this.apiKey = apiKey;
     this.repository = repository;
     this.key = key;
@@ -41,7 +41,7 @@ public class DeleteRequest implements AccessRequest {
 
   @Override
   public String toString() {
-    return "DeleteRequest{"
+    return "DeleteEntryRequest{"
         + "apiKey="
         + apiKey
         + ", repository='"
