@@ -19,6 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import rx.Observable;
 import rx.RxReactiveStreams;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class CouchbaseRepository implements ConfigurationRepository {
 
@@ -38,11 +39,11 @@ public class CouchbaseRepository implements ConfigurationRepository {
   @Override
   public Mono<Boolean> createRepository(Repository repository) {
     return Mono.from(
-            RxReactiveStreams.toPublisher(
-                bucket.insert(
-                    JsonDocument.create(
-                        repository.namespace() + DELIMITER + repository.name(),
-                        JsonObject.empty()))))
+        RxReactiveStreams.toPublisher(
+            bucket.insert(
+                JsonDocument.create(
+                    repository.namespace() + DELIMITER + repository.name(),
+                    JsonObject.empty()))))
         .onErrorMap(
             DocumentAlreadyExistsException.class,
             e ->
@@ -53,10 +54,15 @@ public class CouchbaseRepository implements ConfigurationRepository {
   }
 
   @Override
+  public Mono<Document> updateEntry(String tenant, String repository, Document doc) {
+    throw new NotImplementedException();
+  }
+
+  @Override
   public Mono<Document> readEntry(String tenant, String repository, String key) {
     return Mono.from(
-            RxReactiveStreams.toPublisher(
-                bucket.mapGet(tenant + DELIMITER + repository, key, Object.class)))
+        RxReactiveStreams.toPublisher(
+            bucket.mapGet(tenant + DELIMITER + repository, key, Object.class)))
         .onErrorMap(
             DocumentDoesNotExistException.class,
             e ->
@@ -81,26 +87,26 @@ public class CouchbaseRepository implements ConfigurationRepository {
   @Override
   public Flux<Document> readList(String tenant, String repository) {
     return Flux.from(
-            RxReactiveStreams.toPublisher(
-                bucket
-                    .get(tenant + DELIMITER + repository)
-                    .switchIfEmpty(
-                        Observable.defer(
-                            () ->
-                                Observable.error(
-                                    new RepositoryNotFoundException(
-                                        String.format(REPOSITORY_NOT_FOUND, tenant, repository)))))
-                    .map(AbstractDocument::content)
-                    .flatMap(content -> Observable.from(content.toMap().entrySet()))
-                    .map(entry -> new Document(entry.getKey(), entry.getValue()))))
+        RxReactiveStreams.toPublisher(
+            bucket
+                .get(tenant + DELIMITER + repository)
+                .switchIfEmpty(
+                    Observable.defer(
+                        () ->
+                            Observable.error(
+                                new RepositoryNotFoundException(
+                                    String.format(REPOSITORY_NOT_FOUND, tenant, repository)))))
+                .map(AbstractDocument::content)
+                .flatMap(content -> Observable.from(content.toMap().entrySet()))
+                .map(entry -> new Document(entry.getKey(), entry.getValue()))))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible);
   }
 
   @Override
   public Mono<Document> createEntry(String tenant, String repository, Document document) {
     return Mono.from(
-            RxReactiveStreams.toPublisher(
-                bucket.mapAdd(tenant + DELIMITER + repository, document.key(), document.value())))
+        RxReactiveStreams.toPublisher(
+            bucket.mapAdd(tenant + DELIMITER + repository, document.key(), document.value())))
         .onErrorMap(
             DocumentDoesNotExistException.class,
             e ->
