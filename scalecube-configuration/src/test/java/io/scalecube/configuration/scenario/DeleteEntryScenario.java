@@ -37,7 +37,7 @@ public class DeleteEntryScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(
                     ownerToken,
                     repoName,
@@ -49,7 +49,7 @@ public class DeleteEntryScenario extends BaseScenario {
                         .put("DecimalPrecision", 4)
                         .put("Rounding", "down"))))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(
                     ownerToken,
                     repoName,
@@ -107,12 +107,12 @@ public class DeleteEntryScenario extends BaseScenario {
 
     configurationService
         .createRepository(new CreateRepositoryRequest(token, repoName1))
-        .then(configurationService.save(new SaveRequest(token, repoName1, entryKey, entryValue1)))
+        .then(configurationService.createEntry(new SaveRequest(token, repoName1, entryKey, entryValue1)))
         .block(TIMEOUT);
 
     configurationService
         .createRepository(new CreateRepositoryRequest(token, repoName2))
-        .then(configurationService.save(new SaveRequest(token, repoName2, entryKey, entryValue2)))
+        .then(configurationService.createEntry(new SaveRequest(token, repoName2, entryKey, entryValue2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -147,7 +147,7 @@ public class DeleteEntryScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(
                     ownerToken,
                     repoName,
@@ -185,7 +185,7 @@ public class DeleteEntryScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(
                     ownerToken,
                     repoName,
@@ -236,7 +236,7 @@ public class DeleteEntryScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(token, repoName))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(
                     token,
                     repoName,
@@ -277,7 +277,7 @@ public class DeleteEntryScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(token1, repoName))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(
                     token1,
                     repoName,
@@ -310,7 +310,7 @@ public class DeleteEntryScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(token.key(), repoName))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(
                     token.key(),
                     repoName,

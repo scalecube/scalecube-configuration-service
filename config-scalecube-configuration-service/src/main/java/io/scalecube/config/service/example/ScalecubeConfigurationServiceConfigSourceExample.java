@@ -56,7 +56,7 @@ public class ScalecubeConfigurationServiceConfigSourceExample {
     String key1 = "person1";
     JsonNode value1 = objectMapper.reader().readTree("{\"name\":\"foo\",\"age\":42}");
     SaveRequest request = new SaveRequest(token, repository, key1, value1);
-    configurationService.save(request).block();
+    configurationService.createEntry(request).block();
 
     ConfigRegistrySettings configRegistrySettings =
         ConfigRegistrySettings.builder()
@@ -121,7 +121,7 @@ public class ScalecubeConfigurationServiceConfigSourceExample {
                 throw ThrowableUtil.propagate(ignoredException);
               }
             })
-        .flatMap(configurationService::save)
+        .flatMap(configurationService::createEntry)
         .blockLast();
   }
 

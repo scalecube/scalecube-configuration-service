@@ -19,7 +19,7 @@ public interface ConfigurationService {
   String CONFIG_CREATE_REPO = "configuration/createRepository";
   String CONFIG_FETCH = "configuration/readEntry";
   String CONFIG_ENTRIES = "configuration/entries";
-  String CONFIG_SAVE = "configuration/save";
+  String CONFIG_SAVE = "configuration/createEntry";
   String CONFIG_DELETE = "configuration/delete";
 
   /**
@@ -56,7 +56,7 @@ public interface ConfigurationService {
    * @return acknowledgement when saved.
    */
   @ServiceMethod
-  Mono<Acknowledgment> save(SaveRequest request);
+  Mono<Acknowledgment> createEntry(SaveRequest request);
 
   /**
    * delete request requires write level permissions to delete entry from the store.

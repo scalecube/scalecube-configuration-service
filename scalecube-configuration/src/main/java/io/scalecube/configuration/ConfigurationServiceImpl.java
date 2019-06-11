@@ -91,7 +91,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   @Override
-  public Mono<Acknowledgment> save(SaveRequest request) {
+  public Mono<Acknowledgment> createEntry(SaveRequest request) {
     return Mono.fromRunnable(() -> logger.debug("createEntry: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)

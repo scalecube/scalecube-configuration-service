@@ -37,7 +37,7 @@ public class LocalMockServiceFixture implements Fixture {
             answer -> {
               return Mono.just(responses);
             });
-    when(service.save(any()))
+    when(service.createEntry(any()))
         .then(
             answer -> {
               SaveRequest request = (SaveRequest) answer.getArguments()[0];

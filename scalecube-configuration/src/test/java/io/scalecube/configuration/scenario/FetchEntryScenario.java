@@ -52,10 +52,10 @@ public class FetchEntryScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(ownerToken, repoName, entryKey1, entryValue1)))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(ownerToken, repoName, entryKey2, entryValue2)))
         .block(TIMEOUT);
 
@@ -123,10 +123,10 @@ public class FetchEntryScenario extends BaseScenario {
             configurationService.createRepository(
                 new CreateRepositoryRequest(ownerToken, repoName2)))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(ownerToken, repoName1, entryKey1, entryValue1)))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(ownerToken, repoName2, entryKey1, entryValue2)))
         .block(TIMEOUT);
 
@@ -170,10 +170,10 @@ public class FetchEntryScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(ownerToken, repoName, entryKey1, entryValue1)))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(ownerToken, repoName, entryKey2, entryValue2)))
         .block(TIMEOUT);
 
@@ -229,7 +229,7 @@ public class FetchEntryScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(
                     ownerToken,
                     repoName,
@@ -270,7 +270,7 @@ public class FetchEntryScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(token1, repoName))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(
                     token1,
                     repoName,
@@ -304,7 +304,7 @@ public class FetchEntryScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(ownerToken.key(), repoName))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(
                     ownerToken.key(),
                     repoName,

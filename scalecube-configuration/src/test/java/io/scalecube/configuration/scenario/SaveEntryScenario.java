@@ -23,7 +23,7 @@ import reactor.test.StepVerifier;
 public class SaveEntryScenario extends BaseScenario {
 
   @TestTemplate
-  @DisplayName("#7 Successful save of specific entry (instrument) applying the \"Owner\" API key")
+  @DisplayName("#7 Successful createEntry of specific entry (instrument) applying the \"Owner\" API key")
   void saveEntry(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -45,7 +45,7 @@ public class SaveEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService
-                .save(new SaveRequest(token, repoName, entryKey, entryValue))
+                .createEntry(new SaveRequest(token, repoName, entryKey, entryValue))
                 .then(configurationService.readEntry(new FetchRequest(token, repoName, entryKey))))
         .assertNext(
             entry -> {
@@ -58,7 +58,7 @@ public class SaveEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#8 Successful save the identical entries for different Repositories applying the \"Admin\" API key")
+      "#8 Successful createEntry the identical entries for different Repositories applying the \"Admin\" API key")
   void saveEntryToDifferentRepositories(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -86,7 +86,7 @@ public class SaveEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService
-                .save(new SaveRequest(adminToken, repoName1, entryKey, entryValue))
+                .createEntry(new SaveRequest(adminToken, repoName1, entryKey, entryValue))
                 .then(
                     configurationService.readEntry(new FetchRequest(adminToken, repoName1, entryKey))))
         .assertNext(
@@ -99,7 +99,7 @@ public class SaveEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService
-                .save(new SaveRequest(adminToken, repoName2, entryKey, entryValue))
+                .createEntry(new SaveRequest(adminToken, repoName2, entryKey, entryValue))
                 .then(
                     configurationService.readEntry(new FetchRequest(adminToken, repoName2, entryKey))))
         .assertNext(
@@ -139,17 +139,17 @@ public class SaveEntryScenario extends BaseScenario {
 
     configurationService
         .createRepository(new CreateRepositoryRequest(token, repoName1))
-        .then(configurationService.save(new SaveRequest(token, repoName1, entryKey, entryValue1)))
+        .then(configurationService.createEntry(new SaveRequest(token, repoName1, entryKey, entryValue1)))
         .block(TIMEOUT);
 
     configurationService
         .createRepository(new CreateRepositoryRequest(token, repoName2))
-        .then(configurationService.save(new SaveRequest(token, repoName2, entryKey, entryValue1)))
+        .then(configurationService.createEntry(new SaveRequest(token, repoName2, entryKey, entryValue1)))
         .block(TIMEOUT);
 
     StepVerifier.create(
             configurationService
-                .save(new SaveRequest(token, repoName1, entryKey, entryValue2))
+                .createEntry(new SaveRequest(token, repoName1, entryKey, entryValue2))
                 .then(configurationService.readEntry(new FetchRequest(token, repoName1, entryKey))))
         .assertNext(
             entry -> {
@@ -191,12 +191,12 @@ public class SaveEntryScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
-            configurationService.save(new SaveRequest(ownerToken, repoName, entryKey, entryValue)))
+            configurationService.createEntry(new SaveRequest(ownerToken, repoName, entryKey, entryValue)))
         .block(TIMEOUT);
 
     StepVerifier.create(
             configurationService
-                .save(new SaveRequest(adminToken, repoName, entryKey, entryValue))
+                .createEntry(new SaveRequest(adminToken, repoName, entryKey, entryValue))
                 .then(configurationService.entries(new EntriesRequest(adminToken, repoName))))
         .assertNext(
             entries -> {
@@ -212,7 +212,7 @@ public class SaveEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#11 Successful save the specific entries applying the \"Owner\" API key for:\n"
+      "#11 Successful createEntry the specific entries applying the \"Owner\" API key for:\n"
           + "  - values that reach at least a 1000 chars (no quantity validation for input)\n"
           + "  - values which chars are symbols and spaces (no chars validation for input)")
   void saveEntryWith1000charsAndSpecialSymbols(
@@ -236,7 +236,7 @@ public class SaveEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService
-                .save(new SaveRequest(token, repoName, entryKey, entryValue))
+                .createEntry(new SaveRequest(token, repoName, entryKey, entryValue))
                 .then(configurationService.readEntry(new FetchRequest(token, repoName, entryKey))))
         .assertNext(
             entry -> {
@@ -249,7 +249,7 @@ public class SaveEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#12 Fail to save a specific entry upon the restricted permission due to applying the \"Member\" API key")
+      "#12 Fail to createEntry a specific entry upon the restricted permission due to applying the \"Member\" API key")
   void saveEntryByMember(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -271,14 +271,14 @@ public class SaveEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.save(new SaveRequest(memberToken, repoName, entryKey, entryValue)))
+            configurationService.createEntry(new SaveRequest(memberToken, repoName, entryKey, entryValue)))
         .expectErrorMessage("Permission denied")
         .verify();
   }
 
   @TestTemplate
   @DisplayName(
-      "#13 Fail to save (edit) the specific entry applying the \"Admin\" either \"Owner\" API key upon the specified Repository doesn't exist")
+      "#13 Fail to createEntry (edit) the specific entry applying the \"Admin\" either \"Owner\" API key upon the specified Repository doesn't exist")
   void saveEntryToNonExistingRepository(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -295,7 +295,7 @@ public class SaveEntryScenario extends BaseScenario {
             .put("Rounding", "down");
 
     StepVerifier.create(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(adminToken, nonExistingRepoName, entryKey, entryValue)))
         .expectErrorMessage(
             String.format("Repository '%s-%s' not found", orgId, nonExistingRepoName))
@@ -304,7 +304,7 @@ public class SaveEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#14 Fail to save (edit) the specific entry in the Repository upon the \"apiKey\" is invalid (expired)")
+      "#14 Fail to createEntry (edit) the specific entry in the Repository upon the \"apiKey\" is invalid (expired)")
   void saveEntryUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -321,14 +321,14 @@ public class SaveEntryScenario extends BaseScenario {
             .put("Rounding", "down");
 
     StepVerifier.create(
-            configurationService.save(new SaveRequest(token, repoName, entryKey, entryValue)))
+            configurationService.createEntry(new SaveRequest(token, repoName, entryKey, entryValue)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
 
   @TestTemplate
   @DisplayName(
-      "#15 Fail to save (edit) the specific entry in the Repository upon the Owner deleted the Organization with related \"Owner\" API key")
+      "#15 Fail to createEntry (edit) the specific entry in the Repository upon the Owner deleted the Organization with related \"Owner\" API key")
   void saveEntryForDeletedOrganization(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
@@ -356,14 +356,14 @@ public class SaveEntryScenario extends BaseScenario {
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
-            configurationService.save(new SaveRequest(token, repoName, entryKey, entryValue)))
+            configurationService.createEntry(new SaveRequest(token, repoName, entryKey, entryValue)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
 
   @TestTemplate
   @DisplayName(
-      "#16 Fail to save (edit) the specific entry in the Repository upon the Owner applied some of the manager's API key from another Organization")
+      "#16 Fail to createEntry (edit) the specific entry in the Repository upon the Owner applied some of the manager's API key from another Organization")
   void saveEntryUsingTokenOfAnotherOrganization(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId1 = createOrganization(organizationService).id();
@@ -387,14 +387,14 @@ public class SaveEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.save(new SaveRequest(token2, repoName, entryKey, entryValue)))
+            configurationService.createEntry(new SaveRequest(token2, repoName, entryKey, entryValue)))
         .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId2, repoName))
         .verify();
   }
 
   @TestTemplate
   @DisplayName(
-      "#17 Fail to save (edit) the specific entry in the Repository upon the Owner \"apiKey\" (API key) was deleted from the Organization")
+      "#17 Fail to createEntry (edit) the specific entry in the Repository upon the Owner \"apiKey\" (API key) was deleted from the Organization")
   void saveEntryUsingDeletedToken(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
@@ -423,7 +423,7 @@ public class SaveEntryScenario extends BaseScenario {
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
-            configurationService.save(new SaveRequest(token.key(), repoName, entryKey, entryValue)))
+            configurationService.createEntry(new SaveRequest(token.key(), repoName, entryKey, entryValue)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }

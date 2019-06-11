@@ -62,7 +62,7 @@ class ScalecubeConfigurationServiceConfigSourceTest {
                   "QWER", new String[] {"+ALLOW-READ=(INSTRUMENT@123345)", "+ALLOW-WRITE=NONE"})
             });
     JsonNode value = new POJONode(expected);
-    service.save(new SaveRequest(token, repository, documentKey, value)).block();
+    service.createEntry(new SaveRequest(token, repository, documentKey, value)).block();
     assertTrue(latch.await(10, TimeUnit.SECONDS), "Time out waiting for a new value");
 
     assertTrue(configProperty.value().isPresent());
@@ -100,13 +100,13 @@ class ScalecubeConfigurationServiceConfigSourceTest {
 
     BrokerData expected = new BrokerData("IOPHJK", new ApiKey[] {});
     JsonNode value = new POJONode(expected);
-    service.save(new SaveRequest(token, repository, documentKey, value)).block();
+    service.createEntry(new SaveRequest(token, repository, documentKey, value)).block();
     assertTrue(latchForFirst.await(10, TimeUnit.SECONDS), "Time out waiting for a new value");
     assertTrue(configProperty.value().isPresent());
     expected = new BrokerData("QAWSED", new ApiKey[] {});
     value = new POJONode(expected);
     service
-        .save(
+        .createEntry(
             new SaveRequest(
                 configRegistry.stringValue("token", "token"),
                 configRegistry.stringValue("repository", "repository"),

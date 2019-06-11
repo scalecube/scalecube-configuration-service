@@ -40,7 +40,7 @@ public class FetchEntriesScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(
                     ownerToken,
                     repoName,
@@ -52,7 +52,7 @@ public class FetchEntriesScenario extends BaseScenario {
                         .put("DecimalPrecision", 4)
                         .put("Rounding", "down"))))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(
                     ownerToken,
                     repoName,
@@ -158,7 +158,7 @@ public class FetchEntriesScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(
                     ownerToken,
                     repoName,
@@ -199,7 +199,7 @@ public class FetchEntriesScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(token1, repoName))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(
                     token1,
                     repoName,
@@ -233,7 +233,7 @@ public class FetchEntriesScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(ownerToken.key(), repoName))
         .then(
-            configurationService.save(
+            configurationService.createEntry(
                 new SaveRequest(
                     ownerToken.key(),
                     repoName,
