@@ -24,8 +24,8 @@ class Scratch {
         .async()).retryBackoff(3, Duration.ofSeconds(1)).block(Duration.ofSeconds(30));
   }
 
-  private static final int REPOS_COUNT = 5;
-  private static final int KEYS_AMOUNT = 10;
+  private static final int REPOS_COUNT = 50;
+  private static final int KEYS_AMOUNT = 25;
   private static final int MAX_VERSION_NUMBER = 15;
 
   private static final String ORG_REPO_IDS_NAME = "ORG_ID::REPO_ID";
