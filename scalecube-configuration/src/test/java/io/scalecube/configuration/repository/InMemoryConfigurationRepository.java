@@ -50,11 +50,6 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   }
 
   @Override
-  public Mono<Document> updateEntry(String tenant, String repository, Document doc) {
-    throw new NotImplementedException();
-  }
-
-  @Override
   public Mono<Void> deleteEntry(String tenant, String repository, String key) {
     return remove(new Repository(tenant, repository), key);
   }

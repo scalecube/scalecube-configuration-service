@@ -55,11 +55,6 @@ public class CouchbaseRepository implements ConfigurationRepository {
   }
 
   @Override
-  public Mono<Document> updateEntry(String tenant, String repository, Document doc) {
-    throw new NotImplementedException();
-  }
-
-  @Override
   public Mono<Document> readEntry(String tenant, String repository, String key, Integer version) {
     return Mono.from(
         RxReactiveStreams.toPublisher(

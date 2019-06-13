@@ -45,7 +45,7 @@ public interface ConfigurationRepository {
   Flux<HistoryDocument> readEntryHistory(String tenant, String repository, String key);
 
   /**
-   * Save a key from a tenant repository by key.
+   * Save or update a key from a tenant repository by key.
    *
    * @param tenant namespace of the repository.
    * @param repository name to save.
@@ -53,16 +53,6 @@ public interface ConfigurationRepository {
    * @return Document instance by a given key.
    */
   Mono<Document> createEntry(String tenant, String repository, Document doc);
-
-  /**
-   * Update a key in a tenant repository by key.
-   *
-   * @param tenant namespace of the repository.
-   * @param repository name to update key.
-   * @param doc the document to update.
-   * @return Document instance by a given key and version.
-   */
-  Mono<Document> updateEntry(String tenant, String repository, Document doc);
 
   /**
    * Delete a key from a tenant repository by key.
