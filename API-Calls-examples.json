@@ -17,7 +17,7 @@
     }
   },
     {
-    "id": "3",
+    "id": "2",
     "text": "createEntry",
     "backColor": "black",
     "data": {
@@ -56,7 +56,8 @@
         "d": {
           "APIKey": "API-KEY",
           "repository": "REPO-NAME",
-          "key": "KEY-NAME"
+          "key": "KEY-NAME",
+          "version": "VERSION NUMBER (default is LAST)"
         }
       }
     },
@@ -69,7 +70,8 @@
         "sid": 4,
         "d": {
           "APIKey": "API-KEY",
-          "repository": "REPO-NAME"
+          "repository": "REPO-NAME",
+          "version": "VERSION NUMBER (default is LAST)"
         }
       }
     },
