@@ -55,7 +55,8 @@ public class ScalecubeConfigurationServiceConfigSourceExample {
 
     String key1 = "person1";
     JsonNode value1 = objectMapper.reader().readTree("{\"name\":\"foo\",\"age\":42}");
-    CreateOrUpdateEntryRequest request = new CreateOrUpdateEntryRequest(token, repository, key1, value1);
+    CreateOrUpdateEntryRequest request = new CreateOrUpdateEntryRequest(token, repository, key1,
+        value1);
     configurationService.createEntry(request).block();
 
     ConfigRegistrySettings configRegistrySettings =

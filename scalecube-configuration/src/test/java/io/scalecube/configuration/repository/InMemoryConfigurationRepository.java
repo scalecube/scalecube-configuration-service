@@ -40,7 +40,7 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   }
 
   @Override
-  public Flux<Document> readEntryHistory(String tenant, String repository, String key) {
+  public Flux<HistoryDocument> readEntryHistory(String tenant, String repository, String key) {
     throw new NotImplementedException();
   }
 

@@ -10,6 +10,7 @@ import com.couchbase.client.java.error.DocumentDoesNotExistException;
 import com.couchbase.client.java.error.subdoc.PathNotFoundException;
 import io.scalecube.configuration.repository.ConfigurationRepository;
 import io.scalecube.configuration.repository.Document;
+import io.scalecube.configuration.repository.HistoryDocument;
 import io.scalecube.configuration.repository.Repository;
 import io.scalecube.configuration.repository.exception.DataAccessException;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
@@ -103,7 +104,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
   }
 
   @Override
-  public Flux<Document> readEntryHistory(String tenant, String repository, String key) {
+  public Flux<HistoryDocument> readEntryHistory(String tenant, String repository, String key) {
     throw new NotImplementedException();
   }
 

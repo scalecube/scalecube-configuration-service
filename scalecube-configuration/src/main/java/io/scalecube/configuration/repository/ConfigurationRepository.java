@@ -42,7 +42,7 @@ public interface ConfigurationRepository {
    * @param key of the document to fetch history.
    * @return Document instance by a given key.
    */
-  Flux<Document> readEntryHistory(String tenant, String repository, String key);
+  Flux<HistoryDocument> readEntryHistory(String tenant, String repository, String key);
 
   /**
    * Save a key from a tenant repository by key.

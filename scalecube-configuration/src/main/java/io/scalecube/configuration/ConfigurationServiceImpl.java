@@ -70,7 +70,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             Mono.defer(
                 () -> checkAccess(request.apiKey().toString(),
                     ConfigurationService.CONFIG_READ_ENTRY)))
-        .flatMap(p -> repository.readEntry(p.tenant(), request.repository(), request.key(), request.version()))
+        .flatMap(p -> repository
+            .readEntry(p.tenant(), request.repository(), request.key(), request.version()))
         .map(document -> new ReadEntryResponse(document.key(), document.value()))
         .doOnSuccess(
             result -> logger.debug("readEntry: exit: request: {}, result: {}", request, result))
