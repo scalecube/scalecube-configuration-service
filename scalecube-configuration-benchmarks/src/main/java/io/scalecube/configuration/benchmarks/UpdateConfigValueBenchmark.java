@@ -5,7 +5,7 @@ import io.scalecube.benchmarks.BenchmarkSettings;
 import io.scalecube.benchmarks.metrics.BenchmarkTimer;
 import io.scalecube.benchmarks.metrics.BenchmarkTimer.Context;
 import io.scalecube.configuration.api.ConfigurationService;
-import io.scalecube.configuration.api.CreateEntryRequest;
+import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 
 public final class UpdateConfigValueBenchmark {
 
@@ -30,8 +30,8 @@ public final class UpdateConfigValueBenchmark {
               BenchmarkTimer timer = state.timer("timer");
 
               return i -> {
-                CreateEntryRequest createEntryRequest =
-                    new CreateEntryRequest(
+                CreateOrUpdateEntryRequest createOrUpdateEntryRequest =
+                    new CreateOrUpdateEntryRequest(
                         state.apiKey(),
                         "benchmarks-repo",
                         "key-" + i % configKeysCount,
@@ -39,7 +39,7 @@ public final class UpdateConfigValueBenchmark {
 
                 Context time = timer.time();
 
-                return configurationService.createEntry(createEntryRequest)
+                return configurationService.createEntry(createOrUpdateEntryRequest)
                     .doOnSuccess(response -> time.stop());
               };
             });

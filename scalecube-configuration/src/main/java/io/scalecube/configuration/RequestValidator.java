@@ -1,6 +1,6 @@
 package io.scalecube.configuration;
 
-import io.scalecube.configuration.api.CreateEntryRequest;
+import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.DeleteEntryRequest;
 import io.scalecube.configuration.api.ReadEntryRequest;
@@ -34,7 +34,7 @@ final class RequestValidator {
         });
   }
 
-  static Mono<Void> validate(CreateEntryRequest request) {
+  static Mono<Void> validate(CreateOrUpdateEntryRequest request) {
     return Mono.fromRunnable(
         () -> {
           validateToken(request.apiKey());

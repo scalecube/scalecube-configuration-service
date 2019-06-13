@@ -3,7 +3,6 @@ package io.scalecube.configuration.api;
 import io.scalecube.services.annotations.Service;
 import io.scalecube.services.annotations.ServiceMethod;
 import java.util.List;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -52,7 +51,7 @@ public interface ConfigurationService {
   Mono<List<ReadEntryResponse>> readList(ReadListRequest request);
 
   /**
-   * Fetch request requires read level permissions to get entry object from the store.
+   * The request requires read level permissions to get entry object from the store.
    *
    * @param request includes the repository and key of the requested object.
    * @return json object from the store.
@@ -67,7 +66,7 @@ public interface ConfigurationService {
    * @return acknowledgement when saved.
    */
   @ServiceMethod
-  Mono<Acknowledgment> createEntry(CreateEntryRequest request);
+  Mono<Acknowledgment> createEntry(CreateOrUpdateEntryRequest request);
 
   /**
    * Update request requires write level permissions to update entry to the store.
@@ -76,7 +75,7 @@ public interface ConfigurationService {
    * @return acknowledgement when updated.
    */
   @ServiceMethod
-  Mono<Acknowledgment> updateEntry(CreateEntryRequest request);
+  Mono<Acknowledgment> updateEntry(CreateOrUpdateEntryRequest request);
 
   /**
    * delete request requires write level permissions to delete entry from the store.

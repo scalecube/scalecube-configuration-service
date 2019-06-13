@@ -9,10 +9,10 @@ import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
+import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.ReadEntryRequest;
 import io.scalecube.configuration.api.ReadListRequest;
-import io.scalecube.configuration.api.CreateEntryRequest;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
@@ -53,10 +53,10 @@ public class ReadEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
             configurationService.createEntry(
-                new CreateEntryRequest(ownerToken, repoName, entryKey1, entryValue1)))
+                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey1, entryValue1)))
         .then(
             configurationService.createEntry(
-                new CreateEntryRequest(ownerToken, repoName, entryKey2, entryValue2)))
+                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey2, entryValue2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -124,10 +124,10 @@ public class ReadEntryScenario extends BaseScenario {
                 new CreateRepositoryRequest(ownerToken, repoName2)))
         .then(
             configurationService.createEntry(
-                new CreateEntryRequest(ownerToken, repoName1, entryKey1, entryValue1)))
+                new CreateOrUpdateEntryRequest(ownerToken, repoName1, entryKey1, entryValue1)))
         .then(
             configurationService.createEntry(
-                new CreateEntryRequest(ownerToken, repoName2, entryKey1, entryValue2)))
+                new CreateOrUpdateEntryRequest(ownerToken, repoName2, entryKey1, entryValue2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -171,10 +171,10 @@ public class ReadEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
             configurationService.createEntry(
-                new CreateEntryRequest(ownerToken, repoName, entryKey1, entryValue1)))
+                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey1, entryValue1)))
         .then(
             configurationService.createEntry(
-                new CreateEntryRequest(ownerToken, repoName, entryKey2, entryValue2)))
+                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey2, entryValue2)))
         .block(TIMEOUT);
 
     String nonExistentKey = "NON_EXISTENT_KEY";
@@ -230,7 +230,7 @@ public class ReadEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
             configurationService.createEntry(
-                new CreateEntryRequest(
+                new CreateOrUpdateEntryRequest(
                     ownerToken,
                     repoName,
                     entryKey,
@@ -271,7 +271,7 @@ public class ReadEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(token1, repoName))
         .then(
             configurationService.createEntry(
-                new CreateEntryRequest(
+                new CreateOrUpdateEntryRequest(
                     token1,
                     repoName,
                     entryKey,
@@ -305,7 +305,7 @@ public class ReadEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken.key(), repoName))
         .then(
             configurationService.createEntry(
-                new CreateEntryRequest(
+                new CreateOrUpdateEntryRequest(
                     ownerToken.key(),
                     repoName,
                     entryKey,

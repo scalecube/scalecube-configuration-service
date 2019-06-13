@@ -9,11 +9,11 @@ import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
+import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.ReadEntryRequest;
 import io.scalecube.configuration.api.ReadEntryResponse;
 import io.scalecube.configuration.api.ReadListRequest;
-import io.scalecube.configuration.api.CreateEntryRequest;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
@@ -45,7 +45,7 @@ public class CreateEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService
-                .createEntry(new CreateEntryRequest(token, repoName, entryKey, entryValue))
+                .createEntry(new CreateOrUpdateEntryRequest(token, repoName, entryKey, entryValue))
                 .then(configurationService.readEntry(new ReadEntryRequest(token, repoName, entryKey))))
         .assertNext(
             entry -> {
@@ -86,7 +86,7 @@ public class CreateEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService
-                .createEntry(new CreateEntryRequest(adminToken, repoName1, entryKey, entryValue))
+                .createEntry(new CreateOrUpdateEntryRequest(adminToken, repoName1, entryKey, entryValue))
                 .then(
                     configurationService.readEntry(new ReadEntryRequest(adminToken, repoName1, entryKey))))
         .assertNext(
@@ -99,7 +99,7 @@ public class CreateEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService
-                .createEntry(new CreateEntryRequest(adminToken, repoName2, entryKey, entryValue))
+                .createEntry(new CreateOrUpdateEntryRequest(adminToken, repoName2, entryKey, entryValue))
                 .then(
                     configurationService.readEntry(new ReadEntryRequest(adminToken, repoName2, entryKey))))
         .assertNext(
@@ -139,17 +139,17 @@ public class CreateEntryScenario extends BaseScenario {
 
     configurationService
         .createRepository(new CreateRepositoryRequest(token, repoName1))
-        .then(configurationService.createEntry(new CreateEntryRequest(token, repoName1, entryKey, entryValue1)))
+        .then(configurationService.createEntry(new CreateOrUpdateEntryRequest(token, repoName1, entryKey, entryValue1)))
         .block(TIMEOUT);
 
     configurationService
         .createRepository(new CreateRepositoryRequest(token, repoName2))
-        .then(configurationService.createEntry(new CreateEntryRequest(token, repoName2, entryKey, entryValue1)))
+        .then(configurationService.createEntry(new CreateOrUpdateEntryRequest(token, repoName2, entryKey, entryValue1)))
         .block(TIMEOUT);
 
     StepVerifier.create(
             configurationService
-                .createEntry(new CreateEntryRequest(token, repoName1, entryKey, entryValue2))
+                .createEntry(new CreateOrUpdateEntryRequest(token, repoName1, entryKey, entryValue2))
                 .then(configurationService.readEntry(new ReadEntryRequest(token, repoName1, entryKey))))
         .assertNext(
             entry -> {
@@ -191,12 +191,12 @@ public class CreateEntryScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
-            configurationService.createEntry(new CreateEntryRequest(ownerToken, repoName, entryKey, entryValue)))
+            configurationService.createEntry(new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValue)))
         .block(TIMEOUT);
 
     StepVerifier.create(
             configurationService
-                .createEntry(new CreateEntryRequest(adminToken, repoName, entryKey, entryValue))
+                .createEntry(new CreateOrUpdateEntryRequest(adminToken, repoName, entryKey, entryValue))
                 .then(configurationService.readList(new ReadListRequest(adminToken, repoName))))
         .assertNext(
             entries -> {
@@ -236,7 +236,7 @@ public class CreateEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService
-                .createEntry(new CreateEntryRequest(token, repoName, entryKey, entryValue))
+                .createEntry(new CreateOrUpdateEntryRequest(token, repoName, entryKey, entryValue))
                 .then(configurationService.readEntry(new ReadEntryRequest(token, repoName, entryKey))))
         .assertNext(
             entry -> {
@@ -271,7 +271,7 @@ public class CreateEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.createEntry(new CreateEntryRequest(memberToken, repoName, entryKey, entryValue)))
+            configurationService.createEntry(new CreateOrUpdateEntryRequest(memberToken, repoName, entryKey, entryValue)))
         .expectErrorMessage("Permission denied")
         .verify();
   }
@@ -296,7 +296,7 @@ public class CreateEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService.createEntry(
-                new CreateEntryRequest(adminToken, nonExistingRepoName, entryKey, entryValue)))
+                new CreateOrUpdateEntryRequest(adminToken, nonExistingRepoName, entryKey, entryValue)))
         .expectErrorMessage(
             String.format("Repository '%s-%s' not found", orgId, nonExistingRepoName))
         .verify();
@@ -321,7 +321,7 @@ public class CreateEntryScenario extends BaseScenario {
             .put("Rounding", "down");
 
     StepVerifier.create(
-            configurationService.createEntry(new CreateEntryRequest(token, repoName, entryKey, entryValue)))
+            configurationService.createEntry(new CreateOrUpdateEntryRequest(token, repoName, entryKey, entryValue)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
@@ -356,7 +356,7 @@ public class CreateEntryScenario extends BaseScenario {
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
-            configurationService.createEntry(new CreateEntryRequest(token, repoName, entryKey, entryValue)))
+            configurationService.createEntry(new CreateOrUpdateEntryRequest(token, repoName, entryKey, entryValue)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
@@ -387,7 +387,7 @@ public class CreateEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.createEntry(new CreateEntryRequest(token2, repoName, entryKey, entryValue)))
+            configurationService.createEntry(new CreateOrUpdateEntryRequest(token2, repoName, entryKey, entryValue)))
         .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId2, repoName))
         .verify();
   }
@@ -423,7 +423,7 @@ public class CreateEntryScenario extends BaseScenario {
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
-            configurationService.createEntry(new CreateEntryRequest(token.key(), repoName, entryKey, entryValue)))
+            configurationService.createEntry(new CreateOrUpdateEntryRequest(token.key(), repoName, entryKey, entryValue)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
