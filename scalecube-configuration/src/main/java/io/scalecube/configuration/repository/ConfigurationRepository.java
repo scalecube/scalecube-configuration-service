@@ -20,9 +20,10 @@ public interface ConfigurationRepository {
    * @param tenant namespace of the repository.
    * @param repository to fetch from.
    * @param key of the document to fetch.
+   * @param version of the document key to fetch.
    * @return Document instance by a given key.
    */
-  Mono<Document> readEntry(String tenant, String repository, String key);
+  Mono<Document> readEntry(String tenant, String repository, String key, Integer version);
 
   /**
    * Fetch all keys from a tenant repository.
@@ -31,9 +32,17 @@ public interface ConfigurationRepository {
    * @param repository to fetch from.
    * @return stream of Document instances in the repository.
    */
-  Flux<Document> readList(String tenant, String repository);
+  Flux<Document> readList(String tenant, String repository, Integer version);
 
-
+  /**
+   * Fetch a key history from a tenant repository by key.
+   *
+   * @param tenant namespace of the repository.
+   * @param repository to fetch from.
+   * @param key of the document to fetch history.
+   * @return Document instance by a given key.
+   */
+  Flux<Document> readEntryHistory(String tenant, String repository, String key);
 
   /**
    * Save a key from a tenant repository by key.

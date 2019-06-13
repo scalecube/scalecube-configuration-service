@@ -9,6 +9,7 @@ import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.DeleteEntryRequest;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
 import io.scalecube.configuration.api.ReadEntryHistoryRequest;
+import io.scalecube.configuration.api.ReadEntryHistoryResponse;
 import io.scalecube.configuration.api.ReadEntryRequest;
 import io.scalecube.configuration.api.ReadEntryResponse;
 import io.scalecube.configuration.api.ReadListRequest;
@@ -69,7 +70,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             Mono.defer(
                 () -> checkAccess(request.apiKey().toString(),
                     ConfigurationService.CONFIG_READ_ENTRY)))
-        .flatMap(p -> repository.readEntry(p.tenant(), request.repository(), request.key()))
+        .flatMap(p -> repository.readEntry(p.tenant(), request.repository(), request.key(), request.version()))
         .map(document -> new ReadEntryResponse(document.key(), document.value()))
         .doOnSuccess(
             result -> logger.debug("readEntry: exit: request: {}, result: {}", request, result))
@@ -85,7 +86,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             Flux.defer(
                 () -> checkAccess(request.apiKey().toString(),
                     ConfigurationService.CONFIG_READ_LIST)))
-        .flatMap(p -> repository.readList(p.tenant(), request.repository()))
+        .flatMap(p -> repository.readList(p.tenant(), request.repository(), request.version()))
         .map(doc -> new ReadEntryResponse(doc.key(), doc.value()))
         .collectList()
         .doOnSuccess(
@@ -94,7 +95,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   @Override
-  public Mono<ReadEntryResponse> readEntryHistory(ReadEntryHistoryRequest request) {
+  public Mono<List<ReadEntryHistoryResponse>> readEntryHistory(ReadEntryHistoryRequest request) {
     throw new NotImplementedException();
   }
 

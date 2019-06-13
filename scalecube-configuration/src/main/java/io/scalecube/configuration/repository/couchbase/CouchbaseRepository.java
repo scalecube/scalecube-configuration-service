@@ -59,7 +59,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
   }
 
   @Override
-  public Mono<Document> readEntry(String tenant, String repository, String key) {
+  public Mono<Document> readEntry(String tenant, String repository, String key, Integer version) {
     return Mono.from(
         RxReactiveStreams.toPublisher(
             bucket.mapGet(tenant + DELIMITER + repository, key, Object.class)))
@@ -85,7 +85,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
   }
 
   @Override
-  public Flux<Document> readList(String tenant, String repository) {
+  public Flux<Document> readList(String tenant, String repository, Integer version) {
     return Flux.from(
         RxReactiveStreams.toPublisher(
             bucket
@@ -100,6 +100,11 @@ public class CouchbaseRepository implements ConfigurationRepository {
                 .flatMap(content -> Observable.from(content.toMap().entrySet()))
                 .map(entry -> new Document(entry.getKey(), entry.getValue()))))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible);
+  }
+
+  @Override
+  public Flux<Document> readEntryHistory(String tenant, String repository, String key) {
+    throw new NotImplementedException();
   }
 
   @Override
@@ -125,7 +130,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
 
   @Override
   public Mono<Void> deleteEntry(String tenant, String repository, String key) {
-    return readEntry(tenant, repository, key)
+    return readEntry(tenant, repository, key, null)
         .then(
             Mono.from(
                 RxReactiveStreams.toPublisher(

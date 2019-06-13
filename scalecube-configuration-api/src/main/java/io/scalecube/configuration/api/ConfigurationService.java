@@ -3,6 +3,7 @@ package io.scalecube.configuration.api;
 import io.scalecube.services.annotations.Service;
 import io.scalecube.services.annotations.ServiceMethod;
 import java.util.List;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -57,7 +58,7 @@ public interface ConfigurationService {
    * @return json object from the store.
    */
   @ServiceMethod
-  Mono<ReadEntryResponse> readEntryHistory(ReadEntryHistoryRequest request);
+  Mono<List<ReadEntryHistoryResponse>> readEntryHistory(ReadEntryHistoryRequest request);
 
   /**
    * Save request requires write level permissions to save (create or update) entry to the store.
