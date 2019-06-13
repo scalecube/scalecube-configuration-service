@@ -6,6 +6,7 @@ public class ReadEntryRequest implements AccessRequest {
   protected String repository;
   protected String key;
   private Object apiKey;
+  private Integer version;
 
   /**
    * Default constructor.
@@ -20,11 +21,13 @@ public class ReadEntryRequest implements AccessRequest {
    * @param apiKey The request apiKey
    * @param repository The repository name
    * @param key The requested data key
+   * @param version The requested data key version
    */
-  public ReadEntryRequest(Object apiKey, String repository, String key) {
+  public ReadEntryRequest(Object apiKey, String repository, String key, Integer version) {
     this.apiKey = apiKey;
     this.repository = repository;
     this.key = key;
+    this.version = version;
   }
 
   /**
@@ -32,9 +35,12 @@ public class ReadEntryRequest implements AccessRequest {
    *
    * @param apiKey The request apiKey
    * @param repository The repository name
+   * @param key The requested data key
    */
-  public ReadEntryRequest(Object apiKey, String repository) {
-    this(apiKey, repository, null);
+  public ReadEntryRequest(Object apiKey, String repository, String key) {
+    this.apiKey = apiKey;
+    this.repository = repository;
+    this.key = key;
   }
 
   public String repository() {
@@ -45,13 +51,17 @@ public class ReadEntryRequest implements AccessRequest {
     return key;
   }
 
+  public Integer version() {
+    return version;
+  }
+
   public Object apiKey() {
     return this.apiKey;
   }
 
   @Override
   public String toString() {
-    return "ReadEntryRequest [repository=" + repository + ", key=" + key + ", apiKey=" + apiKey
-        + "]";
+    return "ReadEntryRequest [repository=" + repository + ", key=" + key + ", version=" + version
+        + ", apiKey=" + apiKey + "]";
   }
 }

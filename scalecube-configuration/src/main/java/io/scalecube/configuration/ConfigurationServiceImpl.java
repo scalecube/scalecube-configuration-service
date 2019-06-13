@@ -8,6 +8,7 @@ import io.scalecube.configuration.api.CreateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.DeleteEntryRequest;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
+import io.scalecube.configuration.api.ReadEntryHistoryRequest;
 import io.scalecube.configuration.api.ReadEntryRequest;
 import io.scalecube.configuration.api.ReadEntryResponse;
 import io.scalecube.configuration.api.ReadListRequest;
@@ -90,6 +91,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .doOnSuccess(
             result -> logger.debug("readList: exit: request: {}, result: {}", request, result))
         .doOnError(th -> logger.error("readList: request: {}, error:", request, th));
+  }
+
+  @Override
+  public Mono<ReadEntryResponse> readEntryHistory(ReadEntryHistoryRequest request) {
+    throw new NotImplementedException();
   }
 
   @Override

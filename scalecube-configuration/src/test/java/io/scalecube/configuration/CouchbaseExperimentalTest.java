@@ -58,7 +58,7 @@ class Scratch {
         }
         Mono.from(
             RxReactiveStreams
-                .toPublisher(bucket.mapAdd(docId, "version LAST", versionAmount)))
+                .toPublisher(bucket.mapAdd(docId, "version LATEST", versionAmount)))
             .block();
       }
     }

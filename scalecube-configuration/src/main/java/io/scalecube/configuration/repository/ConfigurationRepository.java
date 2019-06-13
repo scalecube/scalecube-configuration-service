@@ -33,6 +33,8 @@ public interface ConfigurationRepository {
    */
   Flux<Document> readList(String tenant, String repository);
 
+
+
   /**
    * Save a key from a tenant repository by key.
    *

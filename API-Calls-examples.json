@@ -57,7 +57,7 @@
           "APIKey": "API-KEY",
           "repository": "REPO-NAME",
           "key": "KEY-NAME",
-          "version": "VERSION NUMBER (default is LAST)"
+          "version": "VERSION NUMBER (default is LATEST)"
         }
       }
     },
@@ -71,12 +71,26 @@
         "d": {
           "APIKey": "API-KEY",
           "repository": "REPO-NAME",
-          "version": "VERSION NUMBER (default is LAST)"
+          "version": "VERSION NUMBER (default is LATEST)"
         }
       }
     },
     {
       "id": "6",
+      "text": "readEntryHistory",
+      "backColor": "black",
+      "data": {
+        "q": "/configuration/readEntryHistory",
+        "sid": 3,
+        "d": {
+          "APIKey": "API-KEY",
+          "repository": "REPO-NAME",
+          "key": "KEY-NAME"
+        }
+      }
+    },
+    {
+      "id": "7",
       "text": "deleteEntry",
       "backColor": "black",
       "data": {

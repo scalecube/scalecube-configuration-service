@@ -51,6 +51,15 @@ public interface ConfigurationService {
   Mono<List<ReadEntryResponse>> readList(ReadListRequest request);
 
   /**
+   * Fetch request requires read level permissions to get entry object from the store.
+   *
+   * @param request includes the repository and key of the requested object.
+   * @return json object from the store.
+   */
+  @ServiceMethod
+  Mono<ReadEntryResponse> readEntryHistory(ReadEntryHistoryRequest request);
+
+  /**
    * Save request requires write level permissions to save (create or update) entry to the store.
    *
    * @param request includes the name of the repository, key, value to save.
