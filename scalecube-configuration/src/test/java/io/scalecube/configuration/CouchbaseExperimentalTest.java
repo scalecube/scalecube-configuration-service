@@ -12,6 +12,34 @@ import org.junit.jupiter.api.Disabled;
 import reactor.core.publisher.Mono;
 import rx.RxReactiveStreams;
 
+/**
+ *
+ * USEFUL COUCHBASE QUERIES FOR TESTING:
+ *
+ * SELECT * FROM `configtest` use keys "ORG_ID::REPO_ID0::key2"
+ *
+ * INSERT INTO configtest VALUES("k0",{"name":"xyz"});
+ *
+ * SELECT * FROM `configtest` use keys "ORG_ID::REPO_ID0::key2" where `version 1` is not null;
+ *
+ * SELECT * FROM `configtest` use keys "ORG_ID::REPO_ID0::key2" where `version 1` is not null;
+ *
+ * select "version 1" FROM `configtest` WHERE `version 1` is not null;
+ *
+ * CREATE PRIMARY INDEX mybucket_primary_index ON `configtest` USING GSI;
+ *
+ * SELECT `version 1` FROM `configtest` use keys "ORG_ID::REPO_ID0::key2"
+ * where `version 1` is not null;
+ *
+ * SELECT `version 1` FROM `configtest` where `version 1` is not null;
+ *
+ * SELECT `version 1` FROM `configtest` where `version 3` is not null and META(`configtest`).id
+ * like "ORG_ID::REPO_ID1::%";
+ *
+ * SELECT * FROM `configtest` use keys "ORG_ID::REPO_ID0::key10"
+ *
+ */
+
 class Scratch {
 
   private static final AsyncBucket bucket = couchbaseBucket();
