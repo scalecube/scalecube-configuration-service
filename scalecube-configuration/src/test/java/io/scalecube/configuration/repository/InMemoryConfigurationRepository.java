@@ -54,6 +54,11 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
     return remove(new Repository(tenant, repository), key);
   }
 
+  @Override
+  public Mono<Document> updateEntry(String tenant, String repository, Document doc) {
+    throw new NotImplementedException();
+  }
+
   private Mono<Document> get(Repository repository, String key) {
     return Mono.justOrEmpty(getRepository(repository).get(key))
         .switchIfEmpty(

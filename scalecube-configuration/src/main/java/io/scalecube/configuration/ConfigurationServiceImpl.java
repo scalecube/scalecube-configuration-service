@@ -120,7 +120,20 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<Acknowledgment> updateEntry(CreateOrUpdateEntryRequest request) {
-    throw new NotImplementedException();
+    return Mono.fromRunnable(() -> logger.debug("updateEntry: enter: request: {}", request))
+        .then(Mono.defer(() -> validate(request)))
+        .subscribeOn(scheduler)
+        .then(
+            Mono.defer(
+                () -> checkAccess(request.apiKey().toString(),
+                    ConfigurationService.CONFIG_CREATE_ENTRY)))
+        .flatMap(
+            p ->
+                repository.updateEntry(
+                    p.tenant(), request.repository(), new Document(request.key(), request.value())))
+        .thenReturn(ACK)
+        .doOnSuccess(result -> logger.debug("updateEntry: exit: request: {}", request))
+        .doOnError(th -> logger.error("updateEntry: request: {}, error:", request, th));
   }
 
   @Override
