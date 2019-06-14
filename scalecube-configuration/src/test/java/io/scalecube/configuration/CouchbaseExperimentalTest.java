@@ -61,8 +61,8 @@ class Scratch {
         .async()).retryBackoff(3, Duration.ofSeconds(1)).block(Duration.ofSeconds(30));
   }
 
-  private static final int REPOS_COUNT = 50;
-  private static final int KEYS_AMOUNT = 25;
+  private static final int REPOS_COUNT = 5;
+  private static final int KEYS_AMOUNT = 5;
   private static final int MAX_VERSION_NUMBER = 15;
 
   private static final String ORG_REPO_IDS_NAME = "ORG_ID::REPO_ID";
@@ -70,33 +70,58 @@ class Scratch {
   public static void addDocumentsAndRecords() {
     for (int repoIndex = 0; repoIndex < REPOS_COUNT; repoIndex++) {
 
-      String repoName = ORG_REPO_IDS_NAME + repoIndex;
+      String docId = ORG_REPO_IDS_NAME + repoIndex;
+
+      Mono.from(
+          RxReactiveStreams.toPublisher(
+              bucket.insert(JsonDocument.create(docId, JsonObject.empty()))))
+          .block();
 
       for (int keyIndex = 0; keyIndex < KEYS_AMOUNT; keyIndex++) {
-        String docId = repoName + "::key" + keyIndex;
 
-        Mono.from(
-            RxReactiveStreams.toPublisher(
-                bucket.insert(JsonDocument.create(docId, JsonObject.empty()))))
-            .block();
+        String currentKeyPrefix = "key " + keyIndex;
 
         int versionAmount = random.nextInt(MAX_VERSION_NUMBER) + 1;
+
         for (int versionIndex = 1; versionIndex <= versionAmount; versionIndex++) {
 
           String currentVersion = "version " + versionIndex;
 
+          String currentKey = currentKeyPrefix + " >>> " + currentVersion;
+
           JsonObject json = JsonObject.create();
-          json.put("key " + UUID.randomUUID().toString(), "value " + UUID.randomUUID().toString());
+//          json.put("key " + UUID.randomUUID().toString(), "value " + UUID.randomUUID().toString());
+          json.put(currentKeyPrefix, "value " + UUID.randomUUID().toString());
 
           Mono.from(
               RxReactiveStreams
-                  .toPublisher(bucket.mapAdd(docId, currentVersion, json)))
+                  .toPublisher(bucket.mapAdd(docId, currentKey, json)))
               .block();
         }
+
+        if (keyIndex == 0) {
+          Mono.from(
+              RxReactiveStreams
+                  .toPublisher(bucket.mapAdd(docId, "keys", JsonArray.empty())))
+              .block();
+        }
+
         Mono.from(
             RxReactiveStreams
-                .toPublisher(bucket.mapAdd(docId, "version LATEST", versionAmount)))
+                .toPublisher(bucket
+                    .mapAdd(docId, currentKeyPrefix + " >>> " + "version LATEST", versionAmount)))
             .block();
+
+        Mono.from(
+            RxReactiveStreams
+                .toPublisher(
+                    bucket.mapGet(docId, "keys", JsonArray.class)))
+            .flatMap(a -> {
+              a.add(currentKeyPrefix);
+              return Mono.from(
+                  RxReactiveStreams
+                      .toPublisher(bucket.mapAdd(docId, "keys", a)));
+            }).block();
       }
     }
   }
@@ -106,14 +131,15 @@ class Scratch {
     for (int repoIndex = 0; repoIndex < REPOS_COUNT; repoIndex++) {
 
       String repoName = ORG_REPO_IDS_NAME + repoIndex;
-
-      for (int keyIndex = 0; keyIndex < KEYS_AMOUNT; keyIndex++) {
-        String docId = repoName + "::key" + keyIndex;
-        Mono.from(
-            RxReactiveStreams.toPublisher(
-                bucket.remove(docId)))
-            .block();
-      }
+//
+//      for (int keyIndex = 0; keyIndex < KEYS_AMOUNT; keyIndex++) {
+//        String docId = repoName + "::key" + keyIndex;
+      Mono.from(
+          RxReactiveStreams.toPublisher(
+//                bucket.remove(docId)))
+              bucket.remove(repoName)))
+          .block();
+//      }
     }
   }
 
@@ -201,13 +227,13 @@ class Scratch {
 //                bucket.append(JsonDocument.create("ORG_ID::REPO_ID0::key-1", json))))
 
                 bucket.mapGet(docId, "keys", JsonArray.class)))
-        .flatMap(a->{
+        .flatMap(a -> {
           a.add("newk");
           return Mono.from(
               RxReactiveStreams
                   .toPublisher(
 
-          bucket.mapAdd(docId,"keys",a)));
+                      bucket.mapAdd(docId, "keys", a)));
         })
 //        .subscribe();
 //        .zipWhen(a -> {
@@ -218,10 +244,8 @@ class Scratch {
         .block();
     Flux<String> f = Flux.just("1", "2", "3");
 
-
     Flux.just("a", "b", "c").delayElements(Duration.ofMillis(500))
-        .zipWith(f, (a, b) -> a + "::" + b).subscribe(System.out::println);
-
+        .zipWith(f, (a, b) -> a + ">>>" + b).subscribe(System.out::println);
 
 //    try {
 //      Thread.currentThread().join();
@@ -244,6 +268,26 @@ class Scratch {
 ////        .block();
 //            ).block();
 //    System.out.println(array);
+  }
+
+  public static void tempRemoveKey() {
+    Mono.from(
+        RxReactiveStreams
+            .toPublisher(
+                bucket.mapGet("ORG_ID::REPO_ID1", "keys", JsonArray.class)))
+        .flatMap(a -> {
+          JsonArray ja = JsonArray.create();
+
+          a.forEach(e -> {
+            if (!e.equals("key 2")) {
+              ja.add(e);
+            }
+          });
+
+          return Mono.from(
+              RxReactiveStreams
+                  .toPublisher(bucket.mapAdd("ORG_ID::REPO_ID1", "keys", ja)));
+        }).block();
   }
 }
 
@@ -271,5 +315,10 @@ public class CouchbaseExperimentalTest {
   @Test
   public void temp() {
     Scratch.temp();
+  }
+
+  @Test
+  public void tempRemoveKey() {
+    Scratch.tempRemoveKey();
   }
 }
