@@ -4,9 +4,17 @@ import com.couchbase.client.java.AsyncBucket;
 import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.json.JsonObject;
+import com.couchbase.client.java.query.AsyncN1qlQueryResult;
+import com.couchbase.client.java.query.Index;
+import com.couchbase.client.java.query.N1qlParams;
+import com.couchbase.client.java.query.N1qlQuery;
+import com.couchbase.client.java.query.N1qlQueryResult;
 import java.time.Duration;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.jupiter.api.Disabled;
 import reactor.core.publisher.Mono;
@@ -107,6 +115,59 @@ class Scratch {
       }
     }
   }
+
+  public static void query() {
+
+//    N1qlParams params = N1qlParams.build().adhoc(false);
+//    N1qlQuery query = N1qlQuery.simple("select count(*) from `mybucket`", params);
+
+//    bucket.bucketManager().createN1qlPrimaryIndex(true, false)
+
+    String query = "select count(*) from `configtest`";
+
+//    N1qlQueryResult result = bucket.query(N1qlQuery.simple(query)).;
+//    List<Map<String, Object>> data = extractResultOrThrow(result);
+
+//    Mono.from(
+//        RxReactiveStreams.toPublisher(bucket.query(N1qlQuery.simple("SELECT * FROM test")))
+
+
+//    Index.createPrimaryIndex().on(bucket.name());
+//
+//    System.out.println(
+//    (Mono.from(RxReactiveStreams.toPublisher(
+//        Mono.from(
+//            RxReactiveStreams.toPublisher(
+//                bucket.query(N1qlQuery.simple("SELECT count(*) FROM `configtest`"))
+//            )).block().rows())).block().value()));
+
+//    Index.createPrimaryIndex().on(bucket.name());
+//
+//    System.out.println(
+//    (Mono.from(RxReactiveStreams.toPublisher(
+//        Mono.from(
+//            RxReactiveStreams.toPublisher(
+//                bucket.query(N1qlQuery.simple("SELECT count(*) FROM `configtest`"))
+//            )).block().rows())).block().value()));
+
+    System.out.println(
+    bucket.query(N1qlQuery.simple(query))
+        .flatMap(AsyncN1qlQueryResult::rows)
+        .map(result -> result.value().toMap())
+        .toList()
+        .timeout(5, TimeUnit.SECONDS)
+        .toBlocking()
+        .single()
+  );
+
+//    try {
+//      Thread.currentThread().join();
+//    } catch (InterruptedException e) {
+//      e.printStackTrace();
+//    }
+
+//    AsyncN1qlQueryResult result = bucket.query(N1qlQuery.simple("SELECT * FROM test"));
+  }
 }
 
 /**
@@ -123,5 +184,10 @@ public class CouchbaseExperimentalTest {
   @Test
   public void deleteTest() {
     Scratch.removeDocuments();
+  }
+
+  @Test
+  public void query() {
+    Scratch.query();
   }
 }
