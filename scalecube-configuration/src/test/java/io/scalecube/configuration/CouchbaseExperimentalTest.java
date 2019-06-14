@@ -5,11 +5,15 @@ import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
+import com.couchbase.client.java.error.DocumentDoesNotExistException;
 import com.couchbase.client.java.query.AsyncN1qlQueryResult;
 import com.couchbase.client.java.query.Index;
 import com.couchbase.client.java.query.N1qlParams;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
+import io.scalecube.configuration.repository.couchbase.CouchbaseExceptionTranslator;
+import io.scalecube.configuration.repository.exception.DataAccessException;
+import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -289,6 +293,31 @@ class Scratch {
                   .toPublisher(bucket.mapAdd("ORG_ID::REPO_ID1", "keys", ja)));
         }).block();
   }
+
+  public static void sequentialQuery() {
+    Mono.from(
+        RxReactiveStreams.toPublisher(
+            bucket.mapAdd("ORG_ID::REPO_ID1", "abc", "one")))
+        .flatMap(a ->
+            Mono.from(
+                RxReactiveStreams
+                    .toPublisher(bucket.mapAdd("ORG_ID::REPO_ID1", "abc2", "two")))
+        )
+        .onErrorMap(
+            DocumentDoesNotExistException.class,
+            e ->
+                new RepositoryNotFoundException("no found"))
+        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
+        .map(
+            added -> {
+              if (added) {
+                return "abc";
+              }
+
+              throw new DataAccessException("Save operation is failed because of unknown reason");
+            })
+        .block();
+  }
 }
 
 /**
@@ -320,5 +349,10 @@ public class CouchbaseExperimentalTest {
   @Test
   public void tempRemoveKey() {
     Scratch.tempRemoveKey();
+  }
+
+  @Test
+  public void sequentialQuery() {
+    Scratch.sequentialQuery();
   }
 }
