@@ -3,6 +3,7 @@ package io.scalecube.configuration;
 import com.couchbase.client.java.AsyncBucket;
 import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.AsyncN1qlQueryResult;
 import com.couchbase.client.java.query.Index;
@@ -10,6 +11,7 @@ import com.couchbase.client.java.query.N1qlParams;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -17,11 +19,11 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.jupiter.api.Disabled;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import rx.RxReactiveStreams;
 
 /**
- *
  * USEFUL COUCHBASE QUERIES FOR TESTING:
  *
  * SELECT * FROM `configtest` use keys "ORG_ID::REPO_ID0::key2"
@@ -36,16 +38,15 @@ import rx.RxReactiveStreams;
  *
  * CREATE PRIMARY INDEX mybucket_primary_index ON `configtest` USING GSI;
  *
- * SELECT `version 1` FROM `configtest` use keys "ORG_ID::REPO_ID0::key2"
- * where `version 1` is not null;
+ * SELECT `version 1` FROM `configtest` use keys "ORG_ID::REPO_ID0::key2" where `version 1` is not
+ * null;
  *
  * SELECT `version 1` FROM `configtest` where `version 1` is not null;
  *
- * SELECT `version 1` FROM `configtest` where `version 3` is not null and META(`configtest`).id
- * like "ORG_ID::REPO_ID1::%";
+ * SELECT `version 1` FROM `configtest` where `version 3` is not null and META(`configtest`).id like
+ * "ORG_ID::REPO_ID1::%";
  *
  * SELECT * FROM `configtest` use keys "ORG_ID::REPO_ID0::key10"
- *
  */
 
 class Scratch {
@@ -131,7 +132,6 @@ class Scratch {
 //    Mono.from(
 //        RxReactiveStreams.toPublisher(bucket.query(N1qlQuery.simple("SELECT * FROM test")))
 
-
 //    Index.createPrimaryIndex().on(bucket.name());
 //
 //    System.out.println(
@@ -151,14 +151,14 @@ class Scratch {
 //            )).block().rows())).block().value()));
 
     System.out.println(
-    bucket.query(N1qlQuery.simple(query))
-        .flatMap(AsyncN1qlQueryResult::rows)
-        .map(result -> result.value().toMap())
-        .toList()
-        .timeout(5, TimeUnit.SECONDS)
-        .toBlocking()
-        .single()
-  );
+        bucket.query(N1qlQuery.simple(query))
+            .flatMap(AsyncN1qlQueryResult::rows)
+            .map(result -> result.value().toMap())
+            .toList()
+            .timeout(5, TimeUnit.SECONDS)
+            .toBlocking()
+            .single()
+    );
 
 //    try {
 //      Thread.currentThread().join();
@@ -167,6 +167,83 @@ class Scratch {
 //    }
 
 //    AsyncN1qlQueryResult result = bucket.query(N1qlQuery.simple("SELECT * FROM test"));
+  }
+
+  public static void temp() {
+
+    List<String> list = new ArrayList<>();
+    list.add("value " + UUID.randomUUID().toString());
+    list.add("value " + UUID.randomUUID().toString());
+    list.add("value " + UUID.randomUUID().toString());
+
+    JsonObject json = JsonObject.create();
+    json.put("key " + UUID.randomUUID().toString(), "value " + UUID.randomUUID().toString());
+    json.put("key " + UUID.randomUUID().toString(), list);
+
+    String docId = "ORG_ID::REPO_ID0::key-1";
+
+//    Mono.from(
+//        RxReactiveStreams
+////            .toPublisher(bucket.mapAdd("ORG_ID::REPO_ID0::key0", "abc", json)))
+//            .toPublisher(
+////                bucket.insert(JsonDocument.create("ORG_ID::REPO_ID0::key-1", json))))
+////                bucket.append(JsonDocument.create("ORG_ID::REPO_ID0::key-1", json))))
+//
+//                bucket.mapAdd(docId, "keys", list)))
+//        .block();
+
+//    JsonArray array =
+    Mono.from(
+        RxReactiveStreams
+//            .toPublisher(bucket.mapAdd("ORG_ID::REPO_ID0::key0", "abc", json)))
+            .toPublisher(
+//                bucket.insert(JsonDocument.create("ORG_ID::REPO_ID0::key-1", json))))
+//                bucket.append(JsonDocument.create("ORG_ID::REPO_ID0::key-1", json))))
+
+                bucket.mapGet(docId, "keys", JsonArray.class)))
+        .flatMap(a->{
+          a.add("newk");
+          return Mono.from(
+              RxReactiveStreams
+                  .toPublisher(
+
+          bucket.mapAdd(docId,"keys",a)));
+        })
+//        .subscribe();
+//        .zipWhen(a -> {
+//          System.out.println(">>> :::" + a);
+//          return Mono.empty();
+//        })
+
+        .block();
+    Flux<String> f = Flux.just("1", "2", "3");
+
+
+    Flux.just("a", "b", "c").delayElements(Duration.ofMillis(500))
+        .zipWith(f, (a, b) -> a + "::" + b).subscribe(System.out::println);
+
+
+//    try {
+//      Thread.currentThread().join();
+//    } catch (InterruptedException e) {
+//      e.printStackTrace();
+//    }
+
+//        .then(
+//
+////              a.add("key " + UUID.randomUUID().toString());
+//
+//              Mono.from(
+//                  RxReactiveStreams
+////            .toPublisher(bucket.mapAdd("ORG_ID::REPO_ID0::key0", "abc", json)))
+//                      .toPublisher(
+////                bucket.insert(JsonDocument.create("ORG_ID::REPO_ID0::key-1", json))))
+////                bucket.append(JsonDocument.create("ORG_ID::REPO_ID0::key-1", json))))
+//
+//                          bucket.mapGet(docId, "keys", JsonArray.class)))
+////        .block();
+//            ).block();
+//    System.out.println(array);
   }
 }
 
@@ -189,5 +266,10 @@ public class CouchbaseExperimentalTest {
   @Test
   public void query() {
     Scratch.query();
+  }
+
+  @Test
+  public void temp() {
+    Scratch.temp();
   }
 }
