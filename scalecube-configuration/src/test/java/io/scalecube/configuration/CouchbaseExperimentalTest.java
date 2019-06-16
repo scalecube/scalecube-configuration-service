@@ -48,6 +48,13 @@ import rx.RxReactiveStreams;
  * "ORG_ID::REPO_ID1::%";
  *
  * SELECT * FROM `configtest` use keys "ORG_ID::REPO_ID0::key10"
+ *
+ *function (doc, meta) {
+ *   if(meta.id != "repos") {
+ *   	emit(meta.id, null);
+ *   }
+ * }
+ *
  */
 
 class Scratch {
@@ -58,7 +65,7 @@ class Scratch {
   private static AsyncBucket couchbaseBucket() {
     return Mono.fromCallable(() -> CouchbaseCluster.create("http://localhost:8091")
         .authenticate("admin", "123456")
-        .openBucket("configtest")
+        .openBucket("configurations")
         .async()).retryBackoff(3, Duration.ofSeconds(1)).block(Duration.ofSeconds(30));
   }
 
@@ -114,12 +121,16 @@ class Scratch {
   }
 
   public static void query1() {
-    String docId = "ORG_ID::REPO_ID0::key 1";
+//    String docId = "ORG_ID::REPO_ID0::key 1";
+    String docId = "repos";
 
-    String value =
+//    String value =
+    Boolean value =
         Mono.from(
             RxReactiveStreams.toPublisher(
-                bucket.listGet(docId, -1, String.class)))
+//                bucket.listGet(docId, -1, String.class)
+                bucket.setContains("repos", "quest")
+            ))
             .block();
 
     System.out.println(value);

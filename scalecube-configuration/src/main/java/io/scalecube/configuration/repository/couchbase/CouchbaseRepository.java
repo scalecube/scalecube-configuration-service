@@ -2,7 +2,6 @@ package io.scalecube.configuration.repository.couchbase;
 
 import com.couchbase.client.java.AsyncBucket;
 import com.couchbase.client.java.document.AbstractDocument;
-import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.error.DocumentAlreadyExistsException;
@@ -27,48 +26,44 @@ public class CouchbaseRepository implements ConfigurationRepository {
   private static final String REPOSITORY_ALREADY_EXISTS =
       "Repository with name: '%s' already exists";
   private static final String REPOSITORY_NOT_FOUND = "Repository '%s-%s' not found";
-  private static final String KEY_VERSION_NOT_FOUND = "Key '%s' with version: '%s' not found";
   private static final String KEY_NOT_FOUND = "Key '%s' not found";
 
   private static final String DELIMITER = "::";
 
-  private static final String VERSION_DELIMITER = ">>>";
-  private static final String FIRST_VERSION_WITH_PREFIX = " " + VERSION_DELIMITER + " version 1";
-  private static final String VERSION_WITH_PREFIX = " " + VERSION_DELIMITER + " version ";
-  private static final String LATEST_VERSION_WITH_PREFIX =
-      " " + VERSION_DELIMITER + " version LATEST";
+  private static final String REPOS = "repos";
 
-  private static final String KEYS = "keys";
+  private final AsyncBucket bucket;
 
   public CouchbaseRepository(AsyncBucket bucket) {
     this.bucket = bucket;
   }
 
-  private final AsyncBucket bucket;
-
   @Override
   public Mono<Boolean> createRepository(Repository repository) {
     return Mono.from(
         RxReactiveStreams.toPublisher(
-            bucket.insert(
-                JsonDocument.create(
-                    repository.namespace() + DELIMITER + repository.name(),
-                    JsonObject.create().put(KEYS, JsonArray.empty())))))
+            bucket.setContains(REPOS, repository.name())
+        ))
+        .flatMap(isRepoExists -> {
+          if (isRepoExists) {
+            throw new DocumentAlreadyExistsException();
+          }
+          return Mono.from(RxReactiveStreams.toPublisher(
+              bucket.setAdd(REPOS, repository.name())
+          ));
+        })
         .onErrorMap(
             DocumentAlreadyExistsException.class,
-            e ->
-                new RepositoryAlreadyExistsException(
-                    String.format(REPOSITORY_ALREADY_EXISTS, repository.name())))
-        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
-        .then(Mono.just(true));
+            e -> new RepositoryAlreadyExistsException(
+                String.format(REPOSITORY_ALREADY_EXISTS, repository.name())))
+        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible);
   }
 
   @Override
   public Mono<Document> readEntry(String tenant, String repository, String key, Integer version) {
-    String docId = tenant + DELIMITER + repository;
-    return suitableVersion(bucket, docId, key, version)
-        .flatMap(suitableVersion -> Mono.from(RxReactiveStreams.toPublisher(
-            bucket.mapGet(docId, key + VERSION_WITH_PREFIX + suitableVersion, Object.class))))
+    return Mono.from(
+        RxReactiveStreams.toPublisher(
+            bucket.mapGet(tenant + DELIMITER + repository, key, Object.class)))
         .onErrorMap(
             DocumentDoesNotExistException.class,
             e ->
@@ -76,9 +71,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
                     String.format(REPOSITORY_NOT_FOUND, tenant, repository)))
         .onErrorMap(
             PathNotFoundException.class,
-            e -> new KeyNotFoundException(
-                version != null ? String.format(KEY_VERSION_NOT_FOUND, key, version)
-                    : String.format(KEY_NOT_FOUND, key)))
+            e -> new KeyNotFoundException(String.format(KEY_NOT_FOUND, key)))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
         .map(
             value -> {
@@ -117,23 +110,9 @@ public class CouchbaseRepository implements ConfigurationRepository {
 
   @Override
   public Mono<Document> createEntry(String tenant, String repository, Document document) {
-    String docId = tenant + DELIMITER + repository;
     return Mono.from(
         RxReactiveStreams.toPublisher(
-            bucket.mapAdd(docId, document.key() + FIRST_VERSION_WITH_PREFIX, document.value())))
-        .and(
-            Mono.from(
-                RxReactiveStreams.toPublisher(
-                    bucket
-                        .mapAdd(docId, document.key() + LATEST_VERSION_WITH_PREFIX, 1))))
-        .then(
-            Mono.from(
-                RxReactiveStreams
-                    .toPublisher(
-                        bucket.mapGet(docId, KEYS, JsonArray.class)))
-                .flatMap(keysArr ->
-                    Mono.from(RxReactiveStreams.toPublisher(
-                        bucket.mapAdd(docId, KEYS, uniqueKeyAdding(keysArr, document.key()))))))
+            bucket.mapAdd(tenant + DELIMITER + repository, document.key(), document.value())))
         .onErrorMap(
             DocumentDoesNotExistException.class,
             e ->
@@ -151,29 +130,8 @@ public class CouchbaseRepository implements ConfigurationRepository {
   }
 
   @Override
-  public Mono<Document> updateEntry(String tenant, String repository, Document document) {
-    String docId = tenant + DELIMITER + repository;
-
-    return readEntry(tenant, repository, document.key() + LATEST_VERSION_WITH_PREFIX, null)
-        .flatMap(lastVersion -> {
-          int nextVersion = Integer.valueOf(document.value().toString()) + 1;
-          return
-              Mono.from(RxReactiveStreams.toPublisher(
-                  bucket.mapAdd(docId, document.key() + LATEST_VERSION_WITH_PREFIX, nextVersion)))
-                  .then(
-                      Mono.from(RxReactiveStreams.toPublisher(
-                          bucket.mapAdd(docId, document.key() + VERSION_WITH_PREFIX, nextVersion))
-                      ));
-        })
-        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
-        .map(
-            added -> {
-              if (added) {
-                return document;
-              }
-
-              throw new DataAccessException("Save operation is failed because of unknown reason");
-            });
+  public Mono<Document> updateEntry(String tenant, String repository, Document doc) {
+    throw new NotImplementedException();
   }
 
   @Override
@@ -197,28 +155,5 @@ public class CouchbaseRepository implements ConfigurationRepository {
               }
             })
         .then();
-  }
-
-  private static Mono<Integer> getLatestVersion(AsyncBucket bucket, String docId, String key) {
-    return Mono.from(RxReactiveStreams
-        .toPublisher(bucket.mapGet(docId, key + LATEST_VERSION_WITH_PREFIX, Integer.class)));
-  }
-
-  private static Mono<Integer> suitableVersion(AsyncBucket bucket, String docId, String key,
-      Integer version) {
-    if (version == null) {
-      return getLatestVersion(bucket, docId, key);
-    } else {
-      return Mono.just(version);
-    }
-  }
-
-  private static JsonArray uniqueKeyAdding(JsonArray arr, String key) {
-    for (Object elem : arr) {
-      if (elem.equals(key)) {
-        return arr;
-      }
-    }
-    return arr.add(key);
   }
 }
