@@ -42,15 +42,13 @@ public class CouchbaseRepository implements ConfigurationRepository {
   public Mono<Boolean> createRepository(Repository repository) {
     return Mono.from(
         RxReactiveStreams.toPublisher(
-            bucket.setContains(REPOS, repository.name())
+            bucket.setAdd(REPOS, repository.name())
         ))
-        .flatMap(isRepoExists -> {
-          if (isRepoExists) {
-            throw new DocumentAlreadyExistsException();
+        .map(isNewRepoAdded -> {
+          if (isNewRepoAdded) {
+            return true;
           }
-          return Mono.from(RxReactiveStreams.toPublisher(
-              bucket.setAdd(REPOS, repository.name())
-          ));
+          throw new DocumentAlreadyExistsException();
         })
         .onErrorMap(
             DocumentAlreadyExistsException.class,
