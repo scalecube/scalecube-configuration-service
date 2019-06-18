@@ -56,6 +56,9 @@ final class RequestValidator {
     if (repository == null || repository.trim().isEmpty()) {
       throw new IllegalArgumentException("Please specify 'repository'");
     }
+    if (repository.contains("::")) {
+      throw new IllegalArgumentException("Repository name should not contains substring '::'");
+    }
   }
 
   private static void validateToken(Object token) {
