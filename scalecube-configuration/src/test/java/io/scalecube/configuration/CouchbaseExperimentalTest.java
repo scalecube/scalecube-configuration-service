@@ -1,6 +1,7 @@
 package io.scalecube.configuration;
 
 import com.couchbase.client.java.AsyncBucket;
+import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.document.JsonArrayDocument;
 import com.couchbase.client.java.document.json.JsonArray;
@@ -10,6 +11,8 @@ import com.couchbase.client.java.query.AsyncN1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.view.DefaultView;
 import com.couchbase.client.java.view.DesignDocument;
+import com.couchbase.client.java.view.ViewQuery;
+import com.couchbase.client.java.view.ViewResult;
 import io.scalecube.configuration.repository.couchbase.CouchbaseExceptionTranslator;
 import io.scalecube.configuration.repository.exception.DataAccessException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
@@ -57,6 +60,7 @@ import rx.RxReactiveStreams;
 class Scratch {
 
   private static final AsyncBucket bucket = couchbaseBucket();
+  private static final Bucket bucketSync = couchbaseBucketSync();
   private static final Random random = new Random();
 
   private static AsyncBucket couchbaseBucket() {
@@ -64,6 +68,13 @@ class Scratch {
         .authenticate("admin", "123456")
         .openBucket("configurations")
         .async()).retryBackoff(3, Duration.ofSeconds(1)).block(Duration.ofSeconds(30));
+  }
+
+  private static Bucket couchbaseBucketSync() {
+    return Mono.fromCallable(() -> CouchbaseCluster.create("http://localhost:8091")
+        .authenticate("admin", "123456")
+        .openBucket("configurations")
+    ).retryBackoff(3, Duration.ofSeconds(1)).block(Duration.ofSeconds(30));
   }
 
   private static final int REPOS_COUNT = 5;
@@ -252,6 +263,33 @@ class Scratch {
           return Mono.just(false);
         }).subscribe(e -> System.err.println("ttt: " + e));
   }
+
+  public static void parametrizedView() {
+
+//    String pref = "a3_sdf";
+//    Mono.from(
+//        RxReactiveStreams.toPublisher(
+//            bucket.query(ViewQuery.from("repos_keys_a3_1",
+//                "repo_keys: configurations a3_1"))
+//        ))//.map(asyncViewResult -> asyncViewResult.totalRows())
+//        .subscribe(e -> System.err.println("result: " + e.error()));
+
+//    ViewQuery viewQuery = ViewQuery.from("repos_keys_a3_1", "repo_keys: configurations a3_1");
+    ViewQuery viewQuery = ViewQuery.from("keys", "by_keys").startKey("aqua ");
+//    viewQuery.key(JsonObject.create().put("key", "keyIt"));
+//    viewQuery.key("keyIt");
+//    viewQuery.debug();
+//    viewQuery.development();
+
+    ViewResult query = bucketSync.query(viewQuery);
+    System.out.println(viewQuery.getView());
+    System.out.println(viewQuery.toQueryString());
+    System.out.println(viewQuery.toString());
+    System.out.println(viewQuery.getKeys());
+    System.out.println(query.success());
+    System.out.println(query.error());
+    query.allRows().forEach(e -> System.out.println(e));
+  }
 }
 
 /**
@@ -300,6 +338,12 @@ public class CouchbaseExperimentalTest {
     Scratch.createView();
 
     Thread.sleep(2000);
-//    Thread.currentThread().join();
+  }
+
+  @Test
+  public void parametrizedView() throws Exception {
+    Scratch.parametrizedView();
+
+    Thread.sleep(2000);
   }
 }

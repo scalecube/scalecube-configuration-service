@@ -117,7 +117,7 @@ final class Environment {
     BucketManager bucketManager = bucket.bucketManager();
 
     DesignDocument designDoc = DesignDocument.create(
-        "dev_keys",
+        "keys",
         Arrays.asList(
             DefaultView.create("by_keys",
                 "function (doc, meta) { if (meta.id != 'repos') { emit(meta.id); } }")
