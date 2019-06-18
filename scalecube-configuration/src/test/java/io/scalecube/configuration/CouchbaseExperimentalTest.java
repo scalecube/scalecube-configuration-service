@@ -3,17 +3,19 @@ package io.scalecube.configuration;
 import com.couchbase.client.java.AsyncBucket;
 import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.document.JsonArrayDocument;
-import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.error.DocumentDoesNotExistException;
 import com.couchbase.client.java.query.AsyncN1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQuery;
+import com.couchbase.client.java.view.DefaultView;
+import com.couchbase.client.java.view.DesignDocument;
 import io.scalecube.configuration.repository.couchbase.CouchbaseExceptionTranslator;
 import io.scalecube.configuration.repository.exception.DataAccessException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -49,12 +51,7 @@ import rx.RxReactiveStreams;
  *
  * SELECT * FROM `configtest` use keys "ORG_ID::REPO_ID0::key10"
  *
- *function (doc, meta) {
- *   if(meta.id != "repos") {
- *   	emit(meta.id, null);
- *   }
- * }
- *
+ * function (doc, meta) { if(meta.id != "repos") { emit(meta.id, null); } }
  */
 
 class Scratch {
@@ -225,6 +222,33 @@ class Scratch {
             })
         .block();
   }
+
+  public static void createView() {
+
+    Mono.from(
+        RxReactiveStreams.toPublisher(
+            bucket.setAdd("repos", "a1")
+        ))
+        .flatMap(isNewRepoAdded -> {
+          if (isNewRepoAdded) {
+            return Mono.from(RxReactiveStreams.toPublisher(
+                bucket.bucketManager().flatMap(bucketManager ->
+                            bucketManager.insertDesignDocument(DesignDocument.create(
+                                "repos_keys",
+                                Arrays.asList(
+                                    DefaultView.create("repo_keys: " + "configurations a1",
+                                        "function (doc, meta) {"
+                                            + "if (meta.id != 'repos' && meta.id.includes('" + "configurations a1" + "'))"
+                                            + "{ emit(meta.id); } "
+                                            + "}")
+                                )
+                            )))
+                    .map(insertResult -> true)
+            ));
+          }
+          return Mono.just("!!!!");
+        }).subscribe(e -> System.err.println("ttt: " + e));
+  }
 }
 
 /**
@@ -266,5 +290,13 @@ public class CouchbaseExperimentalTest {
   @Test
   public void sequentialQuery() {
     Scratch.sequentialQuery();
+  }
+
+  @Test
+  public void createView() throws Exception {
+    Scratch.createView();
+
+    Thread.sleep(2000);
+//    Thread.currentThread().join();
   }
 }
