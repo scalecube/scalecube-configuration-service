@@ -225,28 +225,31 @@ class Scratch {
 
   public static void createView() {
 
+    String pref = "a3_sdf";
     Mono.from(
         RxReactiveStreams.toPublisher(
-            bucket.setAdd("repos", "a1")
+            bucket.setAdd("repos", pref)
         ))
         .flatMap(isNewRepoAdded -> {
           if (isNewRepoAdded) {
             return Mono.from(RxReactiveStreams.toPublisher(
                 bucket.bucketManager().flatMap(bucketManager ->
-                            bucketManager.insertDesignDocument(DesignDocument.create(
-                                "repos_keys",
-                                Arrays.asList(
-                                    DefaultView.create("repo_keys: " + "configurations a1",
-                                        "function (doc, meta) {"
-                                            + "if (meta.id != 'repos' && meta.id.includes('" + "configurations a1" + "'))"
-                                            + "{ emit(meta.id); } "
-                                            + "}")
-                                )
-                            )))
-                    .map(insertResult -> true)
-            ));
+                    bucketManager.insertDesignDocument(DesignDocument.create(
+                        "dev_repos_keys_" + pref,
+                        Arrays.asList(
+                            DefaultView.create("repo_keys: " + "configurations " + pref,
+                                "function (doc, meta) {"
+                                    + "if (meta.id != 'repos' && meta.id.includes('"
+                                    + "configurations " + pref + "'))"
+                                    + "{ emit(meta.id); } "
+                                    + "}")
+                        )
+                    )).flatMap(designDocument -> bucketManager
+                        .publishDesignDocument("repos_keys_" + pref, true)
+                    ).map(insertResult -> true)
+                )));
           }
-          return Mono.just("!!!!");
+          return Mono.just(false);
         }).subscribe(e -> System.err.println("ttt: " + e));
   }
 }
