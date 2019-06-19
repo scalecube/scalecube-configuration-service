@@ -110,26 +110,36 @@ public class CouchbaseRepository implements ConfigurationRepository {
 
   @Override
   public Mono<Document> createEntry(String tenant, String repository, Document document) {
-    return Mono.from(
-        RxReactiveStreams.toPublisher(
-            bucket.insert(JsonArrayDocument
-                .create(tenant + DELIMITER + repository + DELIMITER + document.key(),
-                    JsonArray.create().add(document.value())))))
-        .onErrorMap(
-            DocumentAlreadyExistsException.class,
-            e ->
-                new RepositoryKeyAlreadyExistsException(
-                    String
-                        .format("Repository: '%s-%s' key: '%s' already exists", tenant, repository,
-                            document.key())))
-        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
-        .map(
-            documentAdded -> {
-              if (documentAdded != null) {
-                return document;
+    return
+        Mono.from(RxReactiveStreams.toPublisher(bucket.setContains(REPOS, repository)))
+            .flatMap(isRepoExists -> {
+              if (!isRepoExists) {
+                throw new RepositoryNotFoundException(
+                    String.format(REPOSITORY_NOT_FOUND, tenant, repository));
               }
+              return Mono.from(
+                  RxReactiveStreams.toPublisher(
+                      bucket.insert(JsonArrayDocument
+                          .create(tenant + DELIMITER + repository + DELIMITER + document.key(),
+                              JsonArray.create().add(document.value())))))
+                  .onErrorMap(
+                      DocumentAlreadyExistsException.class,
+                      e ->
+                          new RepositoryKeyAlreadyExistsException(
+                              String
+                                  .format("Repository: '%s-%s' key: '%s' already exists", tenant,
+                                      repository,
+                                      document.key())))
+                  .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
+                  .map(
+                      documentAdded -> {
+                        if (documentAdded != null) {
+                          return document;
+                        }
 
-              throw new DataAccessException("Save operation is failed because of unknown reason");
+                        throw new DataAccessException(
+                            "Save operation is failed because of unknown reason");
+                      });
             });
   }
 
