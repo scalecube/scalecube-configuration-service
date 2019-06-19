@@ -15,6 +15,7 @@ import com.couchbase.client.java.view.DesignDocument;
 import com.couchbase.client.java.view.ViewQuery;
 import com.couchbase.client.java.view.ViewResult;
 import io.scalecube.configuration.repository.Document;
+import io.scalecube.configuration.repository.HistoryDocument;
 import io.scalecube.configuration.repository.couchbase.CouchbaseExceptionTranslator;
 import io.scalecube.configuration.repository.exception.DataAccessException;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
@@ -27,10 +28,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import org.junit.jupiter.api.Disabled;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import rx.Observable;
 import rx.RxReactiveStreams;
 
 /**
@@ -276,31 +279,6 @@ class Scratch {
 
   public static void queryVersion() {
     Integer version = 1;
-//    Mono.fromSupplier(() -> {
-//      if (version != null) {
-//        return RxReactiveStreams.toPublisher(
-//            bucket.listGet("ORG-D6C68254A98A28294F44::REPO 2::KEY3", version - 1, String.class));
-//      } else {
-//        return RxReactiveStreams.toPublisher(
-//            bucket.listGet("ORG-D6C68254A98A28294F44::REPO 2::KEY3", -1, Object.class));
-//      }
-//    })
-
-//    Mono.from(
-//        RxReactiveStreams.toPublisher(
-//            bucket.listGet("ORG-D6C68254A98A28294F44::REPO 2::KEY3", 1,
-//                Object.class)))
-//        .map(
-//            value -> {
-//              if (value instanceof JsonObject) {
-//                return (JsonObject) value;
-//              } else if (value instanceof JsonArray) {
-//                return (JsonArray) value;
-//              } else {
-//                return value;
-//              }
-//            })
-//        .subscribe(System.out::println);
 
     Mono.from(
         RxReactiveStreams.toPublisher(
@@ -330,6 +308,55 @@ class Scratch {
               }
             })
         .subscribe(System.out::println);
+  }
+
+
+  public static AtomicInteger versionNumber = new AtomicInteger(0);
+
+  public static void queryEntryHistory() {
+
+    Flux.from(
+        RxReactiveStreams.toPublisher(
+            bucket
+                .get("ORG-684552FB4637C45DD8BA::REPO1::KEY1", JsonArrayDocument.class)
+                .switchIfEmpty(
+                    Observable.defer(
+                        () ->
+                            Observable.error(
+                                new KeyNotFoundException(
+                                    String.format("key not found")))))
+                .map(jsonDocument -> jsonDocument.content())
+                .flatMap(content -> Observable.from(content.toList()))
+                .map(entry -> new HistoryDocument(versionNumber.incrementAndGet(), entry))))
+        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
+        .subscribe(System.out::println);
+//
+//    Flux.from(
+//        RxReactiveStreams.toPublisher(
+//            bucket.get("ORG-D6C68254A98A28294F44::REPO 2::KEY3")
+//    )
+//        .onErrorMap(
+//            DocumentDoesNotExistException.class,
+//            e ->
+//                new KeyNotFoundException(
+//                    String
+//                        .format("Repository [%s-%s] key [%s] not found", 1, 2, 3)))
+//        .onErrorMap(
+//            PathNotFoundException.class,
+//            e -> new KeyVersionNotFoundException(
+//                String.format("Key '%s' version '%s' not found", 3, version)))
+//        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
+//        .map(
+//            value -> {
+//              if (value instanceof JsonObject) {
+//                return new Document("key", ((JsonObject) value).toMap());
+//              } else if (value instanceof JsonArray) {
+//                return new Document("key", ((JsonArray) value).toList());
+//              } else {
+//                return new Document("key", value);
+//              }
+//            })
+//        .subscribe(System.out::println);
   }
 }
 
@@ -391,6 +418,13 @@ public class CouchbaseExperimentalTest {
   @Test
   public void queryVersion() throws Exception {
     Scratch.queryVersion();
+
+    Thread.sleep(2000);
+  }
+
+  @Test
+  public void queryEntryHistory() throws Exception {
+    Scratch.queryEntryHistory();
 
     Thread.sleep(2000);
   }

@@ -18,11 +18,11 @@ import io.scalecube.configuration.repository.exception.KeyVersionNotFoundExcepti
 import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
 import io.scalecube.configuration.repository.exception.RepositoryKeyAlreadyExistsException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
+import java.util.concurrent.atomic.AtomicInteger;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import rx.Observable;
 import rx.RxReactiveStreams;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class CouchbaseRepository implements ConfigurationRepository {
 
@@ -112,7 +112,23 @@ public class CouchbaseRepository implements ConfigurationRepository {
 
   @Override
   public Flux<HistoryDocument> readEntryHistory(String tenant, String repository, String key) {
-    throw new NotImplementedException();
+    AtomicInteger currentVersion = new AtomicInteger(0);
+    return Flux.from(
+        RxReactiveStreams.toPublisher(
+            bucket
+                .get(docId(tenant, repository, key), JsonArrayDocument.class)
+                .switchIfEmpty(
+                    Observable.defer(
+                        () ->
+                            Observable.error(
+                                new KeyNotFoundException(
+                                    String.format("Repository '%s-%s' key '%s' not found", tenant,
+                                        repository, key))
+                            )))
+                .map(jsonDocument -> jsonDocument.content())
+                .flatMap(content -> Observable.from(content.toList()))
+                .map(entry -> new HistoryDocument(currentVersion.incrementAndGet(), entry))))
+        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible);
   }
 
   @Override

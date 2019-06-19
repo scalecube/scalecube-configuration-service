@@ -18,6 +18,7 @@ public interface ConfigurationService {
 
   String CONFIG_CREATE_REPO = "configuration/createRepository";
   String CONFIG_READ_ENTRY = "configuration/readEntry";
+  String CONFIG_READ_ENTRY_HISTORY = "configuration/readEntryHistory";
   String CONFIG_READ_LIST = "configuration/readList";
   String CONFIG_CREATE_ENTRY = "configuration/createEntry";
   String CONFIG_UPDATE_ENTRY = "configuration/updateEntry";

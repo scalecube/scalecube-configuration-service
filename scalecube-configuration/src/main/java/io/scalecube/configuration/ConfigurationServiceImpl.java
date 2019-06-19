@@ -27,7 +27,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class ConfigurationServiceImpl implements ConfigurationService {
 
@@ -97,7 +96,20 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<List<ReadEntryHistoryResponse>> readEntryHistory(ReadEntryHistoryRequest request) {
-    throw new NotImplementedException();
+    return Mono.fromRunnable(() -> logger.debug("readEntryHistory: enter: request: {}", request))
+        .then(Mono.defer(() -> validate(request)))
+        .subscribeOn(scheduler)
+        .thenMany(
+            Flux.defer(
+                () -> checkAccess(request.apiKey().toString(),
+                    ConfigurationService.CONFIG_READ_ENTRY_HISTORY)))
+        .flatMap(p -> repository.readEntryHistory(p.tenant(), request.repository(), request.key()))
+        .map(doc -> new ReadEntryHistoryResponse(doc.version(), doc.value()))
+        .collectList()
+        .doOnSuccess(
+            result -> logger
+                .debug("readEntryHistory: exit: request: {}, result: {}", request, result))
+        .doOnError(th -> logger.error("readEntryHistory: request: {}, error:", request, th));
   }
 
   @Override
