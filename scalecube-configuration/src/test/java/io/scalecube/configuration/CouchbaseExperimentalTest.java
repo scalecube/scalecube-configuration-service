@@ -275,19 +275,20 @@ class Scratch {
 //        .subscribe(e -> System.err.println("result: " + e.error()));
 
 //    ViewQuery viewQuery = ViewQuery.from("repos_keys_a3_1", "repo_keys: configurations a3_1");
-    ViewQuery viewQuery = ViewQuery.from("keys", "by_keys").startKey("aqua ");
+//    ViewQuery viewQuery = ViewQuery.from("keys", "by_keys").key("aqua ");
+    ViewQuery viewQuery = ViewQuery.from("keys", "by_keys").key("ORG_ID::REPO_ID4");
 //    viewQuery.key(JsonObject.create().put("key", "keyIt"));
 //    viewQuery.key("keyIt");
 //    viewQuery.debug();
 //    viewQuery.development();
 
     ViewResult query = bucketSync.query(viewQuery);
-    System.out.println(viewQuery.getView());
-    System.out.println(viewQuery.toQueryString());
-    System.out.println(viewQuery.toString());
-    System.out.println(viewQuery.getKeys());
-    System.out.println(query.success());
-    System.out.println(query.error());
+//    System.out.println(viewQuery.getView());
+//    System.out.println(viewQuery.toQueryString());
+//    System.out.println(viewQuery.toString());
+//    System.out.println(viewQuery.getKeys());
+//    System.out.println(query.success());
+//    System.out.println(query.error());
     query.allRows().forEach(e -> System.out.println(e));
   }
 }

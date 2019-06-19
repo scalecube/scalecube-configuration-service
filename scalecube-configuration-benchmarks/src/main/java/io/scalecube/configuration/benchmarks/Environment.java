@@ -120,7 +120,11 @@ final class Environment {
         "keys",
         Arrays.asList(
             DefaultView.create("by_keys",
-                "function (doc, meta) { if (meta.id != 'repos') { emit(meta.id); } }")
+                "function (doc, meta) { "
+                    + "  if (meta.id != 'repos') { "
+                    + "    emit(meta.id.substring(0, meta.id.lastIndexOf('::')), null);"
+                    + "  }"
+                    + "}")
         )
     );
 

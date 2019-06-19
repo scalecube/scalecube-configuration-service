@@ -2,6 +2,7 @@ package io.scalecube.configuration.repository.couchbase;
 
 import com.couchbase.client.java.AsyncBucket;
 import com.couchbase.client.java.document.AbstractDocument;
+import com.couchbase.client.java.document.JsonArrayDocument;
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.error.DocumentAlreadyExistsException;
@@ -14,6 +15,7 @@ import io.scalecube.configuration.repository.Repository;
 import io.scalecube.configuration.repository.exception.DataAccessException;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
+import io.scalecube.configuration.repository.exception.RepositoryKeyAlreadyExistsException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -110,16 +112,20 @@ public class CouchbaseRepository implements ConfigurationRepository {
   public Mono<Document> createEntry(String tenant, String repository, Document document) {
     return Mono.from(
         RxReactiveStreams.toPublisher(
-            bucket.mapAdd(tenant + DELIMITER + repository, document.key(), document.value())))
+            bucket.insert(JsonArrayDocument
+                .create(tenant + DELIMITER + repository + DELIMITER + document.key(),
+                    JsonArray.create().add(document.value())))))
         .onErrorMap(
-            DocumentDoesNotExistException.class,
+            DocumentAlreadyExistsException.class,
             e ->
-                new RepositoryNotFoundException(
-                    String.format(REPOSITORY_NOT_FOUND, tenant, repository)))
+                new RepositoryKeyAlreadyExistsException(
+                    String
+                        .format("Repository: '%s-%s' key: '%s' already exists", tenant, repository,
+                            document.key())))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
         .map(
-            added -> {
-              if (added) {
+            documentAdded -> {
+              if (documentAdded != null) {
                 return document;
               }
 
