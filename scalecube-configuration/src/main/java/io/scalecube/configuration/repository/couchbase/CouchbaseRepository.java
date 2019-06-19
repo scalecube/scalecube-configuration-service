@@ -1,13 +1,13 @@
 package io.scalecube.configuration.repository.couchbase;
 
 import com.couchbase.client.java.AsyncBucket;
-import com.couchbase.client.java.document.AbstractDocument;
 import com.couchbase.client.java.document.JsonArrayDocument;
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.error.DocumentAlreadyExistsException;
 import com.couchbase.client.java.error.DocumentDoesNotExistException;
 import com.couchbase.client.java.error.subdoc.PathNotFoundException;
+import com.couchbase.client.java.view.ViewQuery;
 import io.scalecube.configuration.repository.ConfigurationRepository;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.HistoryDocument;
@@ -96,17 +96,13 @@ public class CouchbaseRepository implements ConfigurationRepository {
   public Flux<Document> readList(String tenant, String repository, Integer version) {
     return Flux.from(
         RxReactiveStreams.toPublisher(
-            bucket
-                .get(tenant + DELIMITER + repository)
-                .switchIfEmpty(
-                    Observable.defer(
-                        () ->
-                            Observable.error(
-                                new RepositoryNotFoundException(
-                                    String.format(REPOSITORY_NOT_FOUND, tenant, repository)))))
-                .map(AbstractDocument::content)
-                .flatMap(content -> Observable.from(content.toMap().entrySet()))
-                .map(entry -> new Document(entry.getKey(), entry.getValue()))))
+            bucket.query(ViewQuery.from("keys", "by_keys").key(tenant + DELIMITER + repository))
+        ))
+        .flatMap(asyncViewResult ->
+            RxReactiveStreams.toPublisher(asyncViewResult.rows())
+        )
+        .flatMap(asyncViewRow -> readEntry(tenant, repository, asyncViewRow.id().split("::")[2],
+            version))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible);
   }
 

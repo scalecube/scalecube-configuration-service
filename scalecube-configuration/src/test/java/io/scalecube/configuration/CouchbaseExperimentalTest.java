@@ -272,8 +272,9 @@ class Scratch {
   }
 
   public static void parametrizedView() {
-    ViewQuery viewQuery = ViewQuery.from("keys", "by_keys").key("ORG_ID::REPO_ID4");
+    ViewQuery viewQuery = ViewQuery.from("keys", "by_keys").key("ORG-A82A94382D9E5CBA82BC::REPO1");
     ViewResult query = bucketSync.query(viewQuery);
+    System.out.println(query.totalRows());
     query.allRows().forEach(e -> System.out.println(e));
   }
 
@@ -310,7 +311,6 @@ class Scratch {
         .subscribe(System.out::println);
   }
 
-
   public static AtomicInteger versionNumber = new AtomicInteger(0);
 
   public static void queryEntryHistory() {
@@ -330,33 +330,51 @@ class Scratch {
                 .map(entry -> new HistoryDocument(versionNumber.incrementAndGet(), entry))))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
         .subscribe(System.out::println);
-//
-//    Flux.from(
-//        RxReactiveStreams.toPublisher(
-//            bucket.get("ORG-D6C68254A98A28294F44::REPO 2::KEY3")
-//    )
-//        .onErrorMap(
-//            DocumentDoesNotExistException.class,
-//            e ->
-//                new KeyNotFoundException(
-//                    String
-//                        .format("Repository [%s-%s] key [%s] not found", 1, 2, 3)))
-//        .onErrorMap(
-//            PathNotFoundException.class,
-//            e -> new KeyVersionNotFoundException(
-//                String.format("Key '%s' version '%s' not found", 3, version)))
-//        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
-//        .map(
-//            value -> {
-//              if (value instanceof JsonObject) {
-//                return new Document("key", ((JsonObject) value).toMap());
-//              } else if (value instanceof JsonArray) {
-//                return new Document("key", ((JsonArray) value).toList());
-//              } else {
-//                return new Document("key", value);
-//              }
-//            })
-//        .subscribe(System.out::println);
+  }
+
+  public static void readList() {
+
+    Flux.from(
+        RxReactiveStreams.toPublisher(
+            bucket
+                .query(ViewQuery.from("keys", "by_keys").key("ORG-73C86327B252848760AD::REPO1"))
+        ))
+        .flatMap(asyncViewResult ->
+            RxReactiveStreams.toPublisher(asyncViewResult.rows())
+        )
+        .flatMap(asyncViewRow -> readEntry(asyncViewRow.id(), 1))
+        .subscribe(System.out::println);
+  }
+
+  private static Mono<Document> readEntry(String repoAndKey, Integer version) {
+    return
+        Mono.from(
+            RxReactiveStreams.toPublisher(
+                bucket.listGet(repoAndKey, version != null ? version - 1 : -1,
+                    Object.class))
+        )
+            .onErrorMap(
+                DocumentDoesNotExistException.class,
+                e ->
+                    new KeyNotFoundException(
+                        String
+                            .format("Repository key not found", repoAndKey)))
+            .onErrorMap(
+                PathNotFoundException.class,
+                e -> new KeyVersionNotFoundException(
+                    String.format("Repo key '%s' version '%s' not found", repoAndKey,
+                        version != null ? version : "latest")))
+            .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
+            .map(
+                value -> {
+                  if (value instanceof JsonObject) {
+                    return new Document(repoAndKey, ((JsonObject) value).toMap());
+                  } else if (value instanceof JsonArray) {
+                    return new Document(repoAndKey, ((JsonArray) value).toList());
+                  } else {
+                    return new Document(repoAndKey, value);
+                  }
+                });
   }
 }
 
@@ -425,6 +443,13 @@ public class CouchbaseExperimentalTest {
   @Test
   public void queryEntryHistory() throws Exception {
     Scratch.queryEntryHistory();
+
+    Thread.sleep(2000);
+  }
+
+  @Test
+  public void readList() throws Exception {
+    Scratch.readList();
 
     Thread.sleep(2000);
   }
