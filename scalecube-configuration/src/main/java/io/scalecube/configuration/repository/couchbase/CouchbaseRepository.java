@@ -127,7 +127,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
                       e ->
                           new RepositoryKeyAlreadyExistsException(
                               String
-                                  .format("Repository: '%s-%s' key: '%s' already exists", tenant,
+                                  .format("Repository '%s-%s' key '%s' already exists", tenant,
                                       repository,
                                       document.key())))
                   .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
@@ -144,8 +144,27 @@ public class CouchbaseRepository implements ConfigurationRepository {
   }
 
   @Override
-  public Mono<Document> updateEntry(String tenant, String repository, Document doc) {
-    throw new NotImplementedException();
+  public Mono<Document> updateEntry(String tenant, String repository, Document document) {
+    return Mono.from(
+        RxReactiveStreams.toPublisher(
+            bucket.listAppend(tenant + DELIMITER + repository + DELIMITER + document.key(),
+                document.value())))
+        .onErrorMap(
+            DocumentDoesNotExistException.class,
+            e ->
+                new DocumentDoesNotExistException(
+                    String.format("Repository [%s-%s] key [%s] not found", tenant, repository,
+                        document.key())))
+        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
+        .map(
+            idKeyAdded -> {
+              if (idKeyAdded) {
+                return document;
+              }
+
+              throw new DataAccessException(
+                  "Save operation is failed because of unknown reason");
+            });
   }
 
   @Override
