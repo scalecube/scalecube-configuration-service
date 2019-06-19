@@ -77,7 +77,8 @@ public class CouchbaseRepository implements ConfigurationRepository {
             .onErrorMap(
                 PathNotFoundException.class,
                 e -> new KeyVersionNotFoundException(
-                    String.format("Key '%s' version '%s' not found", key, version)))
+                    String.format("Key '%s' version '%s' not found", key,
+                        version != null ? version : "latest")))
             .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
             .map(
                 value -> {
@@ -175,20 +176,19 @@ public class CouchbaseRepository implements ConfigurationRepository {
 
   @Override
   public Mono<Void> deleteEntry(String tenant, String repository, String key) {
-    return readEntry(tenant, repository, key, null)
-        .then(
-            Mono.from(
-                RxReactiveStreams.toPublisher(
-                    bucket.mapRemove(tenant + DELIMITER + repository, key))))
+    return Mono.from(
+        RxReactiveStreams.toPublisher(
+            bucket.remove(docId(tenant, repository, key))))
         .onErrorMap(
             DocumentDoesNotExistException.class,
             e ->
-                new RepositoryNotFoundException(
-                    String.format(REPOSITORY_NOT_FOUND, tenant, repository)))
+                new KeyNotFoundException(
+                    String.format("Repository '%s-%s' key '%s' not found", tenant, repository, key))
+        )
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
         .doOnNext(
-            deleted -> {
-              if (!deleted) {
+            deletedDocument -> {
+              if (deletedDocument == null) {
                 throw new DataAccessException(
                     "Delete operation is failed because of unknown reason");
               }
