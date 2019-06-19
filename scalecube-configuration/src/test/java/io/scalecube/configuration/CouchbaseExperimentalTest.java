@@ -7,14 +7,18 @@ import com.couchbase.client.java.document.JsonArrayDocument;
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.error.DocumentDoesNotExistException;
+import com.couchbase.client.java.error.subdoc.PathNotFoundException;
 import com.couchbase.client.java.query.AsyncN1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.view.DefaultView;
 import com.couchbase.client.java.view.DesignDocument;
 import com.couchbase.client.java.view.ViewQuery;
 import com.couchbase.client.java.view.ViewResult;
+import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.couchbase.CouchbaseExceptionTranslator;
 import io.scalecube.configuration.repository.exception.DataAccessException;
+import io.scalecube.configuration.repository.exception.KeyNotFoundException;
+import io.scalecube.configuration.repository.exception.KeyVersionNotFoundException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -265,31 +269,67 @@ class Scratch {
   }
 
   public static void parametrizedView() {
+    ViewQuery viewQuery = ViewQuery.from("keys", "by_keys").key("ORG_ID::REPO_ID4");
+    ViewResult query = bucketSync.query(viewQuery);
+    query.allRows().forEach(e -> System.out.println(e));
+  }
 
-//    String pref = "a3_sdf";
+  public static void queryVersion() {
+    Integer version = 1;
+//    Mono.fromSupplier(() -> {
+//      if (version != null) {
+//        return RxReactiveStreams.toPublisher(
+//            bucket.listGet("ORG-D6C68254A98A28294F44::REPO 2::KEY3", version - 1, String.class));
+//      } else {
+//        return RxReactiveStreams.toPublisher(
+//            bucket.listGet("ORG-D6C68254A98A28294F44::REPO 2::KEY3", -1, Object.class));
+//      }
+//    })
+
 //    Mono.from(
 //        RxReactiveStreams.toPublisher(
-//            bucket.query(ViewQuery.from("repos_keys_a3_1",
-//                "repo_keys: configurations a3_1"))
-//        ))//.map(asyncViewResult -> asyncViewResult.totalRows())
-//        .subscribe(e -> System.err.println("result: " + e.error()));
+//            bucket.listGet("ORG-D6C68254A98A28294F44::REPO 2::KEY3", 1,
+//                Object.class)))
+//        .map(
+//            value -> {
+//              if (value instanceof JsonObject) {
+//                return (JsonObject) value;
+//              } else if (value instanceof JsonArray) {
+//                return (JsonArray) value;
+//              } else {
+//                return value;
+//              }
+//            })
+//        .subscribe(System.out::println);
 
-//    ViewQuery viewQuery = ViewQuery.from("repos_keys_a3_1", "repo_keys: configurations a3_1");
-//    ViewQuery viewQuery = ViewQuery.from("keys", "by_keys").key("aqua ");
-    ViewQuery viewQuery = ViewQuery.from("keys", "by_keys").key("ORG_ID::REPO_ID4");
-//    viewQuery.key(JsonObject.create().put("key", "keyIt"));
-//    viewQuery.key("keyIt");
-//    viewQuery.debug();
-//    viewQuery.development();
-
-    ViewResult query = bucketSync.query(viewQuery);
-//    System.out.println(viewQuery.getView());
-//    System.out.println(viewQuery.toQueryString());
-//    System.out.println(viewQuery.toString());
-//    System.out.println(viewQuery.getKeys());
-//    System.out.println(query.success());
-//    System.out.println(query.error());
-    query.allRows().forEach(e -> System.out.println(e));
+    Mono.from(
+        RxReactiveStreams.toPublisher(
+            bucket.listGet("ORG-D6C68254A98A28294F44::REPO 2::KEY3",
+                version != null ? version - 1 : -1,
+                Object.class))
+    )
+        .onErrorMap(
+            DocumentDoesNotExistException.class,
+            e ->
+                new KeyNotFoundException(
+                    String
+                        .format("Repository [%s-%s] key [%s] not found", 1, 2, 3)))
+        .onErrorMap(
+            PathNotFoundException.class,
+            e -> new KeyVersionNotFoundException(
+                String.format("Key '%s' version '%s' not found", 3, version)))
+        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
+        .map(
+            value -> {
+              if (value instanceof JsonObject) {
+                return new Document("key", ((JsonObject) value).toMap());
+              } else if (value instanceof JsonArray) {
+                return new Document("key", ((JsonArray) value).toList());
+              } else {
+                return new Document("key", value);
+              }
+            })
+        .subscribe(System.out::println);
   }
 }
 
@@ -344,6 +384,13 @@ public class CouchbaseExperimentalTest {
   @Test
   public void parametrizedView() throws Exception {
     Scratch.parametrizedView();
+
+    Thread.sleep(2000);
+  }
+
+  @Test
+  public void queryVersion() throws Exception {
+    Scratch.queryVersion();
 
     Thread.sleep(2000);
   }

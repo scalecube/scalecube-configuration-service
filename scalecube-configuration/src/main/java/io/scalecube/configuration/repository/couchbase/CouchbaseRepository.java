@@ -14,6 +14,7 @@ import io.scalecube.configuration.repository.HistoryDocument;
 import io.scalecube.configuration.repository.Repository;
 import io.scalecube.configuration.repository.exception.DataAccessException;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
+import io.scalecube.configuration.repository.exception.KeyVersionNotFoundException;
 import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
 import io.scalecube.configuration.repository.exception.RepositoryKeyAlreadyExistsException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
@@ -28,7 +29,6 @@ public class CouchbaseRepository implements ConfigurationRepository {
   private static final String REPOSITORY_ALREADY_EXISTS =
       "Repository with name: '%s' already exists";
   private static final String REPOSITORY_NOT_FOUND = "Repository '%s-%s' not found";
-  private static final String KEY_NOT_FOUND = "Key '%s' not found";
 
   private static final String DELIMITER = "::";
 
@@ -61,28 +61,34 @@ public class CouchbaseRepository implements ConfigurationRepository {
 
   @Override
   public Mono<Document> readEntry(String tenant, String repository, String key, Integer version) {
-    return Mono.from(
-        RxReactiveStreams.toPublisher(
-            bucket.mapGet(tenant + DELIMITER + repository, key, Object.class)))
-        .onErrorMap(
-            DocumentDoesNotExistException.class,
-            e ->
-                new RepositoryNotFoundException(
-                    String.format(REPOSITORY_NOT_FOUND, tenant, repository)))
-        .onErrorMap(
-            PathNotFoundException.class,
-            e -> new KeyNotFoundException(String.format(KEY_NOT_FOUND, key)))
-        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
-        .map(
-            value -> {
-              if (value instanceof JsonObject) {
-                return new Document(key, ((JsonObject) value).toMap());
-              } else if (value instanceof JsonArray) {
-                return new Document(key, ((JsonArray) value).toList());
-              } else {
-                return new Document(key, value);
-              }
-            });
+    return
+        Mono.from(
+            RxReactiveStreams.toPublisher(
+                bucket.listGet(docId(tenant, repository, key), version != null ? version - 1 : -1,
+                    Object.class))
+        )
+            .onErrorMap(
+                DocumentDoesNotExistException.class,
+                e ->
+                    new KeyNotFoundException(
+                        String
+                            .format("Repository [%s-%s] key [%s] not found", tenant, repository,
+                                key)))
+            .onErrorMap(
+                PathNotFoundException.class,
+                e -> new KeyVersionNotFoundException(
+                    String.format("Key '%s' version '%s' not found", key, version)))
+            .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
+            .map(
+                value -> {
+                  if (value instanceof JsonObject) {
+                    return new Document(key, ((JsonObject) value).toMap());
+                  } else if (value instanceof JsonArray) {
+                    return new Document(key, ((JsonArray) value).toList());
+                  } else {
+                    return new Document(key, value);
+                  }
+                });
   }
 
   @Override
@@ -120,7 +126,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
               return Mono.from(
                   RxReactiveStreams.toPublisher(
                       bucket.insert(JsonArrayDocument
-                          .create(tenant + DELIMITER + repository + DELIMITER + document.key(),
+                          .create(docId(tenant, repository, document.key()),
                               JsonArray.create().add(document.value())))))
                   .onErrorMap(
                       DocumentAlreadyExistsException.class,
@@ -147,7 +153,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
   public Mono<Document> updateEntry(String tenant, String repository, Document document) {
     return Mono.from(
         RxReactiveStreams.toPublisher(
-            bucket.listAppend(tenant + DELIMITER + repository + DELIMITER + document.key(),
+            bucket.listAppend(docId(tenant, repository, document.key()),
                 document.value())))
         .onErrorMap(
             DocumentDoesNotExistException.class,
@@ -188,5 +194,9 @@ public class CouchbaseRepository implements ConfigurationRepository {
               }
             })
         .then();
+  }
+
+  private String docId(String tenant, String repository, String key) {
+    return tenant + DELIMITER + repository + DELIMITER + key;
   }
 }
