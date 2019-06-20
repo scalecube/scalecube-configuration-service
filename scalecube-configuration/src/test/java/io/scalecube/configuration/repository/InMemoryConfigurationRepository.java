@@ -30,32 +30,32 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   }
 
   @Override
-  public Mono<Document> readEntry(String tenant, String repository, String key, Integer version) {
+  public Mono<Document> read(String tenant, String repository, String key, Integer version) {
     return get(new Repository(tenant, repository), key);
   }
 
   @Override
-  public Flux<Document> readList(String tenant, String repository, Integer version) {
+  public Flux<Document> readAll(String tenant, String repository, Integer version) {
     return entries(new Repository(tenant, repository));
   }
 
   @Override
-  public Flux<HistoryDocument> readEntryHistory(String tenant, String repository, String key) {
+  public Flux<HistoryDocument> readHistory(String tenant, String repository, String key) {
     throw new NotImplementedException();
   }
 
   @Override
-  public Mono<Document> createEntry(String tenant, String repository, Document document) {
+  public Mono<Document> save(String tenant, String repository, Document document) {
     return put(new Repository(tenant, repository), document.key(), document);
   }
 
   @Override
-  public Mono<Void> deleteEntry(String tenant, String repository, String key) {
+  public Mono<Void> delete(String tenant, String repository, String key) {
     return remove(new Repository(tenant, repository), key);
   }
 
   @Override
-  public Mono<Document> updateEntry(String tenant, String repository, Document doc) {
+  public Mono<Document> update(String tenant, String repository, Document doc) {
     throw new NotImplementedException();
   }
 

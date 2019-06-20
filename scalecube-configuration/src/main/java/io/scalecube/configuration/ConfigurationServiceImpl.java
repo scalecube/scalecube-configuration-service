@@ -62,7 +62,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public Mono<ReadEntryResponse> readEntry(ReadEntryRequest request) {
-    return Mono.fromRunnable(() -> logger.debug("readEntry: enter: request: {}", request))
+    return Mono.fromRunnable(() -> logger.debug("read: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
         .then(
@@ -70,51 +70,51 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 () -> checkAccess(request.apiKey().toString(),
                     ConfigurationService.CONFIG_READ_ENTRY)))
         .flatMap(p -> repository
-            .readEntry(p.tenant(), request.repository(), request.key(), request.version()))
+            .read(p.tenant(), request.repository(), request.key(), request.version()))
         .map(document -> new ReadEntryResponse(document.key(), document.value()))
         .doOnSuccess(
-            result -> logger.debug("readEntry: exit: request: {}, result: {}", request, result))
-        .doOnError(th -> logger.error("readEntry: request: {}, error:", request, th));
+            result -> logger.debug("read: exit: request: {}, result: {}", request, result))
+        .doOnError(th -> logger.error("read: request: {}, error:", request, th));
   }
 
   @Override
   public Mono<List<ReadEntryResponse>> readList(ReadListRequest request) {
-    return Mono.fromRunnable(() -> logger.debug("readList: enter: request: {}", request))
+    return Mono.fromRunnable(() -> logger.debug("readAll: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
         .thenMany(
             Flux.defer(
                 () -> checkAccess(request.apiKey().toString(),
                     ConfigurationService.CONFIG_READ_LIST)))
-        .flatMap(p -> repository.readList(p.tenant(), request.repository(), request.version()))
+        .flatMap(p -> repository.readAll(p.tenant(), request.repository(), request.version()))
         .map(doc -> new ReadEntryResponse(doc.key(), doc.value()))
         .collectList()
         .doOnSuccess(
-            result -> logger.debug("readList: exit: request: {}, result: {}", request, result))
-        .doOnError(th -> logger.error("readList: request: {}, error:", request, th));
+            result -> logger.debug("readAll: exit: request: {}, result: {}", request, result))
+        .doOnError(th -> logger.error("readAll: request: {}, error:", request, th));
   }
 
   @Override
   public Mono<List<ReadEntryHistoryResponse>> readEntryHistory(ReadEntryHistoryRequest request) {
-    return Mono.fromRunnable(() -> logger.debug("readEntryHistory: enter: request: {}", request))
+    return Mono.fromRunnable(() -> logger.debug("readHistory: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
         .thenMany(
             Flux.defer(
                 () -> checkAccess(request.apiKey().toString(),
                     ConfigurationService.CONFIG_READ_ENTRY_HISTORY)))
-        .flatMap(p -> repository.readEntryHistory(p.tenant(), request.repository(), request.key()))
+        .flatMap(p -> repository.readHistory(p.tenant(), request.repository(), request.key()))
         .map(doc -> new ReadEntryHistoryResponse(doc.version(), doc.value()))
         .collectList()
         .doOnSuccess(
             result -> logger
-                .debug("readEntryHistory: exit: request: {}, result: {}", request, result))
-        .doOnError(th -> logger.error("readEntryHistory: request: {}, error:", request, th));
+                .debug("readHistory: exit: request: {}, result: {}", request, result))
+        .doOnError(th -> logger.error("readHistory: request: {}, error:", request, th));
   }
 
   @Override
   public Mono<Acknowledgment> createEntry(CreateOrUpdateEntryRequest request) {
-    return Mono.fromRunnable(() -> logger.debug("createEntry: enter: request: {}", request))
+    return Mono.fromRunnable(() -> logger.debug("create: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
         .then(
@@ -123,16 +123,16 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                     ConfigurationService.CONFIG_CREATE_ENTRY)))
         .flatMap(
             p ->
-                repository.createEntry(
+                repository.save(
                     p.tenant(), request.repository(), new Document(request.key(), request.value())))
         .thenReturn(ACK)
-        .doOnSuccess(result -> logger.debug("createEntry: exit: request: {}", request))
-        .doOnError(th -> logger.error("createEntry: request: {}, error:", request, th));
+        .doOnSuccess(result -> logger.debug("create: exit: request: {}", request))
+        .doOnError(th -> logger.error("create: request: {}, error:", request, th));
   }
 
   @Override
   public Mono<Acknowledgment> updateEntry(CreateOrUpdateEntryRequest request) {
-    return Mono.fromRunnable(() -> logger.debug("updateEntry: enter: request: {}", request))
+    return Mono.fromRunnable(() -> logger.debug("update: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
         .then(
@@ -141,26 +141,26 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                     ConfigurationService.CONFIG_CREATE_ENTRY)))
         .flatMap(
             p ->
-                repository.updateEntry(
+                repository.update(
                     p.tenant(), request.repository(), new Document(request.key(), request.value())))
         .thenReturn(ACK)
-        .doOnSuccess(result -> logger.debug("updateEntry: exit: request: {}", request))
-        .doOnError(th -> logger.error("updateEntry: request: {}, error:", request, th));
+        .doOnSuccess(result -> logger.debug("update: exit: request: {}", request))
+        .doOnError(th -> logger.error("update: request: {}, error:", request, th));
   }
 
   @Override
   public Mono<Acknowledgment> deleteEntry(DeleteEntryRequest request) {
-    return Mono.fromRunnable(() -> logger.debug("deleteEntry: enter: request: {}", request))
+    return Mono.fromRunnable(() -> logger.debug("delete: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
                 () -> checkAccess(request.apiKey().toString(),
                     ConfigurationService.CONFIG_DELETE_ENTRY)))
-        .flatMap(p -> repository.deleteEntry(p.tenant(), request.repository(), request.key()))
+        .flatMap(p -> repository.delete(p.tenant(), request.repository(), request.key()))
         .thenReturn(ACK)
-        .doOnSuccess(result -> logger.debug("deleteEntry: exit: request: {}", request))
-        .doOnError(th -> logger.error("deleteEntry: request: {}, error:", request, th));
+        .doOnSuccess(result -> logger.debug("delete: exit: request: {}", request))
+        .doOnError(th -> logger.error("delete: request: {}, error:", request, th));
   }
 
   private Mono<Profile> checkAccess(String token, String resource) {

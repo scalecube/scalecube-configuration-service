@@ -60,7 +60,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
   }
 
   @Override
-  public Mono<Document> readEntry(String tenant, String repository, String key, Integer version) {
+  public Mono<Document> read(String tenant, String repository, String key, Integer version) {
     return
         Mono.from(
             RxReactiveStreams.toPublisher(
@@ -93,7 +93,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
   }
 
   @Override
-  public Flux<Document> readList(String tenant, String repository, Integer version) {
+  public Flux<Document> readAll(String tenant, String repository, Integer version) {
     return Flux.from(
         RxReactiveStreams.toPublisher(
             bucket.query(ViewQuery.from("keys", "by_keys").key(tenant + DELIMITER + repository))
@@ -101,13 +101,13 @@ public class CouchbaseRepository implements ConfigurationRepository {
         .flatMap(asyncViewResult ->
             RxReactiveStreams.toPublisher(asyncViewResult.rows())
         )
-        .flatMap(asyncViewRow -> readEntry(tenant, repository, asyncViewRow.id().split("::")[2],
+        .flatMap(asyncViewRow -> read(tenant, repository, asyncViewRow.id().split("::")[2],
             version))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible);
   }
 
   @Override
-  public Flux<HistoryDocument> readEntryHistory(String tenant, String repository, String key) {
+  public Flux<HistoryDocument> readHistory(String tenant, String repository, String key) {
     AtomicInteger currentVersion = new AtomicInteger(0);
     return Flux.from(
         RxReactiveStreams.toPublisher(
@@ -128,7 +128,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
   }
 
   @Override
-  public Mono<Document> createEntry(String tenant, String repository, Document document) {
+  public Mono<Document> save(String tenant, String repository, Document document) {
     return
         Mono.from(RxReactiveStreams.toPublisher(bucket.setContains(REPOS, repository)))
             .flatMap(isRepoExists -> {
@@ -163,7 +163,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
   }
 
   @Override
-  public Mono<Document> updateEntry(String tenant, String repository, Document document) {
+  public Mono<Document> update(String tenant, String repository, Document document) {
     return Mono.from(
         RxReactiveStreams.toPublisher(
             bucket.listAppend(docId(tenant, repository, document.key()),
@@ -187,7 +187,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
   }
 
   @Override
-  public Mono<Void> deleteEntry(String tenant, String repository, String key) {
+  public Mono<Void> delete(String tenant, String repository, String key) {
     return Mono.from(
         RxReactiveStreams.toPublisher(
             bucket.remove(docId(tenant, repository, key))))

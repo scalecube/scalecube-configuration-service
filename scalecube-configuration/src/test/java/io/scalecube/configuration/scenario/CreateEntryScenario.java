@@ -23,7 +23,7 @@ import reactor.test.StepVerifier;
 public class CreateEntryScenario extends BaseScenario {
 
   @TestTemplate
-  @DisplayName("#7 Successful createEntry of specific entry (instrument) applying the \"Owner\" API key")
+  @DisplayName("#7 Successful create of specific entry (instrument) applying the \"Owner\" API key")
   void createEntry(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -278,7 +278,7 @@ public class CreateEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#13 Fail to createEntry (edit) the specific entry applying the \"Admin\" either \"Owner\" API key upon the specified Repository doesn't exist")
+      "#13 Fail to create (edit) the specific entry applying the \"Admin\" either \"Owner\" API key upon the specified Repository doesn't exist")
   void createEntryForNonExistingRepository(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -328,7 +328,7 @@ public class CreateEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#15 Fail to createEntry (edit) the specific entry in the Repository upon the Owner deleted the Organization with related \"Owner\" API key")
+      "#15 Fail to create (edit) the specific entry in the Repository upon the Owner deleted the Organization with related \"Owner\" API key")
   void createEntryForDeletedOrganization(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
