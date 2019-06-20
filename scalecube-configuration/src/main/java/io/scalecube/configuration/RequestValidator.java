@@ -73,7 +73,7 @@ final class RequestValidator {
 
   private static void validateToken(Object token) {
     if (token == null || token.toString().trim().isEmpty()) {
-      throw new IllegalArgumentException("Please specify 'APIKey'");
+      throw new IllegalArgumentException("Please specify 'apiKey'");
     }
   }
 
