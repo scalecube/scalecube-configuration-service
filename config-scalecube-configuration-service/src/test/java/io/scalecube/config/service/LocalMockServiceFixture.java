@@ -58,8 +58,7 @@ public class LocalMockServiceFixture implements Fixture {
             answer -> {
               ReadEntryRequest request = (ReadEntryRequest) answer.getArguments()[0];
               return Mono.just(
-                      responses
-                          .stream()
+                      responses.stream()
                           .filter(response -> request.key().equals(response.key()))
                           .findFirst())
                   .flatMap(

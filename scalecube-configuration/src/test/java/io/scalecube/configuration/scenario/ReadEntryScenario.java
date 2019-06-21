@@ -9,10 +9,10 @@ import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
+import io.scalecube.configuration.api.CreateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.ReadEntryRequest;
 import io.scalecube.configuration.api.ReadListRequest;
-import io.scalecube.configuration.api.CreateEntryRequest;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
@@ -180,7 +180,8 @@ public class ReadEntryScenario extends BaseScenario {
     String nonExistentKey = "NON_EXISTENT_KEY";
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(ownerToken, repoName, nonExistentKey)))
+            configurationService.readEntry(
+                new ReadEntryRequest(ownerToken, repoName, nonExistentKey)))
         .expectErrorMessage(String.format("Key '%s' not found", nonExistentKey))
         .verify();
   }
@@ -195,7 +196,8 @@ public class ReadEntryScenario extends BaseScenario {
 
     String repoName = "NON_EXISTENT_REPO";
 
-    StepVerifier.create(configurationService.readEntry(new ReadEntryRequest(token, repoName, "key")))
+    StepVerifier.create(
+            configurationService.readEntry(new ReadEntryRequest(token, repoName, "key")))
         .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId, repoName))
         .verify();
   }

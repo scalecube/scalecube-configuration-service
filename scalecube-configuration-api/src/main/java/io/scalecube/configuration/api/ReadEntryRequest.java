@@ -51,7 +51,12 @@ public class ReadEntryRequest implements AccessRequest {
 
   @Override
   public String toString() {
-    return "ReadEntryRequest [repository=" + repository + ", key=" + key + ", apiKey=" + apiKey
+    return "ReadEntryRequest [repository="
+        + repository
+        + ", key="
+        + key
+        + ", apiKey="
+        + apiKey
         + "]";
   }
 }

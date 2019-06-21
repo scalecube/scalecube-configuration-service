@@ -66,8 +66,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
-                () -> checkAccess(request.apiKey().toString(),
-                    ConfigurationService.CONFIG_READ_ENTRY)))
+                () ->
+                    checkAccess(
+                        request.apiKey().toString(), ConfigurationService.CONFIG_READ_ENTRY)))
         .flatMap(p -> repository.readEntry(p.tenant(), request.repository(), request.key()))
         .map(document -> new ReadEntryResponse(document.key(), document.value()))
         .doOnSuccess(
@@ -82,8 +83,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .thenMany(
             Flux.defer(
-                () -> checkAccess(request.apiKey().toString(),
-                    ConfigurationService.CONFIG_READ_LIST)))
+                () ->
+                    checkAccess(
+                        request.apiKey().toString(), ConfigurationService.CONFIG_READ_LIST)))
         .flatMap(p -> repository.readList(p.tenant(), request.repository()))
         .map(doc -> new ReadEntryResponse(doc.key(), doc.value()))
         .collectList()
@@ -99,8 +101,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
-                () -> checkAccess(request.apiKey().toString(),
-                    ConfigurationService.CONFIG_CREATE_ENTRY)))
+                () ->
+                    checkAccess(
+                        request.apiKey().toString(), ConfigurationService.CONFIG_CREATE_ENTRY)))
         .flatMap(
             p ->
                 repository.createEntry(
@@ -122,8 +125,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
-                () -> checkAccess(request.apiKey().toString(),
-                    ConfigurationService.CONFIG_DELETE_ENTRY)))
+                () ->
+                    checkAccess(
+                        request.apiKey().toString(), ConfigurationService.CONFIG_DELETE_ENTRY)))
         .flatMap(p -> repository.deleteEntry(p.tenant(), request.repository(), request.key()))
         .thenReturn(ACK)
         .doOnSuccess(result -> logger.debug("deleteEntry: exit: request: {}", request))

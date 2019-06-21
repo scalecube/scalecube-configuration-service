@@ -3,34 +3,35 @@
   "id": "1",
   "type": "ORG",
   "backColor": "black",
-  "nodes": [{
-    "id": "2",
-    "text": "createRepo",
-    "backColor": "black",
-    "data": {
-      "q": "/configuration/createRepository",
-      "sid": 1,
-      "d": {
-        "apiKey": "API-KEY",
-        "repository": "REPO-NAME"
-      }
-    }
-  },
+  "nodes": [
     {
-    "id": "3",
-    "text": "createEntry",
-    "backColor": "black",
-    "data": {
-      "q": "/configuration/createEntry",
-      "sid": 2,
-      "d": {
-        "apiKey": "API-KEY",
-        "repository": "REPO-NAME",
-        "key": "KEY-NAME",
-        "value": "JSON-DATA"
+      "id": "2",
+      "text": "createRepo",
+      "backColor": "black",
+      "data": {
+        "q": "/configuration/createRepository",
+        "sid": 1,
+        "d": {
+          "apiKey": "API-KEY",
+          "repository": "REPO-NAME"
+        }
       }
-    }
-  },
+    },
+    {
+      "id": "3",
+      "text": "createEntry",
+      "backColor": "black",
+      "data": {
+        "q": "/configuration/createEntry",
+        "sid": 2,
+        "d": {
+          "apiKey": "API-KEY",
+          "repository": "REPO-NAME",
+          "key": "KEY-NAME",
+          "value": "JSON-DATA"
+        }
+      }
+    },
     {
       "id": "3",
       "text": "updateEntry",
@@ -88,5 +89,4 @@
       }
     }
   ]
-
 }
