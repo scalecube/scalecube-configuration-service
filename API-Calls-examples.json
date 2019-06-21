@@ -11,7 +11,7 @@
       "q": "/configuration/createRepository",
       "sid": 1,
       "d": {
-        "APIKey": "API-KEY",
+        "apiKey": "API-KEY",
         "repository": "REPO-NAME"
       }
     }
@@ -24,7 +24,7 @@
       "q": "/configuration/createEntry",
       "sid": 2,
       "d": {
-        "APIKey": "API-KEY",
+        "apiKey": "API-KEY",
         "repository": "REPO-NAME",
         "key": "KEY-NAME",
         "value": "JSON-DATA"
@@ -54,7 +54,7 @@
         "q": "/configuration/readEntry",
         "sid": 3,
         "d": {
-          "APIKey": "API-KEY",
+          "apiKey": "API-KEY",
           "repository": "REPO-NAME",
           "key": "KEY-NAME"
         }
@@ -68,7 +68,7 @@
         "q": "/configuration/readList",
         "sid": 4,
         "d": {
-          "APIKey": "API-KEY",
+          "apiKey": "API-KEY",
           "repository": "REPO-NAME"
         }
       }
@@ -81,7 +81,7 @@
         "q": "/configuration/deleteEntry",
         "sid": 5,
         "d": {
-          "APIKey": "API-KEY",
+          "apiKey": "API-KEY",
           "repository": "REPO-NAME",
           "key": "KEY-NAME"
         }
