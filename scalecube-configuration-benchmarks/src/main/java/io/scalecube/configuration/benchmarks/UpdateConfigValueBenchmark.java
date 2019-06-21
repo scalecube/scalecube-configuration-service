@@ -39,7 +39,8 @@ public final class UpdateConfigValueBenchmark {
 
                 Context time = timer.time();
 
-                return configurationService.createEntry(createOrUpdateEntryRequest)
+                return configurationService
+                    .createEntry(createOrUpdateEntryRequest)
                     .doOnSuccess(response -> time.stop());
               };
             });

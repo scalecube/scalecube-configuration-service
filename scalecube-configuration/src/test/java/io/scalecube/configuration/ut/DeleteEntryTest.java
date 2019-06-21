@@ -9,5 +9,4 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(Fixtures.class)
 @WithFixture(value = InMemoryEnvironmentFixture.class, lifecycle = Lifecycle.PER_METHOD)
-final class DeleteEntryTest extends DeleteEntryScenario {
-}
+final class DeleteEntryTest extends DeleteEntryScenario {}

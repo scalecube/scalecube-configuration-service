@@ -11,8 +11,7 @@ public class ReadListRequest implements AccessRequest {
    *
    * @deprecated for instantiation purposes.
    */
-  ReadListRequest() {
-  }
+  ReadListRequest() {}
 
   /**
    * Constructs a ReadListRequest object.
@@ -52,7 +51,12 @@ public class ReadListRequest implements AccessRequest {
 
   @Override
   public String toString() {
-    return "ReadListRequest [repository=" + repository + ", apiKey=" + apiKey + ", version="
-        + version + "]";
+    return "ReadListRequest [repository="
+        + repository
+        + ", apiKey="
+        + apiKey
+        + ", version="
+        + version
+        + "]";
   }
 }

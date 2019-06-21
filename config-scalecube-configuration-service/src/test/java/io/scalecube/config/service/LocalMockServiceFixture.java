@@ -40,7 +40,8 @@ public class LocalMockServiceFixture implements Fixture {
     when(service.createEntry(any()))
         .then(
             answer -> {
-              CreateOrUpdateEntryRequest request = (CreateOrUpdateEntryRequest) answer.getArguments()[0];
+              CreateOrUpdateEntryRequest request =
+                  (CreateOrUpdateEntryRequest) answer.getArguments()[0];
               JsonNode value = (JsonNode) request.value();
               ReadEntryResponse response = new ReadEntryResponse(request.key(), value);
               responses.add(response);
@@ -58,8 +59,7 @@ public class LocalMockServiceFixture implements Fixture {
             answer -> {
               ReadEntryRequest request = (ReadEntryRequest) answer.getArguments()[0];
               return Mono.just(
-                      responses
-                          .stream()
+                      responses.stream()
                           .filter(response -> request.key().equals(response.key()))
                           .findFirst())
                   .flatMap(

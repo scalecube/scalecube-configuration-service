@@ -49,9 +49,7 @@ final class Environment {
     Thread.currentThread().join();
   }
 
-  /**
-   * Starts environment.
-   */
+  /** Starts environment. */
   public void start() {
     startCouchbase();
     startVault();
@@ -108,25 +106,26 @@ final class Environment {
   }
 
   private static void couchbaseInit() {
-    Bucket bucket = CouchbaseCluster.create("http://localhost:8091")
-        .authenticate("admin", "123456")
-        .openBucket("configurations");
+    Bucket bucket =
+        CouchbaseCluster.create("http://localhost:8091")
+            .authenticate("admin", "123456")
+            .openBucket("configurations");
 
     bucket.insert(JsonArrayDocument.create("repos", JsonArray.create()));
 
     BucketManager bucketManager = bucket.bucketManager();
 
-    DesignDocument designDoc = DesignDocument.create(
-        "keys",
-        Arrays.asList(
-            DefaultView.create("by_keys",
-                "function (doc, meta) { "
-                    + "  if (meta.id != 'repos') { "
-                    + "    emit(meta.id.substring(0, meta.id.lastIndexOf('::')), null);"
-                    + "  }"
-                    + "}")
-        )
-    );
+    DesignDocument designDoc =
+        DesignDocument.create(
+            "keys",
+            Arrays.asList(
+                DefaultView.create(
+                    "by_keys",
+                    "function (doc, meta) { "
+                        + "  if (meta.id != 'repos') { "
+                        + "    emit(meta.id.substring(0, meta.id.lastIndexOf('::')), null);"
+                        + "  }"
+                        + "}")));
 
     bucketManager.insertDesignDocument(designDoc);
   }

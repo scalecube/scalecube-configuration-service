@@ -1,8 +1,6 @@
 package io.scalecube.configuration.api;
 
-/**
- * Represents a response to a key version history request.
- */
+/** Represents a response to a key version history request. */
 public class ReadEntryHistoryResponse {
 
   private Integer version;
@@ -13,8 +11,7 @@ public class ReadEntryHistoryResponse {
    *
    * @deprecated only for serialization/deserialization.
    */
-  ReadEntryHistoryResponse() {
-  }
+  ReadEntryHistoryResponse() {}
 
   /**
    * Constructs a fetch response object.
@@ -39,5 +36,4 @@ public class ReadEntryHistoryResponse {
   public String toString() {
     return "ReadEntryHistoryResponse [version=" + version + ", value=" + value + "]";
   }
-
 }

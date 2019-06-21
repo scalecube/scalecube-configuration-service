@@ -67,13 +67,14 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
-                () -> checkAccess(request.apiKey().toString(),
-                    ConfigurationService.CONFIG_READ_ENTRY)))
-        .flatMap(p -> repository
-            .read(p.tenant(), request.repository(), request.key(), request.version()))
+                () ->
+                    checkAccess(
+                        request.apiKey().toString(), ConfigurationService.CONFIG_READ_ENTRY)))
+        .flatMap(
+            p ->
+                repository.read(p.tenant(), request.repository(), request.key(), request.version()))
         .map(document -> new ReadEntryResponse(document.key(), document.value()))
-        .doOnSuccess(
-            result -> logger.debug("read: exit: request: {}, result: {}", request, result))
+        .doOnSuccess(result -> logger.debug("read: exit: request: {}, result: {}", request, result))
         .doOnError(th -> logger.error("read: request: {}, error:", request, th));
   }
 
@@ -84,8 +85,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .thenMany(
             Flux.defer(
-                () -> checkAccess(request.apiKey().toString(),
-                    ConfigurationService.CONFIG_READ_LIST)))
+                () ->
+                    checkAccess(
+                        request.apiKey().toString(), ConfigurationService.CONFIG_READ_LIST)))
         .flatMap(p -> repository.readAll(p.tenant(), request.repository(), request.version()))
         .map(doc -> new ReadEntryResponse(doc.key(), doc.value()))
         .collectList()
@@ -101,14 +103,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .thenMany(
             Flux.defer(
-                () -> checkAccess(request.apiKey().toString(),
-                    ConfigurationService.CONFIG_READ_ENTRY_HISTORY)))
+                () ->
+                    checkAccess(
+                        request.apiKey().toString(),
+                        ConfigurationService.CONFIG_READ_ENTRY_HISTORY)))
         .flatMap(p -> repository.readHistory(p.tenant(), request.repository(), request.key()))
         .map(doc -> new ReadEntryHistoryResponse(doc.version(), doc.value()))
         .collectList()
         .doOnSuccess(
-            result -> logger
-                .debug("readHistory: exit: request: {}, result: {}", request, result))
+            result -> logger.debug("readHistory: exit: request: {}, result: {}", request, result))
         .doOnError(th -> logger.error("readHistory: request: {}, error:", request, th));
   }
 
@@ -119,8 +122,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
-                () -> checkAccess(request.apiKey().toString(),
-                    ConfigurationService.CONFIG_CREATE_ENTRY)))
+                () ->
+                    checkAccess(
+                        request.apiKey().toString(), ConfigurationService.CONFIG_CREATE_ENTRY)))
         .flatMap(
             p ->
                 repository.save(
@@ -137,8 +141,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
-                () -> checkAccess(request.apiKey().toString(),
-                    ConfigurationService.CONFIG_CREATE_ENTRY)))
+                () ->
+                    checkAccess(
+                        request.apiKey().toString(), ConfigurationService.CONFIG_CREATE_ENTRY)))
         .flatMap(
             p ->
                 repository.update(
@@ -155,8 +160,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .subscribeOn(scheduler)
         .then(
             Mono.defer(
-                () -> checkAccess(request.apiKey().toString(),
-                    ConfigurationService.CONFIG_DELETE_ENTRY)))
+                () ->
+                    checkAccess(
+                        request.apiKey().toString(), ConfigurationService.CONFIG_DELETE_ENTRY)))
         .flatMap(p -> repository.delete(p.tenant(), request.repository(), request.key()))
         .thenReturn(ACK)
         .doOnSuccess(result -> logger.debug("delete: exit: request: {}", request))
