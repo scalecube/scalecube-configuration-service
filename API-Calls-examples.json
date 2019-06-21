@@ -5,7 +5,7 @@
   "backColor": "black",
   "nodes": [
     {
-      "id": "2",
+      "id": "1",
       "text": "createRepo",
       "backColor": "black",
       "data": {
@@ -38,7 +38,7 @@
       "backColor": "black",
       "data": {
         "q": "/configuration/updateEntry",
-        "sid": 2,
+        "sid": 3,
         "d": {
           "apiKey": "API-KEY",
           "repository": "REPO-NAME",
@@ -53,7 +53,7 @@
       "backColor": "black",
       "data": {
         "q": "/configuration/readEntry",
-        "sid": 3,
+        "sid": 4,
         "d": {
           "apiKey": "API-KEY",
           "repository": "REPO-NAME",
@@ -68,7 +68,7 @@
       "backColor": "black",
       "data": {
         "q": "/configuration/readList",
-        "sid": 4,
+        "sid": 5,
         "d": {
           "apiKey": "API-KEY",
           "repository": "REPO-NAME",
@@ -82,7 +82,7 @@
       "backColor": "black",
       "data": {
         "q": "/configuration/readEntryHistory",
-        "sid": 3,
+        "sid": 6,
         "d": {
           "apiKey": "API-KEY",
           "repository": "REPO-NAME",
@@ -96,7 +96,7 @@
       "backColor": "black",
       "data": {
         "q": "/configuration/deleteEntry",
-        "sid": 5,
+        "sid": 7,
         "d": {
           "apiKey": "API-KEY",
           "repository": "REPO-NAME",
