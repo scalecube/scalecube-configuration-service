@@ -33,6 +33,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
   private static final String DELIMITER = "::";
 
   private static final String REPOS = "repos";
+  public static final int DEFAULT_LATEST_VERSION = -1;
 
   private final AsyncBucket bucket;
 
@@ -64,7 +65,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
             RxReactiveStreams.toPublisher(
                 bucket.listGet(
                     docId(tenant, repository, key),
-                    version != null ? version - 1 : -1,
+                    version != null ? version - 1 : DEFAULT_LATEST_VERSION,
                     Object.class)))
         .onErrorMap(
             DocumentDoesNotExistException.class,
