@@ -10,10 +10,10 @@ import io.scalecube.config.ConfigRegistrySettings;
 import io.scalecube.config.source.SystemPropertiesConfigSource;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
-import io.scalecube.configuration.api.DeleteRequest;
-import io.scalecube.configuration.api.FetchRequest;
-import io.scalecube.configuration.api.FetchResponse;
-import io.scalecube.configuration.api.SaveRequest;
+import io.scalecube.configuration.api.CreateEntryRequest;
+import io.scalecube.configuration.api.DeleteEntryRequest;
+import io.scalecube.configuration.api.ReadEntryRequest;
+import io.scalecube.configuration.api.ReadEntryResponse;
 import io.scalecube.services.exceptions.InternalServiceException;
 import io.scalecube.test.fixtures.Fixture;
 import java.util.ArrayList;
@@ -29,37 +29,36 @@ public class LocalMockServiceFixture implements Fixture {
   @Override
   public void setUp() throws TestAbortedException {
 
-    List<FetchResponse> responses = new ArrayList<>();
+    List<ReadEntryResponse> responses = new ArrayList<>();
     Acknowledgment acknowledgment = new Acknowledgment();
     service = mock(ConfigurationService.class);
-    when(service.entries(any()))
+    when(service.readList(any()))
         .then(
             answer -> {
               return Mono.just(responses);
             });
-    when(service.save(any()))
+    when(service.createEntry(any()))
         .then(
             answer -> {
-              SaveRequest request = (SaveRequest) answer.getArguments()[0];
+              CreateEntryRequest request = (CreateEntryRequest) answer.getArguments()[0];
               JsonNode value = (JsonNode) request.value();
-              FetchResponse response = new FetchResponse(request.key(), value);
+              ReadEntryResponse response = new ReadEntryResponse(request.key(), value);
               responses.add(response);
               return Mono.just(acknowledgment);
             });
-    when(service.delete(any()))
+    when(service.deleteEntry(any()))
         .then(
             answer -> {
-              DeleteRequest request = (DeleteRequest) answer.getArguments()[0];
+              DeleteEntryRequest request = (DeleteEntryRequest) answer.getArguments()[0];
               responses.removeIf(response -> request.key().equals(response.key()));
               return Mono.just(acknowledgment);
             });
-    when(service.fetch(any()))
+    when(service.readEntry(any()))
         .then(
             answer -> {
-              FetchRequest request = (FetchRequest) answer.getArguments()[0];
+              ReadEntryRequest request = (ReadEntryRequest) answer.getArguments()[0];
               return Mono.just(
-                      responses
-                          .stream()
+                      responses.stream()
                           .filter(response -> request.key().equals(response.key()))
                           .findFirst())
                   .flatMap(

@@ -22,7 +22,7 @@ public interface ConfigurationRepository {
    * @param key of the document to fetch.
    * @return Document instance by a given key.
    */
-  Mono<Document> fetch(String tenant, String repository, String key);
+  Mono<Document> readEntry(String tenant, String repository, String key);
 
   /**
    * Fetch all keys from a tenant repository.
@@ -31,17 +31,17 @@ public interface ConfigurationRepository {
    * @param repository to fetch from.
    * @return stream of Document instances in the repository.
    */
-  Flux<Document> fetchAll(String tenant, String repository);
+  Flux<Document> readList(String tenant, String repository);
 
   /**
-   * Save a key from a tenant repository by key.
+   * Save or update a key from a tenant repository by key.
    *
    * @param tenant namespace of the repository.
    * @param repository name to save.
    * @param doc the document to save.
    * @return Document instance by a given key.
    */
-  Mono<Document> save(String tenant, String repository, Document doc);
+  Mono<Document> createEntry(String tenant, String repository, Document doc);
 
   /**
    * Delete a key from a tenant repository by key.
@@ -50,5 +50,5 @@ public interface ConfigurationRepository {
    * @param repository to delete from.
    * @param key of the document to delete.
    */
-  Mono<Void> delete(String tenant, String repository, String key);
+  Mono<Void> deleteEntry(String tenant, String repository, String key);
 }

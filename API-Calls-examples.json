@@ -3,40 +3,56 @@
   "id": "1",
   "type": "ORG",
   "backColor": "black",
-  "nodes": [{
-    "id": "2",
-    "text": "createRepo",
-    "backColor": "black",
-    "data": {
-      "q": "/configuration/createRepository",
-      "sid": 1,
-      "d": {
-        "apiKey": "API-KEY",
-        "repository": "REPO-NAME"
-      }
-    }
-
-  }, {
-    "id": "3",
-    "text": "saveUpdateEntry",
-    "backColor": "black",
-    "data": {
-      "q": "/configuration/save",
-      "sid": 2,
-      "d": {
-        "apiKey": "API-KEY",
-        "repository": "REPO-NAME",
-        "key": "KEY-NAME",
-        "value": "JSON-DATA"
-      }
-    }
-  },
+  "nodes": [
     {
-      "id": "4",
-      "text": "fetchRepoEntrySingle",
+      "id": "2",
+      "text": "createRepo",
       "backColor": "black",
       "data": {
-        "q": "/configuration/fetch",
+        "q": "/configuration/createRepository",
+        "sid": 1,
+        "d": {
+          "apiKey": "API-KEY",
+          "repository": "REPO-NAME"
+        }
+      }
+    },
+    {
+      "id": "3",
+      "text": "createEntry",
+      "backColor": "black",
+      "data": {
+        "q": "/configuration/createEntry",
+        "sid": 2,
+        "d": {
+          "apiKey": "API-KEY",
+          "repository": "REPO-NAME",
+          "key": "KEY-NAME",
+          "value": "JSON-DATA"
+        }
+      }
+    },
+    {
+      "id": "3",
+      "text": "updateEntry",
+      "backColor": "black",
+      "data": {
+        "q": "/configuration/updateEntry",
+        "sid": 2,
+        "d": {
+          "APIKey": "API-KEY",
+          "repository": "REPO-NAME",
+          "key": "KEY-NAME",
+          "value": "JSON-DATA"
+        }
+      }
+    },
+    {
+      "id": "4",
+      "text": "readEntry",
+      "backColor": "black",
+      "data": {
+        "q": "/configuration/readEntry",
         "sid": 3,
         "d": {
           "apiKey": "API-KEY",
@@ -47,10 +63,10 @@
     },
     {
       "id": "5",
-      "text": "fetchRepoEntryAll",
+      "text": "readList",
       "backColor": "black",
       "data": {
-        "q": "/configuration/entries",
+        "q": "/configuration/readList",
         "sid": 4,
         "d": {
           "apiKey": "API-KEY",
@@ -63,7 +79,7 @@
       "text": "deleteEntry",
       "backColor": "black",
       "data": {
-        "q": "/configuration/delete",
+        "q": "/configuration/deleteEntry",
         "sid": 5,
         "d": {
           "apiKey": "API-KEY",
@@ -73,5 +89,4 @@
       }
     }
   ]
-
 }

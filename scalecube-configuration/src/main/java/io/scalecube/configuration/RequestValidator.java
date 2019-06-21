@@ -1,10 +1,10 @@
 package io.scalecube.configuration;
 
+import io.scalecube.configuration.api.CreateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
-import io.scalecube.configuration.api.DeleteRequest;
-import io.scalecube.configuration.api.EntriesRequest;
-import io.scalecube.configuration.api.FetchRequest;
-import io.scalecube.configuration.api.SaveRequest;
+import io.scalecube.configuration.api.DeleteEntryRequest;
+import io.scalecube.configuration.api.ReadEntryRequest;
+import io.scalecube.configuration.api.ReadListRequest;
 import reactor.core.publisher.Mono;
 
 final class RequestValidator {
@@ -17,7 +17,7 @@ final class RequestValidator {
         });
   }
 
-  static Mono<Void> validate(FetchRequest request) {
+  static Mono<Void> validate(ReadEntryRequest request) {
     return Mono.fromRunnable(
         () -> {
           validateToken(request.apiKey());
@@ -26,7 +26,7 @@ final class RequestValidator {
         });
   }
 
-  static Mono<Void> validate(EntriesRequest request) {
+  static Mono<Void> validate(ReadListRequest request) {
     return Mono.fromRunnable(
         () -> {
           validateToken(request.apiKey());
@@ -34,7 +34,7 @@ final class RequestValidator {
         });
   }
 
-  static Mono<Void> validate(SaveRequest request) {
+  static Mono<Void> validate(CreateEntryRequest request) {
     return Mono.fromRunnable(
         () -> {
           validateToken(request.apiKey());
@@ -43,7 +43,7 @@ final class RequestValidator {
         });
   }
 
-  static Mono<Void> validate(DeleteRequest request) {
+  static Mono<Void> validate(DeleteEntryRequest request) {
     return Mono.fromRunnable(
         () -> {
           validateToken(request.apiKey());

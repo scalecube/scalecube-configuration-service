@@ -17,10 +17,10 @@ import reactor.core.publisher.Mono;
 public interface ConfigurationService {
 
   String CONFIG_CREATE_REPO = "configuration/createRepository";
-  String CONFIG_FETCH = "configuration/fetch";
-  String CONFIG_ENTRIES = "configuration/entries";
-  String CONFIG_SAVE = "configuration/save";
-  String CONFIG_DELETE = "configuration/delete";
+  String CONFIG_READ_ENTRY = "configuration/readEntry";
+  String CONFIG_READ_LIST = "configuration/readList";
+  String CONFIG_CREATE_ENTRY = "configuration/createEntry";
+  String CONFIG_DELETE_ENTRY = "configuration/deleteEntry";
 
   /**
    * Request to create a configuration repository and requires a write level permissions.
@@ -38,7 +38,7 @@ public interface ConfigurationService {
    * @return json object from the store.
    */
   @ServiceMethod
-  Mono<FetchResponse> fetch(FetchRequest request);
+  Mono<ReadEntryResponse> readEntry(ReadEntryRequest request);
 
   /**
    * Entries request requires read level permissions to list all entries objects from the store.
@@ -47,7 +47,7 @@ public interface ConfigurationService {
    * @return list of FetchResponses per each entry in the repository.
    */
   @ServiceMethod
-  Mono<List<FetchResponse>> entries(EntriesRequest request);
+  Mono<List<ReadEntryResponse>> readList(ReadListRequest request);
 
   /**
    * Save request requires write level permissions to save (create or update) entry to the store.
@@ -56,7 +56,16 @@ public interface ConfigurationService {
    * @return acknowledgement when saved.
    */
   @ServiceMethod
-  Mono<Acknowledgment> save(SaveRequest request);
+  Mono<Acknowledgment> createEntry(CreateEntryRequest request);
+
+  /**
+   * Update request requires write level permissions to update entry to the store.
+   *
+   * @param request includes the name of the repository, key, value to update.
+   * @return acknowledgement when updated.
+   */
+  @ServiceMethod
+  Mono<Acknowledgment> updateEntry(CreateEntryRequest request);
 
   /**
    * delete request requires write level permissions to delete entry from the store.
@@ -65,5 +74,5 @@ public interface ConfigurationService {
    * @return acknowledgement when deleted.
    */
   @ServiceMethod
-  Mono<Acknowledgment> delete(DeleteRequest request);
+  Mono<Acknowledgment> deleteEntry(DeleteEntryRequest request);
 }

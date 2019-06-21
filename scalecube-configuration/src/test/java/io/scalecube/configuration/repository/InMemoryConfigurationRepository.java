@@ -29,22 +29,22 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   }
 
   @Override
-  public Mono<Document> fetch(String tenant, String repository, String key) {
+  public Mono<Document> readEntry(String tenant, String repository, String key) {
     return get(new Repository(tenant, repository), key);
   }
 
   @Override
-  public Flux<Document> fetchAll(String tenant, String repository) {
+  public Flux<Document> readList(String tenant, String repository) {
     return entries(new Repository(tenant, repository));
   }
 
   @Override
-  public Mono<Document> save(String tenant, String repository, Document document) {
+  public Mono<Document> createEntry(String tenant, String repository, Document document) {
     return put(new Repository(tenant, repository), document.key(), document);
   }
 
   @Override
-  public Mono<Void> delete(String tenant, String repository, String key) {
+  public Mono<Void> deleteEntry(String tenant, String repository, String key) {
     return remove(new Repository(tenant, repository), key);
   }
 

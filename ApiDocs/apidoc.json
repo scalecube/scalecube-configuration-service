@@ -4,7 +4,7 @@
   "description": "Configuration service API",
   "title": "API documentation for the Configuration Service",
   "template": {
-    "forceLanguage" : "en"
+    "forceLanguage": "en"
   },
   "order": [
     "Overview",

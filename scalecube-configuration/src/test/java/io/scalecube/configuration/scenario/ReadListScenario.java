@@ -9,10 +9,10 @@ import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
+import io.scalecube.configuration.api.CreateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
-import io.scalecube.configuration.api.EntriesRequest;
-import io.scalecube.configuration.api.FetchResponse;
-import io.scalecube.configuration.api.SaveRequest;
+import io.scalecube.configuration.api.ReadEntryResponse;
+import io.scalecube.configuration.api.ReadListRequest;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -21,12 +21,12 @@ import org.junit.jupiter.api.TestTemplate;
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 import reactor.test.StepVerifier;
 
-public class FetchEntriesScenario extends BaseScenario {
+public class ReadListScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
       "#26 Successful get of the all existent entries list from the related Repository applying the all related API keys: \"Owner\", \"Admin\", \"Member\"")
-  void fetchEntries(
+  void readEntries(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
     String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
@@ -40,8 +40,8 @@ public class FetchEntriesScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
-            configurationService.save(
-                new SaveRequest(
+            configurationService.createEntry(
+                new CreateEntryRequest(
                     ownerToken,
                     repoName,
                     entryKey1,
@@ -52,8 +52,8 @@ public class FetchEntriesScenario extends BaseScenario {
                         .put("DecimalPrecision", 4)
                         .put("Rounding", "down"))))
         .then(
-            configurationService.save(
-                new SaveRequest(
+            configurationService.createEntry(
+                new CreateEntryRequest(
                     ownerToken,
                     repoName,
                     entryKey2,
@@ -65,13 +65,13 @@ public class FetchEntriesScenario extends BaseScenario {
                         .put("Rounding", "down"))))
         .block(TIMEOUT);
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(ownerToken, repoName)))
+    StepVerifier.create(configurationService.readList(new ReadListRequest(ownerToken, repoName)))
         .assertNext(
             entries -> {
               assertEquals(2, entries.size(), "Fetched entries count");
 
               List<String> entriesKeys =
-                  entries.stream().map(FetchResponse::key).collect(Collectors.toList());
+                  entries.stream().map(ReadEntryResponse::key).collect(Collectors.toList());
 
               assertTrue(
                   entriesKeys.contains(entryKey1), "Entry " + entryKey1 + " found in response");
@@ -81,13 +81,13 @@ public class FetchEntriesScenario extends BaseScenario {
         .expectComplete()
         .verify();
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(adminToken, repoName)))
+    StepVerifier.create(configurationService.readList(new ReadListRequest(adminToken, repoName)))
         .assertNext(
             entries -> {
               assertEquals(2, entries.size(), "Fetched entries count");
 
               List<String> entriesKeys =
-                  entries.stream().map(FetchResponse::key).collect(Collectors.toList());
+                  entries.stream().map(ReadEntryResponse::key).collect(Collectors.toList());
 
               assertTrue(
                   entriesKeys.contains(entryKey1), "Entry " + entryKey1 + " found in response");
@@ -97,13 +97,13 @@ public class FetchEntriesScenario extends BaseScenario {
         .expectComplete()
         .verify();
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(memberToken, repoName)))
+    StepVerifier.create(configurationService.readList(new ReadListRequest(memberToken, repoName)))
         .assertNext(
             entries -> {
               assertEquals(2, entries.size(), "Fetched entries count");
 
               List<String> entriesKeys =
-                  entries.stream().map(FetchResponse::key).collect(Collectors.toList());
+                  entries.stream().map(ReadEntryResponse::key).collect(Collectors.toList());
 
               assertTrue(
                   entriesKeys.contains(entryKey1), "Entry " + entryKey1 + " found in response");
@@ -117,14 +117,14 @@ public class FetchEntriesScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#27 Fail to get any entry from the non-existent Repository applying some of the accessible API keys: \"Owner\", \"Admin\", \"Member\"")
-  void fetchEntriesFromNonExistentRepository(
+  void readEntriesFromNonExistentRepository(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
     String token = createApiKey(organizationService, orgId, Role.Admin).key();
 
     String repoName = "NON_EXISTENT_REPO";
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(token, repoName)))
+    StepVerifier.create(configurationService.readList(new ReadListRequest(token, repoName)))
         .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId, repoName))
         .verify();
   }
@@ -132,12 +132,12 @@ public class FetchEntriesScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#28 Fail to get any entry from the Repository upon the \"apiKey\" is invalid (expired)")
-  void fetchEntriesUsingExpiredToken(
+  void readEntriesUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
     String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(token, "test-repo")))
+    StepVerifier.create(configurationService.readList(new ReadListRequest(token, "test-repo")))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
@@ -145,7 +145,7 @@ public class FetchEntriesScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#29 Fail to get any entry from the Repository upon the Owner deleted the Organization with related \"Member\" API key")
-  void fetchEntriesForDeletedOrganization(
+  void readEntriesForDeletedOrganization(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
     String orgId = createOrganization(organizationService).id();
@@ -158,8 +158,8 @@ public class FetchEntriesScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
-            configurationService.save(
-                new SaveRequest(
+            configurationService.createEntry(
+                new CreateEntryRequest(
                     ownerToken,
                     repoName,
                     entryKey,
@@ -177,7 +177,7 @@ public class FetchEntriesScenario extends BaseScenario {
 
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(memberToken, repoName)))
+    StepVerifier.create(configurationService.readList(new ReadListRequest(memberToken, repoName)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
@@ -185,7 +185,7 @@ public class FetchEntriesScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#30 Fail to get any entry from the Repository upon the Owner applied some of the API keys from another Organization")
-  void fetchEntriesUsingTokenOfAnotherOrganization(
+  void readEntriesUsingTokenOfAnotherOrganization(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId1 = createOrganization(organizationService).id();
     String token1 = createApiKey(organizationService, orgId1, Role.Owner).key();
@@ -199,8 +199,8 @@ public class FetchEntriesScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(token1, repoName))
         .then(
-            configurationService.save(
-                new SaveRequest(
+            configurationService.createEntry(
+                new CreateEntryRequest(
                     token1,
                     repoName,
                     entryKey,
@@ -212,7 +212,7 @@ public class FetchEntriesScenario extends BaseScenario {
                         .put("Rounding", "down"))))
         .block(TIMEOUT);
 
-    StepVerifier.create(configurationService.entries(new EntriesRequest(token2, repoName)))
+    StepVerifier.create(configurationService.readList(new ReadListRequest(token2, repoName)))
         .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId2, repoName))
         .verify();
   }
@@ -220,7 +220,7 @@ public class FetchEntriesScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#31 Fail to get any entry from the Repository upon the Member \"apiKey\" (API key) was deleted from the Organization")
-  void fetchEntriesUsingDeletedToken(
+  void readEntriesUsingDeletedToken(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
     String orgId = createOrganization(organizationService).id();
@@ -233,8 +233,8 @@ public class FetchEntriesScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(ownerToken.key(), repoName))
         .then(
-            configurationService.save(
-                new SaveRequest(
+            configurationService.createEntry(
+                new CreateEntryRequest(
                     ownerToken.key(),
                     repoName,
                     entryKey,
@@ -254,7 +254,7 @@ public class FetchEntriesScenario extends BaseScenario {
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
-            configurationService.entries(new EntriesRequest(memberToken.key(), repoName)))
+            configurationService.readList(new ReadListRequest(memberToken.key(), repoName)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }

@@ -1,5 +1,3 @@
 package io.scalecube.configuration.api;
 
-public class Acknowledgment {
-
-}
+public class Acknowledgment {}
