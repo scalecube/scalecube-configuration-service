@@ -106,8 +106,7 @@ public class ConfigurationServiceRunner {
   }
 
   private static AsyncBucket couchbaseBucket(CouchbaseSettings settings) {
-    return Mono.fromCallable(
-            () ->
+    return Mono.fromCallable(() ->
                 CouchbaseCluster.create(settings.hosts())
                     .authenticate(settings.username(), settings.password())
                     .openBucket(settings.bucketName())
