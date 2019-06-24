@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class InMemoryConfigurationRepository implements ConfigurationRepository {
 
@@ -41,6 +42,11 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   @Override
   public Mono<Document> createEntry(String tenant, String repository, Document document) {
     return put(new Repository(tenant, repository), document.key(), document);
+  }
+
+  @Override
+  public Mono<Document> update(String tenant, String repository, Document doc) {
+    throw new NotImplementedException();
   }
 
   @Override

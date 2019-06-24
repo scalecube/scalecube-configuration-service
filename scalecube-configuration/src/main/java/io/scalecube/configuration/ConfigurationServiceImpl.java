@@ -5,6 +5,7 @@ import static io.scalecube.configuration.RequestValidator.validate;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateEntryRequest;
+import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.DeleteEntryRequest;
 import io.scalecube.configuration.api.InvalidAuthenticationToken;
@@ -25,7 +26,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class ConfigurationServiceImpl implements ConfigurationService {
 
@@ -114,8 +114,22 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   @Override
-  public Mono<Acknowledgment> updateEntry(CreateEntryRequest request) {
-    throw new NotImplementedException();
+  public Mono<Acknowledgment> updateEntry(CreateOrUpdateEntryRequest request) {
+    return Mono.fromRunnable(() -> logger.debug("update: enter: request: {}", request))
+        .then(Mono.defer(() -> validate(request)))
+        .subscribeOn(scheduler)
+        .then(
+            Mono.defer(
+                () ->
+                    checkAccess(
+                        request.apiKey().toString(), ConfigurationService.CONFIG_CREATE_ENTRY)))
+        .flatMap(
+            p ->
+                repository.update(
+                    p.tenant(), request.repository(), new Document(request.key(), request.value())))
+        .thenReturn(ACK)
+        .doOnSuccess(result -> logger.debug("update: exit: request: {}", request))
+        .doOnError(th -> logger.error("update: request: {}, error:", request, th));
   }
 
   @Override

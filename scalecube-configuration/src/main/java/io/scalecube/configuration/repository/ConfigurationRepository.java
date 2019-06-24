@@ -44,6 +44,16 @@ public interface ConfigurationRepository {
   Mono<Document> createEntry(String tenant, String repository, Document doc);
 
   /**
+   * Update a key from a tenant repository by key.
+   *
+   * @param tenant namespace of the repository.
+   * @param repository name to update.
+   * @param doc the document to update.
+   * @return Document instance by a given key.
+   */
+  Mono<Document> update(String tenant, String repository, Document doc);
+
+  /**
    * Delete a key from a tenant repository by key.
    *
    * @param tenant namespace of the repository.

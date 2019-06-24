@@ -118,6 +118,29 @@ public class CouchbaseRepository implements ConfigurationRepository {
   }
 
   @Override
+  public Mono<Document> update(String tenant, String repository, Document document) {
+    return Mono.from(
+            RxReactiveStreams.toPublisher(
+                bucket.listAppend(docId(tenant, repository, document.key()), document.value())))
+        .onErrorMap(
+            DocumentDoesNotExistException.class,
+            e ->
+                new DocumentDoesNotExistException(
+                    String.format(
+                        "Repository [%s-%s] key [%s] not found",
+                        tenant, repository, document.key())))
+        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
+        .map(
+            idKeyAdded -> {
+              if (idKeyAdded) {
+                return document;
+              }
+
+              throw new DataAccessException("Save operation is failed because of unknown reason");
+            });
+  }
+
+  @Override
   public Mono<Void> deleteEntry(String tenant, String repository, String key) {
     return readEntry(tenant, repository, key)
         .then(
@@ -138,5 +161,9 @@ public class CouchbaseRepository implements ConfigurationRepository {
               }
             })
         .then();
+  }
+
+  private String docId(String tenant, String repository, String key) {
+    return tenant + DELIMITER + repository + DELIMITER + key;
   }
 }
