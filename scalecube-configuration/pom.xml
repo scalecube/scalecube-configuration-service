@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -14,11 +16,6 @@
 
   <properties>
     <mainClass>io.scalecube.configuration.server.ConfigurationServiceRunner</mainClass>
-
-    <scalecube-organization-api.version>2.1.6</scalecube-organization-api.version>
-    <scalecube-app-utils.version>0.0.4</scalecube-app-utils.version>
-    <caffeine.version>2.6.2</caffeine.version>
-    <rxjava-reactive-streams.version>1.2.1</rxjava-reactive-streams.version>
     <commons-lang3.version>3.8.1</commons-lang3.version>
   </properties>
 
@@ -37,7 +34,7 @@
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-organization-api</artifactId>
-      <version>${scalecube-organization-api.version}</version>
+      <version>${scalecube-organization.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
@@ -142,6 +139,9 @@
       <plugin>
         <groupId>com.spotify</groupId>
         <artifactId>dockerfile-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
       </plugin>
     </plugins>
     <resources>
