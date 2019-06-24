@@ -1,6 +1,6 @@
 package io.scalecube.configuration.server;
 
-import io.scalecube.transport.Address;
+import io.scalecube.net.Address;
 import java.util.List;
 import java.util.Optional;
 
