@@ -6,6 +6,7 @@ import static io.scalecube.configuration.scenario.BaseScenario.KEY_CACHE_REFRESH
 import static io.scalecube.configuration.scenario.BaseScenario.KEY_CACHE_TTL;
 
 import com.couchbase.client.java.AsyncBucket;
+import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.cluster.DefaultBucketSettings;
 import com.couchbase.client.java.cluster.UserRole;
@@ -23,7 +24,8 @@ import io.scalecube.configuration.tokens.OrganizationServiceKeyProvider;
 import io.scalecube.net.Address;
 import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.config.AppConfiguration;
-import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
+import io.scalecube.organization.repository.OrganizationsRepository;
+import io.scalecube.organization.repository.couchbase.CouchbaseOrganizationsRepository;
 import io.scalecube.organization.repository.couchbase.CouchbaseSettings;
 import io.scalecube.organization.tokens.TokenVerifier;
 import io.scalecube.organization.tokens.store.VaultKeyStore;
@@ -263,13 +265,24 @@ final class IntegrationEnvironment {
           claims.put("aud", "scalecube");
           claims.put("role", "Owner");
 
-          return Profile.builder().userId("scalecube_test_user").claims(claims).build();
+          return Mono.just(Profile.builder().userId("scalecube_test_user").claims(claims).build());
         };
 
-    return new OrganizationServiceImpl(
-        new CouchbaseRepositoryFactory(settings).organizations(),
-        new VaultKeyStore(),
-        tokenVerifier);
+    Cluster cluster = CouchbaseCluster.create(settings.hosts());
+
+    AsyncBucket bucket =
+        Mono.fromCallable(
+                () ->
+                    cluster
+                        .authenticate(settings.username(), settings.password())
+                        .openBucket(settings.organizationsBucketName())
+                        .async())
+            .retryBackoff(3, Duration.ofSeconds(1))
+            .block(Duration.ofSeconds(30));
+
+    OrganizationsRepository repository = new CouchbaseOrganizationsRepository(bucket);
+
+    return new OrganizationServiceImpl(repository, new VaultKeyStore(), tokenVerifier);
   }
 
   private static Map<String, String> couchbaseSettingsBindingMap() {
