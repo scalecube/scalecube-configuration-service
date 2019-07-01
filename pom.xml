@@ -25,7 +25,7 @@
   <properties>
     <scalecube.config.version>0.3.11</scalecube.config.version>
     <scalecube-services.version>2.7.2</scalecube-services.version>
-    <scalecube-services-gateway.version>2.7.6-SNAPSHOT</scalecube-services-gateway.version>
+    <scalecube-services-gateway.version>2.7.6</scalecube-services-gateway.version>
     <scalecube-security-jwt.version>1.0.8</scalecube-security-jwt.version>
     <scalecube-organization.version>2.1.8</scalecube-organization.version>
     <reactor.version>Californium-SR8</reactor.version>
