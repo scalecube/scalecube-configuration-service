@@ -15,7 +15,6 @@ import io.scalecube.services.ServiceInfo;
 import io.scalecube.services.ServiceProvider;
 import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
-import io.scalecube.services.transport.rsocket.RSocketTransportResources;
 import java.util.Collections;
 
 public class InMemoryConfigurationServiceRunner {
@@ -31,11 +30,7 @@ public class InMemoryConfigurationServiceRunner {
             (serviceEndpoint) ->
                 new ScalecubeServiceDiscovery(serviceEndpoint)
                     .options(opts -> opts.seedMembers(Address.from("localhost:4801"))))
-        .transport(
-            opts ->
-                opts.resources(RSocketTransportResources::new)
-                    .client(RSocketServiceTransport.INSTANCE::clientTransport)
-                    .server(RSocketServiceTransport.INSTANCE::serverTransport))
+        .transport(opts -> opts.serviceTransport(RSocketServiceTransport::new))
         .services(createConfigurationService())
         .startAwait()
         .onShutdown()
@@ -50,7 +45,7 @@ public class InMemoryConfigurationServiceRunner {
           new OrganizationServiceKeyProvider(organizationService);
 
       Authenticator authenticator =
-          new DefaultJwtAuthenticator(map -> keyProvider.get(map.get("kid").toString()).block());
+          new DefaultJwtAuthenticator(map -> keyProvider.get(map.get("kid").toString()));
 
       AccessControl accessControl =
           DefaultAccessControl.builder()
