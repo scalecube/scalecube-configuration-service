@@ -149,7 +149,7 @@ final class Environment {
 
   private void startGateway() {
     GenericContainer gateway =
-        new GenericContainer<>("scalecube/scalecube-services-gateway-runner:2.5.10")
+        new GenericContainer<>("scalecube/scalecube-services-gateway-runner:2.7.5")
             .withExposedPorts(WS_GATEWAY_PORT, HTTP_GATEWAY_PORT, RS_GATEWAY_PORT)
             .withNetwork(Network.SHARED)
             .withNetworkAliases(GATEWAY_NETWORK_ALIAS)
