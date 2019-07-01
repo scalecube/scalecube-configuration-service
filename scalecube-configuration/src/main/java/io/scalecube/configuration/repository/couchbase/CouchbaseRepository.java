@@ -34,6 +34,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
 
   private static final String REPOS = "repos";
   public static final int DEFAULT_LATEST_VERSION = -1;
+  public static final int INDEX_OF_KEY = 2;
 
   private final AsyncBucket bucket;
 
@@ -103,7 +104,8 @@ public class CouchbaseRepository implements ConfigurationRepository {
                     ViewQuery.from("keys", "by_keys").key(tenant + DELIMITER + repository))))
         .flatMap(asyncViewResult -> RxReactiveStreams.toPublisher(asyncViewResult.rows()))
         .flatMap(
-            asyncViewRow -> read(tenant, repository, asyncViewRow.id().split("::")[2], version))
+            asyncViewRow ->
+                read(tenant, repository, asyncViewRow.id().split("::")[INDEX_OF_KEY], version))
         .onErrorContinue(KeyVersionNotFoundException.class, (e, o) -> {
         })
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible);
