@@ -43,7 +43,9 @@ public class CouchbaseRepository implements ConfigurationRepository {
 
   @Override
   public Mono<Boolean> createRepository(Repository repository) {
-    return Mono.from(RxReactiveStreams.toPublisher(bucket.setAdd(REPOS, repository.name())))
+    return Mono.from(
+            RxReactiveStreams.toPublisher(
+                bucket.setAdd(REPOS, repository.namespace() + DELIMITER + repository.name())))
         .map(
             isNewRepoAdded -> {
               if (isNewRepoAdded) {
@@ -130,7 +132,9 @@ public class CouchbaseRepository implements ConfigurationRepository {
 
   @Override
   public Mono<Document> save(String tenant, String repository, Document document) {
-    return Mono.from(RxReactiveStreams.toPublisher(bucket.setContains(REPOS, repository)))
+    return Mono.from(
+            RxReactiveStreams.toPublisher(
+                bucket.setContains(REPOS, tenant + DELIMITER + repository)))
         .flatMap(
             isRepoExists -> {
               if (!isRepoExists) {
