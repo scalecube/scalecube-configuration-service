@@ -13,6 +13,7 @@ import java.security.spec.EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.concurrent.TimeUnit;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 public final class OrganizationServiceKeyProvider {
 
@@ -38,6 +39,7 @@ public final class OrganizationServiceKeyProvider {
                 keyId ->
                     organizationService
                         .getPublicKey(new GetPublicKeyRequest(keyId))
+                        .publishOn(Schedulers.parallel())
                         .map(OrganizationServiceKeyProvider::parsePublicKey)
                         .cache());
   }

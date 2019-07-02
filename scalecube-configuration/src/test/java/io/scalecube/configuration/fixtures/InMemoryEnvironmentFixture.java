@@ -70,7 +70,7 @@ public final class InMemoryEnvironmentFixture implements Fixture {
 
     Authenticator authenticator =
         new DefaultJwtAuthenticator(
-            tokenClaims -> keyProvider.get(tokenClaims.get("kid").toString()).block());
+            tokenClaims -> keyProvider.get(tokenClaims.get("kid").toString()));
 
     AccessControl accessControl =
         DefaultAccessControl.builder()

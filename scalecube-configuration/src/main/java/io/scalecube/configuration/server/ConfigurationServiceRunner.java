@@ -23,7 +23,6 @@ import io.scalecube.services.ServiceInfo;
 import io.scalecube.services.ServiceProvider;
 import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
-import io.scalecube.services.transport.rsocket.RSocketTransportResources;
 import java.time.Duration;
 import java.util.Collections;
 import org.slf4j.Logger;
@@ -61,9 +60,7 @@ public class ConfigurationServiceRunner {
                                     .memberPort(discoveryOptions.memberPort())))
             .transport(
                 opts ->
-                    opts.resources(RSocketTransportResources::new)
-                        .client(RSocketServiceTransport.INSTANCE::clientTransport)
-                        .server(RSocketServiceTransport.INSTANCE::serverTransport)
+                    opts.serviceTransport(RSocketServiceTransport::new)
                         .port(discoveryOptions.servicePort()))
             .services(createConfigurationService())
             .startAwait();
@@ -90,7 +87,7 @@ public class ConfigurationServiceRunner {
           new OrganizationServiceKeyProvider(organizationService);
 
       Authenticator authenticator =
-          new DefaultJwtAuthenticator(map -> keyProvider.get(map.get("kid").toString()).block());
+          new DefaultJwtAuthenticator(map -> keyProvider.get(map.get("kid").toString()));
 
       AccessControl accessControl =
           DefaultAccessControl.builder()

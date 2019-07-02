@@ -46,7 +46,6 @@
   </Appenders>
 
   <Loggers>
-    <Logger name="io.scalecube.seed" level="${env:seedLogLevel:-INFO}"/>
     <Logger name="io.scalecube.services" level="${env:servicesLogLevel:-INFO}"/>
     <Logger name="io.scalecube.transport" level="${env:servicesTransportLogLevel:-DEBUG}"/>
     <Logger name="io.scalecube.cluster" level="${env:clusterLogLevel:-INFO}"/>
