@@ -1,6 +1,7 @@
 package io.scalecube.configuration.repository.couchbase;
 
 import com.couchbase.client.java.AsyncBucket;
+import com.couchbase.client.java.document.AbstractDocument;
 import com.couchbase.client.java.document.JsonArrayDocument;
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
@@ -116,7 +117,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
   @Override
   public Flux<HistoryDocument> readHistory(String tenant, String repository, String key) {
     AtomicInteger currentVersion = new AtomicInteger(0);
-    return Flux.from(
+    return Mono.from(
             RxReactiveStreams.toPublisher(
                 bucket
                     .get(docId(tenant, repository, key), JsonArrayDocument.class)
@@ -127,10 +128,10 @@ public class CouchbaseRepository implements ConfigurationRepository {
                                     new KeyNotFoundException(
                                         String.format(
                                             "Repository '%s-%s' key '%s' not found",
-                                            tenant, repository, key)))))
-                    .map(jsonDocument -> jsonDocument.content())
-                    .flatMap(content -> Observable.from(content.toList()))
-                    .map(entry -> new HistoryDocument(currentVersion.incrementAndGet(), entry))))
+                                            tenant, repository, key)))))))
+        .map(AbstractDocument::content)
+        .flatMapIterable(JsonArray::toList)
+        .map(entry -> new HistoryDocument(currentVersion.incrementAndGet(), entry))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible);
   }
 
