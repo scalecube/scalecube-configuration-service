@@ -107,7 +107,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
         .flatMap(asyncViewResult -> RxReactiveStreams.toPublisher(asyncViewResult.rows()))
         .flatMap(
             asyncViewRow ->
-                read(tenant, repository, asyncViewRow.id().split("::")[INDEX_OF_KEY], version))
+                read(tenant, repository, asyncViewRow.id().split(DELIMITER)[INDEX_OF_KEY], version))
         .onErrorContinue(KeyVersionNotFoundException.class, (e, o) -> {
         })
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible);
