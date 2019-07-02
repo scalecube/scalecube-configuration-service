@@ -18,6 +18,8 @@ import io.scalecube.configuration.repository.exception.KeyVersionNotFoundExcepti
 import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
 import io.scalecube.configuration.repository.exception.RepositoryKeyAlreadyExistsException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -148,7 +150,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
                           bucket.insert(
                               JsonArrayDocument.create(
                                   docId(tenant, repository, document.key()),
-                                  JsonArray.create().add(document.value())))))
+                                  JsonArray.create().add(savedDocValue(document))))))
                   .onErrorMap(
                       DocumentAlreadyExistsException.class,
                       e ->
@@ -167,6 +169,12 @@ public class CouchbaseRepository implements ConfigurationRepository {
                             "Save operation is failed because of unknown reason");
                       });
             });
+  }
+
+  private Object savedDocValue(Document document) {
+    return document.value() instanceof LinkedHashMap
+        ? JsonObject.from((Map<String, ?>) document.value())
+        : document.value();
   }
 
   @Override
