@@ -149,7 +149,7 @@ final class Environment {
 
   private void startGateway() {
     GenericContainer gateway =
-        new GenericContainer<>("scalecube/scalecube-services-gateway-runner:2.7.5")
+        new GenericContainer<>("scalecube/scalecube-services-gateway-runner:2.7.6")
             .withExposedPorts(WS_GATEWAY_PORT, HTTP_GATEWAY_PORT, RS_GATEWAY_PORT)
             .withNetwork(Network.SHARED)
             .withNetworkAliases(GATEWAY_NETWORK_ALIAS)
@@ -168,7 +168,7 @@ final class Environment {
   private void startOrganizationService(Map<String, String> env) {
     env.put("JAVA_OPTS", "-Dio.scalecube.organization.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801");
 
-    new GenericContainer<>("scalecube/scalecube-organization:latest")
+    new GenericContainer<>("scalecube/scalecube-organization:2.1.10")
         .withNetwork(Network.SHARED)
         .withNetworkAliases("scalecube-organization")
         .withCreateContainerCmdModifier(cmd -> cmd.withName("scalecube-organization"))

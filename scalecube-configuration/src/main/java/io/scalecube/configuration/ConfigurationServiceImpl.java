@@ -2,6 +2,7 @@ package io.scalecube.configuration;
 
 import static io.scalecube.configuration.RequestValidator.validate;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
@@ -51,14 +52,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return Mono.fromRunnable(() -> logger.debug("createRepository: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
-        .then(
-            Mono.defer(
-                () ->
-                    checkAccess(
-                        request.apiKey().toString(), ConfigurationService.CONFIG_CREATE_REPO)))
+        .then(checkAccess(request.apiKey(), ConfigurationService.CONFIG_CREATE_REPO))
         .flatMap(p -> repository.createRepository(new Repository(p.tenant(), request.repository())))
         .map(b -> ACK)
-        .doOnSuccess(result -> logger.debug("createRepository: exit: request: {}", request))
+        .doOnSuccess(result -> logger.debug("createRepository: request: {}", request))
         .doOnError(th -> logger.error("createRepository: request: {}, error:", request, th));
   }
 
@@ -67,16 +64,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return Mono.fromRunnable(() -> logger.debug("read: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
-        .then(
-            Mono.defer(
-                () ->
-                    checkAccess(
-                        request.apiKey().toString(), ConfigurationService.CONFIG_READ_ENTRY)))
+        .then(checkAccess(request.apiKey(), ConfigurationService.CONFIG_READ_ENTRY))
         .flatMap(
             p ->
                 repository.read(p.tenant(), request.repository(), request.key(), request.version()))
         .map(document -> new ReadEntryResponse(document.key(), document.value()))
-        .doOnSuccess(result -> logger.debug("read: exit: request: {}, result: {}", request, result))
+        .doOnSuccess(result -> logger.debug("read: request: {}, result: {}", request, result))
         .doOnError(th -> logger.error("read: request: {}, error:", request, th));
   }
 
@@ -85,16 +78,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return Mono.fromRunnable(() -> logger.debug("readAll: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
-        .thenMany(
-            Flux.defer(
-                () ->
-                    checkAccess(
-                        request.apiKey().toString(), ConfigurationService.CONFIG_READ_LIST)))
-        .flatMap(p -> repository.readAll(p.tenant(), request.repository(), request.version()))
+        .then(checkAccess(request.apiKey(), ConfigurationService.CONFIG_READ_LIST))
+        .flatMapMany(p -> repository.readAll(p.tenant(), request.repository(), request.version()))
         .map(doc -> new ReadEntryResponse(doc.key(), doc.value()))
         .collectList()
-        .doOnSuccess(
-            result -> logger.debug("readAll: exit: request: {}, result: {}", request, result))
+        .doOnSuccess(result -> logger.debug("readAll: request: {}, result: {}", request, result))
         .doOnError(th -> logger.error("readAll: request: {}, error:", request, th));
   }
 
@@ -122,17 +110,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return Mono.fromRunnable(() -> logger.debug("create: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
-        .then(
-            Mono.defer(
-                () ->
-                    checkAccess(
-                        request.apiKey().toString(), ConfigurationService.CONFIG_CREATE_ENTRY)))
+        .then(checkAccess(request.apiKey(), ConfigurationService.CONFIG_CREATE_ENTRY))
         .flatMap(
             p ->
                 repository.save(
                     p.tenant(), request.repository(), new Document(request.key(), request.value())))
         .thenReturn(FIRST_VERSION_ACK)
-        .doOnSuccess(result -> logger.debug("create: exit: request: {}", request))
+        .doOnSuccess(result -> logger.debug("create: request: {}", request))
         .doOnError(th -> logger.error("create: request: {}, error:", request, th));
   }
 
@@ -160,20 +144,19 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return Mono.fromRunnable(() -> logger.debug("delete: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
-        .then(
-            Mono.defer(
-                () ->
-                    checkAccess(
-                        request.apiKey().toString(), ConfigurationService.CONFIG_DELETE_ENTRY)))
+        .then(checkAccess(request.apiKey(), ConfigurationService.CONFIG_DELETE_ENTRY))
         .flatMap(p -> repository.delete(p.tenant(), request.repository(), request.key()))
         .thenReturn(ACK)
-        .doOnSuccess(result -> logger.debug("delete: exit: request: {}", request))
+        .doOnSuccess(result -> logger.debug("delete: request: {}", request))
         .doOnError(th -> logger.error("delete: request: {}, error:", request, th));
   }
 
-  private Mono<Profile> checkAccess(String token, String resource) {
-    return accessControl
-        .check(token, resource)
-        .onErrorMap(AuthenticationException.class, e -> new InvalidAuthenticationToken());
+  private Mono<Profile> checkAccess(Object token, String resource) {
+    return Mono.defer(
+        () ->
+            accessControl
+                .check(token.toString(), resource)
+                .onErrorMap(ExpiredJwtException.class, e -> new InvalidAuthenticationToken())
+                .onErrorMap(AuthenticationException.class, e -> new InvalidAuthenticationToken()));
   }
 }
