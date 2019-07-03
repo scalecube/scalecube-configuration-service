@@ -183,6 +183,15 @@ public class CouchbaseRepository implements ConfigurationRepository {
     return Mono.from(
             RxReactiveStreams.toPublisher(
                 bucket.listAppend(docId(tenant, repository, document.key()), document.value())))
+        .flatMap(
+            isUpdated -> {
+              if (isUpdated) {
+                return Mono.from(
+                    RxReactiveStreams.toPublisher(
+                        bucket.listSize(docId(tenant, repository, document.key()))));
+              }
+              throw new DataAccessException("Save operation is failed because of unknown reason");
+            })
         .onErrorMap(
             DocumentDoesNotExistException.class,
             e ->
@@ -191,14 +200,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
                         "Repository [%s-%s] key [%s] not found",
                         tenant, repository, document.key())))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
-        .map(
-            idKeyAdded -> {
-              if (idKeyAdded) {
-                return document;
-              }
-
-              throw new DataAccessException("Save operation is failed because of unknown reason");
-            });
+        .map(lastVersion -> new Document(document.key(), document.value(), lastVersion));
   }
 
   @Override

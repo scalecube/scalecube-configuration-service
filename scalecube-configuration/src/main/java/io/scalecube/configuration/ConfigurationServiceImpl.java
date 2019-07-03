@@ -13,6 +13,7 @@ import io.scalecube.configuration.api.ReadEntryHistoryResponse;
 import io.scalecube.configuration.api.ReadEntryRequest;
 import io.scalecube.configuration.api.ReadEntryResponse;
 import io.scalecube.configuration.api.ReadListRequest;
+import io.scalecube.configuration.api.VersionAcknowledgment;
 import io.scalecube.configuration.repository.ConfigurationRepository;
 import io.scalecube.configuration.repository.Document;
 import io.scalecube.configuration.repository.Repository;
@@ -32,6 +33,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   private static final Logger logger = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
   private static final Acknowledgment ACK = new Acknowledgment();
+  private static final VersionAcknowledgment FIRST_VERSION_ACK = new VersionAcknowledgment();
 
   private final ConfigurationRepository repository;
   private final AccessControl accessControl;
@@ -116,7 +118,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   @Override
-  public Mono<Acknowledgment> createEntry(CreateOrUpdateEntryRequest request) {
+  public Mono<VersionAcknowledgment> createEntry(CreateOrUpdateEntryRequest request) {
     return Mono.fromRunnable(() -> logger.debug("create: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
@@ -129,13 +131,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             p ->
                 repository.save(
                     p.tenant(), request.repository(), new Document(request.key(), request.value())))
-        .thenReturn(ACK)
+        .thenReturn(FIRST_VERSION_ACK)
         .doOnSuccess(result -> logger.debug("create: exit: request: {}", request))
         .doOnError(th -> logger.error("create: request: {}, error:", request, th));
   }
 
   @Override
-  public Mono<Acknowledgment> updateEntry(CreateOrUpdateEntryRequest request) {
+  public Mono<VersionAcknowledgment> updateEntry(CreateOrUpdateEntryRequest request) {
     return Mono.fromRunnable(() -> logger.debug("update: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
@@ -148,7 +150,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             p ->
                 repository.update(
                     p.tenant(), request.repository(), new Document(request.key(), request.value())))
-        .thenReturn(ACK)
+        .map(document -> new VersionAcknowledgment(document.version()))
         .doOnSuccess(result -> logger.debug("update: exit: request: {}", request))
         .doOnError(th -> logger.error("update: request: {}, error:", request, th));
   }
