@@ -11,7 +11,7 @@ import io.scalecube.config.ConfigRegistry;
 import io.scalecube.config.ObjectConfigProperty;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
-import io.scalecube.configuration.api.CreateEntryRequest;
+import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 import io.scalecube.configuration.api.DeleteEntryRequest;
 import io.scalecube.configuration.api.ReadEntryRequest;
 import io.scalecube.configuration.api.ReadEntryResponse;
@@ -63,7 +63,9 @@ class ScalecubeConfigurationServiceConfigSourceTest {
                   "QWER", new String[] {"+ALLOW-READ=(INSTRUMENT@123345)", "+ALLOW-WRITE=NONE"})
             });
     JsonNode value = new POJONode(expected);
-    service.createEntry(new CreateEntryRequest(token, repository, documentKey, value)).block();
+    service
+        .createEntry(new CreateOrUpdateEntryRequest(token, repository, documentKey, value))
+        .block();
     assertTrue(latch.await(10, TimeUnit.SECONDS), "Time out waiting for a new value");
 
     assertTrue(configProperty.value().isPresent());
@@ -102,14 +104,16 @@ class ScalecubeConfigurationServiceConfigSourceTest {
 
     BrokerData expected = new BrokerData("IOPHJK", new ApiKey[] {});
     JsonNode value = new POJONode(expected);
-    service.createEntry(new CreateEntryRequest(token, repository, documentKey, value)).block();
+    service
+        .createEntry(new CreateOrUpdateEntryRequest(token, repository, documentKey, value))
+        .block();
     assertTrue(latchForFirst.await(10, TimeUnit.SECONDS), "Time out waiting for a new value");
     assertTrue(configProperty.value().isPresent());
     expected = new BrokerData("QAWSED", new ApiKey[] {});
     value = new POJONode(expected);
     service
         .createEntry(
-            new CreateEntryRequest(
+            new CreateOrUpdateEntryRequest(
                 configRegistry.stringValue("token", "token"),
                 configRegistry.stringValue("repository", "repository"),
                 documentKey,

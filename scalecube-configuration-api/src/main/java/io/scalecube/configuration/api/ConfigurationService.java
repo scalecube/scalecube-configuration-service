@@ -18,8 +18,10 @@ public interface ConfigurationService {
 
   String CONFIG_CREATE_REPO = "configuration/createRepository";
   String CONFIG_READ_ENTRY = "configuration/readEntry";
+  String CONFIG_READ_ENTRY_HISTORY = "configuration/readEntryHistory";
   String CONFIG_READ_LIST = "configuration/readList";
   String CONFIG_CREATE_ENTRY = "configuration/createEntry";
+  String CONFIG_UPDATE_ENTRY = "configuration/updateEntry";
   String CONFIG_DELETE_ENTRY = "configuration/deleteEntry";
 
   /**
@@ -50,13 +52,22 @@ public interface ConfigurationService {
   Mono<List<ReadEntryResponse>> readList(ReadListRequest request);
 
   /**
+   * The request requires read level permissions to get entry object from the store.
+   *
+   * @param request includes the repository and key of the requested object.
+   * @return json object from the store.
+   */
+  @ServiceMethod
+  Mono<List<ReadEntryHistoryResponse>> readEntryHistory(ReadEntryHistoryRequest request);
+
+  /**
    * Save request requires write level permissions to save (create or update) entry to the store.
    *
    * @param request includes the name of the repository, key, value to save.
    * @return acknowledgement when saved.
    */
   @ServiceMethod
-  Mono<Acknowledgment> createEntry(CreateEntryRequest request);
+  Mono<VersionAcknowledgment> createEntry(CreateOrUpdateEntryRequest request);
 
   /**
    * Update request requires write level permissions to update entry to the store.
@@ -65,7 +76,7 @@ public interface ConfigurationService {
    * @return acknowledgement when updated.
    */
   @ServiceMethod
-  Mono<Acknowledgment> updateEntry(CreateEntryRequest request);
+  Mono<VersionAcknowledgment> updateEntry(CreateOrUpdateEntryRequest request);
 
   /**
    * delete request requires write level permissions to delete entry from the store.

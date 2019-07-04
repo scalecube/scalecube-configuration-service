@@ -2,19 +2,26 @@ package io.scalecube.configuration.repository.couchbase;
 
 import com.couchbase.client.java.AsyncBucket;
 import com.couchbase.client.java.document.AbstractDocument;
-import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.document.JsonArrayDocument;
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.error.DocumentAlreadyExistsException;
 import com.couchbase.client.java.error.DocumentDoesNotExistException;
 import com.couchbase.client.java.error.subdoc.PathNotFoundException;
+import com.couchbase.client.java.view.ViewQuery;
 import io.scalecube.configuration.repository.ConfigurationRepository;
 import io.scalecube.configuration.repository.Document;
+import io.scalecube.configuration.repository.HistoryDocument;
 import io.scalecube.configuration.repository.Repository;
 import io.scalecube.configuration.repository.exception.DataAccessException;
 import io.scalecube.configuration.repository.exception.KeyNotFoundException;
+import io.scalecube.configuration.repository.exception.KeyVersionNotFoundException;
 import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
+import io.scalecube.configuration.repository.exception.RepositoryKeyAlreadyExistsException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import rx.Observable;
@@ -25,9 +32,12 @@ public class CouchbaseRepository implements ConfigurationRepository {
   private static final String REPOSITORY_ALREADY_EXISTS =
       "Repository with name: '%s' already exists";
   private static final String REPOSITORY_NOT_FOUND = "Repository '%s-%s' not found";
-  private static final String KEY_NOT_FOUND = "Key '%s' not found";
 
   private static final String DELIMITER = "::";
+
+  private static final String REPOS = "repos";
+  public static final int DEFAULT_LATEST_VERSION = -1;
+  public static final int INDEX_OF_KEY = 2;
 
   private final AsyncBucket bucket;
 
@@ -39,32 +49,43 @@ public class CouchbaseRepository implements ConfigurationRepository {
   public Mono<Boolean> createRepository(Repository repository) {
     return Mono.from(
             RxReactiveStreams.toPublisher(
-                bucket.insert(
-                    JsonDocument.create(
-                        repository.namespace() + DELIMITER + repository.name(),
-                        JsonObject.empty()))))
+                bucket.setAdd(REPOS, repository.namespace() + DELIMITER + repository.name())))
+        .map(
+            isNewRepoAdded -> {
+              if (isNewRepoAdded) {
+                return true;
+              }
+              throw new DocumentAlreadyExistsException();
+            })
         .onErrorMap(
             DocumentAlreadyExistsException.class,
             e ->
                 new RepositoryAlreadyExistsException(
                     String.format(REPOSITORY_ALREADY_EXISTS, repository.name())))
-        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
-        .then(Mono.just(true));
+        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible);
   }
 
   @Override
-  public Mono<Document> readEntry(String tenant, String repository, String key) {
+  public Mono<Document> read(String tenant, String repository, String key, Integer version) {
     return Mono.from(
             RxReactiveStreams.toPublisher(
-                bucket.mapGet(tenant + DELIMITER + repository, key, Object.class)))
+                bucket.listGet(
+                    docId(tenant, repository, key),
+                    version != null ? version - 1 : DEFAULT_LATEST_VERSION,
+                    Object.class)))
         .onErrorMap(
             DocumentDoesNotExistException.class,
             e ->
-                new RepositoryNotFoundException(
-                    String.format(REPOSITORY_NOT_FOUND, tenant, repository)))
+                new KeyNotFoundException(
+                    String.format(
+                        "Repository [%s-%s] key [%s] not found", tenant, repository, key)))
         .onErrorMap(
             PathNotFoundException.class,
-            e -> new KeyNotFoundException(String.format(KEY_NOT_FOUND, key)))
+            e ->
+                new KeyVersionNotFoundException(
+                    String.format(
+                        "Key '%s' version '%s' not found",
+                        key, version != null ? version : "latest")))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
         .map(
             value -> {
@@ -79,64 +100,130 @@ public class CouchbaseRepository implements ConfigurationRepository {
   }
 
   @Override
-  public Flux<Document> readList(String tenant, String repository) {
+  public Flux<Document> readAll(String tenant, String repository, Integer version) {
     return Flux.from(
             RxReactiveStreams.toPublisher(
-                bucket
-                    .get(tenant + DELIMITER + repository)
-                    .switchIfEmpty(
-                        Observable.defer(
-                            () ->
-                                Observable.error(
-                                    new RepositoryNotFoundException(
-                                        String.format(REPOSITORY_NOT_FOUND, tenant, repository)))))
-                    .map(AbstractDocument::content)
-                    .flatMap(content -> Observable.from(content.toMap().entrySet()))
-                    .map(entry -> new Document(entry.getKey(), entry.getValue()))))
+                bucket.query(
+                    ViewQuery.from("keys", "by_keys").key(tenant + DELIMITER + repository))))
+        .flatMap(asyncViewResult -> RxReactiveStreams.toPublisher(asyncViewResult.rows()))
+        .flatMap(
+            asyncViewRow ->
+                read(tenant, repository, asyncViewRow.id().split(DELIMITER)[INDEX_OF_KEY], version))
+        .onErrorContinue(KeyVersionNotFoundException.class, (e, o) -> {
+        })
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible);
   }
 
   @Override
-  public Mono<Document> createEntry(String tenant, String repository, Document document) {
+  public Flux<HistoryDocument> readHistory(String tenant, String repository, String key) {
+    AtomicInteger currentVersion = new AtomicInteger(0);
     return Mono.from(
             RxReactiveStreams.toPublisher(
-                bucket.mapAdd(tenant + DELIMITER + repository, document.key(), document.value())))
-        .onErrorMap(
-            DocumentDoesNotExistException.class,
-            e ->
-                new RepositoryNotFoundException(
-                    String.format(REPOSITORY_NOT_FOUND, tenant, repository)))
-        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
-        .map(
-            added -> {
-              if (added) {
-                return document;
-              }
-
-              throw new DataAccessException("Save operation is failed because of unknown reason");
-            });
+                bucket
+                    .get(docId(tenant, repository, key), JsonArrayDocument.class)
+                    .switchIfEmpty(
+                        Observable.defer(
+                            () ->
+                                Observable.error(
+                                    new KeyNotFoundException(
+                                        String.format(
+                                            "Repository '%s-%s' key '%s' not found",
+                                            tenant, repository, key)))))))
+        .map(AbstractDocument::content)
+        .flatMapIterable(JsonArray::toList)
+        .map(entry -> new HistoryDocument(currentVersion.incrementAndGet(), entry))
+        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible);
   }
 
   @Override
-  public Mono<Void> deleteEntry(String tenant, String repository, String key) {
-    return readEntry(tenant, repository, key)
-        .then(
-            Mono.from(
-                RxReactiveStreams.toPublisher(
-                    bucket.mapRemove(tenant + DELIMITER + repository, key))))
+  public Mono<Document> save(String tenant, String repository, Document document) {
+    return Mono.from(
+            RxReactiveStreams.toPublisher(
+                bucket.setContains(REPOS, tenant + DELIMITER + repository)))
+        .flatMap(
+            isRepoExists -> {
+              if (!isRepoExists) {
+                throw new RepositoryNotFoundException(
+                    String.format(REPOSITORY_NOT_FOUND, tenant, repository));
+              }
+              return Mono.from(
+                      RxReactiveStreams.toPublisher(
+                          bucket.insert(
+                              JsonArrayDocument.create(
+                                  docId(tenant, repository, document.key()),
+                                  JsonArray.create().add(savedDocValue(document))))))
+                  .onErrorMap(
+                      DocumentAlreadyExistsException.class,
+                      e ->
+                          new RepositoryKeyAlreadyExistsException(
+                              String.format(
+                                  "Repository '%s-%s' key '%s' already exists",
+                                  tenant, repository, document.key())))
+                  .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
+                  .map(
+                      documentAdded -> {
+                        if (documentAdded != null) {
+                          return document;
+                        }
+
+                        throw new DataAccessException(
+                            "Save operation is failed because of unknown reason");
+                      });
+            });
+  }
+
+  private Object savedDocValue(Document document) {
+    return document.value() instanceof LinkedHashMap
+        ? JsonObject.from((Map<String, ?>) document.value())
+        : document.value();
+  }
+
+  @Override
+  public Mono<Document> update(String tenant, String repository, Document document) {
+    return Mono.from(
+            RxReactiveStreams.toPublisher(
+                bucket.listAppend(docId(tenant, repository, document.key()), document.value())))
+        .flatMap(
+            isUpdated -> {
+              if (isUpdated) {
+                return Mono.from(
+                    RxReactiveStreams.toPublisher(
+                        bucket.listSize(docId(tenant, repository, document.key()))));
+              }
+              throw new DataAccessException("Save operation is failed because of unknown reason");
+            })
         .onErrorMap(
             DocumentDoesNotExistException.class,
             e ->
-                new RepositoryNotFoundException(
-                    String.format(REPOSITORY_NOT_FOUND, tenant, repository)))
+                new DocumentDoesNotExistException(
+                    String.format(
+                        "Repository [%s-%s] key [%s] not found",
+                        tenant, repository, document.key())))
+        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
+        .map(lastVersion -> new Document(document.key(), document.value(), lastVersion));
+  }
+
+  @Override
+  public Mono<Void> delete(String tenant, String repository, String key) {
+    return Mono.from(RxReactiveStreams.toPublisher(bucket.remove(docId(tenant, repository, key))))
+        .onErrorMap(
+            DocumentDoesNotExistException.class,
+            e ->
+                new KeyNotFoundException(
+                    String.format(
+                        "Repository '%s-%s' key '%s' not found", tenant, repository, key)))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
         .doOnNext(
-            deleted -> {
-              if (!deleted) {
+            deletedDocument -> {
+              if (deletedDocument == null) {
                 throw new DataAccessException(
                     "Delete operation is failed because of unknown reason");
               }
             })
         .then();
+  }
+
+  private String docId(String tenant, String repository, String key) {
+    return tenant + DELIMITER + repository + DELIMITER + key;
   }
 }

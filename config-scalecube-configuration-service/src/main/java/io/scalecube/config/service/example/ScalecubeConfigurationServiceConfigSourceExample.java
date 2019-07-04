@@ -12,7 +12,7 @@ import io.scalecube.config.service.ObjectMapperHolder;
 import io.scalecube.config.service.ScalecubeConfigurationServiceConfigSource;
 import io.scalecube.config.utils.ThrowableUtil;
 import io.scalecube.configuration.api.ConfigurationService;
-import io.scalecube.configuration.api.CreateEntryRequest;
+import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 import io.scalecube.services.gateway.clientsdk.ClientSettings;
 import io.scalecube.services.gateway.clientsdk.ClientSettings.Builder;
 import io.scalecube.services.transport.jackson.JacksonCodec;
@@ -55,7 +55,8 @@ public class ScalecubeConfigurationServiceConfigSourceExample {
 
     String key1 = "person1";
     JsonNode value1 = objectMapper.reader().readTree("{\"name\":\"foo\",\"age\":42}");
-    CreateEntryRequest request = new CreateEntryRequest(token, repository, key1, value1);
+    CreateOrUpdateEntryRequest request =
+        new CreateOrUpdateEntryRequest(token, repository, key1, value1);
     configurationService.createEntry(request).block();
 
     ConfigRegistrySettings configRegistrySettings =
@@ -110,7 +111,7 @@ public class ScalecubeConfigurationServiceConfigSourceExample {
                         + Thread.currentThread().getName()
                         + " >> Saving new value: "
                         + newAgeOfFoo);
-                return new CreateEntryRequest(
+                return new CreateOrUpdateEntryRequest(
                     token,
                     repository,
                     "person3",

@@ -5,7 +5,7 @@
   "backColor": "black",
   "nodes": [
     {
-      "id": "2",
+      "id": "1",
       "text": "createRepo",
       "backColor": "black",
       "data": {
@@ -18,7 +18,7 @@
       }
     },
     {
-      "id": "3",
+      "id": "2",
       "text": "createEntry",
       "backColor": "black",
       "data": {
@@ -38,9 +38,9 @@
       "backColor": "black",
       "data": {
         "q": "/configuration/updateEntry",
-        "sid": 2,
+        "sid": 3,
         "d": {
-          "APIKey": "API-KEY",
+          "apiKey": "API-KEY",
           "repository": "REPO-NAME",
           "key": "KEY-NAME",
           "value": "JSON-DATA"
@@ -53,11 +53,12 @@
       "backColor": "black",
       "data": {
         "q": "/configuration/readEntry",
-        "sid": 3,
+        "sid": 4,
         "d": {
           "apiKey": "API-KEY",
           "repository": "REPO-NAME",
-          "key": "KEY-NAME"
+          "key": "KEY-NAME",
+          "version": "VERSION NUMBER (default is LATEST)"
         }
       }
     },
@@ -67,20 +68,35 @@
       "backColor": "black",
       "data": {
         "q": "/configuration/readList",
-        "sid": 4,
+        "sid": 5,
         "d": {
           "apiKey": "API-KEY",
-          "repository": "REPO-NAME"
+          "repository": "REPO-NAME",
+          "version": "VERSION NUMBER (default is LATEST)"
         }
       }
     },
     {
       "id": "6",
+      "text": "readEntryHistory",
+      "backColor": "black",
+      "data": {
+        "q": "/configuration/readEntryHistory",
+        "sid": 6,
+        "d": {
+          "apiKey": "API-KEY",
+          "repository": "REPO-NAME",
+          "key": "KEY-NAME"
+        }
+      }
+    },
+    {
+      "id": "7",
       "text": "deleteEntry",
       "backColor": "black",
       "data": {
         "q": "/configuration/deleteEntry",
-        "sid": 5,
+        "sid": 7,
         "d": {
           "apiKey": "API-KEY",
           "repository": "REPO-NAME",

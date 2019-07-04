@@ -1,34 +1,18 @@
 package io.scalecube.configuration.api;
 
 /** Represents a request o fetch data from a repository. */
-public class ReadEntryRequest implements AccessRequest {
+public class ReadEntryHistoryRequest implements AccessRequest {
 
   protected String repository;
   protected String key;
   private Object apiKey;
-  private Integer version;
 
   /**
    * Default constructor.
    *
    * @deprecated only for serialization/deserialization.
    */
-  ReadEntryRequest() {}
-
-  /**
-   * Constructs a ReadEntryRequest object.
-   *
-   * @param apiKey The request apiKey
-   * @param repository The repository name
-   * @param key The requested data key
-   * @param version The requested data key version
-   */
-  public ReadEntryRequest(Object apiKey, String repository, String key, Integer version) {
-    this.apiKey = apiKey;
-    this.repository = repository;
-    this.key = key;
-    this.version = version;
-  }
+  ReadEntryHistoryRequest() {}
 
   /**
    * Constructs a ReadEntryRequest object.
@@ -37,7 +21,7 @@ public class ReadEntryRequest implements AccessRequest {
    * @param repository The repository name
    * @param key The requested data key
    */
-  public ReadEntryRequest(Object apiKey, String repository, String key) {
+  public ReadEntryHistoryRequest(Object apiKey, String repository, String key) {
     this.apiKey = apiKey;
     this.repository = repository;
     this.key = key;
@@ -51,10 +35,6 @@ public class ReadEntryRequest implements AccessRequest {
     return key;
   }
 
-  public Integer version() {
-    return version;
-  }
-
   public Object apiKey() {
     return this.apiKey;
   }
@@ -65,8 +45,6 @@ public class ReadEntryRequest implements AccessRequest {
         + repository
         + ", key="
         + key
-        + ", version="
-        + version
         + ", apiKey="
         + apiKey
         + "]";

@@ -9,7 +9,7 @@ import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
-import io.scalecube.configuration.api.CreateEntryRequest;
+import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.ReadEntryRequest;
 import io.scalecube.configuration.api.ReadEntryResponse;
@@ -23,8 +23,7 @@ import reactor.test.StepVerifier;
 public class CreateEntryScenario extends BaseScenario {
 
   @TestTemplate
-  @DisplayName(
-      "#7 Successful createEntry of specific entry (instrument) applying the \"Owner\" API key")
+  @DisplayName("#7 Successful create of specific entry (instrument) applying the \"Owner\" API key")
   void createEntry(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -46,7 +45,7 @@ public class CreateEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService
-                .createEntry(new CreateEntryRequest(token, repoName, entryKey, entryValue))
+                .createEntry(new CreateOrUpdateEntryRequest(token, repoName, entryKey, entryValue))
                 .then(
                     configurationService.readEntry(
                         new ReadEntryRequest(token, repoName, entryKey))))
@@ -89,7 +88,8 @@ public class CreateEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService
-                .createEntry(new CreateEntryRequest(adminToken, repoName1, entryKey, entryValue))
+                .createEntry(
+                    new CreateOrUpdateEntryRequest(adminToken, repoName1, entryKey, entryValue))
                 .then(
                     configurationService.readEntry(
                         new ReadEntryRequest(adminToken, repoName1, entryKey))))
@@ -103,7 +103,8 @@ public class CreateEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService
-                .createEntry(new CreateEntryRequest(adminToken, repoName2, entryKey, entryValue))
+                .createEntry(
+                    new CreateOrUpdateEntryRequest(adminToken, repoName2, entryKey, entryValue))
                 .then(
                     configurationService.readEntry(
                         new ReadEntryRequest(adminToken, repoName2, entryKey))))
@@ -146,19 +147,20 @@ public class CreateEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(token, repoName1))
         .then(
             configurationService.createEntry(
-                new CreateEntryRequest(token, repoName1, entryKey, entryValue1)))
+                new CreateOrUpdateEntryRequest(token, repoName1, entryKey, entryValue1)))
         .block(TIMEOUT);
 
     configurationService
         .createRepository(new CreateRepositoryRequest(token, repoName2))
         .then(
             configurationService.createEntry(
-                new CreateEntryRequest(token, repoName2, entryKey, entryValue1)))
+                new CreateOrUpdateEntryRequest(token, repoName2, entryKey, entryValue1)))
         .block(TIMEOUT);
 
     StepVerifier.create(
             configurationService
-                .createEntry(new CreateEntryRequest(token, repoName1, entryKey, entryValue2))
+                .createEntry(
+                    new CreateOrUpdateEntryRequest(token, repoName1, entryKey, entryValue2))
                 .then(
                     configurationService.readEntry(
                         new ReadEntryRequest(token, repoName1, entryKey))))
@@ -204,12 +206,13 @@ public class CreateEntryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
             configurationService.createEntry(
-                new CreateEntryRequest(ownerToken, repoName, entryKey, entryValue)))
+                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValue)))
         .block(TIMEOUT);
 
     StepVerifier.create(
             configurationService
-                .createEntry(new CreateEntryRequest(adminToken, repoName, entryKey, entryValue))
+                .createEntry(
+                    new CreateOrUpdateEntryRequest(adminToken, repoName, entryKey, entryValue))
                 .then(configurationService.readList(new ReadListRequest(adminToken, repoName))))
         .assertNext(
             entries -> {
@@ -249,7 +252,7 @@ public class CreateEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService
-                .createEntry(new CreateEntryRequest(token, repoName, entryKey, entryValue))
+                .createEntry(new CreateOrUpdateEntryRequest(token, repoName, entryKey, entryValue))
                 .then(
                     configurationService.readEntry(
                         new ReadEntryRequest(token, repoName, entryKey))))
@@ -287,14 +290,14 @@ public class CreateEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService.createEntry(
-                new CreateEntryRequest(memberToken, repoName, entryKey, entryValue)))
+                new CreateOrUpdateEntryRequest(memberToken, repoName, entryKey, entryValue)))
         .expectErrorMessage("Permission denied")
         .verify();
   }
 
   @TestTemplate
   @DisplayName(
-      "#13 Fail to createEntry (edit) the specific entry applying the \"Admin\" either \"Owner\" API key upon the specified Repository doesn't exist")
+      "#13 Fail to create (edit) the specific entry applying the \"Admin\" either \"Owner\" API key upon the specified Repository doesn't exist")
   void createEntryForNonExistingRepository(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -312,7 +315,8 @@ public class CreateEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService.createEntry(
-                new CreateEntryRequest(adminToken, nonExistingRepoName, entryKey, entryValue)))
+                new CreateOrUpdateEntryRequest(
+                    adminToken, nonExistingRepoName, entryKey, entryValue)))
         .expectErrorMessage(
             String.format("Repository '%s-%s' not found", orgId, nonExistingRepoName))
         .verify();
@@ -338,14 +342,14 @@ public class CreateEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService.createEntry(
-                new CreateEntryRequest(token, repoName, entryKey, entryValue)))
+                new CreateOrUpdateEntryRequest(token, repoName, entryKey, entryValue)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
 
   @TestTemplate
   @DisplayName(
-      "#15 Fail to createEntry (edit) the specific entry in the Repository upon the Owner deleted the Organization with related \"Owner\" API key")
+      "#15 Fail to create (edit) the specific entry in the Repository upon the Owner deleted the Organization with related \"Owner\" API key")
   void createEntryForDeletedOrganization(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
@@ -374,7 +378,7 @@ public class CreateEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService.createEntry(
-                new CreateEntryRequest(token, repoName, entryKey, entryValue)))
+                new CreateOrUpdateEntryRequest(token, repoName, entryKey, entryValue)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
@@ -406,7 +410,7 @@ public class CreateEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService.createEntry(
-                new CreateEntryRequest(token2, repoName, entryKey, entryValue)))
+                new CreateOrUpdateEntryRequest(token2, repoName, entryKey, entryValue)))
         .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId2, repoName))
         .verify();
   }
@@ -443,7 +447,7 @@ public class CreateEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService.createEntry(
-                new CreateEntryRequest(token.key(), repoName, entryKey, entryValue)))
+                new CreateOrUpdateEntryRequest(token.key(), repoName, entryKey, entryValue)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }

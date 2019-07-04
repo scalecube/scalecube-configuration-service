@@ -9,7 +9,7 @@ import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
-import io.scalecube.configuration.api.CreateEntryRequest;
+import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.ReadEntryResponse;
 import io.scalecube.configuration.api.ReadListRequest;
@@ -41,7 +41,7 @@ public class ReadListScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
             configurationService.createEntry(
-                new CreateEntryRequest(
+                new CreateOrUpdateEntryRequest(
                     ownerToken,
                     repoName,
                     entryKey1,
@@ -53,7 +53,7 @@ public class ReadListScenario extends BaseScenario {
                         .put("Rounding", "down"))))
         .then(
             configurationService.createEntry(
-                new CreateEntryRequest(
+                new CreateOrUpdateEntryRequest(
                     ownerToken,
                     repoName,
                     entryKey2,
@@ -159,7 +159,7 @@ public class ReadListScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
             configurationService.createEntry(
-                new CreateEntryRequest(
+                new CreateOrUpdateEntryRequest(
                     ownerToken,
                     repoName,
                     entryKey,
@@ -200,7 +200,7 @@ public class ReadListScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(token1, repoName))
         .then(
             configurationService.createEntry(
-                new CreateEntryRequest(
+                new CreateOrUpdateEntryRequest(
                     token1,
                     repoName,
                     entryKey,
@@ -234,7 +234,7 @@ public class ReadListScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerToken.key(), repoName))
         .then(
             configurationService.createEntry(
-                new CreateEntryRequest(
+                new CreateOrUpdateEntryRequest(
                     ownerToken.key(),
                     repoName,
                     entryKey,
