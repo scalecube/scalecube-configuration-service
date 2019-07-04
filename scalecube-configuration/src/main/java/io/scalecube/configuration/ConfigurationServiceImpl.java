@@ -2,7 +2,6 @@ package io.scalecube.configuration;
 
 import static io.scalecube.configuration.RequestValidator.validate;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import io.scalecube.configuration.api.Acknowledgment;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
@@ -156,7 +155,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         () ->
             accessControl
                 .check(token.toString(), resource)
-                .onErrorMap(ExpiredJwtException.class, e -> new InvalidAuthenticationToken())
                 .onErrorMap(AuthenticationException.class, e -> new InvalidAuthenticationToken()));
   }
 }
