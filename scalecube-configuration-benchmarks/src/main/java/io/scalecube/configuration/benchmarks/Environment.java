@@ -1,7 +1,6 @@
 package io.scalecube.configuration.benchmarks;
 
 import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.bucket.BucketManager;
 import com.couchbase.client.java.cluster.DefaultBucketSettings;
 import com.couchbase.client.java.cluster.UserRole;
@@ -10,6 +9,7 @@ import com.couchbase.client.java.document.JsonArrayDocument;
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.view.DefaultView;
 import com.couchbase.client.java.view.DesignDocument;
+import com.couchbase.client.java.view.DesignDocument.Option;
 import com.github.dockerjava.api.model.PortBinding;
 import java.io.IOException;
 import java.util.Arrays;
@@ -102,18 +102,18 @@ final class Environment {
             .roles(Collections.singletonList(new UserRole(BUCKET_FULL_ACCESS, configName))),
         true);
 
-    couchbaseInit();
+    couchbaseInit(couchbase, configName);
   }
 
-  private static void couchbaseInit() {
-    Bucket bucket =
-        CouchbaseCluster.create("http://localhost:8091")
-            .authenticate("admin", "123456")
-            .openBucket("configurations");
+  private static void couchbaseInit(CouchbaseContainer couchbase, String bucketName) {
+    Bucket bucket = couchbase.getCouchbaseCluster().openBucket(bucketName, COUCHBASE_PASSWORD);
 
     bucket.insert(JsonArrayDocument.create("repos", JsonArray.create()));
 
     BucketManager bucketManager = bucket.bucketManager();
+
+    Map<Option, Long> options = new HashMap<>();
+    options.put(Option.UPDATE_MIN_CHANGES, 1L);
 
     DesignDocument designDoc =
         DesignDocument.create(
@@ -125,7 +125,8 @@ final class Environment {
                         + "  if (meta.id != 'repos') { "
                         + "    emit(meta.id.substring(0, meta.id.lastIndexOf('::')), null);"
                         + "  }"
-                        + "}")));
+                        + "}")),
+            options);
 
     bucketManager.insertDesignDocument(designDoc);
   }

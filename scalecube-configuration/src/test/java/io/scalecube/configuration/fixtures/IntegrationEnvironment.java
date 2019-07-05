@@ -6,11 +6,18 @@ import static io.scalecube.configuration.scenario.BaseScenario.KEY_CACHE_REFRESH
 import static io.scalecube.configuration.scenario.BaseScenario.KEY_CACHE_TTL;
 
 import com.couchbase.client.java.AsyncBucket;
+import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
+import com.couchbase.client.java.bucket.BucketManager;
 import com.couchbase.client.java.cluster.DefaultBucketSettings;
 import com.couchbase.client.java.cluster.UserRole;
 import com.couchbase.client.java.cluster.UserSettings;
+import com.couchbase.client.java.document.JsonArrayDocument;
+import com.couchbase.client.java.document.json.JsonArray;
+import com.couchbase.client.java.view.DefaultView;
+import com.couchbase.client.java.view.DesignDocument;
+import com.couchbase.client.java.view.DesignDocument.Option;
 import com.github.dockerjava.api.model.PortBinding;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.config.ConfigRegistry;
@@ -42,6 +49,7 @@ import io.scalecube.services.gateway.ws.WebsocketGateway;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -177,11 +185,40 @@ final class IntegrationEnvironment {
             .roles(Collections.singletonList(new UserRole(BUCKET_FULL_ACCESS, configName))),
         true);
 
+    couchbaseInit(couchbase, configName);
+
     couchbase.getCouchbaseCluster().disconnect();
     couchbase.getCouchbaseEnvironment().shutdown();
 
     return couchbase;
   }
+
+  private static void couchbaseInit(CouchbaseContainer couchbase, String bucketName) {
+    Bucket bucket = couchbase.getCouchbaseCluster().openBucket(bucketName, COUCHBASE_PASSWORD);
+
+    bucket.insert(JsonArrayDocument.create("repos", JsonArray.create()));
+
+    BucketManager bucketManager = bucket.bucketManager();
+
+    Map<Option, Long> options = new HashMap<>();
+    options.put(Option.UPDATE_MIN_CHANGES, 1L);
+
+    DesignDocument designDoc =
+        DesignDocument.create(
+            "keys",
+            Arrays.asList(
+                DefaultView.create(
+                    "by_keys",
+                    "function (doc, meta) { "
+                        + "  if (meta.id != 'repos') { "
+                        + "    emit(meta.id.substring(0, meta.id.lastIndexOf('::')), null);"
+                        + "  }"
+                        + "}")),
+            options);
+
+    bucketManager.insertDesignDocument(designDoc);
+  }
+
 
   private VaultContainer startVault() {
     LOGGER.info("### Start vault");
