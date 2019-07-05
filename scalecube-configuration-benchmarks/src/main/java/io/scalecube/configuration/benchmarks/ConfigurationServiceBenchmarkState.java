@@ -63,7 +63,7 @@ final class ConfigurationServiceBenchmarkState
       new Environment().start();
     }
 
-    Token token = new Token(settings.find("apiKey", ""));
+    Token token = new Token(settings.find("token", ""));
     int configKeysCount = Integer.parseInt(settings.find("configKeysCount", "100"));
 
     preload(token, configKeysCount);
