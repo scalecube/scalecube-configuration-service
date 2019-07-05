@@ -9,6 +9,7 @@ import com.couchbase.client.java.document.JsonArrayDocument;
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.view.DefaultView;
 import com.couchbase.client.java.view.DesignDocument;
+import com.couchbase.client.java.view.DesignDocument.Option;
 import com.github.dockerjava.api.model.PortBinding;
 import java.io.IOException;
 import java.util.Arrays;
@@ -121,7 +122,12 @@ final class Environment {
                         + "  if (meta.id != 'repos') { "
                         + "    emit(meta.id.substring(0, meta.id.lastIndexOf('::')), null);"
                         + "  }"
-                        + "}")));
+                        + "}")),
+            new HashMap<Option, Long>() {
+              {
+                put(Option.UPDATE_MIN_CHANGES, 1L);
+              }
+            });
 
     bucketManager.insertDesignDocument(designDoc);
   }
