@@ -112,6 +112,9 @@ final class Environment {
 
     BucketManager bucketManager = bucket.bucketManager();
 
+    Map<Option, Long> options = new HashMap<>();
+    options.put(Option.UPDATE_MIN_CHANGES, 1L);
+
     DesignDocument designDoc =
         DesignDocument.create(
             "keys",
@@ -123,11 +126,7 @@ final class Environment {
                         + "    emit(meta.id.substring(0, meta.id.lastIndexOf('::')), null);"
                         + "  }"
                         + "}")),
-            new HashMap<Option, Long>() {
-              {
-                put(Option.UPDATE_MIN_CHANGES, 1L);
-              }
-            });
+            options);
 
     bucketManager.insertDesignDocument(designDoc);
   }
