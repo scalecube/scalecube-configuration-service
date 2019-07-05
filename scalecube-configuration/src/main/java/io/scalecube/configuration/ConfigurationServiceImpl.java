@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -90,13 +89,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return Mono.fromRunnable(() -> logger.debug("readHistory: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
-        .thenMany(
-            Flux.defer(
-                () ->
-                    checkAccess(
-                        request.apiKey().toString(),
-                        ConfigurationService.CONFIG_READ_ENTRY_HISTORY)))
-        .flatMap(p -> repository.readHistory(p.tenant(), request.repository(), request.key()))
+        .then(checkAccess(request.apiKey(), ConfigurationService.CONFIG_READ_ENTRY_HISTORY))
+        .flatMapMany(p -> repository.readHistory(p.tenant(), request.repository(), request.key()))
         .map(doc -> new ReadEntryHistoryResponse(doc.version(), doc.value()))
         .collectList()
         .doOnSuccess(
@@ -124,11 +118,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return Mono.fromRunnable(() -> logger.debug("update: enter: request: {}", request))
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
-        .then(
-            Mono.defer(
-                () ->
-                    checkAccess(
-                        request.apiKey().toString(), ConfigurationService.CONFIG_CREATE_ENTRY)))
+        .then(checkAccess(request.apiKey(), ConfigurationService.CONFIG_CREATE_ENTRY))
         .flatMap(
             p ->
                 repository.update(

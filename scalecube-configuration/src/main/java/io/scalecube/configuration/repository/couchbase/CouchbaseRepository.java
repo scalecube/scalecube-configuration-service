@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import rx.Observable;
 import rx.RxReactiveStreams;
 
 public class CouchbaseRepository implements ConfigurationRepository {
@@ -36,8 +35,8 @@ public class CouchbaseRepository implements ConfigurationRepository {
   private static final String DELIMITER = "::";
 
   private static final String REPOS = "repos";
-  public static final int DEFAULT_LATEST_VERSION = -1;
-  public static final int INDEX_OF_KEY = 2;
+  private static final int DEFAULT_LATEST_VERSION = -1;
+  private static final int INDEX_OF_KEY = 2;
 
   private final AsyncBucket bucket;
 
@@ -50,13 +49,12 @@ public class CouchbaseRepository implements ConfigurationRepository {
     return Mono.from(
             RxReactiveStreams.toPublisher(
                 bucket.setAdd(REPOS, repository.namespace() + DELIMITER + repository.name())))
-        .map(
-            isNewRepoAdded -> {
-              if (isNewRepoAdded) {
-                return true;
-              }
-              throw new DocumentAlreadyExistsException();
-            })
+        .filter(isNewRepoAdded -> isNewRepoAdded)
+        .switchIfEmpty(
+            Mono.error(
+                () ->
+                    new RepositoryAlreadyExistsException(
+                        String.format(REPOSITORY_ALREADY_EXISTS, repository.name()))))
         .onErrorMap(
             DocumentAlreadyExistsException.class,
             e ->
@@ -109,8 +107,11 @@ public class CouchbaseRepository implements ConfigurationRepository {
         .flatMap(
             asyncViewRow ->
                 read(tenant, repository, asyncViewRow.id().split(DELIMITER)[INDEX_OF_KEY], version))
-        .onErrorContinue(KeyVersionNotFoundException.class, (e, o) -> {
-        })
+        .onErrorContinue(
+            KeyVersionNotFoundException.class,
+            (e, o) -> {
+              // no-op
+            })
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible);
   }
 
@@ -119,16 +120,13 @@ public class CouchbaseRepository implements ConfigurationRepository {
     AtomicInteger currentVersion = new AtomicInteger(0);
     return Mono.from(
             RxReactiveStreams.toPublisher(
-                bucket
-                    .get(docId(tenant, repository, key), JsonArrayDocument.class)
-                    .switchIfEmpty(
-                        Observable.defer(
-                            () ->
-                                Observable.error(
-                                    new KeyNotFoundException(
-                                        String.format(
-                                            "Repository '%s-%s' key '%s' not found",
-                                            tenant, repository, key)))))))
+                bucket.get(docId(tenant, repository, key), JsonArrayDocument.class)))
+        .switchIfEmpty(
+            Mono.error(
+                () ->
+                    new KeyNotFoundException(
+                        String.format(
+                            "Repository '%s-%s' key '%s' not found", tenant, repository, key))))
         .map(AbstractDocument::content)
         .flatMapIterable(JsonArray::toList)
         .map(entry -> new HistoryDocument(currentVersion.incrementAndGet(), entry))
@@ -140,36 +138,31 @@ public class CouchbaseRepository implements ConfigurationRepository {
     return Mono.from(
             RxReactiveStreams.toPublisher(
                 bucket.setContains(REPOS, tenant + DELIMITER + repository)))
-        .flatMap(
-            isRepoExists -> {
-              if (!isRepoExists) {
-                throw new RepositoryNotFoundException(
-                    String.format(REPOSITORY_NOT_FOUND, tenant, repository));
-              }
-              return Mono.from(
-                      RxReactiveStreams.toPublisher(
-                          bucket.insert(
-                              JsonArrayDocument.create(
-                                  docId(tenant, repository, document.key()),
-                                  JsonArray.create().add(savedDocValue(document))))))
-                  .onErrorMap(
-                      DocumentAlreadyExistsException.class,
-                      e ->
-                          new RepositoryKeyAlreadyExistsException(
-                              String.format(
-                                  "Repository '%s-%s' key '%s' already exists",
-                                  tenant, repository, document.key())))
-                  .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
-                  .map(
-                      documentAdded -> {
-                        if (documentAdded != null) {
-                          return document;
-                        }
-
-                        throw new DataAccessException(
-                            "Save operation is failed because of unknown reason");
-                      });
-            });
+        .filter(isRepoExists -> isRepoExists)
+        .switchIfEmpty(
+            Mono.error(
+                () ->
+                    new RepositoryNotFoundException(
+                        String.format(REPOSITORY_NOT_FOUND, tenant, repository))))
+        .then(
+            Mono.from(
+                RxReactiveStreams.toPublisher(
+                    bucket.insert(
+                        JsonArrayDocument.create(
+                            docId(tenant, repository, document.key()),
+                            JsonArray.create().add(savedDocValue(document)))))))
+        .onErrorMap(
+            DocumentAlreadyExistsException.class,
+            e ->
+                new RepositoryKeyAlreadyExistsException(
+                    String.format(
+                        "Repository '%s' key '%s' already exists", repository, document.key())))
+        .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
+        .switchIfEmpty(
+            Mono.error(
+                () ->
+                    new DataAccessException("Save operation is failed because of unknown reason")))
+        .thenReturn(document);
   }
 
   private Object savedDocValue(Document document) {
@@ -183,15 +176,15 @@ public class CouchbaseRepository implements ConfigurationRepository {
     return Mono.from(
             RxReactiveStreams.toPublisher(
                 bucket.listAppend(docId(tenant, repository, document.key()), document.value())))
-        .flatMap(
-            isUpdated -> {
-              if (isUpdated) {
-                return Mono.from(
-                    RxReactiveStreams.toPublisher(
-                        bucket.listSize(docId(tenant, repository, document.key()))));
-              }
-              throw new DataAccessException("Save operation is failed because of unknown reason");
-            })
+        .filter(isUpdated -> isUpdated)
+        .switchIfEmpty(
+            Mono.error(
+                () ->
+                    new DataAccessException("Save operation is failed because of unknown reason")))
+        .then(
+            Mono.from(
+                RxReactiveStreams.toPublisher(
+                    bucket.listSize(docId(tenant, repository, document.key())))))
         .onErrorMap(
             DocumentDoesNotExistException.class,
             e ->
@@ -213,13 +206,11 @@ public class CouchbaseRepository implements ConfigurationRepository {
                     String.format(
                         "Repository '%s-%s' key '%s' not found", tenant, repository, key)))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
-        .doOnNext(
-            deletedDocument -> {
-              if (deletedDocument == null) {
-                throw new DataAccessException(
-                    "Delete operation is failed because of unknown reason");
-              }
-            })
+        .switchIfEmpty(
+            Mono.error(
+                () ->
+                    new DataAccessException(
+                        "Delete operation is failed because of unknown reason")))
         .then();
   }
 
