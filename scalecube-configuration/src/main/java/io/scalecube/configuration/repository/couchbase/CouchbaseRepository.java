@@ -75,8 +75,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
             DocumentDoesNotExistException.class,
             e ->
                 new KeyNotFoundException(
-                    String.format(
-                        "Repository [%s-%s] key [%s] not found", tenant, repository, key)))
+                    String.format("Repository '%s' key '%s' not found", repository, key)))
         .onErrorMap(
             PathNotFoundException.class,
             e ->
@@ -125,8 +124,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
             Mono.error(
                 () ->
                     new KeyNotFoundException(
-                        String.format(
-                            "Repository '%s-%s' key '%s' not found", tenant, repository, key))))
+                        String.format("Repository '%s' key '%s' not found", repository, key))))
         .map(AbstractDocument::content)
         .flatMapIterable(JsonArray::toList)
         .map(entry -> new HistoryDocument(currentVersion.incrementAndGet(), entry))
@@ -190,8 +188,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
             e ->
                 new DocumentDoesNotExistException(
                     String.format(
-                        "Repository [%s-%s] key [%s] not found",
-                        tenant, repository, document.key())))
+                        "Repository '%s' key '%s' not found", repository, document.key())))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
         .map(lastVersion -> new Document(document.key(), document.value(), lastVersion));
   }
@@ -203,8 +200,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
             DocumentDoesNotExistException.class,
             e ->
                 new KeyNotFoundException(
-                    String.format(
-                        "Repository '%s-%s' key '%s' not found", tenant, repository, key)))
+                    String.format("Repository '%s' key '%s' not found", repository, key)))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
         .switchIfEmpty(
             Mono.error(
