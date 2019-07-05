@@ -156,8 +156,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
             e ->
                 new RepositoryKeyAlreadyExistsException(
                     String.format(
-                        "Repository '%s-%s' key '%s' already exists",
-                        tenant, repository, document.key())))
+                        "Repository '%s' key '%s' already exists", repository, document.key())))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
         .switchIfEmpty(
             Mono.error(
