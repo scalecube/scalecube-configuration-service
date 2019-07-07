@@ -87,16 +87,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
                         key, version != null ? version : "latest")))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
         .switchIfEmpty(Mono.just(new Document(key, null)))
-        .map(
-            value -> {
-              if (value instanceof JsonObject) {
-                return new Document(key, ((JsonObject) value).toMap());
-              } else if (value instanceof JsonArray) {
-                return new Document(key, ((JsonArray) value).toList());
-              } else {
-                return new Document(key, value);
-              }
-            });
+        .map(value -> new Document(key, readJsonValue(value)));
   }
 
   @Override
@@ -142,7 +133,10 @@ public class CouchbaseRepository implements ConfigurationRepository {
         .flatMapIterable(
             objects ->
                 objects.toList().stream()
-                    .map(e -> new HistoryDocument(currentVersion.incrementAndGet(), e))
+                    .map(
+                        value ->
+                            new HistoryDocument(
+                                currentVersion.incrementAndGet(), readJsonValue(value)))
                     .collect(Collectors.toList()))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible);
   }
@@ -164,7 +158,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
                     bucket.insert(
                         JsonArrayDocument.create(
                             docId(tenant, repository, document.key()),
-                            JsonArray.create().add(savedDocValue(document)))))))
+                            JsonArray.create().add(savedJsonValue(document.value())))))))
         .onErrorMap(
             DocumentAlreadyExistsException.class,
             e ->
@@ -177,16 +171,6 @@ public class CouchbaseRepository implements ConfigurationRepository {
                 () ->
                     new DataAccessException("Save operation is failed because of unknown reason")))
         .thenReturn(document);
-  }
-
-  private Object savedDocValue(Document document) {
-    Object v = document.value();
-    if (v instanceof LinkedHashMap) {
-      return JsonObject.from((Map<String, ?>) v);
-    } else if (v instanceof ArrayList) {
-      return JsonArray.from((ArrayList) v);
-    }
-    return v;
   }
 
   @Override
@@ -210,7 +194,9 @@ public class CouchbaseRepository implements ConfigurationRepository {
                     String.format(
                         "Repository '%s' key '%s' not found", repository, document.key())))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
-        .map(lastVersion -> new Document(document.key(), document.value(), lastVersion));
+        .map(
+            lastVersion ->
+                new Document(document.key(), savedJsonValue(document.value()), lastVersion));
   }
 
   @Override
@@ -232,5 +218,27 @@ public class CouchbaseRepository implements ConfigurationRepository {
 
   private String docId(String tenant, String repository, String key) {
     return tenant + DELIMITER + repository + DELIMITER + key;
+  }
+
+  private Object savedJsonValue(Object v) {
+    if (v instanceof LinkedHashMap) {
+      return JsonObject.from((Map<String, ?>) v);
+    } else if (v instanceof ArrayList) {
+      return JsonArray.from((ArrayList) v);
+    } else if (v == null) {
+      return JsonObject.NULL;
+    }
+    return v;
+  }
+
+  private Object readJsonValue(Object v) {
+    if (v instanceof JsonObject) {
+      return ((JsonObject) v).toMap();
+    } else if (v instanceof JsonArray) {
+      return ((JsonArray) v).toList();
+    } else if (v == null || v == JsonObject.NULL) {
+      return JsonObject.NULL;
+    }
+    return v;
   }
 }
