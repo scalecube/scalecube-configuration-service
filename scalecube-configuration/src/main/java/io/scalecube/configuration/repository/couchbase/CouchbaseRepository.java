@@ -19,6 +19,7 @@ import io.scalecube.configuration.repository.exception.KeyVersionNotFoundExcepti
 import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
 import io.scalecube.configuration.repository.exception.RepositoryKeyAlreadyExistsException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -179,9 +180,13 @@ public class CouchbaseRepository implements ConfigurationRepository {
   }
 
   private Object savedDocValue(Document document) {
-    return document.value() instanceof LinkedHashMap
-        ? JsonObject.from((Map<String, ?>) document.value())
-        : document.value();
+    Object v = document.value();
+    if (v instanceof LinkedHashMap) {
+      return JsonObject.from((Map<String, ?>) v);
+    } else if (v instanceof ArrayList) {
+      return JsonArray.from((ArrayList) v);
+    }
+    return v;
   }
 
   @Override
