@@ -22,6 +22,7 @@ import io.scalecube.configuration.repository.exception.RepositoryNotFoundExcepti
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import rx.RxReactiveStreams;
@@ -137,8 +138,11 @@ public class CouchbaseRepository implements ConfigurationRepository {
                     new KeyNotFoundException(
                         String.format("Repository '%s' key '%s' not found", repository, key))))
         .map(AbstractDocument::content)
-        .flatMapIterable(JsonArray::toList)
-        .map(entry -> new HistoryDocument(currentVersion.incrementAndGet(), entry))
+        .flatMapIterable(
+            objects ->
+                objects.toList().stream()
+                    .map(e -> new HistoryDocument(currentVersion.incrementAndGet(), e))
+                    .collect(Collectors.toList()))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible);
   }
 
