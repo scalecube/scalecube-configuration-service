@@ -3,75 +3,106 @@
   "id": "1",
   "type": "ORG",
   "backColor": "black",
-  "nodes": [{
-    "id": "2",
-    "text": "createRepo",
-    "backColor": "black",
-    "data": {
-      "q": "/configuration/createRepository",
-      "sid": 1,
-      "d": {
-        "token": "API-KEY",
-        "repository": "REPO-NAME"
-      }
-    }
-
-  }, {
-    "id": "3",
-    "text": "saveUpdateEntry",
-    "backColor": "black",
-    "data": {
-      "q": "/configuration/save",
-      "sid": 2,
-      "d": {
-        "token": "API-KEY",
-        "repository": "REPO-NAME",
-        "key": "KEY-NAME",
-        "value": "JSON-DATA"
-      }
-    }
-  },
+  "nodes": [
     {
-      "id": "4",
-      "text": "fetchRepoEntrySingle",
+      "id": "1",
+      "text": "createRepo",
       "backColor": "black",
       "data": {
-        "q": "/configuration/fetch",
+        "q": "/configuration/createRepository",
+        "sid": 1,
+        "d": {
+          "apiKey": "API-KEY",
+          "repository": "REPO-NAME"
+        }
+      }
+    },
+    {
+      "id": "2",
+      "text": "createEntry",
+      "backColor": "black",
+      "data": {
+        "q": "/configuration/createEntry",
+        "sid": 2,
+        "d": {
+          "apiKey": "API-KEY",
+          "repository": "REPO-NAME",
+          "key": "KEY-NAME",
+          "value": "JSON-DATA"
+        }
+      }
+    },
+    {
+      "id": "3",
+      "text": "updateEntry",
+      "backColor": "black",
+      "data": {
+        "q": "/configuration/updateEntry",
         "sid": 3,
         "d": {
-          "token": "API-KEY",
+          "apiKey": "API-KEY",
+          "repository": "REPO-NAME",
+          "key": "KEY-NAME",
+          "value": "JSON-DATA"
+        }
+      }
+    },
+    {
+      "id": "4",
+      "text": "readEntry",
+      "backColor": "black",
+      "data": {
+        "q": "/configuration/readEntry",
+        "sid": 4,
+        "d": {
+          "apiKey": "API-KEY",
+          "repository": "REPO-NAME",
+          "key": "KEY-NAME",
+          "version": "VERSION NUMBER (default is LATEST)"
+        }
+      }
+    },
+    {
+      "id": "5",
+      "text": "readList",
+      "backColor": "black",
+      "data": {
+        "q": "/configuration/readList",
+        "sid": 5,
+        "d": {
+          "apiKey": "API-KEY",
+          "repository": "REPO-NAME",
+          "version": "VERSION NUMBER (default is LATEST)"
+        }
+      }
+    },
+    {
+      "id": "6",
+      "text": "readEntryHistory",
+      "backColor": "black",
+      "data": {
+        "q": "/configuration/readEntryHistory",
+        "sid": 6,
+        "d": {
+          "apiKey": "API-KEY",
           "repository": "REPO-NAME",
           "key": "KEY-NAME"
         }
       }
     },
     {
-      "id": "5",
-      "text": "fetchRepoEntryAll",
-      "backColor": "black",
-      "data": {
-        "q": "/configuration/entries",
-        "sid": 4,
-        "d": {
-          "token": "API-KEY",
-          "repository": "REPO-NAME"
-        }
-      }
-    },
-    {
-      "id": "6",
+      "id": "7",
       "text": "deleteEntry",
       "backColor": "black",
       "data": {
-        "q": "/configuration/delete",
-        "sid": 5,
+        "q": "/configuration/deleteEntry",
+        "sid": 7,
         "d": {
-          "token": "API-KEY",
+          "apiKey": "API-KEY",
           "repository": "REPO-NAME",
           "key": "KEY-NAME"
         }
       }
     }
   ]
-
 }

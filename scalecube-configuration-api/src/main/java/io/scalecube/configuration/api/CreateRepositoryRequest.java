@@ -3,7 +3,7 @@ package io.scalecube.configuration.api;
 /** Represents a request to create a repository. */
 public class CreateRepositoryRequest implements AccessRequest {
 
-  private Object token;
+  private Object apiKey;
   private String repository;
 
   /**
@@ -16,12 +16,12 @@ public class CreateRepositoryRequest implements AccessRequest {
   /**
    * Constructs a request object.
    *
-   * @param token request token
+   * @param apiKey request apiKey
    * @param repository the new repository name
    */
-  public CreateRepositoryRequest(Object token, String repository) {
+  public CreateRepositoryRequest(Object apiKey, String repository) {
     this.repository = repository;
-    this.token = token;
+    this.apiKey = apiKey;
   }
 
   @Override
@@ -30,15 +30,15 @@ public class CreateRepositoryRequest implements AccessRequest {
   }
 
   @Override
-  public Object token() {
-    return token;
+  public Object apiKey() {
+    return apiKey;
   }
 
   @Override
   public String toString() {
     return "CreateRepositoryRequest{"
-        + "token="
-        + token
+        + "apiKey="
+        + apiKey
         + ", repository='"
         + repository
         + '\''

@@ -8,14 +8,14 @@
   * @apiDescription This operation enable to get specific entry (setting - single object) by retrieving specified key
   * from the relevant Repository. This method requires a read level permission which is granted for all related API key roles (Owner | Admin | Member).
   *
-  * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
+  * @apiParam {Object} apiKey The requested API key (apiKey) which assigned with relevant role (permission level)
   * @apiParam {String} repository Specified name of the repository
   * @apiParam {String} key Specified key name for relevant configuration setting (object) in the repository
   *
   * @apiSuccess {Object} value Json of settings (object) stored in the repository
   * @apiSuccess {String} key Specified key name for relevant configuration setting (object) in the repository
   *
-  * @apiError {String} field:token token isn't specified
+  * @apiError {String} field:apiKey apiKey isn't specified
   * @apiError {String} field:repository repository name isn't specified
   * @apiError {String} field:key key name related to configuration isn't specified
   *
@@ -25,7 +25,7 @@
   *         "q":"/configuration/fetch",
   *         "sid": 1,
   *         "d":{
-  *         "token": "API-TOKEN",
+  *         "apiKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -70,7 +70,7 @@
   *         "q": "/configuration/fetch"
   *         },
   *         "data":{
-  *         "token": "API-TOKEN",
+  *         "apiKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *         }
@@ -110,7 +110,7 @@
   *
   * Body:
   *     {
-  *         "token": "API-TOKEN",
+  *         "apiKey": "API-KEY",
   *         "repository": "specifiedRepoName",
   *         "key": "specifiedKeyName"
   *     }
@@ -130,6 +130,6 @@
   * Error Response (HTTP):
   *    {
   *       "errorCode":500,
-  *       "errorMessage":"Please specify 'token'"
+  *       "errorMessage":"Please specify 'apiKey'"
   *    }
   */

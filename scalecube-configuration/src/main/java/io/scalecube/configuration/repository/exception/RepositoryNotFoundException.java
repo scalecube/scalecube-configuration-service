@@ -9,5 +9,4 @@ public class RepositoryNotFoundException extends DataAccessException {
   public RepositoryNotFoundException(String message, Throwable cause) {
     super(message, cause);
   }
-
 }

@@ -1,22 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <artifactId>scalecube-configuration-parent</artifactId>
     <groupId>io.scalecube</groupId>
-    <version>2.1.4-SNAPSHOT</version>
+    <version>2.1.10-SNAPSHOT</version>
   </parent>
 
   <artifactId>scalecube-configuration-benchmarks</artifactId>
-
-  <properties>
-    <scalecube-benchmarks.version>1.2.2</scalecube-benchmarks.version>
-    <scalecube-organization.version>2.1.0</scalecube-organization.version>
-    <testcontainers.version>1.10.5</testcontainers.version>
-    <hamcrest-all.version>1.3</hamcrest-all.version>
-  </properties>
 
   <dependencies>
     <dependency>
@@ -37,17 +32,14 @@
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-services-gateway-clientsdk</artifactId>
-      <version>${scalecube-services.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
-      <artifactId>scalecube-services-gateway-websocket</artifactId>
-      <version>${scalecube-services.version}</version>
+      <artifactId>scalecube-services-gateway-netty</artifactId>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>couchbase</artifactId>
-      <version>${testcontainers.version}</version>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
@@ -58,7 +50,7 @@
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-all</artifactId>
-      <version>${hamcrest-all.version}</version>
+      <version>1.3</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>

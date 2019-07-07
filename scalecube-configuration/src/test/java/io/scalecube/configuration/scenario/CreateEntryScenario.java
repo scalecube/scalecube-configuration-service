@@ -1,4 +1,4 @@
-package io.scalecube.configuration;
+package io.scalecube.configuration.scenario;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -9,38 +9,27 @@ import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
+import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
-import io.scalecube.configuration.api.EntriesRequest;
-import io.scalecube.configuration.api.FetchRequest;
-import io.scalecube.configuration.api.FetchResponse;
-import io.scalecube.configuration.api.InvalidAuthenticationToken;
-import io.scalecube.configuration.api.SaveRequest;
-import io.scalecube.configuration.fixtures.InMemoryConfigurationServiceFixture;
-import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
-import io.scalecube.test.fixtures.Fixtures;
-import io.scalecube.test.fixtures.WithFixture;
-import java.security.AccessControlException;
+import io.scalecube.configuration.api.ReadEntryRequest;
+import io.scalecube.configuration.api.ReadEntryResponse;
+import io.scalecube.configuration.api.ReadListRequest;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 import reactor.test.StepVerifier;
 
-@ExtendWith(Fixtures.class)
-@WithFixture(value = InMemoryConfigurationServiceFixture.class, lifecycle = Lifecycle.PER_METHOD)
-final class SaveEntryTest extends BaseTest {
+public class CreateEntryScenario extends BaseScenario {
 
   @TestTemplate
-  @DisplayName("#7 Successful save of specific entry (instrument) applying the \"Owner\" API key")
-  void saveEntry(
+  @DisplayName("#7 Successful create of specific entry (instrument) applying the \"Owner\" API key")
+  void createEntry(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String token = getApiKey(organizationService, orgId, Role.Owner).key();
+    String orgId = createOrganization(organizationService).id();
+    String token = createApiKey(organizationService, orgId, Role.Owner).key();
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
     ObjectNode entryValue =
         OBJECT_MAPPER
@@ -56,12 +45,14 @@ final class SaveEntryTest extends BaseTest {
 
     StepVerifier.create(
             configurationService
-                .save(new SaveRequest(token, repoName, entryKey, entryValue))
-                .then(configurationService.fetch(new FetchRequest(token, repoName, entryKey))))
+                .createEntry(new CreateOrUpdateEntryRequest(token, repoName, entryKey, entryValue))
+                .then(
+                    configurationService.readEntry(
+                        new ReadEntryRequest(token, repoName, entryKey))))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Saved entry key");
-              assertEquals(entryValue, entry.value(), "Saved entry value");
+              assertEquals(entryValue, parse(entry.value()), "Saved entry value");
             })
         .expectComplete()
         .verify();
@@ -69,15 +60,15 @@ final class SaveEntryTest extends BaseTest {
 
   @TestTemplate
   @DisplayName(
-      "#8 Successful save the identical entries for different Repositories applying the \"Admin\" API key")
-  void saveEntryToDifferentRepositories(
+      "#8 Successful creation the identical entries for different Repositories applying the \"Admin\" API key")
+  void createEntryForDifferentRepositories(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String ownerToken = getApiKey(organizationService, orgId, Role.Owner).key();
-    String adminToken = getApiKey(organizationService, orgId, Role.Admin).key();
+    String orgId = createOrganization(organizationService).id();
+    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
+    String adminToken = createApiKey(organizationService, orgId, Role.Admin).key();
 
-    String repoName1 = "test-repo1";
-    String repoName2 = "test-repo2";
+    String repoName1 = RandomStringUtils.randomAlphabetic(5);
+    String repoName2 = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
     ObjectNode entryValue =
         OBJECT_MAPPER
@@ -97,26 +88,30 @@ final class SaveEntryTest extends BaseTest {
 
     StepVerifier.create(
             configurationService
-                .save(new SaveRequest(adminToken, repoName1, entryKey, entryValue))
+                .createEntry(
+                    new CreateOrUpdateEntryRequest(adminToken, repoName1, entryKey, entryValue))
                 .then(
-                    configurationService.fetch(new FetchRequest(adminToken, repoName1, entryKey))))
+                    configurationService.readEntry(
+                        new ReadEntryRequest(adminToken, repoName1, entryKey))))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Saved entry key");
-              assertEquals(entryValue, entry.value(), "Saved entry value");
+              assertEquals(entryValue, parse(entry.value()), "Saved entry value");
             })
         .expectComplete()
         .verify();
 
     StepVerifier.create(
             configurationService
-                .save(new SaveRequest(adminToken, repoName2, entryKey, entryValue))
+                .createEntry(
+                    new CreateOrUpdateEntryRequest(adminToken, repoName2, entryKey, entryValue))
                 .then(
-                    configurationService.fetch(new FetchRequest(adminToken, repoName2, entryKey))))
+                    configurationService.readEntry(
+                        new ReadEntryRequest(adminToken, repoName2, entryKey))))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Saved entry key");
-              assertEquals(entryValue, entry.value(), "Saved entry value");
+              assertEquals(entryValue, parse(entry.value()), "Saved entry value");
             })
         .expectComplete()
         .verify();
@@ -127,11 +122,11 @@ final class SaveEntryTest extends BaseTest {
       "#9 Successful update one of the identical entries in the single Repository applying the \"Owner\" API key")
   void updateEntry(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String token = getApiKey(organizationService, orgId, Role.Owner).key();
+    String orgId = createOrganization(organizationService).id();
+    String token = createApiKey(organizationService, orgId, Role.Owner).key();
 
-    String repoName1 = "test-repo1";
-    String repoName2 = "test-repo2";
+    String repoName1 = RandomStringUtils.randomAlphabetic(5);
+    String repoName2 = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
     ObjectNode entryValue1 =
         OBJECT_MAPPER
@@ -150,31 +145,39 @@ final class SaveEntryTest extends BaseTest {
 
     configurationService
         .createRepository(new CreateRepositoryRequest(token, repoName1))
-        .then(configurationService.save(new SaveRequest(token, repoName1, entryKey, entryValue1)))
+        .then(
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(token, repoName1, entryKey, entryValue1)))
         .block(TIMEOUT);
 
     configurationService
         .createRepository(new CreateRepositoryRequest(token, repoName2))
-        .then(configurationService.save(new SaveRequest(token, repoName2, entryKey, entryValue1)))
+        .then(
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(token, repoName2, entryKey, entryValue1)))
         .block(TIMEOUT);
 
     StepVerifier.create(
             configurationService
-                .save(new SaveRequest(token, repoName1, entryKey, entryValue2))
-                .then(configurationService.fetch(new FetchRequest(token, repoName1, entryKey))))
+                .createEntry(
+                    new CreateOrUpdateEntryRequest(token, repoName1, entryKey, entryValue2))
+                .then(
+                    configurationService.readEntry(
+                        new ReadEntryRequest(token, repoName1, entryKey))))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Saved entry key");
-              assertEquals(entryValue2, entry.value(), "Saved entry value");
+              assertEquals(entryValue2, parse(entry.value()), "Saved entry value");
             })
         .expectComplete()
         .verify();
 
-    StepVerifier.create(configurationService.fetch(new FetchRequest(token, repoName2, entryKey)))
+    StepVerifier.create(
+            configurationService.readEntry(new ReadEntryRequest(token, repoName2, entryKey)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Saved entry key");
-              assertEquals(entryValue1, entry.value(), "Saved entry value");
+              assertEquals(entryValue1, parse(entry.value()), "Saved entry value");
             })
         .expectComplete()
         .verify();
@@ -183,13 +186,13 @@ final class SaveEntryTest extends BaseTest {
   @TestTemplate
   @DisplayName(
       "#10 No change for the successful update of the existing entry with the same values applying the \"Admin\" API key")
-  void saveEntryTwice(
+  void createEntryTwice(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String ownerToken = getApiKey(organizationService, orgId, Role.Owner).key();
-    String adminToken = getApiKey(organizationService, orgId, Role.Admin).key();
+    String orgId = createOrganization(organizationService).id();
+    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
+    String adminToken = createApiKey(organizationService, orgId, Role.Admin).key();
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
     ObjectNode entryValue =
         OBJECT_MAPPER
@@ -202,20 +205,22 @@ final class SaveEntryTest extends BaseTest {
     configurationService
         .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
         .then(
-            configurationService.save(new SaveRequest(ownerToken, repoName, entryKey, entryValue)))
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValue)))
         .block(TIMEOUT);
 
     StepVerifier.create(
             configurationService
-                .save(new SaveRequest(adminToken, repoName, entryKey, entryValue))
-                .then(configurationService.entries(new EntriesRequest(adminToken, repoName))))
+                .createEntry(
+                    new CreateOrUpdateEntryRequest(adminToken, repoName, entryKey, entryValue))
+                .then(configurationService.readList(new ReadListRequest(adminToken, repoName))))
         .assertNext(
             entries -> {
               assertEquals(1, entries.size(), "Entries in repository");
 
-              FetchResponse entry = entries.get(0);
+              ReadEntryResponse entry = entries.get(0);
               assertEquals(entryKey, entry.key(), "Saved entry key");
-              assertEquals(entryValue, entry.value(), "Saved entry value");
+              assertEquals(entryValue, parse(entry.value()), "Saved entry value");
             })
         .expectComplete()
         .verify();
@@ -223,15 +228,15 @@ final class SaveEntryTest extends BaseTest {
 
   @TestTemplate
   @DisplayName(
-      "#11 Successful save the specific entries applying the \"Owner\" API key for:\n"
+      "#11 Successful creation the specific entries applying the \"Owner\" API key for:\n"
           + "  - values that reach at least a 1000 chars (no quantity validation for input)\n"
           + "  - values which chars are symbols and spaces (no chars validation for input)")
-  void saveEntryWith1000charsAndSpecialSymbols(
+  void createEntryWith1000CharsAndSpecialSymbols(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String token = getApiKey(organizationService, orgId, Role.Owner).key();
+    String orgId = createOrganization(organizationService).id();
+    String token = createApiKey(organizationService, orgId, Role.Owner).key();
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
     ObjectNode entryValue =
         OBJECT_MAPPER
@@ -247,12 +252,14 @@ final class SaveEntryTest extends BaseTest {
 
     StepVerifier.create(
             configurationService
-                .save(new SaveRequest(token, repoName, entryKey, entryValue))
-                .then(configurationService.fetch(new FetchRequest(token, repoName, entryKey))))
+                .createEntry(new CreateOrUpdateEntryRequest(token, repoName, entryKey, entryValue))
+                .then(
+                    configurationService.readEntry(
+                        new ReadEntryRequest(token, repoName, entryKey))))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Saved entry key");
-              assertEquals(entryValue, entry.value(), "Saved entry value");
+              assertEquals(entryValue, parse(entry.value()), "Saved entry value");
             })
         .expectComplete()
         .verify();
@@ -260,14 +267,14 @@ final class SaveEntryTest extends BaseTest {
 
   @TestTemplate
   @DisplayName(
-      "#12 Fail to save a specific entry upon the restricted permission due to applying the \"Member\" API key")
-  void saveEntryByMember(
+      "#12 Fail to creation a specific entry upon the restricted permission due to applying the \"Member\" API key")
+  void createEntryByMember(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String ownerToken = getApiKey(organizationService, orgId, Role.Owner).key();
-    String memberToken = getApiKey(organizationService, orgId, Role.Member).key();
+    String orgId = createOrganization(organizationService).id();
+    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
+    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
     ObjectNode entryValue =
         OBJECT_MAPPER
@@ -282,24 +289,21 @@ final class SaveEntryTest extends BaseTest {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.save(new SaveRequest(memberToken, repoName, entryKey, entryValue)))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(AccessControlException.class, e.getClass());
-              assertEquals("Permission denied", e.getMessage());
-            })
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(memberToken, repoName, entryKey, entryValue)))
+        .expectErrorMessage("Permission denied")
         .verify();
   }
 
   @TestTemplate
   @DisplayName(
-      "#13 Fail to save (edit) the specific entry applying the \"Admin\" either \"Owner\" API key upon the specified Repository doesn't exist")
-  void saveEntryToNonExistingRepository(
+      "#13 Fail to create (edit) the specific entry applying the \"Admin\" either \"Owner\" API key upon the specified Repository doesn't exist")
+  void createEntryForNonExistingRepository(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String adminToken = getApiKey(organizationService, orgId, Role.Admin).key();
+    String orgId = createOrganization(organizationService).id();
+    String adminToken = createApiKey(organizationService, orgId, Role.Admin).key();
 
-    String nonExistingRepoName = "test-repo";
+    String nonExistingRepoName = "NON-EXISTING-REPO";
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
     ObjectNode entryValue =
         OBJECT_MAPPER
@@ -310,27 +314,23 @@ final class SaveEntryTest extends BaseTest {
             .put("Rounding", "down");
 
     StepVerifier.create(
-            configurationService.save(
-                new SaveRequest(adminToken, nonExistingRepoName, entryKey, entryValue)))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(RepositoryNotFoundException.class, e.getClass());
-              assertEquals(
-                  String.format("Repository '%s-%s' not found", orgId, nonExistingRepoName),
-                  e.getMessage());
-            })
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(
+                    adminToken, nonExistingRepoName, entryKey, entryValue)))
+        .expectErrorMessage(
+            String.format("Repository '%s-%s' not found", orgId, nonExistingRepoName))
         .verify();
   }
 
   @TestTemplate
   @DisplayName(
-      "#14 Fail to save (edit) the specific entry in the Repository upon the \"token\" is invalid (expired)")
-  void saveEntryUsingExpiredToken(
+      "#14 Fail to creation (edit) the specific entry in the Repository upon the \"apiKey\" is invalid (expired)")
+  void createEntryUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
+    String orgId = createOrganization(organizationService).id();
     String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
     ObjectNode entryValue =
         OBJECT_MAPPER
@@ -341,25 +341,22 @@ final class SaveEntryTest extends BaseTest {
             .put("Rounding", "down");
 
     StepVerifier.create(
-            configurationService.save(new SaveRequest(token, repoName, entryKey, entryValue)))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(InvalidAuthenticationToken.class, e.getClass());
-              assertEquals("Token verification failed", e.getMessage());
-            })
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(token, repoName, entryKey, entryValue)))
+        .expectErrorMessage("Token verification failed")
         .verify();
   }
 
   @TestTemplate
   @DisplayName(
-      "#15 Fail to save (edit) the specific entry in the Repository upon the Owner deleted the Organization with related \"Owner\" API key")
-  void saveEntryForDeletedOrganization(
+      "#15 Fail to create (edit) the specific entry in the Repository upon the Owner deleted the Organization with related \"Owner\" API key")
+  void createEntryForDeletedOrganization(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    String token = getApiKey(organizationService, orgId, Role.Owner).key();
+    String orgId = createOrganization(organizationService).id();
+    String token = createApiKey(organizationService, orgId, Role.Owner).key();
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
     ObjectNode entryValue =
         OBJECT_MAPPER
@@ -374,33 +371,30 @@ final class SaveEntryTest extends BaseTest {
         .block(TIMEOUT);
 
     organizationService
-        .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, "ORG-TEST"))
+        .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, orgId))
         .block(TIMEOUT);
 
-    TimeUnit.SECONDS.sleep(3);
+    TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
-            configurationService.save(new SaveRequest(token, repoName, entryKey, entryValue)))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(InvalidAuthenticationToken.class, e.getClass());
-              assertEquals("Token verification failed", e.getMessage());
-            })
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(token, repoName, entryKey, entryValue)))
+        .expectErrorMessage("Token verification failed")
         .verify();
   }
 
   @TestTemplate
   @DisplayName(
-      "#16 Fail to save (edit) the specific entry in the Repository upon the Owner applied some of the manager's API key from another Organization")
-  void saveEntryUsingTokenOfAnotherOrganization(
+      "#16 Fail to creation (edit) the specific entry in the Repository upon the Owner applied some of the manager's API key from another Organization")
+  void createEntryUsingTokenOfAnotherOrganization(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId1 = getOrganization(organizationService, ORGANIZATION_1).id();
-    String token1 = getApiKey(organizationService, orgId1, Role.Owner).key();
+    String orgId1 = createOrganization(organizationService).id();
+    String token1 = createApiKey(organizationService, orgId1, Role.Owner).key();
 
-    String orgId2 = getOrganization(organizationService, ORGANIZATION_2).id();
-    String token2 = getApiKey(organizationService, orgId2, Role.Admin).key();
+    String orgId2 = createOrganization(organizationService).id();
+    String token2 = createApiKey(organizationService, orgId2, Role.Admin).key();
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
     ObjectNode entryValue =
         OBJECT_MAPPER
@@ -415,26 +409,22 @@ final class SaveEntryTest extends BaseTest {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.save(new SaveRequest(token2, repoName, entryKey, entryValue)))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(RepositoryNotFoundException.class, e.getClass());
-              assertEquals(
-                  String.format("Repository '%s-%s' not found", orgId2, repoName), e.getMessage());
-            })
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(token2, repoName, entryKey, entryValue)))
+        .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId2, repoName))
         .verify();
   }
 
-  @Disabled("Feature is not implemented")
   @TestTemplate
   @DisplayName(
-      "#17 Fail to save (edit) the specific entry in the Repository upon the Owner \"token\" (API key) was deleted from the Organization")
-  void saveEntryUsingDeletedToken(
-      ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = getOrganization(organizationService, ORGANIZATION_1).id();
-    ApiKey token = getApiKey(organizationService, orgId, Role.Owner);
+      "#17 Fail to creation (edit) the specific entry in the Repository upon the Owner \"apiKey\" (API key) was deleted from the Organization")
+  void createEntryUsingDeletedToken(
+      ConfigurationService configurationService, OrganizationService organizationService)
+      throws InterruptedException {
+    String orgId = createOrganization(organizationService).id();
+    ApiKey token = createApiKey(organizationService, orgId, Role.Owner);
 
-    String repoName = "test-repo";
+    String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
     ObjectNode entryValue =
         OBJECT_MAPPER
@@ -445,7 +435,7 @@ final class SaveEntryTest extends BaseTest {
             .put("Rounding", "down");
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(token, repoName))
+        .createRepository(new CreateRepositoryRequest(token.key(), repoName))
         .block(TIMEOUT);
 
     organizationService
@@ -453,13 +443,12 @@ final class SaveEntryTest extends BaseTest {
             new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, token.name()))
         .block(TIMEOUT);
 
+    TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
+
     StepVerifier.create(
-            configurationService.save(new SaveRequest(token, repoName, entryKey, entryValue)))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(InvalidAuthenticationToken.class, e.getClass());
-              assertEquals("Token verification failed", e.getMessage());
-            })
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(token.key(), repoName, entryKey, entryValue)))
+        .expectErrorMessage("Token verification failed")
         .verify();
   }
 }

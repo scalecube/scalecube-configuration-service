@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class InMemoryConfigurationRepository implements ConfigurationRepository {
 
@@ -29,13 +30,18 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   }
 
   @Override
-  public Mono<Document> fetch(String tenant, String repository, String key) {
+  public Mono<Document> read(String tenant, String repository, String key, Integer version) {
     return get(new Repository(tenant, repository), key);
   }
 
   @Override
-  public Flux<Document> fetchAll(String tenant, String repository) {
+  public Flux<Document> readAll(String tenant, String repository, Integer version) {
     return entries(new Repository(tenant, repository));
+  }
+
+  @Override
+  public Flux<HistoryDocument> readHistory(String tenant, String repository, String key) {
+    throw new NotImplementedException();
   }
 
   @Override
@@ -48,6 +54,11 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
     return remove(new Repository(tenant, repository), key);
   }
 
+  @Override
+  public Mono<Document> update(String tenant, String repository, Document doc) {
+    throw new NotImplementedException();
+  }
+
   private Mono<Document> get(Repository repository, String key) {
     return Mono.justOrEmpty(getRepository(repository).get(key))
         .switchIfEmpty(
@@ -58,10 +69,7 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   }
 
   private Mono<Document> put(Repository repository, String key, Document value) {
-    return Mono.create(
-        sink -> {
-          sink.success(getRepository(repository).put(key, value));
-        });
+    return Mono.create(sink -> sink.success(getRepository(repository).put(key, value)));
   }
 
   private Mono<Void> remove(Repository repository, String key) {

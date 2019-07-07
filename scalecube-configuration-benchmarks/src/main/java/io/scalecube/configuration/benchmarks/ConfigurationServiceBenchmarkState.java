@@ -12,10 +12,11 @@ import io.scalecube.account.api.Token;
 import io.scalecube.benchmarks.BenchmarkSettings;
 import io.scalecube.benchmarks.BenchmarkState;
 import io.scalecube.configuration.api.ConfigurationService;
+import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
-import io.scalecube.configuration.api.SaveRequest;
 import io.scalecube.services.gateway.clientsdk.Client;
 import io.scalecube.services.gateway.clientsdk.ClientSettings;
+import io.scalecube.services.gateway.clientsdk.ClientSettings.Builder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -37,6 +38,7 @@ final class ConfigurationServiceBenchmarkState
   private final String gatewayHost;
   private final int gatewayPort;
   private final String gatewayProtocol;
+  private final boolean secure;
 
   private final AtomicReference<String> apiKey = new AtomicReference<>();
 
@@ -52,6 +54,7 @@ final class ConfigurationServiceBenchmarkState
     gatewayHost = String.valueOf(settings.find("gatewayHost", "localhost"));
     gatewayPort = Integer.valueOf(settings.find("gatewayPort", "7070"));
     gatewayProtocol = String.valueOf(settings.find("gatewayProtocol", "ws"));
+    secure = Boolean.valueOf(settings.find("secure", "false"));
   }
 
   @Override
@@ -81,12 +84,17 @@ final class ConfigurationServiceBenchmarkState
    * @return client.
    */
   public Client client() {
-    ClientSettings settings =
+    Builder settingsBuilder =
         ClientSettings.builder()
             .host(gatewayHost)
             .port(gatewayPort)
-            .loopResources(LoopResources.create("benchmark-client"))
-            .build();
+            .loopResources(LoopResources.create("benchmark-client"));
+
+    if (secure) {
+      settingsBuilder.secure();
+    }
+
+    ClientSettings settings = settingsBuilder.build();
 
     switch (gatewayProtocol.toLowerCase()) {
       case "ws":
@@ -160,7 +168,7 @@ final class ConfigurationServiceBenchmarkState
   private Mono<Void> saveConfigProperty(
       ConfigurationService configurationService, String apiKey, String key, JsonNode value) {
     return configurationService
-        .save(new SaveRequest(apiKey, "benchmarks-repo", key, value))
+        .createEntry(new CreateOrUpdateEntryRequest(apiKey, "benchmarks-repo", key, value))
         .doOnSuccess(response -> LOGGER.info("Config created: {}={}", key, value))
         .doOnError(th -> LOGGER.error("Config not created: ", th))
         .then();

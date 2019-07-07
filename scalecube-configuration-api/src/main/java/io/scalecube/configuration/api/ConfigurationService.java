@@ -10,17 +10,19 @@ import reactor.core.publisher.Mono;
  * service may save fetch list and delete entries from their store. read operations such as fetch
  * and listing requires read level permissions. write operations such as save and delete requires
  * write level operations. to verify the permissions each request to the configuration service
- * consists with a Token, this token is created and managed by the account service. the
- * configuration service validates the token with the account service.
+ * consists with a Token, this apiKey is created and managed by the account service. the
+ * configuration service validates the apiKey with the account service.
  */
 @Service("configuration")
 public interface ConfigurationService {
 
   String CONFIG_CREATE_REPO = "configuration/createRepository";
-  String CONFIG_FETCH = "configuration/fetch";
-  String CONFIG_ENTRIES = "configuration/entries";
-  String CONFIG_SAVE = "configuration/save";
-  String CONFIG_DELETE = "configuration/delete";
+  String CONFIG_READ_ENTRY = "configuration/readEntry";
+  String CONFIG_READ_ENTRY_HISTORY = "configuration/readEntryHistory";
+  String CONFIG_READ_LIST = "configuration/readList";
+  String CONFIG_CREATE_ENTRY = "configuration/createEntry";
+  String CONFIG_UPDATE_ENTRY = "configuration/updateEntry";
+  String CONFIG_DELETE_ENTRY = "configuration/deleteEntry";
 
   /**
    * Request to create a configuration repository and requires a write level permissions.
@@ -38,7 +40,7 @@ public interface ConfigurationService {
    * @return json object from the store.
    */
   @ServiceMethod
-  Mono<FetchResponse> fetch(FetchRequest request);
+  Mono<ReadEntryResponse> readEntry(ReadEntryRequest request);
 
   /**
    * Entries request requires read level permissions to list all entries objects from the store.
@@ -47,7 +49,16 @@ public interface ConfigurationService {
    * @return list of FetchResponses per each entry in the repository.
    */
   @ServiceMethod
-  Mono<List<FetchResponse>> entries(EntriesRequest request);
+  Mono<List<ReadEntryResponse>> readList(ReadListRequest request);
+
+  /**
+   * The request requires read level permissions to get entry object from the store.
+   *
+   * @param request includes the repository and key of the requested object.
+   * @return json object from the store.
+   */
+  @ServiceMethod
+  Mono<List<ReadEntryHistoryResponse>> readEntryHistory(ReadEntryHistoryRequest request);
 
   /**
    * Save request requires write level permissions to save (create or update) entry to the store.
@@ -56,7 +67,16 @@ public interface ConfigurationService {
    * @return acknowledgement when saved.
    */
   @ServiceMethod
-  Mono<Acknowledgment> save(SaveRequest request);
+  Mono<VersionAcknowledgment> createEntry(CreateOrUpdateEntryRequest request);
+
+  /**
+   * Update request requires write level permissions to update entry to the store.
+   *
+   * @param request includes the name of the repository, key, value to update.
+   * @return acknowledgement when updated.
+   */
+  @ServiceMethod
+  Mono<VersionAcknowledgment> updateEntry(CreateOrUpdateEntryRequest request);
 
   /**
    * delete request requires write level permissions to delete entry from the store.
@@ -65,5 +85,5 @@ public interface ConfigurationService {
    * @return acknowledgement when deleted.
    */
   @ServiceMethod
-  Mono<Acknowledgment> delete(DeleteRequest request);
+  Mono<Acknowledgment> deleteEntry(DeleteEntryRequest request);
 }

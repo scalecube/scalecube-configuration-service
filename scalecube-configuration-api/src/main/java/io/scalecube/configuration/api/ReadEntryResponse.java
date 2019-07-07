@@ -1,9 +1,7 @@
 package io.scalecube.configuration.api;
 
-/**
- * Represents a response to a fetch request.
- */
-public class FetchResponse {
+/** Represents a response to a fetch request. */
+public class ReadEntryResponse {
 
   private Object value;
   private String key;
@@ -13,8 +11,7 @@ public class FetchResponse {
    *
    * @deprecated only for serialization/deserialization.
    */
-  FetchResponse() {
-  }
+  ReadEntryResponse() {}
 
   /**
    * Constructs a fetch response object.
@@ -22,7 +19,7 @@ public class FetchResponse {
    * @param key fetch key
    * @param value fetch value
    */
-  public FetchResponse(String key, Object value) {
+  public ReadEntryResponse(String key, Object value) {
     this.value = value;
     this.key = key;
   }
@@ -37,7 +34,6 @@ public class FetchResponse {
 
   @Override
   public String toString() {
-    return "FetchResponse [value=" + value + ", key=" + key + "]";
+    return "ReadEntryResponse [value=" + value + ", key=" + key + "]";
   }
-
 }

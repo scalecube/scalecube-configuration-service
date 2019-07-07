@@ -1,10 +1,18 @@
 package io.scalecube.configuration.benchmarks;
 
+import com.couchbase.client.java.Bucket;
+import com.couchbase.client.java.bucket.BucketManager;
 import com.couchbase.client.java.cluster.DefaultBucketSettings;
 import com.couchbase.client.java.cluster.UserRole;
 import com.couchbase.client.java.cluster.UserSettings;
+import com.couchbase.client.java.document.JsonArrayDocument;
+import com.couchbase.client.java.document.json.JsonArray;
+import com.couchbase.client.java.view.DefaultView;
+import com.couchbase.client.java.view.DesignDocument;
+import com.couchbase.client.java.view.DesignDocument.Option;
 import com.github.dockerjava.api.model.PortBinding;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -93,6 +101,34 @@ final class Environment {
             .password(password)
             .roles(Collections.singletonList(new UserRole(BUCKET_FULL_ACCESS, configName))),
         true);
+
+    couchbaseInit(couchbase, configName);
+  }
+
+  private static void couchbaseInit(CouchbaseContainer couchbase, String bucketName) {
+    Bucket bucket = couchbase.getCouchbaseCluster().openBucket(bucketName, COUCHBASE_PASSWORD);
+
+    bucket.insert(JsonArrayDocument.create("repos", JsonArray.create()));
+
+    BucketManager bucketManager = bucket.bucketManager();
+
+    Map<Option, Long> options = new HashMap<>();
+    options.put(Option.UPDATE_MIN_CHANGES, 1L);
+
+    DesignDocument designDoc =
+        DesignDocument.create(
+            "keys",
+            Arrays.asList(
+                DefaultView.create(
+                    "by_keys",
+                    "function (doc, meta) { "
+                        + "  if (meta.id != 'repos') { "
+                        + "    emit(meta.id.substring(0, meta.id.lastIndexOf('::')), null);"
+                        + "  }"
+                        + "}")),
+            options);
+
+    bucketManager.insertDesignDocument(designDoc);
   }
 
   private void startVault() {
@@ -114,7 +150,7 @@ final class Environment {
 
   private void startGateway() {
     GenericContainer gateway =
-        new GenericContainer<>("scalecube/scalecube-services-gateway-runner:2.5.3")
+        new GenericContainer<>("scalecube/scalecube-services-gateway-runner:2.7.6")
             .withExposedPorts(WS_GATEWAY_PORT, HTTP_GATEWAY_PORT, RS_GATEWAY_PORT)
             .withNetwork(Network.SHARED)
             .withNetworkAliases(GATEWAY_NETWORK_ALIAS)
@@ -133,7 +169,7 @@ final class Environment {
   private void startOrganizationService(Map<String, String> env) {
     env.put("JAVA_OPTS", "-Dio.scalecube.organization.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801");
 
-    new GenericContainer<>("scalecube/scalecube-organization:latest")
+    new GenericContainer<>("scalecube/scalecube-organization:2.1.10")
         .withNetwork(Network.SHARED)
         .withNetworkAliases("scalecube-organization")
         .withCreateContainerCmdModifier(cmd -> cmd.withName("scalecube-organization"))

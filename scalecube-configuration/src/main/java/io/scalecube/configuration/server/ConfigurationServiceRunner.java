@@ -23,10 +23,11 @@ import io.scalecube.services.ServiceInfo;
 import io.scalecube.services.ServiceProvider;
 import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
-import io.scalecube.services.transport.rsocket.RSocketTransportResources;
+import java.time.Duration;
 import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Mono;
 
 public class ConfigurationServiceRunner {
 
@@ -48,7 +49,6 @@ public class ConfigurationServiceRunner {
 
     Microservices microservices =
         Microservices.builder()
-
             .discovery(
                 (serviceEndpoint) ->
                     new ScalecubeServiceDiscovery(serviceEndpoint)
@@ -60,9 +60,7 @@ public class ConfigurationServiceRunner {
                                     .memberPort(discoveryOptions.memberPort())))
             .transport(
                 opts ->
-                    opts.resources(RSocketTransportResources::new)
-                        .client(RSocketServiceTransport.INSTANCE::clientTransport)
-                        .server(RSocketServiceTransport.INSTANCE::serverTransport)
+                    opts.serviceTransport(RSocketServiceTransport::new)
                         .port(discoveryOptions.servicePort()))
             .services(createConfigurationService())
             .startAwait();
@@ -89,7 +87,7 @@ public class ConfigurationServiceRunner {
           new OrganizationServiceKeyProvider(organizationService);
 
       Authenticator authenticator =
-          new DefaultJwtAuthenticator(map -> keyProvider.get(map.get("kid").toString()).block());
+          new DefaultJwtAuthenticator(map -> keyProvider.get(map.get("kid").toString()));
 
       AccessControl accessControl =
           DefaultAccessControl.builder()
@@ -105,10 +103,13 @@ public class ConfigurationServiceRunner {
   }
 
   private static AsyncBucket couchbaseBucket(CouchbaseSettings settings) {
-    return CouchbaseCluster.create(settings.hosts())
-        .authenticate(settings.username(), settings.password())
-        .openBucket(settings.bucketName())
-        .async();
+    return Mono.fromCallable(() ->
+                CouchbaseCluster.create(settings.hosts())
+                    .authenticate(settings.username(), settings.password())
+                    .openBucket(settings.bucketName())
+                    .async())
+        .retryBackoff(3, Duration.ofSeconds(1))
+        .block(Duration.ofSeconds(30));
   }
 
   private static DiscoveryOptions discoveryOptions() {
