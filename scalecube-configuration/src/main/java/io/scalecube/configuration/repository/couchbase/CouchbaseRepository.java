@@ -86,7 +86,6 @@ public class CouchbaseRepository implements ConfigurationRepository {
                         "Key '%s' version '%s' not found",
                         key, version != null ? version : "latest")))
         .onErrorMap(CouchbaseExceptionTranslator::translateExceptionIfPossible)
-        .switchIfEmpty(Mono.just(new Document(key, null)))
         .map(value -> new Document(key, readJsonValue(value)));
   }
 
