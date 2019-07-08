@@ -98,10 +98,20 @@ public class CouchbaseRepository implements ConfigurationRepository {
 
   @Override
   public Flux<Document> readAll(String tenant, String repository, Integer version) {
-    return Flux.from(
+    return Mono.from(
             RxReactiveStreams.toPublisher(
-                bucket.query(
-                    ViewQuery.from("keys", "by_keys").key(tenant + DELIMITER + repository))))
+                bucket.setContains(REPOS, tenant + DELIMITER + repository)))
+        .filter(isRepoExists -> isRepoExists)
+        .switchIfEmpty(
+            Mono.error(
+                () ->
+                    new RepositoryNotFoundException(
+                        String.format(REPOSITORY_NOT_FOUND, tenant, repository))))
+        .thenMany(
+            Flux.from(
+                RxReactiveStreams.toPublisher(
+                    bucket.query(
+                        ViewQuery.from("keys", "by_keys").key(tenant + DELIMITER + repository)))))
         .flatMap(asyncViewResult -> RxReactiveStreams.toPublisher(asyncViewResult.rows()))
         .flatMap(
             asyncViewRow ->
