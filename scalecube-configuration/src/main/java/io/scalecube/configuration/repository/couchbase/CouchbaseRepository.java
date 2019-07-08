@@ -32,7 +32,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
 
   private static final String REPOSITORY_ALREADY_EXISTS =
       "Repository with name: '%s' already exists";
-  private static final String REPOSITORY_NOT_FOUND = "Repository '%s-%s' not found";
+  private static final String REPOSITORY_NOT_FOUND = "Repository '%s' not found";
 
   private static final String DELIMITER = "::";
 
@@ -99,7 +99,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
             Mono.error(
                 () ->
                     new RepositoryNotFoundException(
-                        String.format(REPOSITORY_NOT_FOUND, tenant, repository))))
+                        String.format(REPOSITORY_NOT_FOUND, repository))))
         .thenMany(
             Flux.from(
                 RxReactiveStreams.toPublisher(
@@ -150,7 +150,7 @@ public class CouchbaseRepository implements ConfigurationRepository {
             Mono.error(
                 () ->
                     new RepositoryNotFoundException(
-                        String.format(REPOSITORY_NOT_FOUND, tenant, repository))))
+                        String.format(REPOSITORY_NOT_FOUND, repository))))
         .then(
             Mono.from(
                 RxReactiveStreams.toPublisher(
