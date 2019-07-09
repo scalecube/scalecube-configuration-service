@@ -20,110 +20,75 @@ Feature: Integration tests for configuration service - createEntry.
 
   #9
   Scenario: Successful entry creation applying the "Owner" API key
-    When the user requested to createEntry in the relevant repository name "Repo-1" with following details
-      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
-      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
+    When the user requested to createEntry in the relevant repository with following details
+      | apiKey      | repository | key                        | instrumentId | name   | DecimalPrecision | Rounding |
+      | Owner-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | XAG          | Silver | 4                | down     |
     Then new entry should be stored in the relevant "repository"
-    And the user should get the successful response with the "empty" object
-
+    And the user should get the successful response with fixed version for each new key-entry
+      | version |
+      | 1       |
 
   #10
-  Scenario: Successful save the identical entries for different Repositories applying the "Admin" API key
-    Given  the "repositories" with "specified" names "Repo-1" and "Repo-2" already created  without any entry
-    And the user have been granted with valid "token" (API key) assigned by "Admin" role
-    When this user requested to save the following specified entry in repository with name "Repo-1"
-      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
-      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
-    And this user requested to save the following specified entry in repository with name "Repo-2"
-      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
-      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
-    Then both identical entries should be stored in the relevant repositories "Repo-1" and "Repo-2"
-    And for the each request user should get the successful response with the "empty" object
+  Scenario: Successful creation of identical entries for different Repositories applying the "Owner" and Admin" API keys
+    When the user requested to createEntry the following specified entries in the separate repositories
+      | apiKey      | repository | key             | instrumentId | name   | DecimalPrecision | Rounding |
+      | Owner-Org-1 | Repo-1     | PRECIOUS-METALS | XAG          | Silver | 4                | down     |
+      | Admin-Org-2 | Repo-2     | PRECIOUS-METALS | XAG          | Silver | 4                | down     |
+    Then new entries should be stored in the relevant repositories "Repo-1" and "Repo-2"
+    And for each request user should get the successful response with fixed version for each new key-entry
+      | version |
+      | 1       |
 
 
   #11
-  Scenario: Successful update (save/override - edit) one of the identical entries in the different Repositories applying the "Owner" API key
-    Given the repository with "specified" name "Repo-1" already created with following entry
-      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
-      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
-    And the repository with "specified" name "Repo-2" already created with following entry
-      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
-      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
-    And the user have been granted with valid "token" (API key) assigned by "Owner" role
-    When this user requested to update (save) one from identical entries in the repository with name "Repo-1" setting following details
-      | instrumentId | name     | DecimalPrecision | Rounding | key                        |
-      | XPT          | Platinum | 2                | up       | KEY-FOR-PRECIOUS-METAL-123 |
-    Then new entry should be set to the given "key" and stored in the relevant repository with name "Repo-1"
-    And the user should get the successful response with the "empty" object
-    But existent entry in the repository name with name "Repo-2" shouldn't be updated
-
-
-  #12
-  Scenario: No change for the successful update (save/override - edit) of the existing entry with the same values applying the "Admin" API key
-    Given the specified name "repository" was created  with following entry
-      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
-      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
-    And the user have been granted with valid "token" (API key) assigned by "Admin" role
-    When this user requested to update (save) the existent entry in the relevant "repository" with the same values
-      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
-      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
-    Then existent entry shouldn't be duplicated thus new values should be set to the given key and stored in the relevant "repository"
-    And the user should get the successful response with the "empty" object
-
-
-  #13
-  Scenario: Successful update (save/override - edit) of the existing entry with empty or undefined (null) value which is set by specified key
-    Given the specified name "repository" was created with following entries
-      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
-      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
-      | JPY          | Yen    | 4                | down     | KEY-FOR-CURRENCY-999       |
-    And the user have been granted with valid "token" (API key) assigned by "Owner" role
-    When this user requested to update (save) the existent entries in the relevant "repository" with empty and undefined values
-      | value | key                        |
-      |       | KEY-FOR-PRECIOUS-METAL-123 |
-      | null  | KEY-FOR-CURRENCY-999       |
-    Then the related entries which are set to the related key should be set to the given key
-    And for each request user should get the successful response with the "empty" object
-    And this user requested to get all recently updated entries to verify that keys and values weren't deleted
-    Then the user should get all the entries stored in the related "repository"
-      | value | key                        |
-      |       | KEY-FOR-PRECIOUS-METAL-123 |
-      | null  | KEY-FOR-CURRENCY-999       |
-
-
-  #14
-  Scenario: Successful save the specific entries applying the "Owner" API key for:
-  - values that reach at least a 1000 chars (no quantity validation for input)
-  - values which chars are symbols and spaces (no chars validation for input)
-    Given the specified name "repository" was created  without any stored entry
-    And the user have been granted with valid "token" (API key) assigned by "Owner" role
+  Scenario: Successful entry creation (no quantity validation for input) enabling to save:
+  - values that reach at least a 1000 chars
+  - values which chars are symbols and spaces
     When this user requested to save the entries in the relevant specified name "repository" with following details
-      | instrumentId                                                                         | name        | DecimalPrecision | Rounding    | key                        |
-      | XPTTTTTTTTTTTTTTTTTTTTTXPTTTTTTTTTTTTTTTTTTTTTTTXPTTTTTTTTTTTTTTTTTTTTTTTXPTTTTT.... | Platinum    | 5                | up          | KEY-FOR-PRECIOUS-METAL-123 |
-      | #!=`   ~/.*                                                                          | #!=   `~/.* | #!=`   ~/.*      | #!=`~   /.* | KEY-FOR-PRECIOUS-METAL-124 |
-    Then new entries should be stored in the relevant "repository"
-    And for each request the user should get the successful response with the "empty" object
+      | apiKey      | repository | key         | instrumentId                                   | name                                  | DecimalPrecision       |
+      | Owner-Org-1 | Repo-1     | someChars   | XPTTTTTTTTTTTTTTTTTXPTTTTTTTTT....>=1000 chars | Silvergskjfhsksuhff......>=1000 chars | 4444444...>=1000 chars |
+      | Admin-Org-1 | Repo-1     | someSymbols | #!=`   ~/.*                                    | #!=   `~/.*                           | #!=`   ~/.*            |
+    Then new entries should be stored in the relevant repository "Repo-1"
+    And for each request user should get the successful response with fixed version for each new key-entry
+      | version |
+      | 1       |
 
 
   #__________________________________________________NEGATIVE___________________________________________________________
 
 
-  #15
-  Scenario: Fail to save a specific entry upon the restricted permission due to applying the "Member" API key
-    Given the specified name "repository" was created  without any stored entry
-    And the user have been granted with valid "token" (API key) assigned by "Member" role
-    When this user requested to save the entries in the relevant specified name "repository" with following details
-      | instrumentId | name | DecimalPrecision | Rounding | key                  |
-      | JPY          | Yen  | 4                | down     | KEY-FOR-CURRENCY-999 |
-    Then this new entry shouldn't be created and the user should get the "errorMessage":"Permission denied"
+  #12
+  Scenario: Fail to createEntry due to restricted permission upon the "Member" API key was applied
+    When the user requested to createEntry in the relevant repository with following details
+      | apiKey       | repository | key                  | instrumentId | name | DecimalPrecision | Rounding |
+      | Member-Org-1 | Repo-1     | KEY-FOR-CURRENCY-999 | JPY          | Yen  | 4                | down     |
+    Then the user should get following error
+      | errorCode | errorMessage      |
+      | 500       | Permission denied |
 
+  #13
+  Scenario: Fail to createEntry due to Key name duplication
+    Given following entry was successfully saved in the related repository
+      | repository | key                        | instrumentId | name   | DecimalPrecision | Rounding |
+      | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | XAG          | Silver | 4                | down     |
+    When the user requested to createEntry in the relevant repository with the same Ket name
+      | apiKey      | repository | key                        | instrumentId | name | DecimalPrecision | Rounding |
+      | Owner-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | XAU          | Gold | 4                | down     |
+    Then the user should get following error
+      | errorCode | errorMessage                                                        |
+      | 500       | Repository 'Repo-1' key 'KEY-FOR-PRECIOUS-METAL-123' already exists |
 
   #16
-  Scenario: Fail to save (edit) the specific entry applying the "Admin" either "Owner" API key upon the specified Repository doesn't exist
-    Given there is no "repository" was created
-    And the user have been granted with valid "token" (API key) assigned by "Owner" role
-    When this user requested to save the entry (key and value) to non-existent "repository" specified name
-    Then the user should get the "errorMessage":"repository: 'Name' not found"
+  Scenario: Fail to createEntry due to specified Repository doesn't exist
+    When this user requested to save the entry (key and value) to  specified name
+    When the user requested to createEntry in the "non-existent" repository
+      | apiKey      | repository   | key     | instrumentId | name | DecimalPrecision | Rounding |
+      | Owner-Org-1 | non-existent | new-key | JPY          | Yen  | 4                | down     |
+    Then the user should get following error
+      | errorCode | errorMessage                        |
+      | 500       | Repository 'non-existent' not found |
+
+
 
 
   #17

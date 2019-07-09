@@ -10,34 +10,6 @@ Feature: Integration tests for configuration service - SAVE/UPDATE.
 
 
 
-  #SAVE (UPDATE/EDIT) THE ENTRY IN THE REPO
-
-  #__________________________________________________POSITIVE___________________________________________________________
-
-
-  #MPA-8092 (#7)
-  Scenario: Successful save of specific entry (instrument) applying the "Owner" API key
-    Given the specified name "repository" was created
-    And the user have been granted with valid "token" (API key) assigned by "Owner" role
-    When this user requested to save the specified entry in the relevant "repository" specified name with following details
-      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
-      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
-    Then all new entries should be stored in the relevant "repository"
-    And the user should get the successful response with the "empty" object
-
-
-  #MPA-8092 (#8)
-  Scenario: Successful save the identical entries for different Repositories applying the "Admin" API key
-    Given  the "repositories" with "specified" names "Repo-1" and "Repo-2" already created  without any entry
-    And the user have been granted with valid "token" (API key) assigned by "Admin" role
-    When this user requested to save the following specified entry in repository with name "Repo-1"
-      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
-      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
-    And this user requested to save the following specified entry in repository with name "Repo-2"
-      | instrumentId | name   | DecimalPrecision | Rounding | key                        |
-      | XAG          | Silver | 4                | down     | KEY-FOR-PRECIOUS-METAL-123 |
-    Then both identical entries should be stored in the relevant repositories "Repo-1" and "Repo-2"
-    And for the each request user should get the successful response with the "empty" object
 
 
   #MPA-8092 (#9)
