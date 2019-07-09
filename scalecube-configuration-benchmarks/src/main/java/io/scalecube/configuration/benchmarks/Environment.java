@@ -114,6 +114,7 @@ final class Environment {
 
     Map<Option, Long> options = new HashMap<>();
     options.put(Option.UPDATE_MIN_CHANGES, 1L);
+    options.put(Option.REPLICA_UPDATE_MIN_CHANGES, 1L);
 
     DesignDocument designDoc =
         DesignDocument.create(
