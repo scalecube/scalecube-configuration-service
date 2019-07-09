@@ -21,8 +21,8 @@ Feature: Integration tests for configuration service - createEntry.
   #9
   Scenario: Successful entry creation applying the "Owner" API key
     When the user requested to createEntry in the relevant repository with following details
-      | apiKey      | repository | key                        | instrumentId | name   | DecimalPrecision | Rounding |
-      | Owner-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | XAG          | Silver | 4                | down     |
+      | apiKey      | repository | key                        | value | instrumentId | name   | DecimalPrecision | Rounding |
+      | Owner-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 |       | XAG          | Silver | 4                | down     |
     Then new entry should be stored in the relevant "repository"
     And the user should get the successful response with fixed version for each new key-entry
       | version |
@@ -31,9 +31,9 @@ Feature: Integration tests for configuration service - createEntry.
   #10
   Scenario: Successful creation of identical entries for different Repositories applying the "Owner" and Admin" API keys
     When the user requested to createEntry the following specified entries in the separate repositories
-      | apiKey      | repository | key             | instrumentId | name   | DecimalPrecision | Rounding |
-      | Owner-Org-1 | Repo-1     | PRECIOUS-METALS | XAG          | Silver | 4                | down     |
-      | Admin-Org-2 | Repo-2     | PRECIOUS-METALS | XAG          | Silver | 4                | down     |
+      | apiKey      | repository | key             | value | instrumentId | name   | DecimalPrecision | Rounding |
+      | Owner-Org-1 | Repo-1     | PRECIOUS-METALS |       | XAG          | Silver | 4                | down     |
+      | Admin-Org-2 | Repo-2     | PRECIOUS-METALS |       | AG           | Silver | 4                | down     |
     Then new entries should be stored in the relevant repositories "Repo-1" and "Repo-2"
     And for each request user should get the successful response with fixed version for each new key-entry
       | version |
@@ -41,13 +41,23 @@ Feature: Integration tests for configuration service - createEntry.
 
 
   #11
-  Scenario: Successful entry creation (no quantity validation for input) enabling to save:
+  Scenario: Successful entry creation (no validation for input) enabling to save following values:
   - values that reach at least a 1000 chars
   - values which chars are symbols and spaces
-    When this user requested to save the entries in the relevant specified name "repository" with following details
-      | apiKey      | repository | key         | instrumentId                                   | name                                  | DecimalPrecision       |
-      | Owner-Org-1 | Repo-1     | someChars   | XPTTTTTTTTTTTTTTTTTXPTTTTTTTTT....>=1000 chars | Silvergskjfhsksuhff......>=1000 chars | 4444444...>=1000 chars |
-      | Admin-Org-1 | Repo-1     | someSymbols | #!=`   ~/.*                                    | #!=   `~/.*                           | #!=`   ~/.*            |
+  - JsonArray
+  - null / empty string
+    When the user requested to createEntry in the relevant repository with following details
+      | apiKey      | repository | key         | value | instrumentId                                   | name                                  | DecimalPrecision       |
+      | Owner-Org-1 | Repo-1     | someChars   |       | XPTTTTTTTTTTTTTTTTTXPTTTTTTTTT....>=1000 chars | Silvergskjfhsksuhff......>=1000 chars | 4444444...>=1000 chars |
+      | Admin-Org-1 | Repo-1     | someSymbols |       | #!=`   ~/.*                                    | #!=   `~/.*                           | #!=`   ~/.*            |
+      | Owner-Org-1 | Repo-1     | Int         | 1     | ---                                            | ---                                   | ---                    |
+      | Admin-Org-1 | Repo-1     | blankJson   | {}    | ---                                            | ---                                   | ---                    |
+      | Owner-Org-1 | Repo-1     | JsonArray   | []    | ---                                            | ---                                   | ---                    |
+      | Admin-Org-1 | Repo-1     | undefined   | null  | ---                                            | ---                                   | ---                    |
+      | Owner-Org-1 | Repo-1     | empty       |       | ---                                            | ---                                   | ---                    |
+    And the user requested to createEntry in the relevant repository without "value" key at all
+      | apiKey      | repository | key   |
+      | Admin-Org-1 | Repo-1     | empty |
     Then new entries should be stored in the relevant repository "Repo-1"
     And for each request user should get the successful response with fixed version for each new key-entry
       | version |
@@ -60,116 +70,105 @@ Feature: Integration tests for configuration service - createEntry.
   #12
   Scenario: Fail to createEntry due to restricted permission upon the "Member" API key was applied
     When the user requested to createEntry in the relevant repository with following details
-      | apiKey       | repository | key                  | instrumentId | name | DecimalPrecision | Rounding |
-      | Member-Org-1 | Repo-1     | KEY-FOR-CURRENCY-999 | JPY          | Yen  | 4                | down     |
+      | apiKey       | repository | key                  | value | instrumentId | name | DecimalPrecision | Rounding |
+      | Member-Org-1 | Repo-1     | KEY-FOR-CURRENCY-999 |       | JPY          | Yen  | 4                | down     |
     Then the user should get following error
       | errorCode | errorMessage      |
       | 500       | Permission denied |
 
+
   #13
   Scenario: Fail to createEntry due to Key name duplication
     Given following entry was successfully saved in the related repository
-      | repository | key                        | instrumentId | name   | DecimalPrecision | Rounding |
-      | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | XAG          | Silver | 4                | down     |
+      | repository | key                        | value | instrumentId | name   | DecimalPrecision | Rounding |
+      | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 |       | XAG          | Silver | 4                | down     |
     When the user requested to createEntry in the relevant repository with the same Ket name
-      | apiKey      | repository | key                        | instrumentId | name | DecimalPrecision | Rounding |
-      | Owner-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | XAU          | Gold | 4                | down     |
+      | apiKey      | repository | key                        | value | instrumentId | name | DecimalPrecision | Rounding |
+      | Owner-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 |       | XAU          | Gold | 4                | down     |
     Then the user should get following error
       | errorCode | errorMessage                                                        |
       | 500       | Repository 'Repo-1' key 'KEY-FOR-PRECIOUS-METAL-123' already exists |
 
-  #16
+
+  #14
   Scenario: Fail to createEntry due to specified Repository doesn't exist
-    When this user requested to save the entry (key and value) to  specified name
     When the user requested to createEntry in the "non-existent" repository
-      | apiKey      | repository   | key     | instrumentId | name | DecimalPrecision | Rounding |
-      | Owner-Org-1 | non-existent | new-key | JPY          | Yen  | 4                | down     |
+      | apiKey      | repository   | key     | value |
+      | Owner-Org-1 | non-existent | new-key |       |
     Then the user should get following error
       | errorCode | errorMessage                        |
       | 500       | Repository 'non-existent' not found |
 
 
+  #15
+  Scenario: Fail to createEntry upon the Owner deleted the "Organization"
+    Given the related organization Owner has deleted organization name "Org-2"
+    When the user requested to createEntry applying "Owner" apiKey from the deleted organization "Org-2"
+      | apiKey      | repository | key     | value |
+      | Owner-Org-2 | Repo-2     | new-key |       |
+    Then the user should get following error
+      | errorCode | errorMessage              |
+      | 500       | Token verification failed |
+
+
+  #16
+  Scenario: Fail to createEntry upon the "Admin" apiKey was deleted from the Organization
+    Given organization "Org-1" Owner has deleted the relevant "Admin" apiKey from it
+    When the user requested to createEntry applying the deleted "Admin" apiKey from organization "Org-1"
+      | apiKey      | repository | key     | value |
+      | Admin-Org-1 | Repo-1     | new-key |       |
+    Then the user should get following error
+      | errorCode | errorMessage              |
+      | 500       | Token verification failed |
 
 
   #17
-  Scenario: Fail to save (edit) the specific entry in the Repository upon the "token" is invalid (expired)
-    Given a user have got an invalid "token" (API key)
-    When this user requested to save some entry in the some specified name "repository"
-    Then no entry shouldn't be created and the user should get the "errorMessage": "Token verification failed"
+  Scenario: Fail to createEntry due to invalid apiKey was applied
+    When the user requested to createEntry applying the "invalid" apiKey
+      | apiKey  | repository | key     | value |
+      | invalid | Repo-3     | new-key |       |
+    Then the user should get following error
+      | errorCode | errorMessage              |
+      | 500       | Token verification failed |
 
 
   #18
-  Scenario: Fail to save (edit) the specific entry in the Repository upon the Owner deleted the Organization with related "Owner" API key
-    Given an organization "organizationId" with specified "name" and "email" already created with related "Owner" API key which is stored there
-    And the specified name "repository" was created  without any stored entry applying the related "Owner" API key
-    And the related organization "Owner" has deleted this organization "organizationId"
-    When the user requested to save some entry in the relevant specified name "repository" applying this deleted "Owner" API key
-    Then no entry shouldn't be recorded to the relevant name "repository"
-    And the user should get the "errorMessage": "Token verification failed"
+  Scenario: Fail to createEntry with empty or undefined Repository name
+    When the user requested to createEntry without specifying repository name
+      | apiKey      | repository | key     | value |
+      | Owner-Org-1 |            | new-key |       |
+      | Owner-Org-1 | null       | new-key |       |
+    And the user requested to createEntry without "repository" key name at all
+      | apiKey      |
+      | Owner-Org-1 |
+    Then for each request user should get following error
+      | errorCode | errorMessage                |
+      | 500       | Please specify 'repository' |
 
 
   #19
-  Scenario: Fail to save (edit) the specific entry in the Repository upon the Owner applied some of the manager's API key from another Organization
-    Given the organizations "organizationId" with specified names "Org-1" and "Org-2" and emails already created
-    And related "Owner" API key was stored in the organization with specified name "Org-1"
-    And related "Admin" API key was stored in the organization with specified name "Org-2"
-    And "repository" with specified name "Repo-1" was created  by applying related "Owner" API key
-    When the user requested to save some entry in the "repository" name "Repo-1" applying the "Admin" API key from organization with name "Org-2"
-    Then no entry shouldn't be recorded to the relevant "repository" name "Repo-1"
-    And the user should get the "errorMessage":"repository:'Name' not found"
+  Scenario: Fail to createEntry with empty or undefined apiKey
+    When the user requested to createEntry without specifying the apiKey
+      | apiKey | repository | key     | value |
+      |        | Repo-3     | new-key |       |
+      | null   | Repo-3     | new-key |       |
+    And the user requested to createEntry without "apiKey" at all
+      | repository | key     | value |
+      | Repo-3     | new-key |       |
+    Then for each request user should get following error
+      | errorCode | errorMessage            |
+      | 500       | Please specify 'apiKey' |
 
 
   #20
-  Scenario: Fail to save (edit) the specific entry in the Repository upon the Owner "token" (API key) was deleted from the Organization
-    Given an organization "organizationId" with specified "name" and "email" already created with related "Owner" API key which is stored there
-    And the specified name "repository" was created  without any stored entry by applying related "Owner" API key
-    And the related organization "Owner" has deleted the relevant "Owner" API key from the organization "organizationId"
-    When the user requested to save some entry in the relevant specified name "repository" applying this deleted "Owner" API key
-    Then no entry should be stored in the related repository
-    And the user should get an error message: "Token verification failed"
-
-
-  #21
-  Scenario: Fail to save/update the entry upon the related key is empty or undefined (null)
-    Given the specified name "repository" was created without any entries
-    And the user have been granted with valid "token" (API key) assigned by "Admin" role
-    When this user requested to save some entries in the relevant "repository" with empty and undefined keys
-      | value | key  | repository |
-      | XAG   |      | repository |
-      | JPY   | null | repository |
-    Then no entry should be stored in the related repository
-    And for each request the user should get an error message: "Please specify a key name"
-
-
-  #22
-  Scenario: Fail to save/update the entry upon the repository name is empty or undefined (null)
-    Given no "repository" was created
-    And the user have been granted with valid "token" (API key) assigned by "Admin" role
-    When this user requested to save some entries in the some "repository" with empty and undefined name
-      | value | key      | repository |
-      | XAG   | metal    |            |
-      | JPY   | currency | null       |
-    Then no entry should be stored
-    And for each request the user should get an error message: "Please specify a Repository name"
-
-
-  #23
-  Scenario: Fail to save/update the entry upon the related "key" name is missed
-    Given the specified name "repository" was created without any entries
-    And the user have been granted with valid "token" (API key) assigned by "Owner" role
-    When this user requested to save an entry in the relevant "repository" without related "key" at all
-      | value | repository |
-      | XAG   | repository |
-    Then no entry should be stored in the related repository
-    And the user should get an error message: "Please specify a key name"
-
-
-  #24
-  Scenario: Fail to save/update the entry upon the "repository" key is missed
-    Given no "repository" was created
-    And the user have been granted with valid "token" (API key) assigned by "Admin" role
-    When this user requested to save an entry without related "repository" key at all
-      | value | key   |
-      | XAG   | metal |
-    Then no entry should be stored
-    And the user should get an error message: "Please specify a Repository name"
+  Scenario: Fail to createEntry with empty or undefined Key field
+    When the user requested to createEntry without specifying repository name
+      | apiKey      | repository | key  | value |
+      | Owner-Org-1 | Repo-3     |      |       |
+      | Owner-Org-1 | Repo-3     | null |       |
+    And the user requested to createEntry without "key" field at all
+      | apiKey      | repository | value |
+      | Owner-Org-1 | Repo-3     |       |
+    Then for each request user should get following error
+      | errorCode | errorMessage         |
+      | 500       | Please specify 'key' |

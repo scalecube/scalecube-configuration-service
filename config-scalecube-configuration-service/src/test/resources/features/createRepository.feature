@@ -60,16 +60,20 @@ Feature: Integration tests for configuration service - createRepository.
 
 
   #5
-  Scenario: Fail to create the Repository upon the Owner deleted the Organization
+  Scenario: Fail to create the Repository upon the Owner deleted the "Organization"
     Given the related organization Owner has deleted organization name "Org-2"
-    When the user requested to create the "repository" with "specified" name applying the "Owner" apiKey from deleted Organization
-    Then the user should get an error message: "Token verification failed"
+    When the user requested to create repository applying "Owner" apiKey from the deleted organization "Org-2"
+      | apiKey      | repository |
+      | Owner-Org-2 | Repo-3     |
+    Then the user should get following error
+      | errorCode | errorMessage              |
+      | 500       | Token verification failed |
 
 
   #6
-  Scenario: Fail to create the Repository upon the Owner apiKey was deleted from the Organization
+  Scenario: Fail to create the Repository upon the "Owner" apiKey was deleted from the Organization
     Given organization "Org-1" Owner has deleted the relevant "Owner" apiKey from it
-    When the user requested to create repository applying "Owner" apiKey from organization "Org-2"
+    When the user requested to create repository applying the deleted "Owner" apiKey from organization "Org-1"
       | apiKey      | repository |
       | Owner-Org-1 | Repo-3     |
     Then the user should get following error
@@ -78,12 +82,22 @@ Feature: Integration tests for configuration service - createRepository.
 
 
   #7
+  Scenario: Fail to create the Repository due to invalid apiKey was applied
+    When the user requested to createRepository applying the "invalid" apiKey
+      | apiKey  | repository |
+      | invalid | Repo-3     |
+    Then the user should get following error
+      | errorCode | errorMessage              |
+      | 500       | Token verification failed |
+
+
+  #8
   Scenario: Fail to create Repository with empty or undefined name
-    When the user requested to create the "repository" without specifying its name
+    When the user requested to createRepository without specifying its name
       | apiKey      | repository |
       | Owner-Org-1 |            |
       | Owner-Org-1 | null       |
-    And the user requested to create the "repository" without "repository" key name at all
+    And the user requested to createRepository without "repository" key name at all
       | apiKey      |
       | Owner-Org-1 |
     Then for each request user should get following error
@@ -91,13 +105,13 @@ Feature: Integration tests for configuration service - createRepository.
       | 500       | Please specify 'repository' |
 
 
-  #8
+  #9
   Scenario: Fail to create Repository with empty or undefined apiKey
-    When the user requested to create the "repository" without specifying the apiKey
+    When the user requested to createRepository without specifying the apiKey
       | apiKey | repository |
       |        | Repo-3     |
       | null   | Repo-3     |
-    And the user requested to create the "repository" without "apiKey" at all
+    And the user requested to createRepository without "apiKey" key at all
       | repository |
       | Repo-3     |
     Then for each request user should get following error
