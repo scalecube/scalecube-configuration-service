@@ -69,10 +69,20 @@ public class CouchbaseRepository implements ConfigurationRepository {
   public Mono<Document> read(String tenant, String repository, String key, Integer version) {
     return Mono.from(
             RxReactiveStreams.toPublisher(
-                bucket.listGet(
-                    docId(tenant, repository, key),
-                    version != null ? version - 1 : DEFAULT_LATEST_VERSION,
-                    Object.class)))
+                bucket.setContains(REPOS, tenant + DELIMITER + repository)))
+        .filter(isRepoExists -> isRepoExists)
+        .switchIfEmpty(
+            Mono.error(
+                () ->
+                    new RepositoryNotFoundException(
+                        String.format(REPOSITORY_NOT_FOUND, repository))))
+        .then(
+            Mono.from(
+                RxReactiveStreams.toPublisher(
+                    bucket.listGet(
+                        docId(tenant, repository, key),
+                        version != null ? version - 1 : DEFAULT_LATEST_VERSION,
+                        Object.class))))
         .onErrorMap(
             DocumentDoesNotExistException.class,
             e ->
@@ -122,7 +132,17 @@ public class CouchbaseRepository implements ConfigurationRepository {
     AtomicInteger currentVersion = new AtomicInteger(0);
     return Mono.from(
             RxReactiveStreams.toPublisher(
-                bucket.get(docId(tenant, repository, key), JsonArrayDocument.class)))
+                bucket.setContains(REPOS, tenant + DELIMITER + repository)))
+        .filter(isRepoExists -> isRepoExists)
+        .switchIfEmpty(
+            Mono.error(
+                () ->
+                    new RepositoryNotFoundException(
+                        String.format(REPOSITORY_NOT_FOUND, repository))))
+        .then(
+            Mono.from(
+                RxReactiveStreams.toPublisher(
+                    bucket.get(docId(tenant, repository, key), JsonArrayDocument.class))))
         .switchIfEmpty(
             Mono.error(
                 () ->
@@ -176,7 +196,18 @@ public class CouchbaseRepository implements ConfigurationRepository {
   public Mono<Document> update(String tenant, String repository, Document document) {
     return Mono.from(
             RxReactiveStreams.toPublisher(
-                bucket.listAppend(docId(tenant, repository, document.key()), document.value())))
+                bucket.setContains(REPOS, tenant + DELIMITER + repository)))
+        .filter(isRepoExists -> isRepoExists)
+        .switchIfEmpty(
+            Mono.error(
+                () ->
+                    new RepositoryNotFoundException(
+                        String.format(REPOSITORY_NOT_FOUND, repository))))
+        .then(
+            Mono.from(
+                RxReactiveStreams.toPublisher(
+                    bucket.listAppend(
+                        docId(tenant, repository, document.key()), document.value()))))
         .filter(isUpdated -> isUpdated)
         .switchIfEmpty(
             Mono.error(
