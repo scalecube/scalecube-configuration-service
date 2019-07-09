@@ -5,12 +5,17 @@ Feature: Integration tests for configuration service - createEntry.
   Only the managers with "Owner" and "Admin" API keys roles should be able to save the specific entries in the related Repository.
 
 
-  Background: repositories are stored in the system and having apiKeys
-    Given the "repositories" with specified names "Repo-1" and "Repo-2" already created without any entry
-    And organizations with specified names "Org-1" and "Org-2" already created
+  Background: empty repositories are stored in the system and having apiKeys
+    Given organizations with specified names "Org-1" and "Org-2" already created
     And related apiKeys with "Owner", "Admin" and "Member" roles are stored in Organization "Org-1"
-    And related apiKeys with "Owner", "Admin" and "Member" roles are stored in Organization "Org-2"
-    And repositories with "specified" names "Repo-1" and "Repo-2" already created  without any entry
+      | apiKey       |
+      | Owner-Org-1  |
+      | Admin-Org-1  |
+      | Member-Org-1 |
+    And related "Owner" apiKey is stored in Organization "Org-2"
+      | apiKey      |
+      | Owner-Org-2 |
+    And the repositories with names "Repo-1" and "Repo-2" already created without any entry
 
 
   #CREATE ENTRY
@@ -29,11 +34,11 @@ Feature: Integration tests for configuration service - createEntry.
       | 1       |
 
   #10
-  Scenario: Successful creation of identical entries for different Repositories applying the "Owner" and Admin" API keys
+  Scenario: Successful creation of identical key-entries for different Organizations' Repositories applying the "Owner" and Admin" API keys
     When the user requested to createEntry the following specified entries in the separate repositories
       | apiKey      | repository | key             | value | instrumentId | name   | DecimalPrecision | Rounding |
       | Owner-Org-1 | Repo-1     | PRECIOUS-METALS |       | XAG          | Silver | 4                | down     |
-      | Admin-Org-2 | Repo-2     | PRECIOUS-METALS |       | AG           | Silver | 4                | down     |
+      | Admin-Org-2 | Repo-2     | PRECIOUS-METALS |       | XAG          | Silver | 4                | down     |
     Then new entries should be stored in the relevant repositories "Repo-1" and "Repo-2"
     And for each request user should get the successful response with fixed version for each new key-entry
       | version |
@@ -47,17 +52,18 @@ Feature: Integration tests for configuration service - createEntry.
   - JsonArray
   - null / empty string
     When the user requested to createEntry in the relevant repository with following details
-      | apiKey      | repository | key         | value | instrumentId                                   | name                                  | DecimalPrecision       |
-      | Owner-Org-1 | Repo-1     | someChars   |       | XPTTTTTTTTTTTTTTTTTXPTTTTTTTTT....>=1000 chars | Silvergskjfhsksuhff......>=1000 chars | 4444444...>=1000 chars |
-      | Admin-Org-1 | Repo-1     | someSymbols |       | #!=`   ~/.*                                    | #!=   `~/.*                           | #!=`   ~/.*            |
-      | Owner-Org-1 | Repo-1     | Int         | 1     | ---                                            | ---                                   | ---                    |
-      | Admin-Org-1 | Repo-1     | blankJson   | {}    | ---                                            | ---                                   | ---                    |
-      | Owner-Org-1 | Repo-1     | JsonArray   | []    | ---                                            | ---                                   | ---                    |
-      | Admin-Org-1 | Repo-1     | undefined   | null  | ---                                            | ---                                   | ---                    |
-      | Owner-Org-1 | Repo-1     | empty       |       | ---                                            | ---                                   | ---                    |
+      | apiKey      | repository | key                          | value               | instrumentId                                   | name                                  | DecimalPrecision       |
+      | Owner-Org-1 | Repo-1     | some Chars                   |                     | XPTTTTTTTTTTTTTTTTTXPTTTTTTTTT....>=1000 chars | Silvergskjfhsksuhff......>=1000 chars | 4444444...>=1000 chars |
+      | Admin-Org-1 | Repo-1     | some Symbols ~!`$%^&*(_)-+=© |                     | #!=`   ~/.*                                    | #!=   `~/.*                           | #!=`   ~/.*            |
+      | Owner-Org-1 | Repo-1     | Int 12345                    | 10                  | ---                                            | ---                                   | ---                    |
+      | Admin-Org-1 | Repo-1     | blankJsonObject              | {}                  | ---                                            | ---                                   | ---                    |
+      | Owner-Org-1 | Repo-1     | blankJsonArray               | []                  | ---                                            | ---                                   | ---                    |
+      | Admin-Org-1 | Repo-1     | dataJsonArray                | [99, "some string"] | ---                                            | ---                                   | ---                    |
+      | Owner-Org-1 | Repo-1     | undefined                    | null                | ---                                            | ---                                   | ---                    |
+      | Admin-Org-1 | Repo-1     | empty                        |                     | ---                                            | ---                                   | ---                    |
     And the user requested to createEntry in the relevant repository without "value" key at all
-      | apiKey      | repository | key   |
-      | Admin-Org-1 | Repo-1     | empty |
+      | apiKey      | repository | key        |
+      | Owner-Org-1 | Repo-1     | lost value |
     Then new entries should be stored in the relevant repository "Repo-1"
     And for each request user should get the successful response with fixed version for each new key-entry
       | version |
@@ -133,20 +139,6 @@ Feature: Integration tests for configuration service - createEntry.
 
 
   #18
-  Scenario: Fail to createEntry with empty or undefined Repository name
-    When the user requested to createEntry without specifying repository name
-      | apiKey      | repository | key     | value |
-      | Owner-Org-1 |            | new-key |       |
-      | Owner-Org-1 | null       | new-key |       |
-    And the user requested to createEntry without "repository" key name at all
-      | apiKey      |
-      | Owner-Org-1 |
-    Then for each request user should get following error
-      | errorCode | errorMessage                |
-      | 500       | Please specify 'repository' |
-
-
-  #19
   Scenario: Fail to createEntry with empty or undefined apiKey
     When the user requested to createEntry without specifying the apiKey
       | apiKey | repository | key     | value |
@@ -158,6 +150,20 @@ Feature: Integration tests for configuration service - createEntry.
     Then for each request user should get following error
       | errorCode | errorMessage            |
       | 500       | Please specify 'apiKey' |
+
+
+  #19
+  Scenario: Fail to createEntry with empty or undefined Repository name
+    When the user requested to createEntry without specifying repository name
+      | apiKey      | repository | key     | value |
+      | Owner-Org-1 |            | new-key |       |
+      | Owner-Org-1 | null       | new-key |       |
+    And the user requested to createEntry without "repository" key name at all
+      | apiKey      | key     | value |
+      | Owner-Org-1 | new-key |       |
+    Then for each request user should get following error
+      | errorCode | errorMessage                |
+      | 500       | Please specify 'repository' |
 
 
   #20
