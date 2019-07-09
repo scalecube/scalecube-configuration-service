@@ -10,76 +10,96 @@ Feature: Integration tests for configuration service - createRepository.
 
   Background: no repositories are stored in the system but having apiKeys
     Given the are no repositories stored in the system
-    And organization "organizationId" with "Org-1" name already created
+    And organizations with specified names "Org-1" and "Org-2" already created
     And the related apiKeys with "Owner", "Admin" and "Member" roles are stored in Organization "Org-1"
-
+    And the related apiKey with "Owner" role stored in Organization "Org-2"
   #CREATE REPO
 
   #__________________________________________________POSITIVE___________________________________________________________
 
   #1
   Scenario: Successful Repository creation applying the "Owner" apiKey
-    When the user requested to create the "repository" with "specified" name applying apiKey with "Owner" role
+    When the user requested to createRepository with following details
+      | apiKey      | repository |
+      | Owner-Org-1 | Repo-1     |
     Then new "repository" should be created
     And the user should get the successful response with the "empty" object
 
 
-  #1.1
+  #2
   Scenario: Successful Repositories creation with identical names by different organizations applying "Owner" apiKey
-    Given the user have issued "Owner" apiKey on behalf of organization "Org-2"
-    When the user requested to create the "repository" with name "Repo-1" applying "Owner" apiKey from organization "Org-1"
-    And the user requested to create the "repository" with the same name "Repo-1" applying "Owner" apiKey from organization "Org-2"
-    Then two repositories with identical names "Repo-1" should be created
+    When the user requested to create repositories with identical name applying "Owner" apiKeys from organization "Org-1" and "Org-2"
+      | apiKey      | repository |
+      | Owner-Org-1 | Repo-2     |
+      | Owner-Org-2 | Repo-2     |
+    Then two repositories with identical names "Repo-2" should be created
     And for each request the user should get the successful response with the "empty" object
 
 
   #__________________________________________________NEGATIVE___________________________________________________________
 
-  #2
-  Scenario: Fail to create the Repository upon access permission is restricted for the "Admin" either "Member" apiKey
-    When a user requested to create the "repository" with "specified" name applying the "Admin" and "Member"  apiKeys
-    Then for each of the requests user should get the "errorMessage":"Permission denied"
-
-
   #3
-  Scenario: Fail to create the Repository with duplicate name for a single Organization applying the "Owner" apiKey
-    Given some "repository" with "Repo-1" name already created
-    When the user requested to create the "repository" with the same "Repo-1" name applying the "Owner" apiKey
-    Then the user should get the "errorMessage":"Repository with name: 'repo-name' already exists."
-
+  Scenario: Fail to create the Repository upon access permission is restricted for the "Admin" either "Member" apiKey
+    When a user requested to create the "repository" applying the "Admin" and "Member" apiKeys
+      | apiKey       | repository |
+      | Admin-Org-1  | Repo-1     |
+      | Member-Org-1 | Repo-1     |
+    Then for each request user should get following error
+      | errorCode | errorMessage      |
+      | 500       | Permission denied |
 
   #4
+  Scenario: Fail to create the Repository with duplicate name for a single Organization applying the "Owner" apiKey
+    Given the repository with name "Repo-1" already created
+    When the user requested to create repository with identical name applying "Owner" apiKey from organization "Org-1"
+      | apiKey      | repository |
+      | Owner-Org-1 | Repo-1     |
+    Then the user should get following error
+      | errorCode | errorMessage                                     |
+      | 500       | Repository with name: 'repo-name' already exists |
+
+
+  #5
   Scenario: Fail to create the Repository upon the Owner deleted the Organization
-    Given the related organization Owner has deleted organization "Org-1"
-    And related apiKeys were automatically deleted
+    Given the related organization Owner has deleted organization name "Org-2"
     When the user requested to create the "repository" with "specified" name applying the "Owner" apiKey from deleted Organization
     Then the user should get an error message: "Token verification failed"
 
 
-  #5
+  #6
   Scenario: Fail to create the Repository upon the Owner apiKey was deleted from the Organization
     Given organization "Org-1" Owner has deleted the relevant "Owner" apiKey from it
-    When the user requested to create the "repository" with "specified" name applying this deleted "Owner" apiKey
-    Then the user should get an error message: "Token verification failed"
-
-
-  #6
-  Scenario: Fail to create Repository with empty or undefined name
-    When the user requested to create the "repository" without specifying its name
+    When the user requested to create repository applying "Owner" apiKey from organization "Org-2"
       | apiKey      | repository |
-      | valid-Owner |            |
-      | valid-Owner | null       |
-    And the user requested to create the "repository" without "repository" key name at all
-    Then for each request the user should get an error message: "Please specify 'repository'"
+      | Owner-Org-1 | Repo-3     |
+    Then the user should get following error
+      | errorCode | errorMessage              |
+      | 500       | Token verification failed |
 
 
   #7
+  Scenario: Fail to create Repository with empty or undefined name
+    When the user requested to create the "repository" without specifying its name
+      | apiKey      | repository |
+      | Owner-Org-1 |            |
+      | Owner-Org-1 | null       |
+    And the user requested to create the "repository" without "repository" key name at all
+      | apiKey      |
+      | Owner-Org-1 |
+    Then for each request user should get following error
+      | errorCode | errorMessage                |
+      | 500       | Please specify 'repository' |
+
+
+  #8
   Scenario: Fail to create Repository with empty or undefined apiKey
     When the user requested to create the "repository" without specifying the apiKey
       | apiKey | repository |
-      |        | Repo-1     |
-      | null   | Repo-1     |
+      |        | Repo-3     |
+      | null   | Repo-3     |
     And the user requested to create the "repository" without "apiKey" at all
       | repository |
-      | Repo-1     |
-    Then for each request the user should get an error message: "Please specify 'apiKey'"
+      | Repo-3     |
+    Then for each request user should get following error
+      | errorCode | errorMessage            |
+      | 500       | Please specify 'apiKey' |
