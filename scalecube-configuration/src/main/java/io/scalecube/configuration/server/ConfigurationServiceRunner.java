@@ -28,6 +28,8 @@ import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
+import reactor.netty.tcp.TcpClient;
+import reactor.netty.tcp.TcpServer;
 
 public class ConfigurationServiceRunner {
 
@@ -50,18 +52,31 @@ public class ConfigurationServiceRunner {
     Microservices microservices =
         Microservices.builder()
             .discovery(
-                (serviceEndpoint) ->
+                serviceEndpoint ->
                     new ScalecubeServiceDiscovery(serviceEndpoint)
                         .options(
                             opts ->
-                                opts.seedMembers(discoveryOptions.seeds())
-                                    .port(discoveryOptions.discoveryPort())
+                                opts.membership(cfg -> cfg.seedMembers(discoveryOptions.seeds()))
+                                    .transport(cfg -> cfg.port(discoveryOptions.discoveryPort()))
                                     .memberHost(discoveryOptions.memberHost())
                                     .memberPort(discoveryOptions.memberPort())))
             .transport(
-                opts ->
-                    opts.serviceTransport(RSocketServiceTransport::new)
-                        .port(discoveryOptions.servicePort()))
+                () ->
+                    new RSocketServiceTransport()
+                        .tcpClient(
+                            loopResources ->
+                                TcpClient.newConnection()
+                                    .runOn(loopResources)
+                                    .wiretap(false)
+                                    .noProxy()
+                                    .noSSL())
+                        .tcpServer(
+                            loopResources ->
+                                TcpServer.create()
+                                    .wiretap(false)
+                                    .port(discoveryOptions.servicePort())
+                                    .runOn(loopResources)
+                                    .noSSL()))
             .services(createConfigurationService())
             .startAwait();
 
@@ -103,10 +118,14 @@ public class ConfigurationServiceRunner {
   }
 
   private static AsyncBucket couchbaseBucket(CouchbaseSettings settings) {
-    return Mono.fromCallable(() -> CouchbaseCluster.create(settings.hosts())
-        .authenticate(settings.username(), settings.password())
-        .openBucket(settings.bucketName())
-        .async()).retryBackoff(3, Duration.ofSeconds(1)).block(Duration.ofSeconds(30));
+    return Mono.fromCallable(
+            () ->
+                CouchbaseCluster.create(settings.hosts())
+                    .authenticate(settings.username(), settings.password())
+                    .openBucket(settings.bucketName())
+                    .async())
+        .retryBackoff(3, Duration.ofSeconds(1))
+        .block(Duration.ofSeconds(30));
   }
 
   private static DiscoveryOptions discoveryOptions() {
