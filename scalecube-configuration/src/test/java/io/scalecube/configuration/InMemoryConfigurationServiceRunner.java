@@ -29,8 +29,11 @@ public class InMemoryConfigurationServiceRunner {
         .discovery(
             (serviceEndpoint) ->
                 new ScalecubeServiceDiscovery(serviceEndpoint)
-                    .options(opts -> opts.seedMembers(Address.from("localhost:4801"))))
-        .transport(opts -> opts.serviceTransport(RSocketServiceTransport::new))
+                    .options(
+                        opts ->
+                            opts.membership(
+                                cfg -> cfg.seedMembers(Address.from("localhost:4801")))))
+        .transport(RSocketServiceTransport::new)
         .services(createConfigurationService())
         .startAwait()
         .onShutdown()
