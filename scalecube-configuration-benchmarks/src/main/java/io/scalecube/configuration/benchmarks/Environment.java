@@ -133,7 +133,7 @@ final class Environment {
   private void startOrganizationService(Map<String, String> env) {
     env.put("JAVA_OPTS", "-Dio.scalecube.organization.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801");
 
-    new GenericContainer<>("scalecube/scalecube-organization:2.1.11") // todo
+    new GenericContainer<>("scalecube/scalecube-organization:2.1.11")
         .withNetwork(Network.SHARED)
         .withNetworkAliases("scalecube-organization")
         .withCreateContainerCmdModifier(cmd -> cmd.withName("scalecube-organization"))
