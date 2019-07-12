@@ -108,14 +108,16 @@ public class ConfigurationServiceRunner {
   }
 
   private static AsyncBucket couchbaseBucket(CouchbaseSettings settings) {
-    return Mono.fromCallable(
-            () ->
-                CouchbaseCluster.create(settings.hosts())
-                    .authenticate(settings.username(), settings.password())
-                    .openBucket(settings.bucketName())
-                    .async())
+    return Mono.fromCallable(() -> newAsyncBucket(settings))
         .retryBackoff(3, Duration.ofSeconds(1))
         .block(Duration.ofSeconds(30));
+  }
+
+  private static AsyncBucket newAsyncBucket(CouchbaseSettings settings) {
+    return CouchbaseCluster.create(settings.hosts())
+        .authenticate(settings.username(), settings.password())
+        .openBucket(settings.bucketName())
+        .async();
   }
 
   private static DiscoveryOptions discoveryOptions() {
