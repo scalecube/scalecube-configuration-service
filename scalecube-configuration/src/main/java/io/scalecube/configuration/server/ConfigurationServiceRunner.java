@@ -28,7 +28,6 @@ import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
-import reactor.netty.tcp.TcpClient;
 import reactor.netty.tcp.TcpServer;
 
 public class ConfigurationServiceRunner {
@@ -63,20 +62,11 @@ public class ConfigurationServiceRunner {
             .transport(
                 () ->
                     new RSocketServiceTransport()
-                        .tcpClient(
-                            loopResources ->
-                                TcpClient.newConnection()
-                                    .runOn(loopResources)
-                                    .wiretap(false)
-                                    .noProxy()
-                                    .noSSL())
                         .tcpServer(
                             loopResources ->
                                 TcpServer.create()
-                                    .wiretap(false)
                                     .port(discoveryOptions.servicePort())
-                                    .runOn(loopResources)
-                                    .noSSL()))
+                                    .runOn(loopResources)))
             .services(createConfigurationService())
             .startAwait();
 
