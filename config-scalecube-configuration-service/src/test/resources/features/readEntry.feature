@@ -2,7 +2,7 @@
 
 Feature: Integration tests for configuration service - readEntry.
 
-  All organization members can use related API keys roles to get the specific entry and/or specific version from the related Repository.
+  All organization members can use related API keys roles to get the latest entry version and/or specific version from the related Repository.
 
   Background: repositories with entries are stored in the system and having apiKeys
     Given organizations with specified names "Org-1" and "Org-2" already created
@@ -17,9 +17,11 @@ Feature: Integration tests for configuration service - readEntry.
       | Admin-Org-2 |
     And repository with name "Repo-1" related to organization "Org-1" created with following versions per "KEY-FOR-PRECIOUS-METAL-123" key
       | version | value | instrumentId | name     | DecimalPrecision | Rounding |
-      | 1       |       | XAG          | Silver   | 4                | down     |
-      | 2       |       | XPT          | Platinum | 2                | up       |
-      | 3       |       | XAU          | Gold     | 8                | down     |
+      | 1       | []    | ---          | ---      | ---              | ---      |
+      | 2       | null  | ---          | ---      | ---              | ---      |
+      | 3       |       | XAG          | Silver   | 4                | down     |
+      | 4       |       | XPT          | Platinum | 2                | up       |
+      | 5       |       | XAU          | Gold     | 8                | down     |
     And repository with name "Repo-2" related to organization "Org-2" created with following versions per "Currency" key
       | version | value | instrumentId | name | DecimalPrecision | Rounding |
       | 1       |       | JPY          | Yen  | 4                | down     |
@@ -30,7 +32,7 @@ Feature: Integration tests for configuration service - readEntry.
   #__________________________________________________POSITIVE___________________________________________________________
 
   #42
-  Scenario: Successful readEntry (latest version) from the related Repository applying managers API keys roles
+  Scenario: Successful readEntry (latest version) from the related Repository applying all API keys roles
     When the user requested to readEntry from the repository name "Repo-1"
       | apiKey       | repository | key                        |
       | Owner-Org-1  | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 |
@@ -48,8 +50,12 @@ Feature: Integration tests for configuration service - readEntry.
       | Owner-Org-1  | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | 1       |
       | Admin-Org-1  | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | 2       |
       | Member-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | 3       |
+      | Member-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | 4       |
+      | Member-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | 5       |
     Then for each request user should get the successful response with related entries version
       | key                        | value | instrumentId | name     | DecimalPrecision | Rounding |
+      | KEY-FOR-PRECIOUS-METAL-123 | []    | ---          | ---      | ---              | ---      |
+      | KEY-FOR-PRECIOUS-METAL-123 | null  | ---          | ---      | ---              | ---      |
       | KEY-FOR-PRECIOUS-METAL-123 |       | XAG          | Silver   | 4                | down     |
       | KEY-FOR-PRECIOUS-METAL-123 |       | XPT          | Platinum | 2                | up       |
       | KEY-FOR-PRECIOUS-METAL-123 |       | XAU          | Gold     | 8                | down     |
@@ -66,6 +72,17 @@ Feature: Integration tests for configuration service - readEntry.
     Then the user should get following error
       | errorCode | errorMessage                                            |
       | 500       | Key 'KEY-FOR-PRECIOUS-METAL-123' version '99' not found |
+
+  #44.1 (may be add the message - version should be a positive number)
+  Scenario: Fail to readEntry due to invalid (not int) dataType version specified
+    When the user requested to readEntry from the repository name "Repo-1" invalid version
+      | apiKey      | repository | key                        | version |
+      | Owner-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | afafaf  |
+      | Owner-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | 0       |
+      | Owner-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | -1      |
+    Then for each request user should get following error
+      | errorCode | errorMessage                                                |
+      | 500       | Failed to decode data on message q=/configuration/readEntry |
 
 
   #45
