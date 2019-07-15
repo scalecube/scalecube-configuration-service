@@ -34,7 +34,7 @@ Feature: Integration tests for configuration service - createEntry.
       | 1       |
 
   #10
-  Scenario: Successful creation of identical key-entries for different Organizations' Repositories applying the "Owner" and Admin" API keys
+  Scenario: Successful creation of identical key-entries for different Organizations' Repositories applying the "Owner" and "Admin" API keys
     When the user requested to createEntry the following specified entries in the separate repositories
       | apiKey      | repository | key             | value | instrumentId | name   | DecimalPrecision | Rounding |
       | Owner-Org-1 | Repo-1     | PRECIOUS-METALS |       | XAG          | Silver | 4                | down     |
@@ -43,7 +43,6 @@ Feature: Integration tests for configuration service - createEntry.
     And for each request user should get the successful response with fixed version for each new key-entry
       | version |
       | 1       |
-
 
   #11
   Scenario: Successful entry creation (no validation for input) enabling to save following values:
@@ -81,7 +80,6 @@ Feature: Integration tests for configuration service - createEntry.
     Then the user should get following error
       | errorCode | errorMessage      |
       | 500       | Permission denied |
-
 
   #13
   Scenario: Fail to createEntry due to Key name duplication
