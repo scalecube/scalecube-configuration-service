@@ -73,7 +73,7 @@ Feature: Integration tests for configuration service - readEntry.
       | errorCode | errorMessage                                            |
       | 500       | Key 'KEY-FOR-PRECIOUS-METAL-123' version '99' not found |
 
-  #44.1 (may be add the message - version should be a positive number)
+  #44.1 (current error - Failed to decode data on message q=/configuration/readList)
   Scenario: Fail to readEntry due to invalid (not int) dataType version specified
     When the user requested to readEntry from the repository name "Repo-1" invalid version
       | apiKey      | repository | key                        | version |
@@ -81,8 +81,8 @@ Feature: Integration tests for configuration service - readEntry.
       | Owner-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | 0       |
       | Owner-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | -1      |
     Then for each request user should get following error
-      | errorCode | errorMessage                                                |
-      | 500       | Failed to decode data on message q=/configuration/readEntry |
+      | errorCode | errorMessage                      |
+      | 500       | Version must be a positive number |
 
 
   #45

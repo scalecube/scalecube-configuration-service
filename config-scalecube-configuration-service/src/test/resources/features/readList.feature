@@ -78,7 +78,7 @@ Feature: Integration tests for configuration service - readList.
   #__________________________________________________NEGATIVE___________________________________________________________
 
 
-  #56 (may be add the message - version should be a positive number)
+  #56 (current error - Failed to decode data on message q=/configuration/readList)
   Scenario: Fail to readList due to invalid (not int) dataType version specified
     When the user requested to readList from the repository name "Repo-1" invalid version
       | apiKey      | repository | key                        | version |
@@ -86,8 +86,8 @@ Feature: Integration tests for configuration service - readList.
       | Owner-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | 0       |
       | Owner-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 | -1      |
     Then for each request user should get following error
-      | errorCode | errorMessage                                                |
-      | 500       | Failed to decode data on message q=/configuration/readList |
+      | errorCode | errorMessage                      |
+      | 500       | Version must be a positive number |
 
 
   #57
