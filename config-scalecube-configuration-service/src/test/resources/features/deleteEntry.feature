@@ -2,7 +2,7 @@
 
 Feature: Integration tests for configuration service - deleteEntry.
 
-  Only the managers with "Owner" and "Admin" API keys roles should be able to update the specific entries in the related Repository.
+  Only the managers with "Owner" and "Admin" API keys roles should be able to delete the specific entries in the related Repository.
 
   Background: repositories with entries are stored in the system and having apiKeys
     Given organizations with specified names "Org-1" and "Org-2" already created
@@ -15,12 +15,12 @@ Feature: Integration tests for configuration service - deleteEntry.
       | apiKey      |
       | Owner-Org-2 |
       | Admin-Org-2 |
-    And repository with name "Repo-1" related to organization "Org-1" created as {"version":1}
+    And repository with name "Repo-1" related to organization "Org-1" created with {"version":1} per each key
       | repository | key                        | value | instrumentId | name    | DecimalPrecision | Rounding |
       | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 |       | XAG          | Silver  | 4                | down     |
       | Repo-1     | Currency                   |       | JPY          | Yen     | 2                | up       |
       | Repo-1     | Crypto                     |       | BTC          | Bitcoin | 10               | down     |
-    And repository with name "Repo-2" related to organization "Org-2" created as {"version":1}
+    And repository with name "Repo-2" related to organization "Org-2" created with {"version":1} per each key
       | repository | key                        | value | instrumentId | name   | DecimalPrecision | Rounding |
       | Repo-2     | KEY-FOR-PRECIOUS-METAL-123 |       | XAG          | Silver | 4                | down     |
 
@@ -30,7 +30,6 @@ Feature: Integration tests for configuration service - deleteEntry.
   #__________________________________________________POSITIVE___________________________________________________________
 
   #32
- #MPA-8092 (#33)
   Scenario: Successful delete one of the identical keys (entries) from the related Repository applying some of the managers' API keys
     When the user requested to deleteEntry from the repository name "Repo-1"
       | apiKey      | repository | key                        |
@@ -124,8 +123,8 @@ Feature: Integration tests for configuration service - deleteEntry.
       | Owner-Org-1 |            | new-key |
       | Owner-Org-1 | null       | new-key |
     And the user requested to deleteEntry without "repository" key name at all
-      | apiKey      | key     | value |
-      | Owner-Org-1 | new-key |       |
+      | apiKey      | key     |
+      | Owner-Org-1 | new-key |
     Then for each request user should get following error
       | errorCode | errorMessage                |
       | 500       | Please specify 'repository' |
@@ -147,7 +146,7 @@ Feature: Integration tests for configuration service - deleteEntry.
 
   #41
   Scenario: Fail to deleteEntry with non-existent Key field
-    When the user requested to deleteEntry without specifying repository name
+    When the user requested to deleteEntry with non-existent key name
       | apiKey      | repository | key          |
       | Owner-Org-2 | Repo-2     | non-existent |
     Then the user should get following error

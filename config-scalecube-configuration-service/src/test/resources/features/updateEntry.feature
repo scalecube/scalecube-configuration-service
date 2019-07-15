@@ -15,10 +15,10 @@ Feature: Integration tests for configuration service - updateEntry.
       | apiKey      |
       | Owner-Org-2 |
       | Admin-Org-2 |
-    And repository with name "Repo-1" related to organization "Org-1" created as {"version":1}
+    And repository with name "Repo-1" related to organization "Org-1" created with {"version":1} per each key
       | repository | key                        | value | instrumentId | name   | DecimalPrecision | Rounding |
       | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 |       | XAG          | Silver | 4                | down     |
-    And repository with name "Repo-2" related to organization "Org-2" created as {"version":1}
+    And repository with name "Repo-2" related to organization "Org-2" created with {"version":1} per each key
       | repository | key                        | value | instrumentId | name   | DecimalPrecision | Rounding |
       | Repo-2     | KEY-FOR-PRECIOUS-METAL-123 |       | XAG          | Silver | 4                | down     |
 
@@ -180,7 +180,7 @@ Feature: Integration tests for configuration service - updateEntry.
 
   #31
   Scenario: Fail to updateEntry with non-existent Key field
-    When the user requested to updateEntry without specifying repository name
+    When the user requested to updateEntry with non-existent key name
       | apiKey      | repository | key          | value |
       | Owner-Org-1 | Repo-3     | non-existent | {}    |
     Then the user should get following error
