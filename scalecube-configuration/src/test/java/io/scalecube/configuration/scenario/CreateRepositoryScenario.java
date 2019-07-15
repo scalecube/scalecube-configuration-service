@@ -20,12 +20,12 @@ public class CreateRepositoryScenario extends BaseScenario {
   void createRepositoryByOwner(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
-    String token = createApiKey(organizationService, orgId, Role.Owner).key();
+    String apiKey = createApiKey(organizationService, orgId, Role.Owner).key();
 
     String repository = RandomStringUtils.randomAlphabetic(5);
 
     StepVerifier.create(
-            configurationService.createRepository(new CreateRepositoryRequest(token, repository)))
+            configurationService.createRepository(new CreateRepositoryRequest(apiKey, repository)))
         .expectNextCount(1)
         .expectComplete()
         .verify();
@@ -37,21 +37,21 @@ public class CreateRepositoryScenario extends BaseScenario {
   void createIdenticalRepositoryForDifferentOrganizations(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId1 = createOrganization(organizationService).id();
-    String token1 = createApiKey(organizationService, orgId1, Role.Owner).key();
+    String apiKey1 = createApiKey(organizationService, orgId1, Role.Owner).key();
 
     String orgId2 = createOrganization(organizationService).id();
-    String token2 = createApiKey(organizationService, orgId2, Role.Owner).key();
+    String apiKey2 = createApiKey(organizationService, orgId2, Role.Owner).key();
 
     String repository = RandomStringUtils.randomAlphabetic(5);
 
     StepVerifier.create(
-            configurationService.createRepository(new CreateRepositoryRequest(token1, repository)))
+            configurationService.createRepository(new CreateRepositoryRequest(apiKey1, repository)))
         .expectNextCount(1)
         .expectComplete()
         .verify();
 
     StepVerifier.create(
-            configurationService.createRepository(new CreateRepositoryRequest(token2, repository)))
+            configurationService.createRepository(new CreateRepositoryRequest(apiKey2, repository)))
         .expectNextCount(1)
         .expectComplete()
         .verify();
@@ -63,20 +63,20 @@ public class CreateRepositoryScenario extends BaseScenario {
   void createRepositoryByAdminAndMember(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
-    String adminToken = createApiKey(organizationService, orgId, Role.Admin).key();
-    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
+    String adminApiKey = createApiKey(organizationService, orgId, Role.Admin).key();
+    String memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
 
     String repository = RandomStringUtils.randomAlphabetic(5);
 
     StepVerifier.create(
             configurationService.createRepository(
-                new CreateRepositoryRequest(adminToken, repository)))
+                new CreateRepositoryRequest(adminApiKey, repository)))
         .expectErrorMessage("Permission denied")
         .verify();
 
     StepVerifier.create(
             configurationService.createRepository(
-                new CreateRepositoryRequest(memberToken, repository)))
+                new CreateRepositoryRequest(memberApiKey, repository)))
         .expectErrorMessage("Permission denied")
         .verify();
   }
@@ -87,16 +87,16 @@ public class CreateRepositoryScenario extends BaseScenario {
   void createRepositoryWithExistingName(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
-    String token = createApiKey(organizationService, orgId, Role.Owner).key();
+    String apiKey = createApiKey(organizationService, orgId, Role.Owner).key();
 
     String repository = RandomStringUtils.randomAlphabetic(5);
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(token, repository))
+        .createRepository(new CreateRepositoryRequest(apiKey, repository))
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.createRepository(new CreateRepositoryRequest(token, repository)))
+            configurationService.createRepository(new CreateRepositoryRequest(apiKey, repository)))
         .expectErrorMessage(String.format("Repository with name: '%s' already exists", repository))
         .verify();
   }
@@ -108,12 +108,12 @@ public class CreateRepositoryScenario extends BaseScenario {
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
     String orgId = createOrganization(organizationService).id();
-    String token = createApiKey(organizationService, orgId, Role.Owner).key();
+    String apiKey = createApiKey(organizationService, orgId, Role.Owner).key();
 
     String repository = RandomStringUtils.randomAlphabetic(5);
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(token, repository))
+        .createRepository(new CreateRepositoryRequest(apiKey, repository))
         .block(TIMEOUT);
 
     organizationService
@@ -123,7 +123,7 @@ public class CreateRepositoryScenario extends BaseScenario {
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
-            configurationService.createRepository(new CreateRepositoryRequest(token, repository)))
+            configurationService.createRepository(new CreateRepositoryRequest(apiKey, repository)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
@@ -135,24 +135,24 @@ public class CreateRepositoryScenario extends BaseScenario {
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
     String orgId = createOrganization(organizationService).id();
-    ApiKey ownerKey = createApiKey(organizationService, orgId, Role.Owner);
+    ApiKey ownerApiKey = createApiKey(organizationService, orgId, Role.Owner);
 
     String repository = RandomStringUtils.randomAlphabetic(5);
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerKey.key(), repository))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey.key(), repository))
         .block(TIMEOUT);
 
     organizationService
         .deleteOrganizationApiKey(
-            new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, ownerKey.name()))
+            new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, ownerApiKey.name()))
         .block(TIMEOUT);
 
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
             configurationService.createRepository(
-                new CreateRepositoryRequest(ownerKey.key(), repository)))
+                new CreateRepositoryRequest(ownerApiKey.key(), repository)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
@@ -163,12 +163,12 @@ public class CreateRepositoryScenario extends BaseScenario {
   void createRepositoryUsingExpiredToken(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
-    String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
+    String apiKey = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
 
     String repository = RandomStringUtils.randomAlphabetic(5);
 
     StepVerifier.create(
-            configurationService.createRepository(new CreateRepositoryRequest(token, repository)))
+            configurationService.createRepository(new CreateRepositoryRequest(apiKey, repository)))
         .expectErrorMessage("Token verification failed")
         .verify();
   }
@@ -178,15 +178,15 @@ public class CreateRepositoryScenario extends BaseScenario {
   void createRepositoryWithEmptyOrUndefinedName(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
-    String token = createApiKey(organizationService, orgId, Role.Owner).key();
+    String apiKey = createApiKey(organizationService, orgId, Role.Owner).key();
 
     StepVerifier.create(
-        configurationService.createRepository(new CreateRepositoryRequest(token, null)))
+        configurationService.createRepository(new CreateRepositoryRequest(apiKey, null)))
         .expectErrorMessage(String.format("Please specify 'repository'"))
         .verify();
 
     StepVerifier.create(
-        configurationService.createRepository(new CreateRepositoryRequest(token, "")))
+        configurationService.createRepository(new CreateRepositoryRequest(apiKey, "")))
         .expectErrorMessage(String.format("Please specify 'repository'"))
         .verify();
   }

@@ -140,11 +140,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .doOnError(th -> logger.error("delete: request: {}, error:", request, th));
   }
 
-  private Mono<Profile> checkAccess(Object token, String resource) {
+  private Mono<Profile> checkAccess(Object apiKey, String resource) {
     return Mono.defer(
         () ->
             accessControl
-                .check(token.toString(), resource)
+                .check(apiKey.toString(), resource)
                 .onErrorMap(AuthenticationException.class, e -> new InvalidAuthenticationToken()));
   }
 }
