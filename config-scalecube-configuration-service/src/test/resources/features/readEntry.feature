@@ -157,7 +157,7 @@ Feature: Integration tests for configuration service - readEntry.
 
   #51
   Scenario: Fail to readEntry with empty or undefined Key field
-    When the user requested to readEntry without specifying repository name
+    When the user requested to readEntry without specifying key name
       | apiKey      | repository | key  |
       | Owner-Org-1 | Repo-3     |      |
       | Owner-Org-1 | Repo-3     | null |

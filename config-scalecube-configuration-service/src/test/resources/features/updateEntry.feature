@@ -166,7 +166,7 @@ Feature: Integration tests for configuration service - updateEntry.
 
   #30
   Scenario: Fail to updateEntry with empty or undefined Key field
-    When the user requested to updateEntry without specifying repository name
+    When the user requested to updateEntry without specifying key name
       | apiKey      | repository | key  | value |
       | Owner-Org-1 | Repo-3     |      |       |
       | Owner-Org-1 | Repo-3     | null |       |
