@@ -16,7 +16,7 @@ import reactor.test.StepVerifier;
 public class CreateRepositoryScenario extends BaseScenario {
 
   @TestTemplate
-  @DisplayName("#1 Successful Repository creation applying the \"Owner\" API key")
+  @DisplayName("#1 Scenario: Successful Repository creation applying the \"Owner\" apiKey")
   void createRepositoryByOwner(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -33,7 +33,7 @@ public class CreateRepositoryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#1.1 Successful Repositories creation with identical names applying the \"Owner\" API keys from different organizations")
+      "#2  Scenario: Successful Repositories creation with identical names by different organizations applying \"Owner\" apiKey")
   void createIdenticalRepositoryForDifferentOrganizations(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId1 = createOrganization(organizationService).id();
@@ -59,7 +59,7 @@ public class CreateRepositoryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#2 Fail to create the Repository upon access permission is restricted applying the \"Admin\" either \"Member\" API key")
+      "#3 Scenario: Fail to create the Repository upon access permission is restricted for the \"Admin\" either \"Member\" apiKey")
   void createRepositoryByAdminAndMember(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -83,7 +83,7 @@ public class CreateRepositoryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#3 Fail to create the Repository with the name which already exist (duplicate) applying the \"Owner\" API key")
+      "#4 Scenario: Fail to create the Repository with duplicate name for a single Organization applying the \"Owner\" apiKey")
   void createRepositoryWithExistingName(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -102,23 +102,8 @@ public class CreateRepositoryScenario extends BaseScenario {
   }
 
   @TestTemplate
-  @DisplayName("#4 Fail to create the Repository upon the \"token\" is invalid (expired)")
-  void createRepositoryUsingExpiredToken(
-      ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = createOrganization(organizationService).id();
-    String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
-
-    String repository = RandomStringUtils.randomAlphabetic(5);
-
-    StepVerifier.create(
-            configurationService.createRepository(new CreateRepositoryRequest(token, repository)))
-        .expectErrorMessage("Token verification failed")
-        .verify();
-  }
-
-  @TestTemplate
   @DisplayName(
-      "#5 Fail to create the Repository upon the Owner deleted the Organization applying the \"Owner\" API key")
+      "#5 Scenario: Fail to create the Repository upon the Owner deleted the \"Organization\"")
   void createRepositoryForDeletedOrganization(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
@@ -145,7 +130,7 @@ public class CreateRepositoryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#6 Fail to create the Repository upon the Owner \"token\" (API key) was deleted from the Organization")
+      "#6 Scenario: Fail to create the Repository upon the \"Owner\" apiKey was deleted from the Organization")
   void createRepositoryUsingDeletedToken(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
@@ -169,6 +154,56 @@ public class CreateRepositoryScenario extends BaseScenario {
             configurationService.createRepository(
                 new CreateRepositoryRequest(ownerKey.key(), repository)))
         .expectErrorMessage("Token verification failed")
+        .verify();
+  }
+
+  @TestTemplate
+  @DisplayName(
+      "#7 Scenario: Fail to create the Repository due to invalid apiKey was applied")
+  void createRepositoryUsingExpiredToken(
+      ConfigurationService configurationService, OrganizationService organizationService) {
+    String orgId = createOrganization(organizationService).id();
+    String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
+
+    String repository = RandomStringUtils.randomAlphabetic(5);
+
+    StepVerifier.create(
+            configurationService.createRepository(new CreateRepositoryRequest(token, repository)))
+        .expectErrorMessage("Token verification failed")
+        .verify();
+  }
+
+  @TestTemplate
+  @DisplayName("#8 Scenario: Fail to create Repository with empty or undefined name")
+  void createRepositoryWithEmptyOrUndefinedName(
+      ConfigurationService configurationService, OrganizationService organizationService) {
+    String orgId = createOrganization(organizationService).id();
+    String token = createApiKey(organizationService, orgId, Role.Owner).key();
+
+    StepVerifier.create(
+        configurationService.createRepository(new CreateRepositoryRequest(token, null)))
+        .expectErrorMessage(String.format("Please specify 'repository'"))
+        .verify();
+
+    StepVerifier.create(
+        configurationService.createRepository(new CreateRepositoryRequest(token, "")))
+        .expectErrorMessage(String.format("Please specify 'repository'"))
+        .verify();
+  }
+
+  @TestTemplate
+  @DisplayName("#9 Scenario: Fail to create Repository with empty or undefined apiKey")
+  void createRepositoryWithEmptyOrUndefinedApiKey(ConfigurationService configurationService) {
+    String repository = RandomStringUtils.randomAlphabetic(5);
+
+    StepVerifier.create(
+        configurationService.createRepository(new CreateRepositoryRequest(null, repository)))
+        .expectErrorMessage(String.format("Please specify 'apiKey'"))
+        .verify();
+
+    StepVerifier.create(
+        configurationService.createRepository(new CreateRepositoryRequest("", repository)))
+        .expectErrorMessage(String.format("Please specify 'apiKey'"))
         .verify();
   }
 }
