@@ -125,7 +125,7 @@ public class ReadListScenario extends BaseScenario {
     String repoName = "NON_EXISTENT_REPO";
 
     StepVerifier.create(configurationService.readList(new ReadListRequest(token, repoName)))
-        .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId, repoName))
+        .expectErrorMessage(String.format("Repository '%s' not found", repoName))
         .verify();
   }
 
@@ -213,7 +213,7 @@ public class ReadListScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(configurationService.readList(new ReadListRequest(token2, repoName)))
-        .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId2, repoName))
+        .expectErrorMessage(String.format("Repository '%s' not found", repoName))
         .verify();
   }
 

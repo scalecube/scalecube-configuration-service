@@ -198,7 +198,7 @@ public class ReadEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService.readEntry(new ReadEntryRequest(token, repoName, "key")))
-        .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId, repoName))
+        .expectErrorMessage(String.format("Repository '%s' not found", repoName))
         .verify();
   }
 
@@ -286,7 +286,7 @@ public class ReadEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(configurationService.readList(new ReadListRequest(token2, repoName)))
-        .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId2, repoName))
+        .expectErrorMessage(String.format("Repository '%s' not found", repoName))
         .verify();
   }
 

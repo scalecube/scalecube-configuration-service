@@ -306,7 +306,7 @@ public class DeleteEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService.deleteEntry(new DeleteEntryRequest(token2, repoName, entryKey)))
-        .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId2, repoName))
+        .expectErrorMessage(String.format("Repository '%s' not found", repoName))
         .verify();
   }
 
