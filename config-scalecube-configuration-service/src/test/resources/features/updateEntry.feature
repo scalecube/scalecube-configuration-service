@@ -30,10 +30,10 @@ Feature: Integration tests for configuration service - updateEntry.
   #21
   Scenario: Successful updateEntry by one of the identical keys in the different Repositories applying the "Owner" API key
     When the user requested to updateEntry in the repository name "Repo-1" with following details
-      | repository | key                        | value | instrumentId | name   | DecimalPrecision | Rounding |
-      | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 |       | XAG          | Silver | 4                | down     |
-      | Repo-1     | Currency                   |       | JPY          | Yen    | 2                | up       |
-    Then new entries related for the existing "key" should be stored in the "Repo-1" related to organization "Org-1"
+      | apiKey      | repository | key                        | value | instrumentId | name   | DecimalPrecision | Rounding |
+      | Owner-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 |       | XAG          | Silver | 4                | down     |
+      | Owner-Org-1 | Repo-1     | KEY-FOR-PRECIOUS-METAL-123 |       | JPY          | Yen    | 2                | up       |
+    Then new entries related for the existing "key" should be stored in the "Repo-1" which belongs to organization "Org-1"
     And for each request user should get the successful response with new version for each entry
       | version |
       | 2       |
@@ -176,3 +176,13 @@ Feature: Integration tests for configuration service - updateEntry.
     Then for each request user should get following error
       | errorCode | errorMessage         |
       | 500       | Please specify 'key' |
+
+
+  #31
+  Scenario: Fail to updateEntry with non-existent Key field
+    When the user requested to updateEntry without specifying repository name
+      | apiKey      | repository | key          | value |
+      | Owner-Org-1 | Repo-3     | non-existent | {}    |
+    Then the user should get following error
+      | errorCode | errorMessage                                     |
+      | 500       | Repository 'Repo-3' key 'non-existent' not found |
