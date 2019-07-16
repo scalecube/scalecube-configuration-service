@@ -85,9 +85,17 @@ final class RequestValidator {
     }
   }
 
-  private static void validateVersion(Integer version) {
-    if (version != null && version <= 0) {
+  private static void validateVersion(Object version) {
+    try {
+      if (version == null
+          || version instanceof Integer && ((Integer) version) > 0
+          || version instanceof Long && ((Long) version) > 0
+          || version instanceof String && Integer.valueOf((String) version) > 0) {
+        return;
+      }
+    } catch (NumberFormatException ex) {
       throw new IllegalArgumentException("Version must be a positive number");
     }
+    throw new IllegalArgumentException("Version must be a positive number");
   }
 }

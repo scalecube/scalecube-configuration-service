@@ -289,6 +289,12 @@ public class ReadEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService.readEntry(
+                new ReadEntryRequest(memberToken, repoName, entryKey, "afafaf")))
+        .expectErrorMessage(VERSION_MUST_BE_A_POSITIVE_NUMBER)
+        .verify();
+
+    StepVerifier.create(
+            configurationService.readEntry(
                 new ReadEntryRequest(memberToken, repoName, entryKey, 0)))
         .expectErrorMessage(VERSION_MUST_BE_A_POSITIVE_NUMBER)
         .verify();
