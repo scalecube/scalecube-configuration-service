@@ -24,6 +24,14 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
       this.key = key;
     }
 
+    public String getRepo() {
+      return repo;
+    }
+
+    public String getKey() {
+      return key;
+    }
+
     @Override
     public boolean equals(Object o) {
       if (this == o) {
@@ -98,7 +106,9 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
             Mono.defer(
                 () ->
                     Mono.error(
-                        new KeyNotFoundException(String.format("Key '%s' not found", key)))));
+                        new KeyNotFoundException(
+                            String.format(
+                                "Repository '%s' key '%s' not found", repository.name(), key)))));
   }
 
   private Mono<Document> put(Repository repository, String key, Document value) {
@@ -124,7 +134,10 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
         .switchIfEmpty(
             Mono.defer(
                 () ->
-                    Mono.error(new KeyNotFoundException(String.format("Key '%s' not found", key)))))
+                    Mono.error(
+                        new KeyNotFoundException(
+                            String.format(
+                                "Repository '%s' key '%s' not found", repository.name(), key)))))
         .map(repo -> repo.remove(key))
         .then();
   }
