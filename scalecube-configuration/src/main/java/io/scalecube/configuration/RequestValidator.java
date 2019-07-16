@@ -24,6 +24,7 @@ final class RequestValidator {
           validateToken(request.apiKey());
           validateRepository(request.repository());
           validateKey(request.key());
+          validateVersion(request.version());
         });
   }
 
@@ -32,6 +33,7 @@ final class RequestValidator {
         () -> {
           validateToken(request.apiKey());
           validateRepository(request.repository());
+          validateVersion(request.version());
         });
   }
 
@@ -80,6 +82,12 @@ final class RequestValidator {
   private static void validateKey(String key) {
     if (key == null || key.trim().isEmpty()) {
       throw new IllegalArgumentException("Please specify 'key'");
+    }
+  }
+
+  private static void validateVersion(Integer version) {
+    if (version != null && version <= 0) {
+      throw new IllegalArgumentException("Version must be a positive number");
     }
   }
 }

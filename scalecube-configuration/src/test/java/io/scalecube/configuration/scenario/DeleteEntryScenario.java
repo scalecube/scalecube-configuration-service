@@ -65,7 +65,8 @@ public class DeleteEntryScenario extends BaseScenario {
                 .then(
                     configurationService.readEntry(
                         new ReadEntryRequest(ownerApiKey, repoName, entryKey1))))
-        .expectErrorMessage(String.format(REPOSITORY_KEY_NOT_FOUND_FORMATTER, repoName, entryKey1))
+        .expectErrorMessage(
+            String.format(REPOSITORY_OR_ITS_KEY_NOT_FOUND_FORMATTER, repoName, entryKey1))
         .verify();
 
     StepVerifier.create(
@@ -74,7 +75,8 @@ public class DeleteEntryScenario extends BaseScenario {
                 .then(
                     configurationService.readEntry(
                         new ReadEntryRequest(adminApiKey, repoName, entryKey2))))
-        .expectErrorMessage(String.format(REPOSITORY_KEY_NOT_FOUND_FORMATTER, repoName, entryKey2))
+        .expectErrorMessage(
+            String.format(REPOSITORY_OR_ITS_KEY_NOT_FOUND_FORMATTER, repoName, entryKey2))
         .verify();
   }
 
@@ -138,7 +140,8 @@ public class DeleteEntryScenario extends BaseScenario {
     StepVerifier.create(
             configurationService.deleteEntry(
                 new DeleteEntryRequest(ownerApiKey, repoNotExists, entryKey)))
-        .expectErrorMessage(String.format(REPOSITORY_NOT_FOUND_FORMATTER, repoNotExists))
+        .expectErrorMessage(
+            String.format(REPOSITORY_OR_ITS_KEY_NOT_FOUND_FORMATTER, repoNotExists, entryKey))
         .verify();
   }
 
@@ -381,7 +384,7 @@ public class DeleteEntryScenario extends BaseScenario {
             configurationService.deleteEntry(
                 new DeleteEntryRequest(apiKey, repoName, entryKeyNotExists)))
         .expectErrorMessage(
-            String.format(REPOSITORY_KEY_NOT_FOUND_FORMATTER, repoName, entryKeyNotExists))
+            String.format(REPOSITORY_OR_ITS_KEY_NOT_FOUND_FORMATTER, repoName, entryKeyNotExists))
         .verify();
   }
 }

@@ -31,8 +31,12 @@ public abstract class BaseScenario {
   protected static final String REPOSITORY_ALREADY_EXISTS_FORMATTER =
       "Repository with name: '%s' already exists";
   protected static final String REPOSITORY_NOT_FOUND_FORMATTER = "Repository '%s' not found";
-  protected static final String REPOSITORY_KEY_NOT_FOUND_FORMATTER = "Repository '%s' key '%s' not found";
-  protected static final String REPOSITORY_KEY_ALREADY_EXISTS_FORMATTER = "Repository '%s' key '%s' already exists";
+  protected static final String REPOSITORY_OR_ITS_KEY_NOT_FOUND_FORMATTER =
+      "Repository '%s' or its key '%s' not found";
+  protected static final String REPOSITORY_KEY_ALREADY_EXISTS_FORMATTER =
+      "Repository '%s' key '%s' already exists";
+  protected static final String KEY_VERSION_NOT_FOUND_FORMATTER = "Key '%s' version '%s' not found";
+  protected static final String VERSION_MUST_BE_A_POSITIVE_NUMBER = "Version must be a positive number";
   protected static final String TOKEN_VERIFICATION_FAILED = "Token verification failed";
   protected static final String PLEASE_SPECIFY_API_KEY = "Please specify 'apiKey'";
   protected static final String PLEASE_SPECIFY_REPO = "Please specify 'repository'";

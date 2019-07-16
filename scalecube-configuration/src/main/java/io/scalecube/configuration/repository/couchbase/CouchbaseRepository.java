@@ -144,10 +144,20 @@ public class CouchbaseRepository implements ConfigurationRepository {
   public Mono<Document> save(String tenant, String repository, Document document) {
     return Mono.from(
             RxReactiveStreams.toPublisher(
-                bucket.insert(
-                    JsonArrayDocument.create(
-                        docId(tenant, repository, document.key()),
-                        JsonArray.create().add(savedJsonValue(document.value()))))))
+                bucket.setContains(REPOS, tenant + DELIMITER + repository)))
+        .filter(isRepoExists -> isRepoExists)
+        .switchIfEmpty(
+            Mono.error(
+                () ->
+                    new RepositoryNotFoundException(
+                        String.format(REPOSITORY_NOT_FOUND, repository))))
+        .then(
+            Mono.from(
+                RxReactiveStreams.toPublisher(
+                    bucket.insert(
+                        JsonArrayDocument.create(
+                            docId(tenant, repository, document.key()),
+                            JsonArray.create().add(savedJsonValue(document.value())))))))
         .onErrorMap(
             DocumentAlreadyExistsException.class,
             e ->

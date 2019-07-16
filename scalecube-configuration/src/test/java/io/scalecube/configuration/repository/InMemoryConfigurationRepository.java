@@ -108,7 +108,8 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
                     Mono.error(
                         new KeyNotFoundException(
                             String.format(
-                                "Repository '%s' key '%s' not found", repository.name(), key)))));
+                                "Repository '%s' or its key '%s' not found",
+                                repository.name(), key)))));
   }
 
   private Mono<Document> put(Repository repository, String key, Document value) {
@@ -137,7 +138,8 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
                     Mono.error(
                         new KeyNotFoundException(
                             String.format(
-                                "Repository '%s' key '%s' not found", repository.name(), key)))))
+                                "Repository '%s' or its key '%s' not found",
+                                repository.name(), key)))))
         .map(repo -> repo.remove(key))
         .then();
   }
