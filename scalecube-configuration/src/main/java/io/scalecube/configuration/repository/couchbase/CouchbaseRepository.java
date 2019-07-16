@@ -231,7 +231,17 @@ public class CouchbaseRepository implements ConfigurationRepository {
 
   @Override
   public Mono<Void> delete(String tenant, String repository, String key) {
-    return Mono.from(RxReactiveStreams.toPublisher(bucket.remove(docId(tenant, repository, key))))
+    return Mono.from(
+            RxReactiveStreams.toPublisher(
+                bucket.setContains(REPOS, tenant + DELIMITER + repository)))
+        .filter(isRepoExists -> isRepoExists)
+        .switchIfEmpty(
+            Mono.error(
+                () ->
+                    new RepositoryNotFoundException(
+                        String.format(REPOSITORY_NOT_FOUND, repository))))
+        .then(
+            Mono.from(RxReactiveStreams.toPublisher(bucket.remove(docId(tenant, repository, key)))))
         .onErrorMap(
             DocumentDoesNotExistException.class,
             e ->

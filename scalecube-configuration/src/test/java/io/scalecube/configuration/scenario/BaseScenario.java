@@ -28,6 +28,17 @@ public abstract class BaseScenario {
   public static final int KEY_CACHE_REFRESH_INTERVAL = 1;
   public static final int API_KEY_TTL_IN_SECONDS = 3;
 
+  protected static final String REPOSITORY_ALREADY_EXISTS_FORMATTER =
+      "Repository with name: '%s' already exists";
+  protected static final String REPOSITORY_NOT_FOUND_FORMATTER = "Repository '%s' not found";
+  protected static final String REPOSITORY_KEY_NOT_FOUND_FORMATTER = "Repository '%s' key '%s' not found";
+  protected static final String REPOSITORY_KEY_ALREADY_EXISTS_FORMATTER = "Repository '%s' key '%s' already exists";
+  protected static final String TOKEN_VERIFICATION_FAILED = "Token verification failed";
+  protected static final String PLEASE_SPECIFY_API_KEY = "Please specify 'apiKey'";
+  protected static final String PLEASE_SPECIFY_REPO = "Please specify 'repository'";
+  protected static final String PLEASE_SPECIFY_KEY = "Please specify 'key'";
+  protected static final String PERMISSION_DENIED = "Permission denied";
+
   static final Duration TIMEOUT = Duration.ofSeconds(10);
   static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   static final Token AUTH0_TOKEN = new Token("auth0_token");

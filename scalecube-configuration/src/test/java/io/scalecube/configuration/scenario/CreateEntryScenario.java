@@ -356,7 +356,7 @@ public class CreateEntryScenario extends BaseScenario {
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(apiKey, repoName, entryKey, entryValue)))
         .expectErrorMessage(
-            String.format("Repository '%s' key '%s' already exists", repoName, entryKey))
+            String.format(REPOSITORY_KEY_ALREADY_EXISTS_FORMATTER, repoName, entryKey))
         .verify();
   }
 
@@ -381,7 +381,7 @@ public class CreateEntryScenario extends BaseScenario {
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(
                     adminApiKey, nonExistingRepoName, entryKey, entryValue)))
-        .expectErrorMessage(String.format("Repository '%s' not found", nonExistingRepoName))
+        .expectErrorMessage(String.format(REPOSITORY_NOT_FOUND_FORMATTER, nonExistingRepoName))
         .verify();
   }
 
@@ -416,7 +416,7 @@ public class CreateEntryScenario extends BaseScenario {
     StepVerifier.create(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(apiKey, repoName, entryKey, entryValue)))
-        .expectErrorMessage("Token verification failed")
+        .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
         .verify();
   }
 
@@ -453,7 +453,7 @@ public class CreateEntryScenario extends BaseScenario {
     StepVerifier.create(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(apiKey.key(), repoName, entryKey, entryValue)))
-        .expectErrorMessage("Token verification failed")
+        .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
         .verify();
   }
 
@@ -492,7 +492,7 @@ public class CreateEntryScenario extends BaseScenario {
     StepVerifier.create(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(null, repoName, entryKey, entryValue)))
-        .expectErrorMessage("Please specify 'apiKey'")
+        .expectErrorMessage(PLEASE_SPECIFY_API_KEY)
         .verify();
 
     StepVerifier.create(
@@ -521,13 +521,13 @@ public class CreateEntryScenario extends BaseScenario {
     StepVerifier.create(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(apiKey, null, entryKey, entryValue)))
-        .expectErrorMessage("Please specify 'repository'")
+        .expectErrorMessage(PLEASE_SPECIFY_REPO)
         .verify();
 
     StepVerifier.create(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(apiKey, "", entryKey, entryValue)))
-        .expectErrorMessage("Please specify 'repository'")
+        .expectErrorMessage(PLEASE_SPECIFY_REPO)
         .verify();
   }
 
@@ -550,13 +550,13 @@ public class CreateEntryScenario extends BaseScenario {
     StepVerifier.create(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(apiKey, repoName, null, entryValue)))
-        .expectErrorMessage("Please specify 'key'")
+        .expectErrorMessage(PLEASE_SPECIFY_KEY)
         .verify();
 
     StepVerifier.create(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(apiKey, repoName, "", entryValue)))
-        .expectErrorMessage("Please specify 'key'")
+        .expectErrorMessage(PLEASE_SPECIFY_KEY)
         .verify();
   }
 }
