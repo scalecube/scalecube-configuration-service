@@ -389,7 +389,7 @@ public class ReadEntryScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#47 Scenario: Fail to readEntry upon the \"Admin\" apiKey was deleted from the Organization")
-  void deleteEntryWithDeletedAdminApiKey(
+  void readEntryWithDeletedAdminApiKey(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
     String orgId = createOrganization(organizationService).id();
