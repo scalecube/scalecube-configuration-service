@@ -151,17 +151,17 @@ public class DeleteEntryScenario extends BaseScenario {
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
     String orgId = createOrganization(organizationService).id();
-    String token = createApiKey(organizationService, orgId, Role.Owner).key();
+    String apiKey = createApiKey(organizationService, orgId, Role.Owner).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(token, repoName))
+        .createRepository(new CreateRepositoryRequest(apiKey, repoName))
         .then(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(
-                    token,
+                    apiKey,
                     repoName,
                     entryKey,
                     OBJECT_MAPPER
@@ -179,7 +179,7 @@ public class DeleteEntryScenario extends BaseScenario {
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
-            configurationService.deleteEntry(new DeleteEntryRequest(token, repoName, entryKey)))
+            configurationService.deleteEntry(new DeleteEntryRequest(apiKey, repoName, entryKey)))
         .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
         .verify();
   }
@@ -191,18 +191,18 @@ public class DeleteEntryScenario extends BaseScenario {
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
     String orgId = createOrganization(organizationService).id();
-    ApiKey tokenOwner = createApiKey(organizationService, orgId, Role.Owner);
-    ApiKey tokenAdmin = createApiKey(organizationService, orgId, Role.Admin);
+    ApiKey apiKeyOwner = createApiKey(organizationService, orgId, Role.Owner);
+    ApiKey apiKeyAdmin = createApiKey(organizationService, orgId, Role.Admin);
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(tokenOwner.key(), repoName))
+        .createRepository(new CreateRepositoryRequest(apiKeyOwner.key(), repoName))
         .then(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(
-                    tokenOwner.key(),
+                    apiKeyOwner.key(),
                     repoName,
                     entryKey,
                     OBJECT_MAPPER
@@ -215,14 +215,14 @@ public class DeleteEntryScenario extends BaseScenario {
 
     organizationService
         .deleteOrganizationApiKey(
-            new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, tokenAdmin.name()))
+            new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, apiKeyAdmin.name()))
         .block(TIMEOUT);
 
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
             configurationService.deleteEntry(
-                new DeleteEntryRequest(tokenAdmin.key(), repoName, entryKey)))
+                new DeleteEntryRequest(apiKeyAdmin.key(), repoName, entryKey)))
         .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
         .verify();
   }
@@ -232,13 +232,13 @@ public class DeleteEntryScenario extends BaseScenario {
   void deleteEntryUsingExpiredApiKey(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
-    String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
+    String apiKey = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
 
     String repository = RandomStringUtils.randomAlphabetic(5);
 
     StepVerifier.create(
-            configurationService.deleteEntry(new DeleteEntryRequest(token, repository, "key")))
-        .expectErrorMessage("Token verification failed")
+            configurationService.deleteEntry(new DeleteEntryRequest(apiKey, repository, "key")))
+        .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
         .verify();
   }
 

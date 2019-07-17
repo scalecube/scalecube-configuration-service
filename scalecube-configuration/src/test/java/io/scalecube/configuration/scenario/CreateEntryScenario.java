@@ -477,7 +477,7 @@ public class CreateEntryScenario extends BaseScenario {
     StepVerifier.create(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(apiKey, repoName, entryKey, entryValue)))
-        .expectErrorMessage("Token verification failed")
+        .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
         .verify();
   }
 

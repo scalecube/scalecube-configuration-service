@@ -19,20 +19,20 @@ public class ReadListScenario extends BaseScenario {
   void readEntries(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
-    String adminToken = createApiKey(organizationService, orgId, Role.Admin).key();
-    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+    String adminApiKey = createApiKey(organizationService, orgId, Role.Admin).key();
+    String memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey1 = "KEY-FOR-PRECIOUS-METAL-123";
     String entryKey2 = "KEY-FOR-CURRENCY-999";
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(
-                    ownerToken,
+                    ownerApiKey,
                     repoName,
                     entryKey1,
                     OBJECT_MAPPER
@@ -44,7 +44,7 @@ public class ReadListScenario extends BaseScenario {
         .then(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(
-                    ownerToken,
+                    ownerApiKey,
                     repoName,
                     entryKey2,
                     OBJECT_MAPPER
@@ -57,14 +57,14 @@ public class ReadListScenario extends BaseScenario {
 
 
     configurationService
-        .readEntry(new ReadEntryRequest(ownerToken, repoName, entryKey1))
+        .readEntry(new ReadEntryRequest(ownerApiKey, repoName, entryKey1))
         .subscribe(e -> System.out.println(e));
 
     configurationService
-        .readEntry(new ReadEntryRequest(ownerToken, repoName, entryKey2))
+        .readEntry(new ReadEntryRequest(ownerApiKey, repoName, entryKey2))
         .subscribe(e -> System.out.println(e));
 
-        configurationService.readList(new ReadListRequest(ownerToken, repoName))
+        configurationService.readList(new ReadListRequest(ownerApiKey, repoName))
             .subscribe(e -> System.out.println(e));
 
     try {
@@ -73,7 +73,7 @@ public class ReadListScenario extends BaseScenario {
       e.printStackTrace();
     }
 
-//    StepVerifier.create(configurationService.readList(new ReadListRequest(ownerToken, repoName)))
+//    StepVerifier.create(configurationService.readList(new ReadListRequest(ownerApiKey, repoName)))
 //        .assertNext(
 //            entries -> {
 //              assertEquals(2, entries.size(), "Fetched entries count");
@@ -89,7 +89,7 @@ public class ReadListScenario extends BaseScenario {
 //        .expectComplete()
 //        .verify();
 //
-//    StepVerifier.create(configurationService.readList(new ReadListRequest(adminToken, repoName)))
+//    StepVerifier.create(configurationService.readList(new ReadListRequest(adminApiKey, repoName)))
 //        .assertNext(
 //            entries -> {
 //              assertEquals(2, entries.size(), "Fetched entries count");
@@ -157,18 +157,18 @@ public class ReadListScenario extends BaseScenario {
 //      ConfigurationService configurationService, OrganizationService organizationService)
 //      throws InterruptedException {
 //    String orgId = createOrganization(organizationService).id();
-//    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
+//    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
 //    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
 //
 //    String repoName = RandomStringUtils.randomAlphabetic(5);
 //    String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
 //
 //    configurationService
-//        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+//        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
 //        .then(
 //            configurationService.createEntry(
 //                new CreateOrUpdateEntryRequest(
-//                    ownerToken,
+//                    ownerApiKey,
 //                    repoName,
 //                    entryKey,
 //                    OBJECT_MAPPER
@@ -232,18 +232,18 @@ public class ReadListScenario extends BaseScenario {
 //      ConfigurationService configurationService, OrganizationService organizationService)
 //      throws InterruptedException {
 //    String orgId = createOrganization(organizationService).id();
-//    ApiKey ownerToken = createApiKey(organizationService, orgId, Role.Owner);
+//    ApiKey ownerApiKey = createApiKey(organizationService, orgId, Role.Owner);
 //    ApiKey memberToken = createApiKey(organizationService, orgId, Role.Member);
 //
 //    String repoName = RandomStringUtils.randomAlphabetic(5);
 //    String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
 //
 //    configurationService
-//        .createRepository(new CreateRepositoryRequest(ownerToken.key(), repoName))
+//        .createRepository(new CreateRepositoryRequest(ownerApiKey.key(), repoName))
 //        .then(
 //            configurationService.createEntry(
 //                new CreateOrUpdateEntryRequest(
-//                    ownerToken.key(),
+//                    ownerApiKey.key(),
 //                    repoName,
 //                    entryKey,
 //                    OBJECT_MAPPER

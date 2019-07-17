@@ -32,8 +32,8 @@ public class ReadEntryHistoryScenario extends BaseScenario {
       ConfigurationService configurationService, OrganizationService organizationService) {
 
     String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
-    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+    String memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
@@ -64,27 +64,27 @@ public class ReadEntryHistoryScenario extends BaseScenario {
             .put("Rounding", "down");
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion1)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion2)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion2)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion3)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion3)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion4)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion4)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion5)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion5)))
         .block(TIMEOUT);
 
     StepVerifier.create(
             configurationService.readEntryHistory(
-                new ReadEntryHistoryRequest(memberToken, repoName, entryKey)))
+                new ReadEntryHistoryRequest(memberApiKey, repoName, entryKey)))
         .assertNext(
             entries -> {
               assertEquals(5, entries.size(), "Fetched entries count");
@@ -134,8 +134,8 @@ public class ReadEntryHistoryScenario extends BaseScenario {
       ConfigurationService configurationService, OrganizationService organizationService) {
 
     String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
-    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+    String memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String repoNameNotExists = repoName + "_not_exists";
@@ -152,18 +152,18 @@ public class ReadEntryHistoryScenario extends BaseScenario {
             .put("Rounding", "down");
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion1)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion2)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
             configurationService.readEntryHistory(
-                new ReadEntryHistoryRequest(memberToken, repoNameNotExists, entryKey)))
+                new ReadEntryHistoryRequest(memberApiKey, repoNameNotExists, entryKey)))
         .expectErrorMessage(
             String.format(REPOSITORY_OR_ITS_KEY_NOT_FOUND_FORMATTER, repoNameNotExists, entryKey))
         .verify();
@@ -176,8 +176,8 @@ public class ReadEntryHistoryScenario extends BaseScenario {
       throws InterruptedException {
 
     String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
-    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+    String memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
@@ -193,13 +193,13 @@ public class ReadEntryHistoryScenario extends BaseScenario {
             .put("Rounding", "down");
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion1)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion2)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion2)))
         .block(TIMEOUT);
 
     organizationService
@@ -210,7 +210,7 @@ public class ReadEntryHistoryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService.readEntryHistory(
-                new ReadEntryHistoryRequest(memberToken, repoName, entryKey)))
+                new ReadEntryHistoryRequest(memberApiKey, repoName, entryKey)))
         .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
         .verify();
   }
@@ -222,8 +222,8 @@ public class ReadEntryHistoryScenario extends BaseScenario {
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
     String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
-    ApiKey adminToken = createApiKey(organizationService, orgId, Role.Member);
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+    ApiKey adminApiKey = createApiKey(organizationService, orgId, Role.Member);
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
@@ -239,25 +239,25 @@ public class ReadEntryHistoryScenario extends BaseScenario {
             .put("Rounding", "down");
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion1)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion2)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion2)))
         .block(TIMEOUT);
 
     organizationService
         .deleteOrganizationApiKey(
-            new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, adminToken.name()))
+            new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, adminApiKey.name()))
         .block(TIMEOUT);
 
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
             configurationService.readEntryHistory(
-                new ReadEntryHistoryRequest(adminToken, repoName, entryKey)))
+                new ReadEntryHistoryRequest(adminApiKey, repoName, entryKey)))
         .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
         .verify();
   }
@@ -267,14 +267,14 @@ public class ReadEntryHistoryScenario extends BaseScenario {
   void readEntryHistoryUsingExpiredApiKey(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
-    String expiredToken = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
+    String expiredApiKey = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
 
     StepVerifier.create(
             configurationService.readEntryHistory(
-                new ReadEntryHistoryRequest(expiredToken, repoName, entryKey)))
+                new ReadEntryHistoryRequest(expiredApiKey, repoName, entryKey)))
         .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
         .verify();
   }
@@ -284,7 +284,7 @@ public class ReadEntryHistoryScenario extends BaseScenario {
   void readEntryHistoryWithEmptyOrUndefinedApiKey(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
@@ -300,13 +300,13 @@ public class ReadEntryHistoryScenario extends BaseScenario {
             .put("Rounding", "down");
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion1)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion2)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -327,7 +327,7 @@ public class ReadEntryHistoryScenario extends BaseScenario {
   void readEntryHistoryWithEmptyOrUndefinedRepo(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
@@ -343,24 +343,24 @@ public class ReadEntryHistoryScenario extends BaseScenario {
             .put("Rounding", "down");
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion1)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion2)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
             configurationService.readEntryHistory(
-                new ReadEntryHistoryRequest(ownerToken, "", entryKey)))
+                new ReadEntryHistoryRequest(ownerApiKey, "", entryKey)))
         .expectErrorMessage(PLEASE_SPECIFY_REPO)
         .verify();
 
     StepVerifier.create(
             configurationService.readEntryHistory(
-                new ReadEntryHistoryRequest(ownerToken, null, entryKey)))
+                new ReadEntryHistoryRequest(ownerApiKey, null, entryKey)))
         .expectErrorMessage(PLEASE_SPECIFY_REPO)
         .verify();
   }
@@ -370,7 +370,7 @@ public class ReadEntryHistoryScenario extends BaseScenario {
   void readEntryHistoryWithEmptyOrUndefinedKey(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
@@ -386,24 +386,24 @@ public class ReadEntryHistoryScenario extends BaseScenario {
             .put("Rounding", "down");
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion1)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion2)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
             configurationService.readEntryHistory(
-                new ReadEntryHistoryRequest(ownerToken, repoName, "")))
+                new ReadEntryHistoryRequest(ownerApiKey, repoName, "")))
         .expectErrorMessage(PLEASE_SPECIFY_KEY)
         .verify();
 
     StepVerifier.create(
             configurationService.readEntryHistory(
-                new ReadEntryHistoryRequest(ownerToken, repoName, null)))
+                new ReadEntryHistoryRequest(ownerApiKey, repoName, null)))
         .expectErrorMessage(PLEASE_SPECIFY_KEY)
         .verify();
   }
@@ -413,7 +413,7 @@ public class ReadEntryHistoryScenario extends BaseScenario {
   void readEntryHistoryWithNonExistKey(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
@@ -430,18 +430,18 @@ public class ReadEntryHistoryScenario extends BaseScenario {
             .put("Rounding", "down");
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion1)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValueVersion2)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
             configurationService.readEntryHistory(
-                new ReadEntryHistoryRequest(ownerToken, repoName, entryKeyNotExists)))
+                new ReadEntryHistoryRequest(ownerApiKey, repoName, entryKeyNotExists)))
         .expectErrorMessage(
             String.format(REPOSITORY_OR_ITS_KEY_NOT_FOUND_FORMATTER, repoName, entryKeyNotExists))
         .verify();

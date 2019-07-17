@@ -158,8 +158,7 @@ public class CreateRepositoryScenario extends BaseScenario {
   }
 
   @TestTemplate
-  @DisplayName(
-      "#7 Scenario: Fail to create the Repository due to invalid apiKey was applied")
+  @DisplayName("#7 Scenario: Fail to create the Repository due to invalid apiKey was applied")
   void createRepositoryUsingExpiredApiKey(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -169,7 +168,7 @@ public class CreateRepositoryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService.createRepository(new CreateRepositoryRequest(apiKey, repository)))
-        .expectErrorMessage("Token verification failed")
+        .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
         .verify();
   }
 
@@ -181,12 +180,12 @@ public class CreateRepositoryScenario extends BaseScenario {
     String apiKey = createApiKey(organizationService, orgId, Role.Owner).key();
 
     StepVerifier.create(
-        configurationService.createRepository(new CreateRepositoryRequest(apiKey, null)))
+            configurationService.createRepository(new CreateRepositoryRequest(apiKey, null)))
         .expectErrorMessage(String.format(PLEASE_SPECIFY_REPO))
         .verify();
 
     StepVerifier.create(
-        configurationService.createRepository(new CreateRepositoryRequest(apiKey, "")))
+            configurationService.createRepository(new CreateRepositoryRequest(apiKey, "")))
         .expectErrorMessage(String.format(PLEASE_SPECIFY_REPO))
         .verify();
   }
@@ -197,12 +196,12 @@ public class CreateRepositoryScenario extends BaseScenario {
     String repository = RandomStringUtils.randomAlphabetic(5);
 
     StepVerifier.create(
-        configurationService.createRepository(new CreateRepositoryRequest(null, repository)))
+            configurationService.createRepository(new CreateRepositoryRequest(null, repository)))
         .expectErrorMessage(String.format(PLEASE_SPECIFY_API_KEY))
         .verify();
 
     StepVerifier.create(
-        configurationService.createRepository(new CreateRepositoryRequest("", repository)))
+            configurationService.createRepository(new CreateRepositoryRequest("", repository)))
         .expectErrorMessage(String.format(PLEASE_SPECIFY_API_KEY))
         .verify();
   }

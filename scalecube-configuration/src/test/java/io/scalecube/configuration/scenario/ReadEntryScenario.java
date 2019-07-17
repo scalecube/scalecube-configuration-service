@@ -28,9 +28,9 @@ public class ReadEntryScenario extends BaseScenario {
   void readEntry(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
-    String adminToken = createApiKey(organizationService, orgId, Role.Admin).key();
-    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+    String adminApiKey = createApiKey(organizationService, orgId, Role.Admin).key();
+    String memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey1 = "KEY-FOR-PRECIOUS-METAL-123";
@@ -51,17 +51,17 @@ public class ReadEntryScenario extends BaseScenario {
             .put("Rounding", "down");
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey1, entryValue1)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey1, entryValue1)))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey2, entryValue2)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey2, entryValue2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(ownerToken, repoName, entryKey1)))
+            configurationService.readEntry(new ReadEntryRequest(ownerApiKey, repoName, entryKey1)))
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
@@ -71,7 +71,7 @@ public class ReadEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(adminToken, repoName, entryKey1)))
+            configurationService.readEntry(new ReadEntryRequest(adminApiKey, repoName, entryKey1)))
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
@@ -81,7 +81,7 @@ public class ReadEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(memberToken, repoName, entryKey1)))
+            configurationService.readEntry(new ReadEntryRequest(memberApiKey, repoName, entryKey1)))
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
@@ -97,9 +97,9 @@ public class ReadEntryScenario extends BaseScenario {
       ConfigurationService configurationService, OrganizationService organizationService) {
 
     String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
-    String adminToken = createApiKey(organizationService, orgId, Role.Admin).key();
-    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+    String adminApiKey = createApiKey(organizationService, orgId, Role.Admin).key();
+    String memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
@@ -130,26 +130,26 @@ public class ReadEntryScenario extends BaseScenario {
             .put("Rounding", "down");
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValue1)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValue2)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue2)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValue3)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue3)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValue4)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue4)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValue5)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue5)))
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(ownerToken, repoName, entryKey)))
+            configurationService.readEntry(new ReadEntryRequest(ownerApiKey, repoName, entryKey)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -159,7 +159,7 @@ public class ReadEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(ownerToken, repoName, entryKey, 1)))
+            configurationService.readEntry(new ReadEntryRequest(ownerApiKey, repoName, entryKey, 1)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -169,7 +169,7 @@ public class ReadEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(ownerToken, repoName, entryKey, 2)))
+            configurationService.readEntry(new ReadEntryRequest(ownerApiKey, repoName, entryKey, 2)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -179,7 +179,7 @@ public class ReadEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(adminToken, repoName, entryKey, 3)))
+            configurationService.readEntry(new ReadEntryRequest(adminApiKey, repoName, entryKey, 3)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -190,7 +190,7 @@ public class ReadEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService.readEntry(
-                new ReadEntryRequest(memberToken, repoName, entryKey, 4)))
+                new ReadEntryRequest(memberApiKey, repoName, entryKey, 4)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -201,7 +201,7 @@ public class ReadEntryScenario extends BaseScenario {
 
     StepVerifier.create(
             configurationService.readEntry(
-                new ReadEntryRequest(memberToken, repoName, entryKey, 5)))
+                new ReadEntryRequest(memberApiKey, repoName, entryKey, 5)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -217,7 +217,7 @@ public class ReadEntryScenario extends BaseScenario {
       ConfigurationService configurationService, OrganizationService organizationService) {
 
     String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
@@ -239,18 +239,18 @@ public class ReadEntryScenario extends BaseScenario {
             .put("Rounding", "up");
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValue1)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValue2)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
             configurationService.readEntry(
-                new ReadEntryRequest(ownerToken, repoName, entryKey, version)))
+                new ReadEntryRequest(ownerApiKey, repoName, entryKey, version)))
         .expectErrorMessage(String.format(KEY_VERSION_NOT_FOUND_FORMATTER, entryKey, version))
         .verify();
   }
@@ -261,8 +261,8 @@ public class ReadEntryScenario extends BaseScenario {
       ConfigurationService configurationService, OrganizationService organizationService) {
 
     String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
-    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+    String memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
@@ -283,30 +283,30 @@ public class ReadEntryScenario extends BaseScenario {
             .put("Rounding", "up");
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValue1)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValue2)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
             configurationService.readEntry(
-                new ReadEntryRequest(memberToken, repoName, entryKey, "afafaf")))
+                new ReadEntryRequest(memberApiKey, repoName, entryKey, "afafaf")))
         .expectErrorMessage(VERSION_MUST_BE_A_POSITIVE_NUMBER)
         .verify();
 
     StepVerifier.create(
             configurationService.readEntry(
-                new ReadEntryRequest(memberToken, repoName, entryKey, 0)))
+                new ReadEntryRequest(memberApiKey, repoName, entryKey, 0)))
         .expectErrorMessage(VERSION_MUST_BE_A_POSITIVE_NUMBER)
         .verify();
 
     StepVerifier.create(
             configurationService.readEntry(
-                new ReadEntryRequest(memberToken, repoName, entryKey, -1)))
+                new ReadEntryRequest(memberApiKey, repoName, entryKey, -1)))
         .expectErrorMessage(VERSION_MUST_BE_A_POSITIVE_NUMBER)
         .verify();
   }
@@ -317,8 +317,8 @@ public class ReadEntryScenario extends BaseScenario {
       ConfigurationService configurationService, OrganizationService organizationService) {
 
     String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
-    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+    String memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String repoNameNotExists = repoName + "_not_exists";
@@ -333,15 +333,15 @@ public class ReadEntryScenario extends BaseScenario {
             .put("Rounding", "down");
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey, entryValue)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue)))
         .block(TIMEOUT);
 
     StepVerifier.create(
             configurationService.readEntry(
-                new ReadEntryRequest(ownerToken, repoNameNotExists, entryKey)))
+                new ReadEntryRequest(ownerApiKey, repoNameNotExists, entryKey)))
         .expectErrorMessage(
             String.format(REPOSITORY_OR_ITS_KEY_NOT_FOUND_FORMATTER, repoNameNotExists, entryKey))
         .verify();
@@ -353,17 +353,17 @@ public class ReadEntryScenario extends BaseScenario {
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
     String orgId = createOrganization(organizationService).id();
-    String token = createApiKey(organizationService, orgId, Role.Owner).key();
+    String apiKey = createApiKey(organizationService, orgId, Role.Owner).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(token, repoName))
+        .createRepository(new CreateRepositoryRequest(apiKey, repoName))
         .then(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(
-                    token,
+                    apiKey,
                     repoName,
                     entryKey,
                     OBJECT_MAPPER
@@ -381,7 +381,7 @@ public class ReadEntryScenario extends BaseScenario {
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(token, repoName, entryKey)))
+            configurationService.readEntry(new ReadEntryRequest(apiKey, repoName, entryKey)))
         .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
         .verify();
   }
@@ -393,18 +393,18 @@ public class ReadEntryScenario extends BaseScenario {
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
     String orgId = createOrganization(organizationService).id();
-    ApiKey tokenOwner = createApiKey(organizationService, orgId, Role.Owner);
-    ApiKey tokenAdmin = createApiKey(organizationService, orgId, Role.Admin);
+    ApiKey ownerApiKey = createApiKey(organizationService, orgId, Role.Owner);
+    ApiKey adminApiKey = createApiKey(organizationService, orgId, Role.Admin);
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(tokenOwner.key(), repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey.key(), repoName))
         .then(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(
-                    tokenOwner.key(),
+                    ownerApiKey.key(),
                     repoName,
                     entryKey,
                     OBJECT_MAPPER
@@ -417,14 +417,14 @@ public class ReadEntryScenario extends BaseScenario {
 
     organizationService
         .deleteOrganizationApiKey(
-            new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, tokenAdmin.name()))
+            new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, adminApiKey.name()))
         .block(TIMEOUT);
 
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
             configurationService.readEntry(
-                new ReadEntryRequest(tokenAdmin.key(), repoName, entryKey)))
+                new ReadEntryRequest(adminApiKey.key(), repoName, entryKey)))
         .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
         .verify();
   }
@@ -434,12 +434,12 @@ public class ReadEntryScenario extends BaseScenario {
   void readEntryUsingExpiredApiKey(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
-    String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
+    String apiKey = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
 
     String repository = RandomStringUtils.randomAlphabetic(5);
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(token, repository, "key")))
+            configurationService.readEntry(new ReadEntryRequest(apiKey, repository, "key")))
         .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
         .verify();
   }
