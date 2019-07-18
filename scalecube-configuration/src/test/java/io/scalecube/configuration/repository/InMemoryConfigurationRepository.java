@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -49,8 +50,12 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
 
   @Override
   public Flux<HistoryDocument> readHistory(String tenant, String repository, String key) {
-    throw new NotImplementedException();
-    //    throw new NotImplementedException();
+    AtomicInteger version = new AtomicInteger(0);
+    Set<HistoryDocument> values =
+        getRepositoryKeyAllVersions(new Repository(tenant, repository), key).stream()
+            .map(doc -> new HistoryDocument(version.incrementAndGet(), doc))
+            .collect(Collectors.toSet());
+    return Flux.fromIterable(values);
   }
 
   @Override
