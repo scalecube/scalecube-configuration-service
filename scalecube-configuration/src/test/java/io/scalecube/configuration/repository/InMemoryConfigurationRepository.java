@@ -60,76 +60,13 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
 
   @Override
   public Mono<Void> delete(String tenant, String repository, String key) {
-    throw new NotImplementedException();
-    //    return remove(new Repository(tenant, repository), key);
+    return remove(new Repository(tenant, repository), key);
   }
 
   @Override
   public Mono<Document> update(String tenant, String repository, Document doc) {
     throw new NotImplementedException();
-    //    RepoKeyTuple repoKeyTuple = new RepoKeyTuple(tenant + "-" + repository, doc.key());
-    //
-    //    List values = updates.get(repoKeyTuple);
-    //    if (values == null) {
-    //      throw new RepositoryKeyAlreadyExistsException(
-    //          String.format("Repository '%s' key '%s' already exists", repository, doc.key()));
-    //    } else {
-    //      values.add(doc.value());
-    //      updates.put(repoKeyTuple, values);
-    //    }
-    //    return Mono.justOrEmpty(doc);
   }
-
-  //  private Mono<Document> get(Repository repository, String key) {
-  //    return Mono.justOrEmpty(getRepositoryKey(repository, key).get(key))
-  //        .switchIfEmpty(
-  //            Mono.defer(
-  //                () ->
-  //                    Mono.error(
-  //                        new KeyNotFoundException(
-  //                            String.format(
-  //                                "Repository '%s' or its key '%s' not found",
-  //                                repository.name(), key)))));
-  //  }
-  //
-  //  private Mono<Document> put(Repository repository, String key, Document value) {
-  //    checkRepoKeyPairUnique(repository, key, value);
-  //    return Mono.create(sink -> sink.success(getRepository(repository).put(key, value)));
-  //  }
-  //
-  //  private void checkRepoKeyPairUnique(Repository repository, String key, Document value) {
-  //    RepoKeyTuple repoKeyTuple =
-  //        new RepoKeyTuple(repository.namespace() + "-" + repository.name(), key);
-  //
-  //    if (updates.get(repoKeyTuple) != null) {
-  //      throw new RepositoryKeyAlreadyExistsException(
-  //          String.format("Repository '%s' key '%s' already exists", repository.name(), key));
-  //    } else {
-  //      updates.put(
-  //          repoKeyTuple,
-  //          new ArrayList() {
-  //            {
-  //              add(value);
-  //            }
-  //          });
-  //      getRepository(repository).put(key, value);
-  //    }
-  //  }
-  //
-  //  private Mono<Void> remove(Repository repository, String key) {
-  //    return Mono.fromCallable(() -> getRepositoryKey(repository, key))
-  //        .filter(repo -> repo.containsKey(key))
-  //        .switchIfEmpty(
-  //            Mono.defer(
-  //                () ->
-  //                    Mono.error(
-  //                        new KeyNotFoundException(
-  //                            String.format(
-  //                                "Repository '%s' or its key '%s' not found",
-  //                                repository.name(), key)))))
-  //        .map(repo -> repo.remove(key))
-  //        .then();
-  //  }
 
   private Mono<Void> remove(Repository repository, String key) {
     if (repositoryAndKeyExists(repository, key)) {
@@ -157,7 +94,8 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   }
 
   private Mono<Document> create(Repository repository, String key, Document value) {
-    if (repositoryExists(repository) && !repositoryAndKeyExists(repository, key)) {
+    getRepository(repository);
+    if (!repositoryAndKeyExists(repository, key)) {
       getRepository(repository)
           .put(
               key,
@@ -165,8 +103,7 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
                 {
                   add(value);
                 }
-              })
-          .get(0);
+              });
       return Mono.create(sink -> sink.success(value));
     }
     throw new RepositoryKeyAlreadyExistsException(
