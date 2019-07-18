@@ -77,16 +77,16 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
     if (version == null) {
       return get(new Repository(tenant, repository), key);
     }
-    List values = updates.get(new RepoKeyTuple(repository, key));
+    List values = updates.get(new RepoKeyTuple(tenant + "-" + repository, key));
     if (values == null) {
       throw new KeyNotFoundException(
           String.format("Repository '%s' or its key '%s' not found", repository, key));
-    } else if (values.size() <= version) {
+    } else if (values.size() < version) {
       throw new KeyVersionNotFoundException(
-          String.format(
-              "Key '%s' version '%s' not found", key, version != null ? version : "latest"));
+          String.format("Key '%s' version '%s' not found", key, version));
     }
-    return Mono.justOrEmpty(new Document(key, values.get(version - 1), version));
+    return Mono.justOrEmpty(
+        new Document(key, ((Document) values.get(version - 1)).value(), version));
   }
 
   @Override
@@ -156,6 +156,7 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
               add(value);
             }
           });
+      getRepository(repository).put(key, value);
     }
   }
 
