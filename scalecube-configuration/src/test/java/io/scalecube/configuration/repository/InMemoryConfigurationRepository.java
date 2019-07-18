@@ -64,8 +64,8 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   }
 
   @Override
-  public Mono<Document> update(String tenant, String repository, Document doc) {
-    throw new NotImplementedException();
+  public Mono<Document> update(String tenant, String repository, Document document) {
+    return updating(new Repository(tenant, repository), document.key(), document);
   }
 
   private Mono<Void> remove(Repository repository, String key) {
@@ -80,7 +80,7 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
                         "Repository '%s' or its key '%s' not found", repository.name(), key))));
   }
 
-  private Mono<Document> update(Repository repository, String key, Document value) {
+  private Mono<Document> updating(Repository repository, String key, Document value) {
     if (repositoryAndKeyExists(repository, key)) {
       getRepositoryKeyAllVersions(repository, key).add(value);
       return Mono.create(sink -> sink.success(value));
