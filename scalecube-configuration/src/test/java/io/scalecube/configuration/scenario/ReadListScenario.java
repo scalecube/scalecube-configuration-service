@@ -112,7 +112,7 @@ public class ReadListScenario extends BaseScenario {
         .then(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey3, entryValue31)))
-        .then(Mono.delay(Duration.ofMillis(KEY_CACHE_TTL * 1100)))
+        .then(Mono.delay(Duration.ofMillis(KEY_CACHE_TTL * 900)))
         .block(TIMEOUT);
   }
 
