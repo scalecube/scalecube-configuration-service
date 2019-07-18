@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class InMemoryConfigurationRepository implements ConfigurationRepository {
 
@@ -44,8 +43,16 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
 
   @Override
   public Flux<Document> readAll(String tenant, String repository, Integer version) {
-    throw new NotImplementedException();
-    //    return entries(new Repository(tenant, repository));
+    Set<Document> values =
+        getRepository(new Repository(tenant, repository)).values().stream()
+            .map(
+                vl ->
+                    version == null
+                        ? vl.get(vl.size() - 1)
+                        : version <= vl.size() ? vl.get(version - 1) : null)
+            .filter(v -> v != null)
+            .collect(Collectors.toSet());
+    return Flux.fromIterable(values);
   }
 
   @Override
@@ -103,27 +110,6 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
                 new KeyNotFoundException(
                     String.format(
                         "Repository '%s' or its key '%s' not found", repository, doc.key()))));
-  }
-
-  private Flux<Document> entries(Repository repository) {
-    return entries(repository, null);
-  }
-
-  private Flux<Document> entries(Repository repository, Integer version) {
-    Set<Document> values =
-        getRepository(repository).values().stream()
-            .map(
-                vl ->
-                    version == null
-                        ? vl.get(vl.size() - 1)
-                        : version <= vl.size() ? vl.get(version - 1) : null)
-            .filter(v -> v != null)
-            .collect(Collectors.toSet());
-    return Flux.fromIterable(values);
-  }
-
-  private Document getRepositoryKey(Repository repository, String key) {
-    return getRepositoryKey(repository, key, null);
   }
 
   private Document getRepositoryKey(Repository repository, String key, Integer version) {
