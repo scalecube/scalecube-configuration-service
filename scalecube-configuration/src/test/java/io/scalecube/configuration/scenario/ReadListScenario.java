@@ -25,10 +25,7 @@ import org.junit.jupiter.api.TestTemplate;
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 import reactor.test.StepVerifier;
 
-/**
- * Todo: need to be implemented. Issue: readList is coming empty but it should have elements. If we
- * make breakpoint on code it coming not empty.
- */
+/** Todo: need to be implemented in IT. If to stop a breakpoint on code it coming not empty. */
 public class ReadListScenario extends BaseScenario {
 
   private String orgId;
