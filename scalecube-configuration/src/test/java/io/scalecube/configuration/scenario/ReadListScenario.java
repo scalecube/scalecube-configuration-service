@@ -15,6 +15,7 @@ import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.ReadEntryResponse;
 import io.scalecube.configuration.api.ReadListRequest;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 /** Todo: need to be implemented in IT. If to stop a breakpoint on code it coming not empty. */
@@ -110,6 +112,7 @@ public class ReadListScenario extends BaseScenario {
         .then(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey3, entryValue31)))
+        .then(Mono.delay(Duration.ofMillis(KEY_CACHE_TTL * 1100)))
         .block(TIMEOUT);
   }
 
@@ -375,6 +378,24 @@ public class ReadListScenario extends BaseScenario {
   }
 
   private Map<String, Object> keyValueMap(List<ReadEntryResponse> entries) {
-    return entries.stream().collect(Collectors.toMap(rs -> rs.key(), rs -> rs.value()));
+    return entries.stream().collect(Collectors.toMap(rs -> rs.key(), rs -> entryValue(rs.value())));
+  }
+
+  private ObjectNode entryValue(Object value) {
+    if (value instanceof ObjectNode) {
+      return (ObjectNode) value;
+    }
+
+    ObjectNode createdValue = OBJECT_MAPPER.createObjectNode();
+    ((Map<String, Object>) value)
+        .forEach(
+            (k, v) -> {
+              if (v instanceof String) {
+                createdValue.put(k, (String) v);
+              } else {
+                createdValue.put(k, (Integer) v);
+              }
+            });
+    return createdValue;
   }
 }
