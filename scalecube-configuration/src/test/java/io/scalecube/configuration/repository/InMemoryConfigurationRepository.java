@@ -54,60 +54,50 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   }
 
   @Override
-  public Mono<Document> save(String tenant, String repository, Document document) {
-    return create(new Repository(tenant, repository), document.key(), document);
+  public Mono<Document> save(String tenant, String repository, Document doc) {
+    Repository repo = new Repository(tenant, repository);
+    getRepository(repo);
+    if (!repositoryAndKeyExists(repo, doc.key())) {
+      getRepository(repo)
+          .put(
+              doc.key(),
+              new ArrayList<Document>() {
+                {
+                  add(doc);
+                }
+              });
+      return Mono.create(sink -> sink.success(doc));
+    }
+    throw new RepositoryKeyAlreadyExistsException(
+        String.format("Repository '%s' key '%s' already exists", repository, doc.key()));
   }
 
   @Override
   public Mono<Void> delete(String tenant, String repository, String key) {
-    return remove(new Repository(tenant, repository), key);
+    Repository repo = new Repository(tenant, repository);
+    if (repositoryAndKeyExists(repo, key)) {
+      return Mono.justOrEmpty(getRepository(repo).remove(key)).then();
+    }
+    return Mono.defer(
+        () ->
+            Mono.error(
+                new KeyNotFoundException(
+                    String.format("Repository '%s' or its key '%s' not found", repository, key))));
   }
 
   @Override
-  public Mono<Document> update(String tenant, String repository, Document document) {
-    return updating(new Repository(tenant, repository), document.key(), document);
-  }
-
-  private Mono<Void> remove(Repository repository, String key) {
-    if (repositoryAndKeyExists(repository, key)) {
-      return Mono.justOrEmpty(getRepository(repository).remove(key)).then();
+  public Mono<Document> update(String tenant, String repository, Document doc) {
+    Repository repo = new Repository(tenant, repository);
+    if (repositoryAndKeyExists(repo, doc.key())) {
+      getRepositoryKeyAllVersions(repo, doc.key()).add(doc);
+      return Mono.create(sink -> sink.success(doc));
     }
     return Mono.defer(
         () ->
             Mono.error(
                 new KeyNotFoundException(
                     String.format(
-                        "Repository '%s' or its key '%s' not found", repository.name(), key))));
-  }
-
-  private Mono<Document> updating(Repository repository, String key, Document value) {
-    if (repositoryAndKeyExists(repository, key)) {
-      getRepositoryKeyAllVersions(repository, key).add(value);
-      return Mono.create(sink -> sink.success(value));
-    }
-    return Mono.defer(
-        () ->
-            Mono.error(
-                new KeyNotFoundException(
-                    String.format(
-                        "Repository '%s' or its key '%s' not found", repository.name(), key))));
-  }
-
-  private Mono<Document> create(Repository repository, String key, Document value) {
-    getRepository(repository);
-    if (!repositoryAndKeyExists(repository, key)) {
-      getRepository(repository)
-          .put(
-              key,
-              new ArrayList<Document>() {
-                {
-                  add(value);
-                }
-              });
-      return Mono.create(sink -> sink.success(value));
-    }
-    throw new RepositoryKeyAlreadyExistsException(
-        String.format("Repository '%s' key '%s' already exists", repository.name(), key));
+                        "Repository '%s' or its key '%s' not found", repository, doc.key()))));
   }
 
   private Flux<Document> entries(Repository repository) {
