@@ -53,7 +53,7 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
     AtomicInteger version = new AtomicInteger(0);
     Set<HistoryDocument> values =
         getRepositoryKeyAllVersions(new Repository(tenant, repository), key).stream()
-            .map(doc -> new HistoryDocument(version.incrementAndGet(), doc))
+            .map(doc -> new HistoryDocument(version.incrementAndGet(), doc.value()))
             .collect(Collectors.toSet());
     return Flux.fromIterable(values);
   }

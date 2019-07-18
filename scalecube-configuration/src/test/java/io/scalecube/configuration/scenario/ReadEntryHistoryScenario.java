@@ -14,6 +14,7 @@ import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.ReadEntryHistoryRequest;
+import io.scalecube.configuration.api.ReadEntryHistoryResponse;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -67,19 +68,24 @@ public class ReadEntryHistoryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion1)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion2)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion2)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion3)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion3)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion4)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion4)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion5)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion5)))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -91,21 +97,7 @@ public class ReadEntryHistoryScenario extends BaseScenario {
 
               List<ObjectNode> entriesValues =
                   entries.stream()
-                      .map(
-                          readEntryHistoryResponse -> {
-                            Map<String, Object> entry =
-                                (Map<String, Object>) readEntryHistoryResponse.value();
-                            ObjectNode entryValue = OBJECT_MAPPER.createObjectNode();
-                            entry.forEach(
-                                (k, v) -> {
-                                  if (v instanceof String) {
-                                    entryValue.put(k, (String) v);
-                                  } else {
-                                    entryValue.put(k, (Integer) v);
-                                  }
-                                });
-                            return entryValue;
-                          })
+                      .map(readEntryHistoryResponse -> valueObjectNodes(readEntryHistoryResponse))
                       .collect(Collectors.toList());
 
               assertTrue(
@@ -155,10 +147,12 @@ public class ReadEntryHistoryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion1)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion2)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -196,10 +190,12 @@ public class ReadEntryHistoryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion1)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion2)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion2)))
         .block(TIMEOUT);
 
     organizationService
@@ -242,10 +238,12 @@ public class ReadEntryHistoryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion1)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion2)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion2)))
         .block(TIMEOUT);
 
     organizationService
@@ -303,10 +301,12 @@ public class ReadEntryHistoryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion1)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion2)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -346,10 +346,12 @@ public class ReadEntryHistoryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion1)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion2)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -389,10 +391,12 @@ public class ReadEntryHistoryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion1)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion2)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -433,10 +437,12 @@ public class ReadEntryHistoryScenario extends BaseScenario {
         .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion1)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion1)))
         .then(
             configurationService.updateEntry(
-                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValueVersion2)))
+                new CreateOrUpdateEntryRequest(
+                    ownerApiKey, repoName, entryKey, entryValueVersion2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -445,5 +451,25 @@ public class ReadEntryHistoryScenario extends BaseScenario {
         .expectErrorMessage(
             String.format(REPOSITORY_OR_ITS_KEY_NOT_FOUND_FORMATTER, repoName, entryKeyNotExists))
         .verify();
+  }
+
+  private ObjectNode valueObjectNodes(ReadEntryHistoryResponse readEntryHistoryResponse) {
+    Object value = readEntryHistoryResponse.value();
+
+    if (value instanceof ObjectNode) {
+      return (ObjectNode) value;
+    }
+
+    ObjectNode createdValue = OBJECT_MAPPER.createObjectNode();
+    ((Map<String, Object>) value)
+        .forEach(
+            (k, v) -> {
+              if (v instanceof String) {
+                createdValue.put(k, (String) v);
+              } else {
+                createdValue.put(k, (Integer) v);
+              }
+            });
+    return createdValue;
   }
 }
