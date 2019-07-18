@@ -1,8 +1,11 @@
 package io.scalecube.configuration.repository;
 
+import io.scalecube.configuration.repository.exception.KeyNotFoundException;
 import io.scalecube.configuration.repository.exception.KeyVersionNotFoundException;
 import io.scalecube.configuration.repository.exception.RepositoryAlreadyExistsException;
+import io.scalecube.configuration.repository.exception.RepositoryKeyAlreadyExistsException;
 import io.scalecube.configuration.repository.exception.RepositoryNotFoundException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,20 +38,7 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
 
   @Override
   public Mono<Document> read(String tenant, String repository, String key, Integer version) {
-    throw new NotImplementedException();
-    //    if (version == null) {
-    //      return get(new Repository(tenant, repository), key);
-    //    }
-    //    List values = updates.get(new RepoKeyTuple(tenant + "-" + repository, key));
-    //    if (values == null) {
-    //      throw new KeyNotFoundException(
-    //          String.format("Repository '%s' or its key '%s' not found", repository, key));
-    //    } else if (values.size() < version) {
-    //      throw new KeyVersionNotFoundException(
-    //          String.format("Key '%s' version '%s' not found", key, version));
-    //    }
-    //    return Mono.justOrEmpty(
-    //        new Document(key, ((Document) values.get(version - 1)).value(), version));
+    return Mono.justOrEmpty(getRepositoryKey(new Repository(tenant, repository), key, version));
   }
 
   @Override
@@ -65,8 +55,7 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
 
   @Override
   public Mono<Document> save(String tenant, String repository, Document document) {
-    throw new NotImplementedException();
-    //    return put(new Repository(tenant, repository), document.key(), document);
+    return create(new Repository(tenant, repository), document.key(), document);
   }
 
   @Override
@@ -142,6 +131,48 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
   //        .then();
   //  }
 
+  private Mono<Void> remove(Repository repository, String key) {
+    if (repositoryAndKeyExists(repository, key)) {
+      return Mono.justOrEmpty(getRepository(repository).remove(key)).then();
+    }
+    return Mono.defer(
+        () ->
+            Mono.error(
+                new KeyNotFoundException(
+                    String.format(
+                        "Repository '%s' or its key '%s' not found", repository.name(), key))));
+  }
+
+  private Mono<Document> update(Repository repository, String key, Document value) {
+    if (repositoryAndKeyExists(repository, key)) {
+      getRepositoryKeyAllVersions(repository, key).add(value);
+      return Mono.create(sink -> sink.success(value));
+    }
+    return Mono.defer(
+        () ->
+            Mono.error(
+                new KeyNotFoundException(
+                    String.format(
+                        "Repository '%s' or its key '%s' not found", repository.name(), key))));
+  }
+
+  private Mono<Document> create(Repository repository, String key, Document value) {
+    if (repositoryExists(repository) && !repositoryAndKeyExists(repository, key)) {
+      getRepository(repository)
+          .put(
+              key,
+              new ArrayList<Document>() {
+                {
+                  add(value);
+                }
+              })
+          .get(0);
+      return Mono.create(sink -> sink.success(value));
+    }
+    throw new RepositoryKeyAlreadyExistsException(
+        String.format("Repository '%s' key '%s' already exists", repository.name(), key));
+  }
+
   private Flux<Document> entries(Repository repository) {
     return entries(repository, null);
   }
@@ -192,6 +223,10 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
       throw new RepositoryNotFoundException(
           String.format("Repository '%s' not found", repository.name()));
     }
+  }
+
+  private boolean repositoryAndKeyExists(Repository repository, String key) {
+    return repositoryExists(repository) ? getRepository(repository).containsKey(key) : false;
   }
 
   private boolean repositoryExists(Repository repository) {
