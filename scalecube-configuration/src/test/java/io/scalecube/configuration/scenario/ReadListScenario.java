@@ -15,7 +15,6 @@ import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.ReadEntryResponse;
 import io.scalecube.configuration.api.ReadListRequest;
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -24,73 +23,58 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
-import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 /** Todo: need to be implemented in IT. If to stop a breakpoint on code it coming not empty. */
 public class ReadListScenario extends BaseScenario {
 
-  private String orgId;
-  private String ownerApiKey;
-  private String memberApiKey;
-  private String repoName;
-  private String repoNameNotExists;
+  protected static final String repoName = RandomStringUtils.randomAlphabetic(5);
+  protected static final String repoNameNotExists = repoName + "_not_exists";
 
-  private String entryKey1;
-  private String entryKey2;
-  private String entryKey3;
+  protected static final String entryKey1 = "KEY-FOR-PRECIOUS-METAL-123";
+  protected static final String entryKey2 = "KEY-FOR-CURRENCY-999";
+  protected static final String entryKey3 = "anyKey";
 
-  private ObjectNode entryValue11;
-  private ObjectNode entryValue12;
+  protected static final ObjectNode entryValue11 =
+      OBJECT_MAPPER
+          .createObjectNode()
+          .put("instrumentId", "XAG")
+          .put("name", "Silver")
+          .put("DecimalPrecision", 4)
+          .put("Rounding", "down");
+  protected static final ObjectNode entryValue12 =
+      OBJECT_MAPPER
+          .createObjectNode()
+          .put("instrumentId", "JPY")
+          .put("name", "Silver")
+          .put("DecimalPrecision", 2)
+          .put("Rounding", "down");
 
-  private ObjectNode entryValue21;
-  private ObjectNode entryValue22;
-  private ObjectNode entryValue23;
+  protected static final ObjectNode entryValue21 =
+      OBJECT_MAPPER
+          .createObjectNode()
+          .put("instrumentId", "JPY")
+          .put("name", "Yen")
+          .put("DecimalPrecision", 8)
+          .put("Rounding", "down");
+  protected static final ObjectNode entryValue22 =
+      OBJECT_MAPPER.createObjectNode().put("value", "again go");
+  protected static final ObjectNode entryValue23 = OBJECT_MAPPER.createObjectNode().put("value", 1);
 
-  private ObjectNode entryValue31;
+  protected static final ObjectNode entryValue31 =
+      OBJECT_MAPPER
+          .createObjectNode()
+          .put("value", JsonArray.create().add("Go go go!!!").toString());
+
+  protected String orgId;
+  protected String ownerApiKey;
+  protected String memberApiKey;
 
   @BeforeEach
   void init(ConfigurationService configurationService, OrganizationService organizationService) {
     orgId = createOrganization(organizationService).id();
     ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
     memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
-
-    repoName = RandomStringUtils.randomAlphabetic(5);
-    repoNameNotExists = repoName + "_not_exists";
-
-    entryKey1 = "KEY-FOR-PRECIOUS-METAL-123";
-    entryKey2 = "KEY-FOR-CURRENCY-999";
-    entryKey3 = "anyKey";
-
-    entryValue11 =
-        OBJECT_MAPPER
-            .createObjectNode()
-            .put("instrumentId", "XAG")
-            .put("name", "Silver")
-            .put("DecimalPrecision", 4)
-            .put("Rounding", "down");
-    entryValue12 =
-        OBJECT_MAPPER
-            .createObjectNode()
-            .put("instrumentId", "JPY")
-            .put("name", "Silver")
-            .put("DecimalPrecision", 2)
-            .put("Rounding", "down");
-
-    entryValue21 =
-        OBJECT_MAPPER
-            .createObjectNode()
-            .put("instrumentId", "JPY")
-            .put("name", "Yen")
-            .put("DecimalPrecision", 8)
-            .put("Rounding", "down");
-    entryValue22 = OBJECT_MAPPER.createObjectNode().put("value", "again go");
-    entryValue23 = OBJECT_MAPPER.createObjectNode().put("value", 1);
-
-    entryValue31 =
-        OBJECT_MAPPER
-            .createObjectNode()
-            .put("value", JsonArray.create().add("Go go go!!!").toString());
 
     configurationService
         .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
@@ -112,7 +96,6 @@ public class ReadListScenario extends BaseScenario {
         .then(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey3, entryValue31)))
-        .then(Mono.delay(Duration.ofMillis(KEY_CACHE_TTL * 900)))
         .block(TIMEOUT);
   }
 
