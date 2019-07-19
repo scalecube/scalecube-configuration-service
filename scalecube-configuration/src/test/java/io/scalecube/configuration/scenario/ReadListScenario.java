@@ -25,7 +25,6 @@ import org.junit.jupiter.api.TestTemplate;
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 import reactor.test.StepVerifier;
 
-/** Todo: need to be implemented in IT. If to stop a breakpoint on code it coming not empty. */
 public class ReadListScenario extends BaseScenario {
 
   protected static final String repoName = RandomStringUtils.randomAlphabetic(5);
