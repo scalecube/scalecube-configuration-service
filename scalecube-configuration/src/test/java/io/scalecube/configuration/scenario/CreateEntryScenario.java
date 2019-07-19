@@ -201,6 +201,23 @@ public class CreateEntryScenario extends BaseScenario {
             })
         .expectComplete()
         .verify();
+  }
+
+  @TestTemplate
+  @DisplayName(
+      "#11.1 Scenario: Successful entry creation (no validation for input) enabling to save "
+          + "following values: "
+          + "- values that reach at least a 1000 chars\n"
+          + "  - values which chars are symbols and spaces\n")
+  void createEntryWithDiffValuesNext(
+      ConfigurationService configurationService, OrganizationService organizationService) {
+    String orgId = createOrganization(organizationService).id();
+    String apiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+
+    String repoName = RandomStringUtils.randomAlphabetic(5);
+    configurationService
+        .createRepository(new CreateRepositoryRequest(apiKey, repoName))
+        .block(TIMEOUT);
 
     String entryKeyBlankJsonObject = "blankJsonObject";
     ObjectNode entryValueBlankJsonObject =

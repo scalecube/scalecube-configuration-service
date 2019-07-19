@@ -32,7 +32,6 @@ public class UpdateEntryScenario extends BaseScenario {
     String orgId = createOrganization(organizationService).id();
     String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
     String adminApiKey = createApiKey(organizationService, orgId, Role.Admin).key();
-    String memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
 
     String repoName1 = RandomStringUtils.randomAlphabetic(5);
     String repoName2 = RandomStringUtils.randomAlphabetic(5);
@@ -90,7 +89,7 @@ public class UpdateEntryScenario extends BaseScenario {
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(ownerApiKey, repoName1, entryKey1)))
+        configurationService.readEntry(new ReadEntryRequest(ownerApiKey, repoName1, entryKey1)))
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
@@ -100,8 +99,8 @@ public class UpdateEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(
-                new ReadEntryRequest(adminApiKey, repoName1, entryKey1, 1)))
+        configurationService.readEntry(
+            new ReadEntryRequest(adminApiKey, repoName1, entryKey1, 1)))
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
@@ -111,8 +110,8 @@ public class UpdateEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(
-                new ReadEntryRequest(adminApiKey, repoName1, entryKey1, 2)))
+        configurationService.readEntry(
+            new ReadEntryRequest(adminApiKey, repoName1, entryKey1, 2)))
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
@@ -120,6 +119,73 @@ public class UpdateEntryScenario extends BaseScenario {
             })
         .expectComplete()
         .verify();
+  }
+
+  @TestTemplate
+  @DisplayName(
+      "#21.1 Scenario: Successful updateEntry by one of the identical keys in the different "
+          + "Repositories applying the \"Owner\" API key")
+  void updateEntryNext(
+      ConfigurationService configurationService, OrganizationService organizationService) {
+    String orgId = createOrganization(organizationService).id();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+    String adminApiKey = createApiKey(organizationService, orgId, Role.Admin).key();
+    String memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
+
+    String repoName1 = RandomStringUtils.randomAlphabetic(5);
+    String repoName2 = RandomStringUtils.randomAlphabetic(5);
+
+    String entryKey1 = "KEY-FOR-PRECIOUS-METAL-123";
+    String entryKey2 = "KEY-FOR-CURRENCY-999";
+
+    ObjectNode entryValue11 =
+        OBJECT_MAPPER
+            .createObjectNode()
+            .put("instrumentId", "XAG")
+            .put("name", "Silver")
+            .put("DecimalPrecision", 4)
+            .put("Rounding", "down");
+    ObjectNode entryValue21 =
+        OBJECT_MAPPER
+            .createObjectNode()
+            .put("instrumentId", "JPY")
+            .put("name", "Yen")
+            .put("DecimalPrecision", 2)
+            .put("Rounding", "down");
+    ObjectNode entryValue12 =
+        OBJECT_MAPPER
+            .createObjectNode()
+            .put("instrumentId", "JPY")
+            .put("name", "Silver")
+            .put("DecimalPrecision", 4)
+            .put("Rounding", "down");
+    ObjectNode entryValue22 =
+        OBJECT_MAPPER
+            .createObjectNode()
+            .put("instrumentId", "XAG")
+            .put("name", "Yen")
+            .put("DecimalPrecision", 2)
+            .put("Rounding", "down");
+
+    configurationService
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName1))
+        .then(
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName1, entryKey1, entryValue11)))
+        .then(
+            configurationService.updateEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName1, entryKey1, entryValue12)))
+        .block(TIMEOUT);
+
+    configurationService
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName2))
+        .then(
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName2, entryKey2, entryValue21)))
+        .then(
+            configurationService.updateEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName2, entryKey2, entryValue22)))
+        .block(TIMEOUT);
 
     StepVerifier.create(
             configurationService.readEntry(
@@ -253,10 +319,67 @@ public class UpdateEntryScenario extends BaseScenario {
             })
         .expectComplete()
         .verify();
+  }
+
+  @TestTemplate
+  @DisplayName(
+      "#22.1 Scenario: Successful updateEntry (no validation for input) enabling to save following "
+          + "values:")
+  void updateEntryDiffValuesNext(
+      ConfigurationService configurationService, OrganizationService organizationService) {
+    String orgId = createOrganization(organizationService).id();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+
+    String repoName = RandomStringUtils.randomAlphabetic(5);
+    String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
+
+    ObjectNode entryValue1 = OBJECT_MAPPER.createObjectNode();
+    ObjectNode entryValue2 =
+        OBJECT_MAPPER.createObjectNode().put("value", JsonArray.create().toString());
+    ObjectNode entryValue3 = OBJECT_MAPPER.createObjectNode().put("value", 10);
+    ObjectNode entryValue4 = OBJECT_MAPPER.createObjectNode().put("value", Json.NULL.toString());
+    ObjectNode entryValue5 =
+        OBJECT_MAPPER
+            .createObjectNode()
+            .put("value", JsonArray.create().add(99).add("some string").toString());
+    ObjectNode entryValue6 =
+        OBJECT_MAPPER.createObjectNode().put("value", JsonObject.empty().toString());
+    ObjectNode entryValue7 =
+        OBJECT_MAPPER
+            .createObjectNode()
+            .put("instrumentId", "JPY")
+            .put("name", "Yen")
+            .put("DecimalPrecision", 2)
+            .put("Rounding", "down");
+
+    configurationService
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
+        .then(
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue1)))
+        .then(
+            configurationService.updateEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue2)))
+        .then(
+            configurationService.updateEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue3)))
+        .then(
+            configurationService.updateEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue4)))
+        .then(
+            configurationService.updateEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue5)))
+        .then(
+            configurationService.updateEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue6)))
+        .then(
+            configurationService.updateEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue7)))
+        .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.readEntry(
-                new ReadEntryRequest(ownerApiKey, repoName, entryKey, 4)))
+        configurationService.readEntry(
+            new ReadEntryRequest(ownerApiKey, repoName, entryKey, 4)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -266,8 +389,8 @@ public class UpdateEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(
-                new ReadEntryRequest(ownerApiKey, repoName, entryKey, 5)))
+        configurationService.readEntry(
+            new ReadEntryRequest(ownerApiKey, repoName, entryKey, 5)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -277,8 +400,8 @@ public class UpdateEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(
-                new ReadEntryRequest(ownerApiKey, repoName, entryKey, 6)))
+        configurationService.readEntry(
+            new ReadEntryRequest(ownerApiKey, repoName, entryKey, 6)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -288,8 +411,8 @@ public class UpdateEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(
-                new ReadEntryRequest(ownerApiKey, repoName, entryKey, 7)))
+        configurationService.readEntry(
+            new ReadEntryRequest(ownerApiKey, repoName, entryKey, 7)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");

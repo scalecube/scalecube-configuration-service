@@ -14,7 +14,10 @@ import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.DeleteEntryRequest;
 import io.scalecube.configuration.api.ReadEntryRequest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
@@ -98,11 +101,12 @@ public class ReadEntryScenario extends BaseScenario {
 
     String orgId = createOrganization(organizationService).id();
     String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
-    String adminApiKey = createApiKey(organizationService, orgId, Role.Admin).key();
     String memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
+
+    List<ObjectNode> entryValues = new ArrayList<>();
 
     ObjectNode entryValue1 =
         OBJECT_MAPPER.createObjectNode().put("value", JsonArray.create().toString());
@@ -148,63 +152,28 @@ public class ReadEntryScenario extends BaseScenario {
                 new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue5)))
         .block(TIMEOUT);
 
-    StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(ownerApiKey, repoName, entryKey)))
-        .assertNext(
-            entry -> {
-              assertEquals(entryKey, entry.key(), "Fetched entry key");
-              assertEquals(entryValue5, parse(entry.value()), "Fetched entry value");
-            })
-        .expectComplete()
-        .verify();
+    entryValues.add(entryValue1);
+    entryValues.add(entryValue2);
+    entryValues.add(entryValue3);
+    entryValues.add(entryValue4);
+    entryValues.add(entryValue5);
+
+    AtomicInteger index = new AtomicInteger(0);
+    for (ObjectNode entryValue : entryValues) {
+      StepVerifier.create(
+              configurationService.readEntry(
+                  new ReadEntryRequest(ownerApiKey, repoName, entryKey, index.incrementAndGet())))
+          .assertNext(
+              entry -> {
+                assertEquals(entryKey, entry.key(), "Fetched entry key");
+                assertEquals(entryValue, parse(entry.value()), "Fetched entry value");
+              })
+          .expectComplete()
+          .verify();
+    }
 
     StepVerifier.create(
-            configurationService.readEntry(
-                new ReadEntryRequest(ownerApiKey, repoName, entryKey, 1)))
-        .assertNext(
-            entry -> {
-              assertEquals(entryKey, entry.key(), "Fetched entry key");
-              assertEquals(entryValue1, parse(entry.value()), "Fetched entry value");
-            })
-        .expectComplete()
-        .verify();
-
-    StepVerifier.create(
-            configurationService.readEntry(
-                new ReadEntryRequest(ownerApiKey, repoName, entryKey, 2)))
-        .assertNext(
-            entry -> {
-              assertEquals(entryKey, entry.key(), "Fetched entry key");
-              assertEquals(entryValue2, parse(entry.value()), "Fetched entry value");
-            })
-        .expectComplete()
-        .verify();
-
-    StepVerifier.create(
-            configurationService.readEntry(
-                new ReadEntryRequest(adminApiKey, repoName, entryKey, 3)))
-        .assertNext(
-            entry -> {
-              assertEquals(entryKey, entry.key(), "Fetched entry key");
-              assertEquals(entryValue3, parse(entry.value()), "Fetched entry value");
-            })
-        .expectComplete()
-        .verify();
-
-    StepVerifier.create(
-            configurationService.readEntry(
-                new ReadEntryRequest(memberApiKey, repoName, entryKey, 4)))
-        .assertNext(
-            entry -> {
-              assertEquals(entryKey, entry.key(), "Fetched entry key");
-              assertEquals(entryValue4, parse(entry.value()), "Fetched entry value");
-            })
-        .expectComplete()
-        .verify();
-
-    StepVerifier.create(
-            configurationService.readEntry(
-                new ReadEntryRequest(memberApiKey, repoName, entryKey, 5)))
+            configurationService.readEntry(new ReadEntryRequest(memberApiKey, repoName, entryKey)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
