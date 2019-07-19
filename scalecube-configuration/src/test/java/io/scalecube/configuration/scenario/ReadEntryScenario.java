@@ -159,7 +159,8 @@ public class ReadEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(ownerApiKey, repoName, entryKey, 1)))
+            configurationService.readEntry(
+                new ReadEntryRequest(ownerApiKey, repoName, entryKey, 1)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -169,7 +170,8 @@ public class ReadEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(ownerApiKey, repoName, entryKey, 2)))
+            configurationService.readEntry(
+                new ReadEntryRequest(ownerApiKey, repoName, entryKey, 2)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -179,7 +181,8 @@ public class ReadEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(adminApiKey, repoName, entryKey, 3)))
+            configurationService.readEntry(
+                new ReadEntryRequest(adminApiKey, repoName, entryKey, 3)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -318,7 +321,6 @@ public class ReadEntryScenario extends BaseScenario {
 
     String orgId = createOrganization(organizationService).id();
     String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
-    String memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String repoNameNotExists = repoName + "_not_exists";

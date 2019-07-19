@@ -70,14 +70,9 @@ public class InMemoryConfigurationRepository implements ConfigurationRepository 
     Repository repo = new Repository(tenant, repository);
     getRepository(repo);
     if (!repositoryAndKeyExists(repo, doc.key())) {
-      getRepository(repo)
-          .put(
-              doc.key(),
-              new ArrayList<Document>() {
-                {
-                  add(doc);
-                }
-              });
+      List<Document> value = new ArrayList<>();
+      value.add(doc);
+      getRepository(repo).put(doc.key(), value);
       return Mono.create(sink -> sink.success(doc));
     }
     throw new RepositoryKeyAlreadyExistsException(

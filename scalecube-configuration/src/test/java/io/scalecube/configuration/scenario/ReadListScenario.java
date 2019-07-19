@@ -71,7 +71,8 @@ public class ReadListScenario extends BaseScenario {
   protected String memberApiKey;
 
   @BeforeEach
-  void init(ConfigurationService configurationService, OrganizationService organizationService) {
+  protected void init(
+      ConfigurationService configurationService, OrganizationService organizationService) {
     orgId = createOrganization(organizationService).id();
     ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
     memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
@@ -102,7 +103,7 @@ public class ReadListScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#53 Scenario: Successful readList (latest key versions) from the related Repository")
-  void readEntries(ConfigurationService configurationService) {
+  protected void readEntries(ConfigurationService configurationService) {
 
     StepVerifier.create(configurationService.readList(new ReadListRequest(ownerApiKey, repoName)))
         .assertNext(
@@ -125,7 +126,7 @@ public class ReadListScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#54 Scenario: Successful readList (specific key versions) from the related Repository applying all API keys roles")
-  void readEntriesWithSpecificVersions(ConfigurationService configurationService) {
+  protected void readEntriesWithSpecificVersions(ConfigurationService configurationService) {
 
     StepVerifier.create(
             configurationService.readList(new ReadListRequest(ownerApiKey, repoName, 1)))

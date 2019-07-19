@@ -25,7 +25,8 @@ public class UpdateEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#21 Scenario: Successful updateEntry by one of the identical keys in the different Repositories applying the \"Owner\" API key")
+      "#21 Scenario: Successful updateEntry by one of the identical keys in the different "
+          + "Repositories applying the \"Owner\" API key")
   void updateEntry(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -121,7 +122,8 @@ public class UpdateEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(memberApiKey, repoName2, entryKey2)))
+            configurationService.readEntry(
+                new ReadEntryRequest(memberApiKey, repoName2, entryKey2)))
         .assertNext(
             entry -> {
               assertEquals(entryKey2, entry.key(), "Fetched entry key");
@@ -155,7 +157,8 @@ public class UpdateEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#22 Scenario: Successful updateEntry (no validation for input) enabling to save following values:")
+      "#22 Scenario: Successful updateEntry (no validation for input) enabling to save following "
+          + "values:")
   void updateEntryDiffValues(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -219,7 +222,8 @@ public class UpdateEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(ownerApiKey, repoName, entryKey, 1)))
+            configurationService.readEntry(
+                new ReadEntryRequest(ownerApiKey, repoName, entryKey, 1)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -229,7 +233,8 @@ public class UpdateEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(ownerApiKey, repoName, entryKey, 2)))
+            configurationService.readEntry(
+                new ReadEntryRequest(ownerApiKey, repoName, entryKey, 2)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -239,7 +244,8 @@ public class UpdateEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(ownerApiKey, repoName, entryKey, 3)))
+            configurationService.readEntry(
+                new ReadEntryRequest(ownerApiKey, repoName, entryKey, 3)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -249,7 +255,8 @@ public class UpdateEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(ownerApiKey, repoName, entryKey, 4)))
+            configurationService.readEntry(
+                new ReadEntryRequest(ownerApiKey, repoName, entryKey, 4)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -259,7 +266,8 @@ public class UpdateEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(ownerApiKey, repoName, entryKey, 5)))
+            configurationService.readEntry(
+                new ReadEntryRequest(ownerApiKey, repoName, entryKey, 5)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -269,7 +277,8 @@ public class UpdateEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(ownerApiKey, repoName, entryKey, 6)))
+            configurationService.readEntry(
+                new ReadEntryRequest(ownerApiKey, repoName, entryKey, 6)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");
@@ -279,7 +288,8 @@ public class UpdateEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(ownerApiKey, repoName, entryKey, 7)))
+            configurationService.readEntry(
+                new ReadEntryRequest(ownerApiKey, repoName, entryKey, 7)))
         .assertNext(
             entry -> {
               assertEquals(entryKey, entry.key(), "Fetched entry key");

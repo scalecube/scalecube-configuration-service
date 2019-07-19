@@ -43,7 +43,7 @@ public abstract class BaseScenario {
   protected static final String PLEASE_SPECIFY_KEY = "Please specify 'key'";
   protected static final String PERMISSION_DENIED = "Permission denied";
 
-  static final Duration TIMEOUT = Duration.ofSeconds(10);
+  protected static final Duration TIMEOUT = Duration.ofSeconds(10);
   static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   static final Token AUTH0_TOKEN = new Token("auth0_token");
 
@@ -52,7 +52,7 @@ public abstract class BaseScenario {
     StepVerifier.setDefaultTimeout(TIMEOUT);
   }
 
-  OrganizationInfo createOrganization(OrganizationService organizationService) {
+  protected OrganizationInfo createOrganization(OrganizationService organizationService) {
     return organizationService
         .createOrganization(
             new CreateOrganizationRequest(
@@ -60,7 +60,7 @@ public abstract class BaseScenario {
         .block(TIMEOUT);
   }
 
-  ApiKey getExpiredApiKey(
+  protected ApiKey getExpiredApiKey(
       OrganizationService organizationService, String organizationId, Role role) {
     ApiKey apiKey = createApiKey(organizationService, organizationId, role);
 
@@ -73,7 +73,7 @@ public abstract class BaseScenario {
     return apiKey;
   }
 
-  ApiKey createApiKey(OrganizationService organizationService, String organizationId, Role role) {
+  protected ApiKey createApiKey(OrganizationService organizationService, String organizationId, Role role) {
     Map<String, String> claims = new HashMap<>();
     claims.put("aud", organizationId);
     claims.put("role", role.name());

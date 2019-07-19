@@ -120,7 +120,8 @@ public class CreateEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#11 Scenario: Successful entry creation (no validation for input) enabling to save following values: "
+      "#11 Scenario: Successful entry creation (no validation for input) enabling to save "
+          + "following values: "
           + "- values that reach at least a 1000 chars\n"
           + "  - values which chars are symbols and spaces\n"
           + "  - JsonArray\n"
