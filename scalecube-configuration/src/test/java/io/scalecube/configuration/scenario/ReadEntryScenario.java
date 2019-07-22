@@ -2,6 +2,7 @@ package io.scalecube.configuration.scenario;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.couchbase.client.java.document.json.JsonArray;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
@@ -11,9 +12,12 @@ import io.scalecube.account.api.Role;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
+import io.scalecube.configuration.api.DeleteEntryRequest;
 import io.scalecube.configuration.api.ReadEntryRequest;
-import io.scalecube.configuration.api.ReadListRequest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
@@ -23,13 +27,13 @@ public class ReadEntryScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#18 Successful get of a specific entry from the related Repository applying the all related API keys: \"Owner\", \"Admin\", \"Member\"")
+      "#42 Scenario: Successful readEntry (latest version) from the related Repository applying all API keys roles")
   void readEntry(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
-    String adminToken = createApiKey(organizationService, orgId, Role.Admin).key();
-    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+    String adminApiKey = createApiKey(organizationService, orgId, Role.Admin).key();
+    String memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey1 = "KEY-FOR-PRECIOUS-METAL-123";
@@ -50,17 +54,17 @@ public class ReadEntryScenario extends BaseScenario {
             .put("Rounding", "down");
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey1, entryValue1)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey1, entryValue1)))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey2, entryValue2)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey2, entryValue2)))
         .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(ownerToken, repoName, entryKey1)))
+            configurationService.readEntry(new ReadEntryRequest(ownerApiKey, repoName, entryKey1)))
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
@@ -70,7 +74,7 @@ public class ReadEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(adminToken, repoName, entryKey1)))
+            configurationService.readEntry(new ReadEntryRequest(adminApiKey, repoName, entryKey1)))
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
@@ -80,7 +84,7 @@ public class ReadEntryScenario extends BaseScenario {
         .verify();
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(memberToken, repoName, entryKey1)))
+            configurationService.readEntry(new ReadEntryRequest(memberApiKey, repoName, entryKey1)))
         .assertNext(
             entry -> {
               assertEquals(entryKey1, entry.key(), "Fetched entry key");
@@ -91,149 +95,246 @@ public class ReadEntryScenario extends BaseScenario {
   }
 
   @TestTemplate
-  @DisplayName(
-      "#19 Successful get one of the identical entries from the related Repository applying some of the related API keys: \"Owner\", \"Admin\", \"Member\"")
-  void readIdenticalEntry(
+  @DisplayName("#43 Scenario: Successful readEntry (specific version) from the related Repository")
+  void readEntrySpecifiedVersion(
       ConfigurationService configurationService, OrganizationService organizationService) {
+
     String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
-    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
-
-    String repoName1 = RandomStringUtils.randomAlphabetic(5);
-    String repoName2 = "test-repo2";
-    String entryKey1 = "KEY-FOR-PRECIOUS-METAL-123";
-    ObjectNode entryValue1 =
-        OBJECT_MAPPER
-            .createObjectNode()
-            .put("instrumentId", "XAG")
-            .put("name", "Silver")
-            .put("DecimalPrecision", 4)
-            .put("Rounding", "down");
-    ObjectNode entryValue2 =
-        OBJECT_MAPPER
-            .createObjectNode()
-            .put("instrumentId", "JPY")
-            .put("name", "Yen")
-            .put("DecimalPrecision", 2)
-            .put("Rounding", "down");
-
-    configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName1))
-        .then(
-            configurationService.createRepository(
-                new CreateRepositoryRequest(ownerToken, repoName2)))
-        .then(
-            configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName1, entryKey1, entryValue1)))
-        .then(
-            configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName2, entryKey1, entryValue2)))
-        .block(TIMEOUT);
-
-    StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(memberToken, repoName1, entryKey1)))
-        .assertNext(
-            entry -> {
-              assertEquals(entryKey1, entry.key(), "Fetched entry key");
-              assertEquals(entryValue1, parse(entry.value()), "Fetched entry value");
-            })
-        .expectComplete()
-        .verify();
-  }
-
-  @TestTemplate
-  @DisplayName(
-      "#20 Fail to get the non-existent entry from the existent Repository applying some of the accessible API keys: \"Owner\", \"Admin\", \"Member\"")
-  void readNonExistentEntry(
-      ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+    String memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
-    String entryKey1 = "KEY-FOR-PRECIOUS-METAL-123";
-    String entryKey2 = "KEY-FOR-CURRENCY-999";
+    String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
+
+    List<ObjectNode> entryValues = new ArrayList<>();
+
+    ObjectNode entryValue1 =
+        OBJECT_MAPPER.createObjectNode().put("value", JsonArray.create().toString());
+    ObjectNode entryValue2 = OBJECT_MAPPER.createObjectNode();
+    ObjectNode entryValue3 =
+        OBJECT_MAPPER
+            .createObjectNode()
+            .put("instrumentId", "XAG")
+            .put("name", "Silver")
+            .put("DecimalPrecision", 2)
+            .put("Rounding", "down");
+    ObjectNode entryValue4 =
+        OBJECT_MAPPER
+            .createObjectNode()
+            .put("instrumentId", "XPT")
+            .put("name", "Platinum")
+            .put("DecimalPrecision", 2)
+            .put("Rounding", "up");
+    ObjectNode entryValue5 =
+        OBJECT_MAPPER
+            .createObjectNode()
+            .put("instrumentId", "XAU")
+            .put("name", "Gold")
+            .put("DecimalPrecision", 8)
+            .put("Rounding", "down");
+
+    configurationService
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
+        .then(
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue1)))
+        .then(
+            configurationService.updateEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue2)))
+        .then(
+            configurationService.updateEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue3)))
+        .then(
+            configurationService.updateEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue4)))
+        .then(
+            configurationService.updateEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue5)))
+        .block(TIMEOUT);
+
+    entryValues.add(entryValue1);
+    entryValues.add(entryValue2);
+    entryValues.add(entryValue3);
+    entryValues.add(entryValue4);
+    entryValues.add(entryValue5);
+
+    AtomicInteger index = new AtomicInteger(0);
+    for (ObjectNode entryValue : entryValues) {
+      StepVerifier.create(
+              configurationService.readEntry(
+                  new ReadEntryRequest(ownerApiKey, repoName, entryKey, index.incrementAndGet())))
+          .assertNext(
+              entry -> {
+                assertEquals(entryKey, entry.key(), "Fetched entry key");
+                assertEquals(entryValue, parse(entry.value()), "Fetched entry value");
+              })
+          .expectComplete()
+          .verify();
+    }
+
+    StepVerifier.create(
+            configurationService.readEntry(new ReadEntryRequest(memberApiKey, repoName, entryKey)))
+        .assertNext(
+            entry -> {
+              assertEquals(entryKey, entry.key(), "Fetched entry key");
+              assertEquals(entryValue5, parse(entry.value()), "Fetched entry value");
+            })
+        .expectComplete()
+        .verify();
+  }
+
+  @TestTemplate
+  @DisplayName("#44 Scenario: Fail to readEntry due to non-existent version specified")
+  void readEntryWithNotExistingVersion(
+      ConfigurationService configurationService, OrganizationService organizationService) {
+
+    String orgId = createOrganization(organizationService).id();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+
+    String repoName = RandomStringUtils.randomAlphabetic(5);
+    String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
+    int version = 99;
+
     ObjectNode entryValue1 =
         OBJECT_MAPPER
             .createObjectNode()
             .put("instrumentId", "XAG")
             .put("name", "Silver")
-            .put("DecimalPrecision", 4)
+            .put("DecimalPrecision", 2)
             .put("Rounding", "down");
     ObjectNode entryValue2 =
         OBJECT_MAPPER
             .createObjectNode()
-            .put("instrumentId", "JPY")
-            .put("name", "Yen")
+            .put("instrumentId", "XPT")
+            .put("name", "Platinum")
             .put("DecimalPrecision", 2)
-            .put("Rounding", "down");
+            .put("Rounding", "up");
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey1, entryValue1)))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue1)))
         .then(
-            configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(ownerToken, repoName, entryKey2, entryValue2)))
+            configurationService.updateEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue2)))
         .block(TIMEOUT);
-
-    String nonExistentKey = "NON_EXISTENT_KEY";
 
     StepVerifier.create(
             configurationService.readEntry(
-                new ReadEntryRequest(ownerToken, repoName, nonExistentKey)))
-        .expectErrorMessage(String.format("Key '%s' not found", nonExistentKey))
+                new ReadEntryRequest(ownerApiKey, repoName, entryKey, version)))
+        .expectErrorMessage(String.format(KEY_VERSION_NOT_FOUND_FORMATTER, entryKey, version))
         .verify();
   }
 
   @TestTemplate
-  @DisplayName(
-      "#21 Fail to get any entry from the non-existent Repository applying some of the accessible API keys: \"Owner\", \"Admin\", \"Member\"")
-  void readEntryFromNonExistentRepository(
+  @DisplayName("#44.1 (current error - Failed to decode data on message q=/configuration/readList)")
+  void readEntryWithNotPositiveIntegerVersion(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = createOrganization(organizationService).id();
-    String token = createApiKey(organizationService, orgId, Role.Admin).key();
 
-    String repoName = "NON_EXISTENT_REPO";
+    String orgId = createOrganization(organizationService).id();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+    String memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
+
+    String repoName = RandomStringUtils.randomAlphabetic(5);
+    String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
+
+    ObjectNode entryValue1 =
+        OBJECT_MAPPER
+            .createObjectNode()
+            .put("instrumentId", "XAG")
+            .put("name", "Silver")
+            .put("DecimalPrecision", 2)
+            .put("Rounding", "down");
+    ObjectNode entryValue2 =
+        OBJECT_MAPPER
+            .createObjectNode()
+            .put("instrumentId", "XPT")
+            .put("name", "Platinum")
+            .put("DecimalPrecision", 2)
+            .put("Rounding", "up");
+
+    configurationService
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
+        .then(
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue1)))
+        .then(
+            configurationService.updateEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue2)))
+        .block(TIMEOUT);
 
     StepVerifier.create(
-            configurationService.readEntry(new ReadEntryRequest(token, repoName, "key")))
-        .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId, repoName))
+            configurationService.readEntry(
+                new ReadEntryRequest(memberApiKey, repoName, entryKey, "afafaf")))
+        .expectErrorMessage(VERSION_MUST_BE_A_POSITIVE_NUMBER)
+        .verify();
+
+    StepVerifier.create(
+            configurationService.readEntry(
+                new ReadEntryRequest(memberApiKey, repoName, entryKey, 0)))
+        .expectErrorMessage(VERSION_MUST_BE_A_POSITIVE_NUMBER)
+        .verify();
+
+    StepVerifier.create(
+            configurationService.readEntry(
+                new ReadEntryRequest(memberApiKey, repoName, entryKey, -1)))
+        .expectErrorMessage(VERSION_MUST_BE_A_POSITIVE_NUMBER)
         .verify();
   }
 
   @TestTemplate
-  @DisplayName(
-      "#22 Fail to get the specific entry from the Repository upon the \"apiKey\" is invalid (expired)")
-  void readEntryUsingExpiredToken(
+  @DisplayName("#45 Scenario: Fail to readEntry due to specified Repository doesn't exist")
+  void readEntryWithNotExistsRepo(
       ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = createOrganization(organizationService).id();
-    String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
 
-    StepVerifier.create(configurationService.readList(new ReadListRequest(token, "test-repo")))
-        .expectErrorMessage("Token verification failed")
+    String orgId = createOrganization(organizationService).id();
+    String ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+
+    String repoName = RandomStringUtils.randomAlphabetic(5);
+    String repoNameNotExists = repoName + "_not_exists";
+    String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
+
+    ObjectNode entryValue =
+        OBJECT_MAPPER
+            .createObjectNode()
+            .put("instrumentId", "XAG")
+            .put("name", "Silver")
+            .put("DecimalPrecision", 2)
+            .put("Rounding", "down");
+
+    configurationService
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
+        .then(
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey, entryValue)))
+        .block(TIMEOUT);
+
+    StepVerifier.create(
+            configurationService.readEntry(
+                new ReadEntryRequest(ownerApiKey, repoNameNotExists, entryKey)))
+        .expectErrorMessage(
+            String.format(REPOSITORY_OR_ITS_KEY_NOT_FOUND_FORMATTER, repoNameNotExists, entryKey))
         .verify();
   }
 
   @TestTemplate
-  @DisplayName(
-      "#23 Fail to get the specific entry from the Repository upon the Owner deleted the Organization with related \"Admin\" API key")
-  void readEntryForDeletedOrganization(
+  @DisplayName("#46 Scenario: Fail to readEntry upon the Owner deleted the \"Organization\"")
+  void readEntryWithDeletedOrganization(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
     String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
-    String adminToken = createApiKey(organizationService, orgId, Role.Admin).key();
+    String apiKey = createApiKey(organizationService, orgId, Role.Owner).key();
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(apiKey, repoName))
         .then(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(
-                    ownerToken,
+                    apiKey,
                     repoName,
                     entryKey,
                     OBJECT_MAPPER
@@ -250,65 +351,31 @@ public class ReadEntryScenario extends BaseScenario {
 
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
-    StepVerifier.create(configurationService.readList(new ReadListRequest(adminToken, repoName)))
-        .expectErrorMessage("Token verification failed")
+    StepVerifier.create(
+            configurationService.readEntry(new ReadEntryRequest(apiKey, repoName, entryKey)))
+        .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
         .verify();
   }
 
   @TestTemplate
   @DisplayName(
-      "#24 Fail to get the specific entry from the Repository upon the Owner applied some of the API keys from another Organization")
-  void readEntryUsingTokenOfAnotherOrganization(
-      ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId1 = createOrganization(organizationService).id();
-    String token1 = createApiKey(organizationService, orgId1, Role.Owner).key();
-
-    String orgId2 = createOrganization(organizationService).id();
-    String token2 = createApiKey(organizationService, orgId2, Role.Member).key();
-
-    String repoName = RandomStringUtils.randomAlphabetic(5);
-    String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
-
-    configurationService
-        .createRepository(new CreateRepositoryRequest(token1, repoName))
-        .then(
-            configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(
-                    token1,
-                    repoName,
-                    entryKey,
-                    OBJECT_MAPPER
-                        .createObjectNode()
-                        .put("instrumentId", "XAG")
-                        .put("name", "Silver")
-                        .put("DecimalPrecision", 4)
-                        .put("Rounding", "down"))))
-        .block(TIMEOUT);
-
-    StepVerifier.create(configurationService.readList(new ReadListRequest(token2, repoName)))
-        .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId2, repoName))
-        .verify();
-  }
-
-  @TestTemplate
-  @DisplayName(
-      "#25 Fail to get the specific entry in the Repository upon the Admin \"apiKey\" (API key) was deleted from the Organization")
-  void readEntryUsingDeletedToken(
+      "#47 Scenario: Fail to readEntry upon the \"Admin\" apiKey was deleted from the Organization")
+  void readEntryWithDeletedAdminApiKey(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
     String orgId = createOrganization(organizationService).id();
-    ApiKey ownerToken = createApiKey(organizationService, orgId, Role.Owner);
-    ApiKey adminToken = createApiKey(organizationService, orgId, Role.Admin);
+    ApiKey ownerApiKey = createApiKey(organizationService, orgId, Role.Owner);
+    ApiKey adminApiKey = createApiKey(organizationService, orgId, Role.Admin);
 
     String repoName = RandomStringUtils.randomAlphabetic(5);
     String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken.key(), repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey.key(), repoName))
         .then(
             configurationService.createEntry(
                 new CreateOrUpdateEntryRequest(
-                    ownerToken.key(),
+                    ownerApiKey.key(),
                     repoName,
                     entryKey,
                     OBJECT_MAPPER
@@ -321,14 +388,174 @@ public class ReadEntryScenario extends BaseScenario {
 
     organizationService
         .deleteOrganizationApiKey(
-            new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, adminToken.name()))
+            new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, adminApiKey.name()))
         .block(TIMEOUT);
 
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
     StepVerifier.create(
-            configurationService.readList(new ReadListRequest(adminToken.key(), repoName)))
-        .expectErrorMessage("Token verification failed")
+            configurationService.readEntry(
+                new ReadEntryRequest(adminApiKey.key(), repoName, entryKey)))
+        .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
+        .verify();
+  }
+
+  @TestTemplate
+  @DisplayName("#48 Scenario: Fail to readEntry due to invalid apiKey was applied")
+  void readEntryUsingExpiredApiKey(
+      ConfigurationService configurationService, OrganizationService organizationService) {
+    String orgId = createOrganization(organizationService).id();
+    String apiKey = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
+
+    String repository = RandomStringUtils.randomAlphabetic(5);
+
+    StepVerifier.create(
+            configurationService.readEntry(new ReadEntryRequest(apiKey, repository, "key")))
+        .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
+        .verify();
+  }
+
+  @TestTemplate
+  @DisplayName("#49 Scenario: Fail to readEntry with empty or undefined apiKey")
+  void readEntryWithEmptyOrUndefinedApiKey(
+      ConfigurationService configurationService, OrganizationService organizationService) {
+    String orgId = createOrganization(organizationService).id();
+    String apiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+
+    String repoName = RandomStringUtils.randomAlphabetic(5);
+    String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
+
+    configurationService
+        .createRepository(new CreateRepositoryRequest(apiKey, repoName))
+        .then(
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(
+                    apiKey,
+                    repoName,
+                    entryKey,
+                    OBJECT_MAPPER
+                        .createObjectNode()
+                        .put("instrumentId", "XAG")
+                        .put("name", "Silver")
+                        .put("DecimalPrecision", 4)
+                        .put("Rounding", "down"))))
+        .block(TIMEOUT);
+
+    StepVerifier.create(
+            configurationService.readEntry(new ReadEntryRequest("", repoName, entryKey)))
+        .expectErrorMessage(PLEASE_SPECIFY_API_KEY)
+        .verify();
+
+    StepVerifier.create(
+            configurationService.deleteEntry(new DeleteEntryRequest(null, repoName, entryKey)))
+        .expectErrorMessage(PLEASE_SPECIFY_API_KEY)
+        .verify();
+  }
+
+  @TestTemplate
+  @DisplayName("#50 Scenario: Fail to readEntry with empty or undefined Repository name")
+  void readEntryWithEmptyOrUndefinedRepo(
+      ConfigurationService configurationService, OrganizationService organizationService) {
+    String orgId = createOrganization(organizationService).id();
+    String apiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+
+    String repoName = RandomStringUtils.randomAlphabetic(5);
+    String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
+
+    configurationService
+        .createRepository(new CreateRepositoryRequest(apiKey, repoName))
+        .then(
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(
+                    apiKey,
+                    repoName,
+                    entryKey,
+                    OBJECT_MAPPER
+                        .createObjectNode()
+                        .put("instrumentId", "XAG")
+                        .put("name", "Silver")
+                        .put("DecimalPrecision", 4)
+                        .put("Rounding", "down"))))
+        .block(TIMEOUT);
+
+    StepVerifier.create(configurationService.readEntry(new ReadEntryRequest(apiKey, "", entryKey)))
+        .expectErrorMessage(PLEASE_SPECIFY_REPO)
+        .verify();
+
+    StepVerifier.create(
+            configurationService.deleteEntry(new DeleteEntryRequest(apiKey, null, entryKey)))
+        .expectErrorMessage(PLEASE_SPECIFY_REPO)
+        .verify();
+  }
+
+  @TestTemplate
+  @DisplayName("#51 Scenario: Fail to readEntry with empty or undefined Key field")
+  void readEntryWithEmptyOrUndefinedKey(
+      ConfigurationService configurationService, OrganizationService organizationService) {
+    String orgId = createOrganization(organizationService).id();
+    String apiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+
+    String repoName = RandomStringUtils.randomAlphabetic(5);
+    String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
+
+    configurationService
+        .createRepository(new CreateRepositoryRequest(apiKey, repoName))
+        .then(
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(
+                    apiKey,
+                    repoName,
+                    entryKey,
+                    OBJECT_MAPPER
+                        .createObjectNode()
+                        .put("instrumentId", "XAG")
+                        .put("name", "Silver")
+                        .put("DecimalPrecision", 4)
+                        .put("Rounding", "down"))))
+        .block(TIMEOUT);
+
+    StepVerifier.create(configurationService.readEntry(new ReadEntryRequest(apiKey, repoName, "")))
+        .expectErrorMessage(PLEASE_SPECIFY_KEY)
+        .verify();
+
+    StepVerifier.create(
+            configurationService.deleteEntry(new DeleteEntryRequest(apiKey, repoName, null)))
+        .expectErrorMessage(PLEASE_SPECIFY_KEY)
+        .verify();
+  }
+
+  @TestTemplate
+  @DisplayName("#52 Scenario: Fail to readEntry with non-existent Key field")
+  void readEntryWithNotExistsKey(
+      ConfigurationService configurationService, OrganizationService organizationService) {
+    String orgId = createOrganization(organizationService).id();
+    String apiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+
+    String repoName = RandomStringUtils.randomAlphabetic(5);
+    String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
+    String entryKeyNotExists = entryKey + "_not_exists";
+
+    configurationService
+        .createRepository(new CreateRepositoryRequest(apiKey, repoName))
+        .then(
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(
+                    apiKey,
+                    repoName,
+                    entryKey,
+                    OBJECT_MAPPER
+                        .createObjectNode()
+                        .put("instrumentId", "XAG")
+                        .put("name", "Silver")
+                        .put("DecimalPrecision", 4)
+                        .put("Rounding", "down"))))
+        .block(TIMEOUT);
+
+    StepVerifier.create(
+            configurationService.readEntry(
+                new ReadEntryRequest(apiKey, repoName, entryKeyNotExists)))
+        .expectErrorMessage(
+            String.format(REPOSITORY_OR_ITS_KEY_NOT_FOUND_FORMATTER, repoName, entryKeyNotExists))
         .verify();
   }
 }

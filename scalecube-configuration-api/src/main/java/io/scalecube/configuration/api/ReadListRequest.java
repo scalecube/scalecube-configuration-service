@@ -4,7 +4,7 @@ public class ReadListRequest implements AccessRequest {
 
   protected String repository;
   private Object apiKey;
-  private Integer version;
+  private Object version;
 
   /**
    * Only for serialization/deserialization.
@@ -31,7 +31,7 @@ public class ReadListRequest implements AccessRequest {
    * @param repository The repository name
    * @param version The version for keys of repository
    */
-  public ReadListRequest(Object apiKey, String repository, Integer version) {
+  public ReadListRequest(Object apiKey, String repository, Object version) {
     this.apiKey = apiKey;
     this.repository = repository;
     this.version = version;
@@ -45,7 +45,7 @@ public class ReadListRequest implements AccessRequest {
     return this.apiKey;
   }
 
-  public Integer version() {
+  public Object version() {
     return this.version;
   }
 

@@ -24,6 +24,7 @@ final class RequestValidator {
           validateToken(request.apiKey());
           validateRepository(request.repository());
           validateKey(request.key());
+          validateVersion(request.version());
         });
   }
 
@@ -32,6 +33,7 @@ final class RequestValidator {
         () -> {
           validateToken(request.apiKey());
           validateRepository(request.repository());
+          validateVersion(request.version());
         });
   }
 
@@ -81,5 +83,19 @@ final class RequestValidator {
     if (key == null || key.trim().isEmpty()) {
       throw new IllegalArgumentException("Please specify 'key'");
     }
+  }
+
+  private static void validateVersion(Object version) {
+    try {
+      if (version == null
+          || version instanceof Integer && ((Integer) version) > 0
+          || version instanceof Long && ((Long) version) > 0
+          || version instanceof String && Integer.valueOf((String) version) > 0) {
+        return;
+      }
+    } catch (NumberFormatException ex) {
+      throw new IllegalArgumentException("Version must be a positive number");
+    }
+    throw new IllegalArgumentException("Version must be a positive number");
   }
 }

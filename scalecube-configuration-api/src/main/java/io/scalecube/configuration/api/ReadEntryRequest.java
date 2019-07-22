@@ -6,7 +6,7 @@ public class ReadEntryRequest implements AccessRequest {
   protected String repository;
   protected String key;
   private Object apiKey;
-  private Integer version;
+  private Object version;
 
   /**
    * Default constructor.
@@ -23,7 +23,7 @@ public class ReadEntryRequest implements AccessRequest {
    * @param key The requested data key
    * @param version The requested data key version
    */
-  public ReadEntryRequest(Object apiKey, String repository, String key, Integer version) {
+  public ReadEntryRequest(Object apiKey, String repository, String key, Object version) {
     this.apiKey = apiKey;
     this.repository = repository;
     this.key = key;
@@ -51,7 +51,7 @@ public class ReadEntryRequest implements AccessRequest {
     return key;
   }
 
-  public Integer version() {
+  public Object version() {
     return version;
   }
 
