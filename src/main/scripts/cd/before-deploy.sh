@@ -49,7 +49,7 @@ setupgit() {
 }
 
 deployment() {
-  if [ "$TRAVIS_PULL_REQUEST" == 'false' ] &&  [ "$TRAVIS_BRANCH" = 'master' ]  || [ "$TRAVIS_BRANCH" = 'develop' ]; then
+  if [ "$TRAVIS_PULL_REQUEST" = 'false' -a "$TRAVIS_BRANCH" = 'master' -o "$TRAVIS_BRANCH" = 'develop' -o -n "$TRAVIS_TAG" ]; then
     echo     deployment
     echo *-*-*-*-*-*-*-*-*-*-*-*
     decryptsecrets
