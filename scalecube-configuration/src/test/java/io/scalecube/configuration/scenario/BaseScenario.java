@@ -26,7 +26,7 @@ public abstract class BaseScenario {
 
   public static final int KEY_CACHE_TTL = 1;
   public static final int KEY_CACHE_REFRESH_INTERVAL = 1;
-  public static final int API_KEY_TTL_IN_SECONDS = 5;
+  public static final int API_KEY_TTL_IN_SECONDS = 3;
 
   protected static final String REPOSITORY_ALREADY_EXISTS_FORMATTER =
       "Repository with name: '%s' already exists";
