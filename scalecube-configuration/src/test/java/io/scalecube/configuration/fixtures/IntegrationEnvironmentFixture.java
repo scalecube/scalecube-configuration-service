@@ -1,11 +1,17 @@
 package io.scalecube.configuration.fixtures;
 
-import io.scalecube.services.gateway.clientsdk.Client;
-import io.scalecube.services.gateway.clientsdk.ClientSettings;
+import static io.scalecube.services.gateway.transport.GatewayClientTransports.WEBSOCKET_CLIENT_CODEC;
+
+import io.scalecube.net.Address;
+import io.scalecube.services.ServiceCall;
+import io.scalecube.services.gateway.transport.GatewayClient;
+import io.scalecube.services.gateway.transport.GatewayClientSettings;
+import io.scalecube.services.gateway.transport.GatewayClientTransport;
+import io.scalecube.services.gateway.transport.StaticAddressRouter;
+import io.scalecube.services.gateway.transport.websocket.WebsocketGatewayClient;
 import io.scalecube.test.fixtures.Fixture;
 import java.time.Duration;
 import org.opentest4j.TestAbortedException;
-import reactor.netty.resources.LoopResources;
 
 public final class IntegrationEnvironmentFixture implements Fixture {
 
@@ -15,23 +21,25 @@ public final class IntegrationEnvironmentFixture implements Fixture {
     environment.start();
   }
 
-  private Client client;
+  private GatewayClient client;
+  private GatewayClientTransport clientTransport;
+  private String HOST = "localhost";
+  private int PORT = 7070;
 
   @Override
   public void setUp() throws TestAbortedException {
-    ClientSettings settings =
-        ClientSettings.builder()
-            .host("localhost")
-            .port(7070)
-            .loopResources(LoopResources.create("integration-tests-client"))
-            .build();
+    GatewayClientSettings settings = GatewayClientSettings.builder().host(HOST).port(PORT).build();
 
-    client = Client.websocket(settings);
+    client = new WebsocketGatewayClient(settings, WEBSOCKET_CLIENT_CODEC);
+    clientTransport = new GatewayClientTransport(client);
   }
 
   @Override
   public <T> T proxyFor(Class<? extends T> clazz) {
-    return client.forService(clazz);
+    return new ServiceCall()
+        .transport(clientTransport)
+        .router(new StaticAddressRouter(Address.create(HOST, PORT)))
+        .api(clazz);
   }
 
   @Override
