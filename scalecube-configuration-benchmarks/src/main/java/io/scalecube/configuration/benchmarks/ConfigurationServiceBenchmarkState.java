@@ -50,6 +50,8 @@ final class ConfigurationServiceBenchmarkState
   private final String gatewayProtocol;
   private final boolean secure;
 
+  private final ServiceCall serviceCall;
+
   private final AtomicReference<String> apiKey = new AtomicReference<>();
 
   /**
@@ -65,6 +67,11 @@ final class ConfigurationServiceBenchmarkState
     gatewayPort = Integer.valueOf(settings.find("gatewayPort", "7070"));
     gatewayProtocol = String.valueOf(settings.find("gatewayProtocol", "ws"));
     secure = Boolean.valueOf(settings.find("secure", "false"));
+
+    serviceCall =
+        new ServiceCall()
+            .transport(clientTransport())
+            .router(new StaticAddressRouter(Address.create(gatewayHost, gatewayPort)));
   }
 
   @Override
@@ -129,10 +136,7 @@ final class ConfigurationServiceBenchmarkState
   }
 
   protected <T> T forService(Class<T> clazz) {
-    return new ServiceCall()
-        .transport(clientTransport())
-        .router(new StaticAddressRouter(Address.create(gatewayHost, gatewayPort)))
-        .api(clazz);
+    return serviceCall.api(clazz);
   }
 
   private void preload(Token token, int configKeysCount) {

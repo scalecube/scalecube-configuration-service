@@ -31,6 +31,8 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ScalecubeConfigurationServiceConfigSource.class);
 
+  private static final ServiceCall serviceCall = new ServiceCall();
+
   private final ConfigurationService service;
 
   private final ReadListRequest requestEntries;
@@ -120,7 +122,7 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
    * @return service
    */
   public static <T> T httpService(GatewayClientSettings settings, Class<T> clazz) {
-    return new ServiceCall()
+    return serviceCall
         .transport(new GatewayClientTransport(new HttpGatewayClient(settings, HTTP_CLIENT_CODEC)))
         .router(new StaticAddressRouter(Address.create(settings.host(), settings.port())))
         .api(clazz);

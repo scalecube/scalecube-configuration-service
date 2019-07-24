@@ -16,6 +16,10 @@ import org.opentest4j.TestAbortedException;
 public final class IntegrationEnvironmentFixture implements Fixture {
 
   private static final IntegrationEnvironment environment = new IntegrationEnvironment();
+  private static String HOST = "localhost";
+  private static int PORT = 7070;
+
+  private ServiceCall serviceCall;
 
   static {
     environment.start();
@@ -23,8 +27,6 @@ public final class IntegrationEnvironmentFixture implements Fixture {
 
   private GatewayClient client;
   private GatewayClientTransport clientTransport;
-  private String HOST = "localhost";
-  private int PORT = 7070;
 
   @Override
   public void setUp() throws TestAbortedException {
@@ -32,14 +34,15 @@ public final class IntegrationEnvironmentFixture implements Fixture {
 
     client = new WebsocketGatewayClient(settings, WEBSOCKET_CLIENT_CODEC);
     clientTransport = new GatewayClientTransport(client);
+    serviceCall =
+        new ServiceCall()
+            .transport(clientTransport)
+            .router(new StaticAddressRouter(Address.create(HOST, PORT)));
   }
 
   @Override
   public <T> T proxyFor(Class<? extends T> clazz) {
-    return new ServiceCall()
-        .transport(clientTransport)
-        .router(new StaticAddressRouter(Address.create(HOST, PORT)))
-        .api(clazz);
+    return serviceCall.api(clazz);
   }
 
   @Override
