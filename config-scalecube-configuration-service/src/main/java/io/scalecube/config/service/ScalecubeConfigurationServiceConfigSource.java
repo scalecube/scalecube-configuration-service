@@ -1,6 +1,6 @@
 package io.scalecube.config.service;
 
-import static io.scalecube.services.gateway.clientsdk.Client.http;
+import static io.scalecube.services.gateway.transport.GatewayClientTransports.HTTP_CLIENT_CODEC;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
@@ -12,7 +12,12 @@ import io.scalecube.config.source.LoadedConfigProperty;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.ReadEntryResponse;
 import io.scalecube.configuration.api.ReadListRequest;
-import io.scalecube.services.gateway.clientsdk.ClientSettings;
+import io.scalecube.net.Address;
+import io.scalecube.services.ServiceCall;
+import io.scalecube.services.gateway.transport.GatewayClientSettings;
+import io.scalecube.services.gateway.transport.GatewayClientTransport;
+import io.scalecube.services.gateway.transport.StaticAddressRouter;
+import io.scalecube.services.gateway.transport.http.HttpGatewayClient;
 import io.scalecube.services.transport.jackson.JacksonCodec;
 import java.net.URL;
 import java.util.Map;
@@ -20,12 +25,13 @@ import java.util.Objects;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.netty.http.HttpResources;
 
 public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
 
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ScalecubeConfigurationServiceConfigSource.class);
+
+  private static final ServiceCall serviceCall = new ServiceCall();
 
   private final ConfigurationService service;
 
@@ -63,11 +69,10 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
       }
       if (this.service == null) {
         Objects.requireNonNull(this.url);
-        ClientSettings.Builder builder =
-            ClientSettings.builder()
+        GatewayClientSettings.Builder builder =
+            GatewayClientSettings.builder()
                 .host(url.getHost())
-                .contentType(JacksonCodec.CONTENT_TYPE)
-                .loopResources(HttpResources.get());
+                .contentType(JacksonCodec.CONTENT_TYPE);
 
         if ("https".equals(url.getProtocol())) {
           if (url.getPort() != -1) {
@@ -85,7 +90,7 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
         } else {
           throw new IllegalArgumentException("Unkowon protocol");
         }
-        this.service = http(builder.build()).forService(ConfigurationService.class);
+        this.service = httpService(builder.build(), ConfigurationService.class);
       }
       Objects.requireNonNull(this.service, "No URL and no Service was set");
 
@@ -106,6 +111,21 @@ public class ScalecubeConfigurationServiceConfigSource implements ConfigSource {
       this.url = url;
       return this;
     }
+  }
+
+  /**
+   * Gateway settings based service.
+   *
+   * @param settings gateway client settings
+   * @param clazz service
+   * @param <T> class of service
+   * @return service
+   */
+  public static <T> T httpService(GatewayClientSettings settings, Class<T> clazz) {
+    return serviceCall
+        .transport(new GatewayClientTransport(new HttpGatewayClient(settings, HTTP_CLIENT_CODEC)))
+        .router(new StaticAddressRouter(Address.create(settings.host(), settings.port())))
+        .api(clazz);
   }
 
   public static Builder builder() {

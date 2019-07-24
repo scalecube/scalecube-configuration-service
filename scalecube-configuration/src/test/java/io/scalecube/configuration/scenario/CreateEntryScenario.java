@@ -124,9 +124,7 @@ public class CreateEntryScenario extends BaseScenario {
       "#11 Scenario: Successful entry creation (no validation for input) enabling to save "
           + "following values: "
           + "- values that reach at least a 1000 chars\n"
-          + "  - values which chars are symbols and spaces\n"
-          + "  - JsonArray\n"
-          + "  - null / empty string")
+          + "  - values which chars are symbols and spaces\n")
   void createEntryWithDiffValues(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -209,8 +207,7 @@ public class CreateEntryScenario extends BaseScenario {
   @DisplayName(
       "#11.1 Scenario: Successful entry creation (no validation for input) enabling to save "
           + "following values: "
-          + "- values that reach at least a 1000 chars\n"
-          + "  - values which chars are symbols and spaces\n")
+          + "  - JsonArray")
   void createEntryWithDiffValuesNext(
       ConfigurationService configurationService, OrganizationService organizationService) {
     String orgId = createOrganization(organizationService).id();
@@ -220,25 +217,6 @@ public class CreateEntryScenario extends BaseScenario {
     configurationService
         .createRepository(new CreateRepositoryRequest(apiKey, repoName))
         .block(TIMEOUT);
-
-    String entryKeyBlankJsonObject = "blankJsonObject";
-    ObjectNode entryValueBlankJsonObject =
-        OBJECT_MAPPER.createObjectNode().put("value", JsonObject.empty().toString());
-    StepVerifier.create(
-            configurationService
-                .createEntry(
-                    new CreateOrUpdateEntryRequest(
-                        apiKey, repoName, entryKeyBlankJsonObject, entryValueBlankJsonObject))
-                .then(
-                    configurationService.readEntry(
-                        new ReadEntryRequest(apiKey, repoName, entryKeyBlankJsonObject, 1))))
-        .assertNext(
-            entry -> {
-              assertEquals(entryKeyBlankJsonObject, entry.key(), "Saved entry key");
-              assertEquals(entryValueBlankJsonObject, parse(entry.value()), "Saved entry value");
-            })
-        .expectComplete()
-        .verify();
 
     String entryKeyBlankJsonArray = "blankJsonArray";
     ObjectNode entryValueBlankJsonArray =
@@ -276,6 +254,41 @@ public class CreateEntryScenario extends BaseScenario {
             entry -> {
               assertEquals(entryKeyDataJsonArray, entry.key(), "Saved entry key");
               assertEquals(entryValueDataJsonArray, parse(entry.value()), "Saved entry value");
+            })
+        .expectComplete()
+        .verify();
+  }
+
+  @TestTemplate
+  @DisplayName(
+      "#11.2 Scenario: Successful entry creation (no validation for input) enabling to save "
+          + "following values: "
+          + "  - null / empty string")
+  void createEntryWithDiffValuesNextSplit(
+      ConfigurationService configurationService, OrganizationService organizationService) {
+    String orgId = createOrganization(organizationService).id();
+    String apiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+
+    String repoName = RandomStringUtils.randomAlphabetic(5);
+    configurationService
+        .createRepository(new CreateRepositoryRequest(apiKey, repoName))
+        .block(TIMEOUT);
+
+    String entryKeyBlankJsonObject = "blankJsonObject";
+    ObjectNode entryValueBlankJsonObject =
+        OBJECT_MAPPER.createObjectNode().put("value", JsonObject.empty().toString());
+    StepVerifier.create(
+            configurationService
+                .createEntry(
+                    new CreateOrUpdateEntryRequest(
+                        apiKey, repoName, entryKeyBlankJsonObject, entryValueBlankJsonObject))
+                .then(
+                    configurationService.readEntry(
+                        new ReadEntryRequest(apiKey, repoName, entryKeyBlankJsonObject, 1))))
+        .assertNext(
+            entry -> {
+              assertEquals(entryKeyBlankJsonObject, entry.key(), "Saved entry key");
+              assertEquals(entryValueBlankJsonObject, parse(entry.value()), "Saved entry value");
             })
         .expectComplete()
         .verify();
