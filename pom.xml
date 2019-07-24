@@ -47,7 +47,7 @@
 
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
 
-    <skipITs>false</skipITs>
+    <skipITs>true</skipITs>
   </properties>
 
   <modules>
