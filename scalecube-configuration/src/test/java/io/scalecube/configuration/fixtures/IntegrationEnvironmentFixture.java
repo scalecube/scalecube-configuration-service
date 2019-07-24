@@ -26,17 +26,15 @@ public final class IntegrationEnvironmentFixture implements Fixture {
   }
 
   private GatewayClient client;
-  private GatewayClientTransport clientTransport;
 
   @Override
   public void setUp() throws TestAbortedException {
     GatewayClientSettings settings = GatewayClientSettings.builder().host(HOST).port(PORT).build();
 
     client = new WebsocketGatewayClient(settings, WEBSOCKET_CLIENT_CODEC);
-    clientTransport = new GatewayClientTransport(client);
     serviceCall =
         new ServiceCall()
-            .transport(clientTransport)
+            .transport(new GatewayClientTransport(client))
             .router(new StaticAddressRouter(Address.create(HOST, PORT)));
   }
 
