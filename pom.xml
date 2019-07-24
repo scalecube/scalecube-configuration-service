@@ -47,7 +47,7 @@
 
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
 
-    <skipITs>true</skipITs>
+    <skipITests>false</skipITests>
   </properties>
 
   <modules>
@@ -219,7 +219,7 @@
           </executions>
           <configuration>
             <!-- TODO: disabled by default until it is stable on Travis CI -->
-            <skipITs>${skipITs}</skipITs>
+            <skipITs>${skipITests}</skipITs>
           </configuration>
         </plugin>
       </plugins>
