@@ -1,6 +1,7 @@
 package io.scalecube.config.service.example;
 
-import static io.scalecube.services.gateway.clientsdk.Client.http;
+import static io.scalecube.config.service.ScalecubeConfigurationServiceConfigSource.builder;
+import static io.scalecube.config.service.ScalecubeConfigurationServiceConfigSource.httpService;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,12 +10,11 @@ import io.scalecube.config.ConfigRegistrySettings;
 import io.scalecube.config.ObjectConfigProperty;
 import io.scalecube.config.audit.Slf4JConfigEventListener;
 import io.scalecube.config.service.ObjectMapperHolder;
-import io.scalecube.config.service.ScalecubeConfigurationServiceConfigSource;
 import io.scalecube.config.utils.ThrowableUtil;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
-import io.scalecube.services.gateway.clientsdk.ClientSettings;
-import io.scalecube.services.gateway.clientsdk.ClientSettings.Builder;
+import io.scalecube.services.gateway.transport.GatewayClientSettings;
+import io.scalecube.services.gateway.transport.GatewayClientSettings.Builder;
 import io.scalecube.services.transport.jackson.JacksonCodec;
 import java.io.IOException;
 import java.net.URL;
@@ -22,7 +22,6 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import reactor.core.publisher.Flux;
-import reactor.netty.http.HttpResources;
 
 public class ScalecubeConfigurationServiceConfigSourceExample {
 
@@ -43,15 +42,14 @@ public class ScalecubeConfigurationServiceConfigSourceExample {
     String token = args[1];
     URL url = new URL("https", "configuration-service-http.genesis.om2.com", 443, "/");
     Builder builder =
-        ClientSettings.builder()
+        GatewayClientSettings.builder()
             .host(url.getHost())
             .port(url.getPort())
             .contentType(JacksonCodec.CONTENT_TYPE)
-            .loopResources(HttpResources.get())
             .secure();
 
     ConfigurationService configurationService =
-        http(builder.build()).forService(ConfigurationService.class);
+        httpService(builder.build(), ConfigurationService.class);
 
     String key1 = "person1";
     JsonNode value1 = objectMapper.reader().readTree("{\"name\":\"foo\",\"age\":42}");
@@ -66,11 +64,7 @@ public class ScalecubeConfigurationServiceConfigSourceExample {
             .addListener(new Slf4JConfigEventListener())
             .addLastSource(
                 "ConfigurationService",
-                ScalecubeConfigurationServiceConfigSource.builder()
-                    .repository(repository)
-                    .token(token)
-                    .url(url)
-                    .build())
+                builder().repository(repository).token(token).url(url).build())
             .build();
     ConfigRegistry configRegistry = ConfigRegistry.create(configRegistrySettings);
 
