@@ -4,5 +4,5 @@ public interface AccessRequest {
 
   String repository();
 
-  Object token();
+  Object apiKey();
 }

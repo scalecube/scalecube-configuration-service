@@ -5,7 +5,7 @@ import io.scalecube.benchmarks.BenchmarkSettings;
 import io.scalecube.benchmarks.metrics.BenchmarkTimer;
 import io.scalecube.benchmarks.metrics.BenchmarkTimer.Context;
 import io.scalecube.configuration.api.ConfigurationService;
-import io.scalecube.configuration.api.SaveRequest;
+import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 
 public final class UpdateConfigValueBenchmark {
 
@@ -25,13 +25,13 @@ public final class UpdateConfigValueBenchmark {
         .runForAsync(
             state -> {
               ConfigurationService configurationService =
-                  state.client().forService(ConfigurationService.class);
+                  state.forService(ConfigurationService.class);
 
               BenchmarkTimer timer = state.timer("timer");
 
               return i -> {
-                SaveRequest saveRequest =
-                    new SaveRequest(
+                CreateOrUpdateEntryRequest createOrUpdateEntryRequest =
+                    new CreateOrUpdateEntryRequest(
                         state.apiKey(),
                         "benchmarks-repo",
                         "key-" + i % configKeysCount,
@@ -39,7 +39,9 @@ public final class UpdateConfigValueBenchmark {
 
                 Context time = timer.time();
 
-                return configurationService.save(saveRequest).doOnSuccess(response -> time.stop());
+                return configurationService
+                    .createEntry(createOrUpdateEntryRequest)
+                    .doOnSuccess(response -> time.stop());
               };
             });
   }
