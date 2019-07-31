@@ -28,7 +28,10 @@ import io.scalecube.services.gateway.transport.StaticAddressRouter;
 import io.scalecube.services.gateway.transport.http.HttpGatewayClient;
 import io.scalecube.services.gateway.transport.rsocket.RSocketGatewayClient;
 import io.scalecube.services.gateway.transport.websocket.WebsocketGatewayClient;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
@@ -50,8 +53,7 @@ final class ConfigurationServiceBenchmarkState
   private final String gatewayProtocol;
   private final boolean secure;
 
-  private final ServiceCall serviceCall;
-
+  private final List<GatewayClient> clients = new ArrayList<>();
   private final AtomicReference<String> apiKey = new AtomicReference<>();
 
   /**
@@ -67,11 +69,6 @@ final class ConfigurationServiceBenchmarkState
     gatewayPort = Integer.valueOf(settings.find("gatewayPort", "7070"));
     gatewayProtocol = String.valueOf(settings.find("gatewayProtocol", "ws"));
     secure = Boolean.valueOf(settings.find("secure", "false"));
-
-    serviceCall =
-        new ServiceCall()
-            .transport(clientTransport())
-            .router(new StaticAddressRouter(Address.create(gatewayHost, gatewayPort)));
   }
 
   @Override
@@ -84,6 +81,17 @@ final class ConfigurationServiceBenchmarkState
     int configKeysCount = Integer.parseInt(settings.find("configKeysCount", "100"));
 
     preload(token, configKeysCount);
+  }
+
+  @Override
+  protected void afterAll() {
+    Mono.whenDelayError(
+            clients.stream()
+                .peek(GatewayClient::close)
+                .map(GatewayClient::onClose)
+                .toArray(Mono[]::new))
+        .onErrorResume(th -> Mono.empty())
+        .block(Duration.ofSeconds(10));
   }
 
   /**
@@ -128,15 +136,15 @@ final class ConfigurationServiceBenchmarkState
                 gatewayProtocol));
     }
 
+    clients.add(client);
     return client;
   }
 
-  private GatewayClientTransport clientTransport() {
-    return new GatewayClientTransport(client());
-  }
-
   protected <T> T forService(Class<T> clazz) {
-    return serviceCall.api(clazz);
+    return new ServiceCall()
+        .transport(new GatewayClientTransport(client()))
+        .router(new StaticAddressRouter(Address.create(gatewayHost, gatewayPort)))
+        .api(clazz);
   }
 
   private void preload(Token token, int configKeysCount) {
