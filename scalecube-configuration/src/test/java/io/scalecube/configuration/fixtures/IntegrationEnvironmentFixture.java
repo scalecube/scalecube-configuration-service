@@ -46,7 +46,8 @@ public final class IntegrationEnvironmentFixture implements Fixture {
   @Override
   public void tearDown() {
     if (client != null) {
-      client.close().block(Duration.ofSeconds(10));
+      client.close();
+      client.onClose().block(Duration.ofSeconds(10));
     }
   }
 }
