@@ -28,7 +28,22 @@ public abstract class BaseScenario {
   public static final int KEY_CACHE_REFRESH_INTERVAL = 1;
   public static final int API_KEY_TTL_IN_SECONDS = 3;
 
-  static final Duration TIMEOUT = Duration.ofSeconds(10);
+  protected static final String REPOSITORY_ALREADY_EXISTS_FORMATTER =
+      "Repository with name: '%s' already exists";
+  protected static final String REPOSITORY_NOT_FOUND_FORMATTER = "Repository '%s' not found";
+  protected static final String REPOSITORY_OR_ITS_KEY_NOT_FOUND_FORMATTER =
+      "Repository '%s' or its key '%s' not found";
+  protected static final String REPOSITORY_KEY_ALREADY_EXISTS_FORMATTER =
+      "Repository '%s' key '%s' already exists";
+  protected static final String KEY_VERSION_NOT_FOUND_FORMATTER = "Key '%s' version '%s' not found";
+  protected static final String VERSION_MUST_BE_A_POSITIVE_NUMBER = "Version must be a positive number";
+  protected static final String TOKEN_VERIFICATION_FAILED = "Token verification failed";
+  protected static final String PLEASE_SPECIFY_API_KEY = "Please specify 'apiKey'";
+  protected static final String PLEASE_SPECIFY_REPO = "Please specify 'repository'";
+  protected static final String PLEASE_SPECIFY_KEY = "Please specify 'key'";
+  protected static final String PERMISSION_DENIED = "Permission denied";
+
+  protected static final Duration TIMEOUT = Duration.ofSeconds(10);
   static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   static final Token AUTH0_TOKEN = new Token("auth0_token");
 
@@ -37,7 +52,7 @@ public abstract class BaseScenario {
     StepVerifier.setDefaultTimeout(TIMEOUT);
   }
 
-  OrganizationInfo createOrganization(OrganizationService organizationService) {
+  protected OrganizationInfo createOrganization(OrganizationService organizationService) {
     return organizationService
         .createOrganization(
             new CreateOrganizationRequest(
@@ -45,7 +60,7 @@ public abstract class BaseScenario {
         .block(TIMEOUT);
   }
 
-  ApiKey getExpiredApiKey(
+  protected ApiKey getExpiredApiKey(
       OrganizationService organizationService, String organizationId, Role role) {
     ApiKey apiKey = createApiKey(organizationService, organizationId, role);
 
@@ -58,7 +73,7 @@ public abstract class BaseScenario {
     return apiKey;
   }
 
-  ApiKey createApiKey(OrganizationService organizationService, String organizationId, Role role) {
+  protected ApiKey createApiKey(OrganizationService organizationService, String organizationId, Role role) {
     Map<String, String> claims = new HashMap<>();
     claims.put("aud", organizationId);
     claims.put("role", role.name());

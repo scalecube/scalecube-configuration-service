@@ -25,7 +25,7 @@ public final class UpdateConfigValueBenchmark {
         .runForAsync(
             state -> {
               ConfigurationService configurationService =
-                  state.client().forService(ConfigurationService.class);
+                  state.forService(ConfigurationService.class);
 
               BenchmarkTimer timer = state.timer("timer");
 
