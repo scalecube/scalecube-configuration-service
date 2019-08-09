@@ -1,5 +1,9 @@
 package io.scalecube.configuration.benchmarks;
 
+import static io.scalecube.services.gateway.transport.GatewayClientTransports.HTTP_CLIENT_CODEC;
+import static io.scalecube.services.gateway.transport.GatewayClientTransports.RSOCKET_CLIENT_CODEC;
+import static io.scalecube.services.gateway.transport.GatewayClientTransports.WEBSOCKET_CLIENT_CODEC;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.scalecube.account.api.AddOrganizationApiKeyRequest;
@@ -14,17 +18,26 @@ import io.scalecube.benchmarks.BenchmarkState;
 import io.scalecube.configuration.api.ConfigurationService;
 import io.scalecube.configuration.api.CreateOrUpdateEntryRequest;
 import io.scalecube.configuration.api.CreateRepositoryRequest;
-import io.scalecube.services.gateway.clientsdk.Client;
-import io.scalecube.services.gateway.clientsdk.ClientSettings;
-import io.scalecube.services.gateway.clientsdk.ClientSettings.Builder;
+import io.scalecube.net.Address;
+import io.scalecube.services.ServiceCall;
+import io.scalecube.services.gateway.transport.GatewayClient;
+import io.scalecube.services.gateway.transport.GatewayClientSettings;
+import io.scalecube.services.gateway.transport.GatewayClientSettings.Builder;
+import io.scalecube.services.gateway.transport.GatewayClientTransport;
+import io.scalecube.services.gateway.transport.StaticAddressRouter;
+import io.scalecube.services.gateway.transport.http.HttpGatewayClient;
+import io.scalecube.services.gateway.transport.rsocket.RSocketGatewayClient;
+import io.scalecube.services.gateway.transport.websocket.WebsocketGatewayClient;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.netty.resources.LoopResources;
 
 final class ConfigurationServiceBenchmarkState
     extends BenchmarkState<ConfigurationServiceBenchmarkState> {
@@ -40,6 +53,7 @@ final class ConfigurationServiceBenchmarkState
   private final String gatewayProtocol;
   private final boolean secure;
 
+  private final List<GatewayClient> clients = new ArrayList<>();
   private final AtomicReference<String> apiKey = new AtomicReference<>();
 
   /**
@@ -69,6 +83,17 @@ final class ConfigurationServiceBenchmarkState
     preload(token, configKeysCount);
   }
 
+  @Override
+  protected void afterAll() {
+    Mono.whenDelayError(
+            clients.stream()
+                .peek(GatewayClient::close)
+                .map(GatewayClient::onClose)
+                .toArray(Mono[]::new))
+        .onErrorResume(th -> Mono.empty())
+        .block(Duration.ofSeconds(10));
+  }
+
   /**
    * Returns API key which is created on `preload` phase.
    *
@@ -83,38 +108,48 @@ final class ConfigurationServiceBenchmarkState
    *
    * @return client.
    */
-  public Client client() {
-    Builder settingsBuilder =
-        ClientSettings.builder()
-            .host(gatewayHost)
-            .port(gatewayPort)
-            .loopResources(LoopResources.create("benchmark-client"));
+  private GatewayClient client() {
+    Builder settingsBuilder = GatewayClientSettings.builder().host(gatewayHost).port(gatewayPort);
 
     if (secure) {
       settingsBuilder.secure();
     }
 
-    ClientSettings settings = settingsBuilder.build();
+    GatewayClientSettings settings = settingsBuilder.build();
+
+    GatewayClient client;
 
     switch (gatewayProtocol.toLowerCase()) {
       case "ws":
-        return Client.websocket(settings);
+        client = new WebsocketGatewayClient(settings, WEBSOCKET_CLIENT_CODEC);
+        break;
       case "rs":
-        return Client.rsocket(settings);
+        client = new RSocketGatewayClient(settings, RSOCKET_CLIENT_CODEC);
+        break;
       case "http":
-        return Client.http(settings);
+        client = new HttpGatewayClient(settings, HTTP_CLIENT_CODEC);
+        break;
       default:
         throw new IllegalStateException(
             String.format(
                 "Unknown gateway protocol '%s'. Must be one of following 'ws', 'rs', 'http'",
                 gatewayProtocol));
     }
+
+    clients.add(client);
+    return client;
+  }
+
+  protected <T> T forService(Class<T> clazz) {
+    return new ServiceCall()
+        .transport(new GatewayClientTransport(client()))
+        .router(new StaticAddressRouter(Address.create(gatewayHost, gatewayPort)))
+        .api(clazz);
   }
 
   private void preload(Token token, int configKeysCount) {
-    Client client = client();
-    OrganizationService organizationService = client.forService(OrganizationService.class);
-    ConfigurationService configurationService = client.forService(ConfigurationService.class);
+    OrganizationService organizationService = forService(OrganizationService.class);
+    ConfigurationService configurationService = forService(ConfigurationService.class);
 
     createOrganization(organizationService, token)
         .flatMap(organization -> createApiKey(organizationService, token, organization))

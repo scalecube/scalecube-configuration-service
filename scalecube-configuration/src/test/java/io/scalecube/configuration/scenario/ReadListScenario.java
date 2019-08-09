@@ -3,6 +3,8 @@ package io.scalecube.configuration.scenario;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.couchbase.client.java.document.json.JsonArray;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
 import io.scalecube.account.api.DeleteOrganizationRequest;
@@ -14,8 +16,10 @@ import io.scalecube.configuration.api.CreateRepositoryRequest;
 import io.scalecube.configuration.api.ReadEntryResponse;
 import io.scalecube.configuration.api.ReadListRequest;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
@@ -23,92 +27,96 @@ import reactor.test.StepVerifier;
 
 public class ReadListScenario extends BaseScenario {
 
-  @TestTemplate
-  @DisplayName(
-      "#26 Successful get of the all existent entries list from the related Repository applying the all related API keys: \"Owner\", \"Admin\", \"Member\"")
-  void readEntries(
-      ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
-    String adminToken = createApiKey(organizationService, orgId, Role.Admin).key();
-    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
+  protected static final String repoName = RandomStringUtils.randomAlphabetic(5);
+  protected static final String repoNameNotExists = repoName + "_not_exists";
 
-    String repoName = RandomStringUtils.randomAlphabetic(5);
-    String entryKey1 = "KEY-FOR-PRECIOUS-METAL-123";
-    String entryKey2 = "KEY-FOR-CURRENCY-999";
+  protected static final String entryKey1 = "KEY-FOR-PRECIOUS-METAL-123";
+  protected static final String entryKey2 = "KEY-FOR-CURRENCY-999";
+  protected static final String entryKey3 = "anyKey";
+
+  protected static final ObjectNode entryValue11 =
+      OBJECT_MAPPER
+          .createObjectNode()
+          .put("instrumentId", "XAG")
+          .put("name", "Silver")
+          .put("DecimalPrecision", 4)
+          .put("Rounding", "down");
+  protected static final ObjectNode entryValue12 =
+      OBJECT_MAPPER
+          .createObjectNode()
+          .put("instrumentId", "JPY")
+          .put("name", "Silver")
+          .put("DecimalPrecision", 2)
+          .put("Rounding", "down");
+
+  protected static final ObjectNode entryValue21 =
+      OBJECT_MAPPER
+          .createObjectNode()
+          .put("instrumentId", "JPY")
+          .put("name", "Yen")
+          .put("DecimalPrecision", 8)
+          .put("Rounding", "down");
+  protected static final ObjectNode entryValue22 =
+      OBJECT_MAPPER.createObjectNode().put("value", "again go");
+  protected static final ObjectNode entryValue23 = OBJECT_MAPPER.createObjectNode().put("value", 1);
+
+  protected static final ObjectNode entryValue31 =
+      OBJECT_MAPPER
+          .createObjectNode()
+          .put("value", JsonArray.create().add("Go go go!!!").toString());
+
+  protected String orgId;
+  protected String ownerApiKey;
+  protected String memberApiKey;
+
+  @BeforeEach
+  protected void init(
+      ConfigurationService configurationService, OrganizationService organizationService) {
+    orgId = createOrganization(organizationService).id();
+    ownerApiKey = createApiKey(organizationService, orgId, Role.Owner).key();
+    memberApiKey = createApiKey(organizationService, orgId, Role.Member).key();
 
     configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
+        .createRepository(new CreateRepositoryRequest(ownerApiKey, repoName))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(
-                    ownerToken,
-                    repoName,
-                    entryKey1,
-                    OBJECT_MAPPER
-                        .createObjectNode()
-                        .put("instrumentId", "XAG")
-                        .put("name", "Silver")
-                        .put("DecimalPrecision", 4)
-                        .put("Rounding", "down"))))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey1, entryValue11)))
+        .then(
+            configurationService.updateEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey1, entryValue12)))
         .then(
             configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(
-                    ownerToken,
-                    repoName,
-                    entryKey2,
-                    OBJECT_MAPPER
-                        .createObjectNode()
-                        .put("instrumentId", "JPY")
-                        .put("name", "Yen")
-                        .put("DecimalPrecision", 2)
-                        .put("Rounding", "down"))))
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey2, entryValue21)))
+        .then(
+            configurationService.updateEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey2, entryValue22)))
+        .then(
+            configurationService.updateEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey2, entryValue23)))
+        .then(
+            configurationService.createEntry(
+                new CreateOrUpdateEntryRequest(ownerApiKey, repoName, entryKey3, entryValue31)))
         .block(TIMEOUT);
+  }
 
-    StepVerifier.create(configurationService.readList(new ReadListRequest(ownerToken, repoName)))
+  @TestTemplate
+  @DisplayName(
+      "#53 Scenario: Successful readList (latest key versions) from the related Repository")
+  protected void readEntries(ConfigurationService configurationService) {
+
+    StepVerifier.create(configurationService.readList(new ReadListRequest(ownerApiKey, repoName)))
         .assertNext(
             entries -> {
-              assertEquals(2, entries.size(), "Fetched entries count");
+              assertEquals(3, entries.size());
+              Map<String, Object> keyValue = keyValueMap(entries);
+              keyValue.containsKey(entryKey1);
+              keyValue.containsValue(entryValue12);
 
-              List<String> entriesKeys =
-                  entries.stream().map(ReadEntryResponse::key).collect(Collectors.toList());
+              keyValue.containsKey(entryKey2);
+              keyValue.containsValue(entryValue23);
 
-              assertTrue(
-                  entriesKeys.contains(entryKey1), "Entry " + entryKey1 + " found in response");
-              assertTrue(
-                  entriesKeys.contains(entryKey2), "Entry " + entryKey2 + " found in response");
-            })
-        .expectComplete()
-        .verify();
-
-    StepVerifier.create(configurationService.readList(new ReadListRequest(adminToken, repoName)))
-        .assertNext(
-            entries -> {
-              assertEquals(2, entries.size(), "Fetched entries count");
-
-              List<String> entriesKeys =
-                  entries.stream().map(ReadEntryResponse::key).collect(Collectors.toList());
-
-              assertTrue(
-                  entriesKeys.contains(entryKey1), "Entry " + entryKey1 + " found in response");
-              assertTrue(
-                  entriesKeys.contains(entryKey2), "Entry " + entryKey2 + " found in response");
-            })
-        .expectComplete()
-        .verify();
-
-    StepVerifier.create(configurationService.readList(new ReadListRequest(memberToken, repoName)))
-        .assertNext(
-            entries -> {
-              assertEquals(2, entries.size(), "Fetched entries count");
-
-              List<String> entriesKeys =
-                  entries.stream().map(ReadEntryResponse::key).collect(Collectors.toList());
-
-              assertTrue(
-                  entriesKeys.contains(entryKey1), "Entry " + entryKey1 + " found in response");
-              assertTrue(
-                  entriesKeys.contains(entryKey2), "Entry " + entryKey2 + " found in response");
+              keyValue.containsKey(entryKey3);
+              keyValue.containsValue(entryValue31);
             })
         .expectComplete()
         .verify();
@@ -116,60 +124,144 @@ public class ReadListScenario extends BaseScenario {
 
   @TestTemplate
   @DisplayName(
-      "#27 Fail to get any entry from the non-existent Repository applying some of the accessible API keys: \"Owner\", \"Admin\", \"Member\"")
-  void readEntriesFromNonExistentRepository(
-      ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = createOrganization(organizationService).id();
-    String token = createApiKey(organizationService, orgId, Role.Admin).key();
+      "#54 Scenario: Successful readList (specific key versions) from the related Repository applying all API keys roles")
+  protected void readEntriesWithSpecificVersions(ConfigurationService configurationService) {
 
-    String repoName = "NON_EXISTENT_REPO";
+    StepVerifier.create(
+            configurationService.readList(new ReadListRequest(ownerApiKey, repoName, 1)))
+        .assertNext(
+            entries -> {
+              assertEquals(3, entries.size());
 
-    StepVerifier.create(configurationService.readList(new ReadListRequest(token, repoName)))
-        .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId, repoName))
+              Map<String, Object> keyValue = keyValueMap(entries);
+
+              assertTrue(keyValue.containsKey(entryKey1));
+              assertTrue(keyValue.containsValue(entryValue11));
+
+              assertTrue(keyValue.containsKey(entryKey2));
+              assertTrue(keyValue.containsValue(entryValue21));
+
+              assertTrue(keyValue.containsKey(entryKey3));
+              assertTrue(keyValue.containsValue(entryValue31));
+            })
+        .expectComplete()
+        .verify();
+
+    StepVerifier.create(
+            configurationService.readList(new ReadListRequest(ownerApiKey, repoName, 2)))
+        .assertNext(
+            entries -> {
+              assertEquals(2, entries.size());
+
+              Map<String, Object> keyValue = keyValueMap(entries);
+
+              assertTrue(keyValue.containsKey(entryKey1));
+              assertTrue(keyValue.containsValue(entryValue12));
+
+              assertTrue(keyValue.containsKey(entryKey2));
+              assertTrue(keyValue.containsValue(entryValue22));
+            })
+        .expectComplete()
+        .verify();
+
+    StepVerifier.create(
+            configurationService.readList(new ReadListRequest(ownerApiKey, repoName, 3)))
+        .assertNext(
+            entries -> {
+              assertEquals(1, entries.size());
+
+              Map<String, Object> keyValue = keyValueMap(entries);
+
+              assertTrue(keyValue.containsKey(entryKey2));
+              assertTrue(keyValue.containsValue(entryValue23));
+            })
+        .expectComplete()
+        .verify();
+
+    StepVerifier.create(
+            configurationService.readList(new ReadListRequest(ownerApiKey, repoName, null)))
+        .assertNext(
+            entries -> {
+              assertEquals(3, entries.size());
+
+              Map<String, Object> keyValue = keyValueMap(entries);
+
+              assertTrue(keyValue.containsKey(entryKey1));
+              assertTrue(keyValue.containsValue(entryValue12));
+
+              assertTrue(keyValue.containsKey(entryKey2));
+              assertTrue(keyValue.containsValue(entryValue23));
+
+              assertTrue(keyValue.containsKey(entryKey3));
+              assertTrue(keyValue.containsValue(entryValue31));
+            })
+        .expectComplete()
         .verify();
   }
 
   @TestTemplate
   @DisplayName(
-      "#28 Fail to get any entry from the Repository upon the \"apiKey\" is invalid (expired)")
-  void readEntriesUsingExpiredToken(
-      ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId = createOrganization(organizationService).id();
-    String token = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
+      "#55 Scenario: Successful readList of nothing from the related Repository upon no match was found (specific key version doesn't exist)")
+  void readEntriesWithNotExistSpecificVersions(ConfigurationService configurationService) {
 
-    StepVerifier.create(configurationService.readList(new ReadListRequest(token, "test-repo")))
-        .expectErrorMessage("Token verification failed")
+    StepVerifier.create(
+            configurationService.readList(new ReadListRequest(ownerApiKey, repoName, 99)))
+        .assertNext(
+            entries -> {
+              assertEquals(0, entries.size());
+            })
+        .expectComplete()
         .verify();
   }
 
   @TestTemplate
-  @DisplayName(
-      "#29 Fail to get any entry from the Repository upon the Owner deleted the Organization with related \"Member\" API key")
-  void readEntriesForDeletedOrganization(
+  @DisplayName("#56 (current error - Failed to decode data on message q=/configuration/readList)")
+  void readEntriesWithNotPositiveIntegerVersion(ConfigurationService configurationService) {
+    StepVerifier.create(
+            configurationService.readList(new ReadListRequest(ownerApiKey, repoName, "abfdfd")))
+        .expectErrorMessage(VERSION_MUST_BE_A_POSITIVE_NUMBER)
+        .verify();
+
+    StepVerifier.create(
+            configurationService.readList(new ReadListRequest(ownerApiKey, repoName, 0)))
+        .expectErrorMessage(VERSION_MUST_BE_A_POSITIVE_NUMBER)
+        .verify();
+
+    StepVerifier.create(
+            configurationService.readList(new ReadListRequest(ownerApiKey, repoName, -5)))
+        .expectErrorMessage(VERSION_MUST_BE_A_POSITIVE_NUMBER)
+        .verify();
+  }
+
+  @TestTemplate
+  @DisplayName("#57 Scenario: Fail to readList due to specified Repository doesn't exist")
+  void readEntriesWithNotExistsRepo(ConfigurationService configurationService) {
+    StepVerifier.create(
+            configurationService.readList(new ReadListRequest(ownerApiKey, repoNameNotExists, 1)))
+        .expectErrorMessage(String.format(REPOSITORY_NOT_FOUND_FORMATTER, repoNameNotExists))
+        .verify();
+
+    StepVerifier.create(
+            configurationService.readList(new ReadListRequest(ownerApiKey, repoNameNotExists)))
+        .expectErrorMessage(String.format(REPOSITORY_NOT_FOUND_FORMATTER, repoNameNotExists))
+        .verify();
+
+    StepVerifier.create(
+            configurationService.readList(new ReadListRequest(ownerApiKey, repoNameNotExists, 1)))
+        .expectErrorMessage(String.format(REPOSITORY_NOT_FOUND_FORMATTER, repoNameNotExists))
+        .verify();
+
+    StepVerifier.create(
+            configurationService.readList(new ReadListRequest(ownerApiKey, repoNameNotExists)))
+        .expectErrorMessage(String.format(REPOSITORY_NOT_FOUND_FORMATTER, repoNameNotExists))
+        .verify();
+  }
+
+  @TestTemplate
+  @DisplayName("#58 Scenario: Fail to readList upon the Owner deleted the \"Organization\"")
+  void readEntriesWithDeletedOrganization(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
-    String orgId = createOrganization(organizationService).id();
-    String ownerToken = createApiKey(organizationService, orgId, Role.Owner).key();
-    String memberToken = createApiKey(organizationService, orgId, Role.Member).key();
-
-    String repoName = RandomStringUtils.randomAlphabetic(5);
-    String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
-
-    configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken, repoName))
-        .then(
-            configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(
-                    ownerToken,
-                    repoName,
-                    entryKey,
-                    OBJECT_MAPPER
-                        .createObjectNode()
-                        .put("instrumentId", "XAG")
-                        .put("name", "Silver")
-                        .put("DecimalPrecision", 4)
-                        .put("Rounding", "down"))))
-        .block(TIMEOUT);
 
     organizationService
         .deleteOrganization(new DeleteOrganizationRequest(AUTH0_TOKEN, orgId))
@@ -177,85 +269,116 @@ public class ReadListScenario extends BaseScenario {
 
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
-    StepVerifier.create(configurationService.readList(new ReadListRequest(memberToken, repoName)))
-        .expectErrorMessage("Token verification failed")
+    StepVerifier.create(configurationService.readList(new ReadListRequest(ownerApiKey, repoName)))
+        .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
+        .verify();
+
+    StepVerifier.create(
+            configurationService.readList(new ReadListRequest(ownerApiKey, repoName, 1)))
+        .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
         .verify();
   }
 
   @TestTemplate
   @DisplayName(
-      "#30 Fail to get any entry from the Repository upon the Owner applied some of the API keys from another Organization")
-  void readEntriesUsingTokenOfAnotherOrganization(
-      ConfigurationService configurationService, OrganizationService organizationService) {
-    String orgId1 = createOrganization(organizationService).id();
-    String token1 = createApiKey(organizationService, orgId1, Role.Owner).key();
-
-    String orgId2 = createOrganization(organizationService).id();
-    String token2 = createApiKey(organizationService, orgId2, Role.Admin).key();
-
-    String repoName = RandomStringUtils.randomAlphabetic(5);
-    String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
-
-    configurationService
-        .createRepository(new CreateRepositoryRequest(token1, repoName))
-        .then(
-            configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(
-                    token1,
-                    repoName,
-                    entryKey,
-                    OBJECT_MAPPER
-                        .createObjectNode()
-                        .put("instrumentId", "XAG")
-                        .put("name", "Silver")
-                        .put("DecimalPrecision", 4)
-                        .put("Rounding", "down"))))
-        .block(TIMEOUT);
-
-    StepVerifier.create(configurationService.readList(new ReadListRequest(token2, repoName)))
-        .expectErrorMessage(String.format("Repository '%s-%s' not found", orgId2, repoName))
-        .verify();
-  }
-
-  @TestTemplate
-  @DisplayName(
-      "#31 Fail to get any entry from the Repository upon the Member \"apiKey\" (API key) was deleted from the Organization")
-  void readEntriesUsingDeletedToken(
+      "#59 Scenario: Fail to readList upon the \"Admin\" apiKey was deleted from the Organization")
+  void readEntriesWithDeletedAdminApiKey(
       ConfigurationService configurationService, OrganizationService organizationService)
       throws InterruptedException {
-    String orgId = createOrganization(organizationService).id();
-    ApiKey ownerToken = createApiKey(organizationService, orgId, Role.Owner);
-    ApiKey memberToken = createApiKey(organizationService, orgId, Role.Member);
 
-    String repoName = RandomStringUtils.randomAlphabetic(5);
-    String entryKey = "KEY-FOR-PRECIOUS-METAL-123";
-
-    configurationService
-        .createRepository(new CreateRepositoryRequest(ownerToken.key(), repoName))
-        .then(
-            configurationService.createEntry(
-                new CreateOrUpdateEntryRequest(
-                    ownerToken.key(),
-                    repoName,
-                    entryKey,
-                    OBJECT_MAPPER
-                        .createObjectNode()
-                        .put("instrumentId", "XAG")
-                        .put("name", "Silver")
-                        .put("DecimalPrecision", 4)
-                        .put("Rounding", "down"))))
-        .block(TIMEOUT);
+    ApiKey adminApiKey = createApiKey(organizationService, orgId, Role.Admin);
 
     organizationService
         .deleteOrganizationApiKey(
-            new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, memberToken.name()))
+            new DeleteOrganizationApiKeyRequest(AUTH0_TOKEN, orgId, adminApiKey.name()))
         .block(TIMEOUT);
 
     TimeUnit.SECONDS.sleep(KEY_CACHE_TTL + 1);
 
-    StepVerifier.create(
-            configurationService.readList(new ReadListRequest(memberToken.key(), repoName)))
-        .expectErrorMessage("Token verification failed")
+    StepVerifier.create(configurationService.readList(new ReadListRequest(adminApiKey, repoName)))
+        .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
         .verify();
+
+    StepVerifier.create(
+            configurationService.readList(new ReadListRequest(adminApiKey, repoName, 1)))
+        .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
+        .verify();
+  }
+
+  @TestTemplate
+  @DisplayName("#60 Scenario: Fail to readList due to invalid apiKey was applied")
+  void readEntryUsingExpiredApiKey(
+      ConfigurationService configurationService, OrganizationService organizationService) {
+    String apiKey = getExpiredApiKey(organizationService, orgId, Role.Owner).key();
+
+    StepVerifier.create(configurationService.readList(new ReadListRequest(apiKey, repoName)))
+        .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
+        .verify();
+
+    StepVerifier.create(configurationService.readList(new ReadListRequest(apiKey, repoName, 1)))
+        .expectErrorMessage(TOKEN_VERIFICATION_FAILED)
+        .verify();
+  }
+
+  @TestTemplate
+  @DisplayName("#61 Scenario: Fail to readList with empty or undefined apiKey")
+  void readEntriesWithEmptyOrUndefinedApiKey(ConfigurationService configurationService) {
+    StepVerifier.create(configurationService.readList(new ReadListRequest("", repoName, 1)))
+        .expectErrorMessage(PLEASE_SPECIFY_API_KEY)
+        .verify();
+
+    StepVerifier.create(configurationService.readList(new ReadListRequest("", repoName)))
+        .expectErrorMessage(PLEASE_SPECIFY_API_KEY)
+        .verify();
+
+    StepVerifier.create(configurationService.readList(new ReadListRequest(null, repoName, 1)))
+        .expectErrorMessage(PLEASE_SPECIFY_API_KEY)
+        .verify();
+
+    StepVerifier.create(configurationService.readList(new ReadListRequest(null, repoName)))
+        .expectErrorMessage(PLEASE_SPECIFY_API_KEY)
+        .verify();
+  }
+
+  @TestTemplate
+  @DisplayName("#62 Scenario: Fail to readList with empty or undefined Repository name")
+  void readEntriesWithEmptyOrUndefinedRepo(ConfigurationService configurationService) {
+    StepVerifier.create(configurationService.readList(new ReadListRequest(memberApiKey, "", 1)))
+        .expectErrorMessage(PLEASE_SPECIFY_REPO)
+        .verify();
+
+    StepVerifier.create(configurationService.readList(new ReadListRequest(memberApiKey, "")))
+        .expectErrorMessage(PLEASE_SPECIFY_REPO)
+        .verify();
+
+    StepVerifier.create(configurationService.readList(new ReadListRequest(memberApiKey, null, 1)))
+        .expectErrorMessage(PLEASE_SPECIFY_REPO)
+        .verify();
+
+    StepVerifier.create(configurationService.readList(new ReadListRequest(memberApiKey, null)))
+        .expectErrorMessage(PLEASE_SPECIFY_REPO)
+        .verify();
+  }
+
+  private Map<String, Object> keyValueMap(List<ReadEntryResponse> entries) {
+    return entries.stream().collect(Collectors.toMap(rs -> rs.key(), rs -> entryValue(rs.value())));
+  }
+
+  private ObjectNode entryValue(Object value) {
+    if (value instanceof ObjectNode) {
+      return (ObjectNode) value;
+    }
+
+    ObjectNode createdValue = OBJECT_MAPPER.createObjectNode();
+    ((Map<String, Object>) value)
+        .forEach(
+            (k, v) -> {
+              if (v instanceof String) {
+                createdValue.put(k, (String) v);
+              } else {
+                createdValue.put(k, (Integer) v);
+              }
+            });
+    return createdValue;
   }
 }

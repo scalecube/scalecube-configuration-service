@@ -65,7 +65,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .then(checkAccess(request.apiKey(), ConfigurationService.CONFIG_READ_ENTRY))
         .flatMap(
             p ->
-                repository.read(p.tenant(), request.repository(), request.key(), request.version()))
+                repository.read(
+                    p.tenant(), request.repository(), request.key(), intVersion(request.version())))
         .map(document -> new ReadEntryResponse(document.key(), document.value()))
         .doOnSuccess(result -> logger.debug("read: request: {}, result: {}", request, result))
         .doOnError(th -> logger.error("read: request: {}, error:", request, th));
@@ -77,7 +78,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .then(Mono.defer(() -> validate(request)))
         .subscribeOn(scheduler)
         .then(checkAccess(request.apiKey(), ConfigurationService.CONFIG_READ_LIST))
-        .flatMapMany(p -> repository.readAll(p.tenant(), request.repository(), request.version()))
+        .flatMapMany(
+            p ->
+                repository.readAll(p.tenant(), request.repository(), intVersion(request.version())))
         .map(doc -> new ReadEntryResponse(doc.key(), doc.value()))
         .collectList()
         .doOnSuccess(result -> logger.debug("readAll: request: {}, result: {}", request, result))
@@ -140,11 +143,23 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         .doOnError(th -> logger.error("delete: request: {}, error:", request, th));
   }
 
-  private Mono<Profile> checkAccess(Object token, String resource) {
+  private static Integer intVersion(Object version) {
+    if (version instanceof Integer) {
+      return (Integer) version;
+    } else if (version instanceof Long) {
+      return Integer.valueOf(version.toString());
+    } else if (version instanceof String) {
+      return Integer.valueOf((String) version);
+    }
+
+    return (Integer) version;
+  }
+
+  private Mono<Profile> checkAccess(Object apiKey, String resource) {
     return Mono.defer(
         () ->
             accessControl
-                .check(token.toString(), resource)
+                .check(apiKey.toString(), resource)
                 .onErrorMap(AuthenticationException.class, e -> new InvalidAuthenticationToken()));
   }
 }
