@@ -12,6 +12,7 @@ import com.couchbase.client.java.view.DesignDocument;
 import com.couchbase.client.java.view.DesignDocument.Option;
 import com.github.dockerjava.api.model.PortBinding;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,7 +22,9 @@ import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.couchbase.CouchbaseContainer;
+import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 import org.testcontainers.vault.VaultContainer;
+import reactor.core.Exceptions;
 
 final class Environment {
 
@@ -151,7 +154,9 @@ final class Environment {
 
   private void startGateway() {
     GenericContainer gateway =
-        new GenericContainer<>("scalecube/scalecube-services-gateway-runner:2.8.4")
+        new GenericContainer<>(
+                "scalecube/scalecube-services-gateway-runner:"
+                    + getProperty("scalecube-services-gateway.version"))
             .withExposedPorts(WS_GATEWAY_PORT, HTTP_GATEWAY_PORT, RS_GATEWAY_PORT)
             .withNetwork(Network.SHARED)
             .withNetworkAliases(GATEWAY_NETWORK_ALIAS)
@@ -170,7 +175,8 @@ final class Environment {
   private void startOrganizationService(Map<String, String> env) {
     env.put("JAVA_OPTS", "-Dio.scalecube.organization.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801");
 
-    new GenericContainer<>("scalecube/scalecube-organization:2.1.12")
+    new GenericContainer<>(
+            "scalecube/scalecube-organization:" + getProperty("scalecube-organization.version"))
         .withNetwork(Network.SHARED)
         .withNetworkAliases("scalecube-organization")
         .withCreateContainerCmdModifier(cmd -> cmd.withName("scalecube-organization"))
@@ -181,12 +187,23 @@ final class Environment {
   private void startConfigurationService(Map<String, String> env) {
     env.put("JAVA_OPTS", "-Dio.scalecube.configuration.seeds=" + GATEWAY_NETWORK_ALIAS + ":4801");
 
-    new GenericContainer<>("scalecube/scalecube-configuration:latest")
+    new GenericContainer<>("scalecube/scalecube-configuration:" + getProperty("project.version"))
         .withNetwork(Network.SHARED)
         .withNetworkAliases("scalecube-configuration")
         .withCreateContainerCmdModifier(cmd -> cmd.withName("scalecube-configuration"))
         .withEnv(env)
         .waitingFor(new LogMessageWaitStrategy().withRegEx("^.*scalecube.*Running.*$"))
         .start();
+  }
+
+  private String getProperty(String propName) {
+    try {
+      Process process =
+          Runtime.getRuntime()
+              .exec("mvn help:evaluate -Dexpression=" + propName + " -q -DforceStdout");
+      return IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
+    } catch (Exception e) {
+      throw Exceptions.propagate(e);
+    }
   }
 }
