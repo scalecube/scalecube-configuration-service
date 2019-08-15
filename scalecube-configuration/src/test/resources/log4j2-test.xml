@@ -12,7 +12,7 @@
   </Appenders>
 
   <Loggers>
-    <Root level="${env:logLevel:-OFF}">
+    <Root level="${env:logLevel:-WARN}">
       <AppenderRef ref="STDOUT"/>
     </Root>
   </Loggers>
