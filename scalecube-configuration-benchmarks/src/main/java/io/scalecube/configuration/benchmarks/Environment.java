@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
@@ -68,11 +69,27 @@ final class Environment {
   }
 
   private void startCouchbase() {
+    String name = "organizations";
+    String configName = "configurations";
+    String password = "123456";
+
     CouchbaseContainer couchbase =
         new CouchbaseContainer(COUCHBASE_DOCKER_IMAGE)
             .withClusterAdmin(COUCHBASE_USERNAME, COUCHBASE_PASSWORD)
             .withNetwork(Network.SHARED)
             .withNetworkAliases(COUCHBASE_NETWORK_ALIAS)
+            .withNewBucket(
+                DefaultBucketSettings.builder().name(name).password(password).build(),
+                UserSettings.build()
+                    .name(name)
+                    .password(password)
+                    .roles(Collections.singletonList(new UserRole(BUCKET_FULL_ACCESS, name))))
+            .withNewBucket(
+                DefaultBucketSettings.builder().name(configName).password(password).build(),
+                UserSettings.build()
+                    .name(configName)
+                    .password(password)
+                    .roles(Collections.singletonList(new UserRole(BUCKET_FULL_ACCESS, configName))))
             .withCreateContainerCmdModifier(
                 cmd -> {
                   cmd.withName(COUCHBASE_NETWORK_ALIAS);
@@ -86,25 +103,6 @@ final class Environment {
       // ignore
     }
 
-    String name = "organizations";
-    String password = "123456";
-    couchbase.createBucket(
-        DefaultBucketSettings.builder().name(name).password(password).build(),
-        UserSettings.build()
-            .name(name)
-            .password(password)
-            .roles(Collections.singletonList(new UserRole(BUCKET_FULL_ACCESS, name))),
-        true);
-
-    String configName = "configurations";
-    couchbase.createBucket(
-        DefaultBucketSettings.builder().name(configName).password(password).build(),
-        UserSettings.build()
-            .name(configName)
-            .password(password)
-            .roles(Collections.singletonList(new UserRole(BUCKET_FULL_ACCESS, configName))),
-        true);
-
     couchbaseInit(couchbase, configName);
   }
 
@@ -113,7 +111,8 @@ final class Environment {
         couchbase.getCouchbaseCluster().openBucket(bucketName, COUCHBASE_PASSWORD).async();
     Mono.from(
             RxReactiveStreams.toPublisher(
-                bucket.insert(JsonArrayDocument.create("repos", JsonArray.create()))))
+                bucket.insert(
+                    JsonArrayDocument.create("repos", JsonArray.create()), 100, TimeUnit.SECONDS)))
         .retryBackoff(100, Duration.ofSeconds(1), Duration.ofSeconds(5))
         .block();
     AsyncBucketManager bucketManager = bucket.bucketManager().toBlocking().first();
