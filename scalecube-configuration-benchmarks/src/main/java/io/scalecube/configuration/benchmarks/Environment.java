@@ -107,44 +107,34 @@ final class Environment {
   }
 
   private static void couchbaseInit(CouchbaseContainer couchbase, String bucketName) {
-    try {
-      AsyncBucket bucket =
-          couchbase
-              .getCouchbaseCluster()
-              .openBucket(bucketName, COUCHBASE_PASSWORD, 100, TimeUnit.SECONDS)
-              .async();
-      Mono.from(
-              RxReactiveStreams.toPublisher(
-                  bucket.insert(
-                      JsonArrayDocument.create("repos", JsonArray.create()),
-                      100,
-                      TimeUnit.SECONDS)))
-          .retryBackoff(100, Duration.ofSeconds(1), Duration.ofSeconds(5))
-          .block();
-      AsyncBucketManager bucketManager = bucket.bucketManager().toBlocking().first();
+    AsyncBucket bucket =
+        couchbase.getCouchbaseCluster().openBucket(bucketName, COUCHBASE_PASSWORD).async();
+    Mono.from(
+            RxReactiveStreams.toPublisher(
+                bucket.insert(
+                    JsonArrayDocument.create("repos", JsonArray.create()), 100, TimeUnit.SECONDS)))
+        .retryBackoff(100, Duration.ofSeconds(1), Duration.ofSeconds(5))
+        .block();
+    AsyncBucketManager bucketManager = bucket.bucketManager().toBlocking().first();
 
-      Map<Option, Long> options = new HashMap<>();
-      options.put(Option.UPDATE_MIN_CHANGES, 1L);
-      options.put(Option.REPLICA_UPDATE_MIN_CHANGES, 1L);
+    Map<Option, Long> options = new HashMap<>();
+    options.put(Option.UPDATE_MIN_CHANGES, 1L);
+    options.put(Option.REPLICA_UPDATE_MIN_CHANGES, 1L);
 
-      DesignDocument designDoc =
-          DesignDocument.create(
-              "keys",
-              Arrays.asList(
-                  DefaultView.create(
-                      "by_keys",
-                      "function (doc, meta) { "
-                          + "  if (meta.id != 'repos') { "
-                          + "    emit(meta.id.substring(0, meta.id.lastIndexOf('::')), null);"
-                          + "  }"
-                          + "}")),
-              options);
+    DesignDocument designDoc =
+        DesignDocument.create(
+            "keys",
+            Arrays.asList(
+                DefaultView.create(
+                    "by_keys",
+                    "function (doc, meta) { "
+                        + "  if (meta.id != 'repos') { "
+                        + "    emit(meta.id.substring(0, meta.id.lastIndexOf('::')), null);"
+                        + "  }"
+                        + "}")),
+            options);
 
-      bucketManager.insertDesignDocument(designDoc).toBlocking().first();
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw e;
-    }
+    bucketManager.insertDesignDocument(designDoc).toBlocking().first();
   }
 
   private void startVault() {

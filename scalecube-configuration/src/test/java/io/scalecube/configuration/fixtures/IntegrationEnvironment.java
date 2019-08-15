@@ -6,10 +6,9 @@ import static io.scalecube.configuration.scenario.BaseScenario.KEY_CACHE_REFRESH
 import static io.scalecube.configuration.scenario.BaseScenario.KEY_CACHE_TTL;
 
 import com.couchbase.client.java.AsyncBucket;
-import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
-import com.couchbase.client.java.bucket.BucketManager;
+import com.couchbase.client.java.bucket.AsyncBucketManager;
 import com.couchbase.client.java.cluster.DefaultBucketSettings;
 import com.couchbase.client.java.cluster.UserRole;
 import com.couchbase.client.java.cluster.UserSettings;
@@ -62,6 +61,7 @@ import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 import org.testcontainers.vault.VaultContainer;
 import reactor.core.publisher.Mono;
 import reactor.netty.tcp.TcpServer;
+import rx.RxReactiveStreams;
 
 final class IntegrationEnvironment {
 
@@ -111,6 +111,7 @@ final class IntegrationEnvironment {
 
     } catch (Exception e) {
       LOGGER.error("### Error on environment set up", e);
+      e.printStackTrace();
 
       stop();
 
@@ -152,6 +153,9 @@ final class IntegrationEnvironment {
   private CouchbaseContainer startCouchbase() {
     LOGGER.info("### Start couchbase");
 
+    String name = "organizations";
+    String configName = "configurations";
+
     CouchbaseContainer couchbase =
         new CouchbaseContainer(COUCHBASE_DOCKER_IMAGE)
             .withClusterAdmin(COUCHBASE_USERNAME, COUCHBASE_PASSWORD)
@@ -159,7 +163,23 @@ final class IntegrationEnvironment {
                 cmd -> {
                   cmd.withName("couchbase-" + RandomStringUtils.randomAlphabetic(5));
                   cmd.withPortBindings(PortBinding.parse("8091:8091"));
-                });
+                })
+            .withNewBucket(
+                DefaultBucketSettings.builder().name(name).password(COUCHBASE_PASSWORD).build(),
+                UserSettings.build()
+                    .name(name)
+                    .password(COUCHBASE_PASSWORD)
+                    .roles(Collections.singletonList(new UserRole(BUCKET_FULL_ACCESS, name))))
+            .withNewBucket(
+                DefaultBucketSettings.builder()
+                    .name(configName)
+                    .password(COUCHBASE_PASSWORD)
+                    .build(),
+                UserSettings.build()
+                    .name(configName)
+                    .password(COUCHBASE_PASSWORD)
+                    .roles(
+                        Collections.singletonList(new UserRole(BUCKET_FULL_ACCESS, configName))));
     couchbase.start();
     couchbase.initCluster();
     try {
@@ -167,24 +187,6 @@ final class IntegrationEnvironment {
     } catch (IOException e) {
       // ignore
     }
-
-    String name = "organizations";
-    couchbase.createBucket(
-        DefaultBucketSettings.builder().name(name).password(COUCHBASE_PASSWORD).build(),
-        UserSettings.build()
-            .name(name)
-            .password(COUCHBASE_PASSWORD)
-            .roles(Collections.singletonList(new UserRole(BUCKET_FULL_ACCESS, name))),
-        true);
-
-    String configName = "configurations";
-    couchbase.createBucket(
-        DefaultBucketSettings.builder().name(configName).password(COUCHBASE_PASSWORD).build(),
-        UserSettings.build()
-            .name(configName)
-            .password(COUCHBASE_PASSWORD)
-            .roles(Collections.singletonList(new UserRole(BUCKET_FULL_ACCESS, configName))),
-        true);
 
     couchbaseInit(couchbase, configName);
 
@@ -195,11 +197,18 @@ final class IntegrationEnvironment {
   }
 
   private static void couchbaseInit(CouchbaseContainer couchbase, String bucketName) {
-    Bucket bucket = couchbase.getCouchbaseCluster().openBucket(bucketName, COUCHBASE_PASSWORD);
-
-    bucket.insert(JsonArrayDocument.create("repos", JsonArray.create()));
-
-    BucketManager bucketManager = bucket.bucketManager();
+    AsyncBucket bucket =
+        couchbase
+            .getCouchbaseCluster()
+            .openBucket(bucketName, COUCHBASE_PASSWORD, 100, TimeUnit.SECONDS)
+            .async();
+    Mono.from(
+            RxReactiveStreams.toPublisher(
+                bucket.insert(
+                    JsonArrayDocument.create("repos", JsonArray.create()), 100, TimeUnit.SECONDS)))
+        .retryBackoff(100, Duration.ofSeconds(1), Duration.ofSeconds(5))
+        .block();
+    AsyncBucketManager bucketManager = bucket.bucketManager().toBlocking().first();
 
     Map<Option, Long> options = new HashMap<>();
     options.put(Option.UPDATE_MIN_CHANGES, 1L);
@@ -218,7 +227,7 @@ final class IntegrationEnvironment {
                         + "}")),
             options);
 
-    bucketManager.insertDesignDocument(designDoc);
+    bucketManager.insertDesignDocument(designDoc).toBlocking().first();
   }
 
   private VaultContainer startVault() {
