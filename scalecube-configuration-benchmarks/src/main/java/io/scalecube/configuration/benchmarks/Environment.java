@@ -1,7 +1,7 @@
 package io.scalecube.configuration.benchmarks;
 
-import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.bucket.BucketManager;
+import com.couchbase.client.java.AsyncBucket;
+import com.couchbase.client.java.bucket.AsyncBucketManager;
 import com.couchbase.client.java.cluster.DefaultBucketSettings;
 import com.couchbase.client.java.cluster.UserRole;
 import com.couchbase.client.java.cluster.UserSettings;
@@ -12,6 +12,7 @@ import com.couchbase.client.java.view.DesignDocument;
 import com.couchbase.client.java.view.DesignDocument.Option;
 import com.github.dockerjava.api.model.PortBinding;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,6 +23,8 @@ import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.couchbase.CouchbaseContainer;
 import org.testcontainers.vault.VaultContainer;
+import reactor.core.publisher.Mono;
+import rx.RxReactiveStreams;
 
 final class Environment {
 
@@ -106,11 +109,14 @@ final class Environment {
   }
 
   private static void couchbaseInit(CouchbaseContainer couchbase, String bucketName) {
-    Bucket bucket = couchbase.getCouchbaseCluster().openBucket(bucketName, COUCHBASE_PASSWORD);
-
-    bucket.insert(JsonArrayDocument.create("repos", JsonArray.create()));
-
-    BucketManager bucketManager = bucket.bucketManager();
+    AsyncBucket bucket =
+        couchbase.getCouchbaseCluster().openBucket(bucketName, COUCHBASE_PASSWORD).async();
+    Mono.from(
+            RxReactiveStreams.toPublisher(
+                bucket.insert(JsonArrayDocument.create("repos", JsonArray.create()))))
+        .retryBackoff(100, Duration.ofSeconds(1), Duration.ofSeconds(5))
+        .block();
+    AsyncBucketManager bucketManager = bucket.bucketManager().toBlocking().first();
 
     Map<Option, Long> options = new HashMap<>();
     options.put(Option.UPDATE_MIN_CHANGES, 1L);
@@ -129,7 +135,7 @@ final class Environment {
                         + "}")),
             options);
 
-    bucketManager.insertDesignDocument(designDoc);
+    bucketManager.insertDesignDocument(designDoc).toBlocking().first();
   }
 
   private void startVault() {
