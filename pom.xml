@@ -52,7 +52,6 @@
     <module>scalecube-configuration</module>
     <module>scalecube-configuration-api</module>
     <module>scalecube-configuration-benchmarks</module>
-    <module>config-scalecube-configuration-service</module>
   </modules>
 
   <dependencyManagement>
@@ -96,6 +95,11 @@
       <dependency>
         <groupId>io.scalecube</groupId>
         <artifactId>scalecube-services-api</artifactId>
+        <version>${scalecube-services.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.scalecube</groupId>
+        <artifactId>scalecube-services-bytebuf-codec</artifactId>
         <version>${scalecube-services.version}</version>
       </dependency>
       <dependency>
