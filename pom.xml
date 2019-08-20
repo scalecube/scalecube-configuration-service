@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>scalecube-configuration-parent</artifactId>
-  <version>2.1.16-SNAPSHOT</version>
+  <version>2.1.16</version>
   <packaging>pom</packaging>
 
   <name>ScaleCube Configuration Service</name>
@@ -19,7 +19,7 @@
     <connection>scm:git:git@github.com:scalecube/scalecube-configuration-service.git</connection>
     <developerConnection>scm:git:git@github.com:scalecube/scalecube-configuration-service.git
     </developerConnection>
-    <tag>HEAD</tag>
+    <tag>v2.1.16</tag>
   </scm>
 
   <properties>
