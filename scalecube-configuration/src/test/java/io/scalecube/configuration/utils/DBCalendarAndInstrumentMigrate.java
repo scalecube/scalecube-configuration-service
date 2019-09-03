@@ -4,6 +4,7 @@ import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.document.JsonArrayDocument;
 import com.couchbase.client.java.document.JsonLongDocument;
+import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.view.ViewQuery;
 import java.util.HashMap;
 import java.util.Map;
@@ -97,7 +98,10 @@ public class DBCalendarAndInstrumentMigrate {
 //                newCalendarIdsMap.put(
 //                    id.split(DELIMITER)[2], (int) (long) calendarCounter.content());
 
-                JsonArrayDocument jad = bucket.get(id, JsonArrayDocument.class);
+                JsonArrayDocument jadInstrument = bucket.get(id, JsonArrayDocument.class);
+                //todo: here
+                jadInstrument.content().forEach(null);
+
                 //                bucket.insert(
                 //                    JsonArrayDocument.create(
                 //                        orgIdCalender + DELIMITER + calendarCounter.content(),
