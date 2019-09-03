@@ -4,7 +4,7 @@ import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.document.JsonArrayDocument;
 import com.couchbase.client.java.document.JsonLongDocument;
-import com.couchbase.client.java.document.json.JsonArray;
+import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.view.ViewQuery;
 import java.util.HashMap;
 import java.util.Map;
@@ -93,14 +93,26 @@ public class DBCalendarAndInstrumentMigrate {
           .forEach(
               e -> {
                 String id = e.id();
-                JsonLongDocument calendarCounter =
-                    bucket.counter(orgId + "::instrumentIdCounter", 1, 1);
-//                newCalendarIdsMap.put(
-//                    id.split(DELIMITER)[2], (int) (long) calendarCounter.content());
+                //                JsonLongDocument calendarCounter =
+                //                    bucket.counter(orgId + "::instrumentIdCounter", 1, 1);
+                //                newCalendarIdsMap.put(
+                //                    id.split(DELIMITER)[2], (int) (long)
+                // calendarCounter.content());
 
                 JsonArrayDocument jadInstrument = bucket.get(id, JsonArrayDocument.class);
-                //todo: here
-                jadInstrument.content().forEach(null);
+                // todo: here
+                jadInstrument
+                    .content()
+                    .forEach(
+                        el -> {
+                          JsonObject arrElem = (JsonObject) el;
+                          String oldCalendarId = (String) arrElem.get("calendarId");
+                          System.out.println("old:  " + oldCalendarId);
+
+                          System.out.println("new: " + orgAndItCalendarIdMap.get(orgId).get(oldCalendarId));
+
+                          System.out.println(arrElem.get("calendarId"));
+                        });
 
                 //                bucket.insert(
                 //                    JsonArrayDocument.create(
