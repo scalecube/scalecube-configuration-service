@@ -4,6 +4,7 @@ import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.document.JsonArrayDocument;
 import com.couchbase.client.java.document.JsonLongDocument;
+import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.view.ViewQuery;
 import java.util.HashMap;
@@ -28,8 +29,6 @@ public class DBCalendarAndInstrumentMigrate {
   private final String bucketName;
 
   private Bucket bucket;
-  // Calendar and its instrument
-  private Map<String, String> instrumentCalendarMap = new HashMap<>();
 
   public DBCalendarAndInstrumentMigrate() {
     this.host = System.getProperty("host", DEFAULT_HOST);
@@ -43,126 +42,102 @@ public class DBCalendarAndInstrumentMigrate {
     return CouchbaseCluster.create(host).authenticate(user, password).openBucket(bucketName);
   }
 
-  private Set<String> orgSet(Bucket bucket) {
-    return bucket.get("repos", JsonArrayDocument.class).content().toList().stream()
-        .map(e -> ((String) e).split(DELIMITER)[0])
-        .collect(Collectors.toSet());
+  private Set<String> orgSet() {
+
+    Set<String> repos =
+        bucket.get("repos", JsonArrayDocument.class).content().toList().stream()
+            .map(e -> ((String) e).split(DELIMITER)[0])
+            .collect(Collectors.toSet());
+
+    bucket.upsert(JsonArrayDocument.create("repos", JsonArray.empty()));
+
+    return repos;
+  }
+
+  /**
+   * @param orgId orgId
+   * @return new calendarId map
+   */
+  private Map<String, Integer> orgIdCalendarIdsMap(String orgId) {
+    Map<String, Integer> orgIdEntityIdsMap = new HashMap<>();
+
+    String orgIdCalendar = orgId + DELIMITER + "CalendarsList";
+
+    bucket.listAppend("repos", orgIdCalendar);
+
+    bucket
+        .query(ViewQuery.from("keys", "by_keys").key(orgIdCalendar))
+        .allRows()
+        .forEach(
+            e -> {
+              String id = e.id();
+              JsonLongDocument entityCounter =
+                  bucket.counter(orgId + DELIMITER + "CalendarIdCounter", 1, 1);
+              orgIdEntityIdsMap.put(id.split(DELIMITER)[2], (int) (long) entityCounter.content());
+
+              JsonArrayDocument jad = bucket.get(id, JsonArrayDocument.class);
+
+              bucket.insert(
+                  JsonArrayDocument.create(
+                      orgIdCalendar + DELIMITER + entityCounter.content(), jad.content()));
+              bucket.remove(id);
+            });
+
+    return orgIdEntityIdsMap;
+  }
+
+  /**
+   * @param orgId orgId
+   * @param calendarIdsMap map of new calendarsId
+   * @return new calendarId map
+   */
+  private Map<String, Integer> orgIdInstrumentIdsMap(
+      String orgId, Map<String, Integer> calendarIdsMap) {
+    Map<String, Integer> orgIdInstrumentIdsMap = new HashMap<>();
+
+    String orgIdInstrument = orgId + DELIMITER + "InstrumentsList";
+
+    bucket.listAppend("repos", orgIdInstrument);
+
+    bucket
+        .query(ViewQuery.from("keys", "by_keys").key(orgIdInstrument))
+        .allRows()
+        .forEach(
+            e -> {
+              String id = e.id();
+              JsonLongDocument entityCounter =
+                  bucket.counter(orgId + DELIMITER + "InstrumentIdCounter", 1, 1);
+              orgIdInstrumentIdsMap.put(
+                  id.split(DELIMITER)[2], (int) (long) entityCounter.content());
+
+              JsonArrayDocument jad = bucket.get(id, JsonArrayDocument.class);
+
+              // Change calendarId inside
+              jad.content()
+                  .forEach(
+                      el -> {
+                        JsonObject arrElem = (JsonObject) el;
+                        String oldCalendarId = (String) arrElem.get("calendarId");
+                        arrElem.put("calendarId", calendarIdsMap.get(oldCalendarId));
+                      });
+
+              bucket.insert(
+                  JsonArrayDocument.create(
+                      orgIdInstrument + DELIMITER + entityCounter.content(), jad.content()));
+              bucket.remove(id);
+            });
+
+    return orgIdInstrumentIdsMap;
   }
 
   private void start() {
     bucket = getBucket();
-    Set<String> orgIdSet = orgSet(bucket);
-
-    Map<String, Map<String, Integer>> orgAndItCalendarIdMap = new HashMap<>();
-
-    System.out.println("orgs: \n" + orgIdSet);
+    Set<String> orgIdSet = orgSet();
 
     for (String orgId : orgIdSet) {
-      Map<String, Integer> newCalendarIdsMap = new HashMap<>();
-
-      String orgIdCalender = orgId + "::CalendarsList";
-
-      bucket
-          .query(ViewQuery.from("keys", "by_keys").key(orgIdCalender))
-          .allRows()
-          .forEach(
-              e -> {
-                String id = e.id();
-                JsonLongDocument calendarCounter =
-                    bucket.counter(orgId + "::calendarIdCounter", 1, 1);
-                newCalendarIdsMap.put(
-                    id.split(DELIMITER)[2], (int) (long) calendarCounter.content());
-
-                JsonArrayDocument jad = bucket.get(id, JsonArrayDocument.class);
-                //                bucket.insert(
-                //                    JsonArrayDocument.create(
-                //                        orgIdCalender + DELIMITER + calendarCounter.content(),
-                // jad.content()));
-                //                bucket.remove(id);
-              });
-
-      orgAndItCalendarIdMap.put(orgId, newCalendarIdsMap);
-
-      // =======
-
-      String orgIdInstrument = orgId + "::InstrumentsList";
-
-      bucket
-          .query(ViewQuery.from("keys", "by_keys").key(orgIdInstrument))
-          .allRows()
-          .forEach(
-              e -> {
-                String id = e.id();
-                //                JsonLongDocument calendarCounter =
-                //                    bucket.counter(orgId + "::instrumentIdCounter", 1, 1);
-                //                newCalendarIdsMap.put(
-                //                    id.split(DELIMITER)[2], (int) (long)
-                // calendarCounter.content());
-
-                JsonArrayDocument jadInstrument = bucket.get(id, JsonArrayDocument.class);
-                // todo: here
-                jadInstrument
-                    .content()
-                    .forEach(
-                        el -> {
-                          JsonObject arrElem = (JsonObject) el;
-                          String oldCalendarId = (String) arrElem.get("calendarId");
-                          System.out.println("old:  " + oldCalendarId);
-
-                          System.out.println("new: " + orgAndItCalendarIdMap.get(orgId).get(oldCalendarId));
-
-                          System.out.println(arrElem.get("calendarId"));
-                        });
-
-                //                bucket.insert(
-                //                    JsonArrayDocument.create(
-                //                        orgIdCalender + DELIMITER + calendarCounter.content(),
-                // jad.content()));
-                //                bucket.remove(id);
-              });
+      Map<String, Integer> calendarIdsMap = orgIdCalendarIdsMap(orgId);
+      orgIdInstrumentIdsMap(orgId, calendarIdsMap);
     }
-
-    System.out.println(orgAndItCalendarIdMap);
-
-    //      for (ViewRow vr : query.allRows()) {
-    //        System.out.println(vr.id());
-    //      System.out.println(vr.key());
-    //      }
-
-    //    bucket.query(N1qlQuery.simple())
-    //
-    //    N1qlParams params = N1qlParams.build().adhoc(false);
-    //    N1qlQuery query = N1qlQuery.simple("select count(*) from `configurations`", params);
-    //    System.out.println(query.);
-
-    //    N1qlQueryResult queryResult =
-    //        bucket.query(Query.simple("SELECT * FROM beer-sample LIMIT 10"));
-
-    //    System.out.println("Simple string query:");
-    //    //    N1qlQuery airlineQuery = N1qlQuery.simple("select count(*) from `configurations`");
-    //    N1qlQuery airlineQuery = N1qlQuery.simple("select * from configurations limit 20");
-    //    N1qlQueryResult queryResult = bucket.query(airlineQuery);
-    //
-    //    for (N1qlQueryRow result : queryResult) {
-    //      System.out.println(result.value());
-    //    }
-    //
-    //    //    System.exit(0);
-    //
-    //    repoContent.forEach(
-    //        el -> {
-    //          String e = (String) el;
-    //          if (e.endsWith("CalendarsList")) {
-    //            instrumentCalendarMap.put(
-    //                e,
-    //                (String)
-    //                    repoContent.get(
-    //                        repoContent.indexOf(e.split("::")[0] + "::" + "InstrumentsList")));
-    //          }
-    //        });
-    //
-    //    System.out.println(repoContent);
-    //    System.out.println(instrumentCalendarMap);
   }
 
   public static void main(String[] args) {
