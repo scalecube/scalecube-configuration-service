@@ -4,18 +4,17 @@ import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.document.JsonArrayDocument;
 import com.couchbase.client.java.document.JsonLongDocument;
-import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.view.ViewQuery;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DBCalendarAndInstrumentMigrate {
 
   private static final String DEFAULT_HOST = "localhost";
-  private static final String DEFAULT_PORT = "8091";
   private static final String DEFAULT_USER = "admin";
   private static final String DEFAULT_PASSWORD = "123456";
   private static final String DEFAULT_BUCKET_NAME = "configurations";
@@ -23,7 +22,6 @@ public class DBCalendarAndInstrumentMigrate {
   private static final String DELIMITER = "::";
 
   private final String host;
-  private final String port;
   private final String user;
   private final String password;
   private final String bucketName;
@@ -32,10 +30,17 @@ public class DBCalendarAndInstrumentMigrate {
 
   public DBCalendarAndInstrumentMigrate() {
     this.host = System.getProperty("host", DEFAULT_HOST);
-    this.port = System.getProperty("port", DEFAULT_PORT);
     this.user = System.getProperty("user", DEFAULT_USER);
     this.password = System.getProperty("password", DEFAULT_PASSWORD);
     this.bucketName = System.getProperty("bucket", DEFAULT_BUCKET_NAME);
+
+    System.out.println("Connection params:");
+    System.out.println("====================");
+    System.out.println("host = " + host);
+    System.out.println("user = " + user);
+    System.out.println("password = " + password);
+    System.out.println("bucketName = " + bucketName);
+    System.out.println("====================");
   }
 
   private Bucket getBucket() {
@@ -49,7 +54,7 @@ public class DBCalendarAndInstrumentMigrate {
             .map(e -> ((String) e).split(DELIMITER)[0])
             .collect(Collectors.toSet());
 
-    bucket.upsert(JsonArrayDocument.create("repos", JsonArray.empty()));
+    System.out.println("Orgs: " + repos);
 
     return repos;
   }
@@ -59,11 +64,9 @@ public class DBCalendarAndInstrumentMigrate {
    * @return new calendarId map
    */
   private Map<String, Integer> orgIdCalendarIdsMap(String orgId) {
-    Map<String, Integer> orgIdEntityIdsMap = new HashMap<>();
+    Map<String, Integer> orgIdCalendarIdsMap = new HashMap<>();
 
     String orgIdCalendar = orgId + DELIMITER + "CalendarsList";
-
-    bucket.listAppend("repos", orgIdCalendar);
 
     bucket
         .query(ViewQuery.from("keys", "by_keys").key(orgIdCalendar))
@@ -71,19 +74,51 @@ public class DBCalendarAndInstrumentMigrate {
         .forEach(
             e -> {
               String id = e.id();
-              JsonLongDocument entityCounter =
+              JsonLongDocument calendarCounter =
                   bucket.counter(orgId + DELIMITER + "CalendarIdCounter", 1, 1);
-              orgIdEntityIdsMap.put(id.split(DELIMITER)[2], (int) (long) entityCounter.content());
+              orgIdCalendarIdsMap.put(
+                  id.split(DELIMITER)[2], (int) (long) calendarCounter.content());
 
-              JsonArrayDocument jad = bucket.get(id, JsonArrayDocument.class);
-
-              bucket.insert(
-                  JsonArrayDocument.create(
-                      orgIdCalendar + DELIMITER + entityCounter.content(), jad.content()));
-              bucket.remove(id);
+              insert(orgIdCalendar, id, calendarCounter);
             });
 
-    return orgIdEntityIdsMap;
+    return orgIdCalendarIdsMap;
+  }
+
+  /**
+   * @param orgId orgId
+   * @return new brokerId map
+   */
+  private Map<String, Integer> orgIdBrokerIdsMap(String orgId) {
+    Map<String, Integer> orgIdBrokerIdsMap = new HashMap<>();
+
+    String orgIdBroker = orgId + DELIMITER + "BrokersList";
+
+    bucket
+        .query(ViewQuery.from("keys", "by_keys").key(orgIdBroker))
+        .allRows()
+        .forEach(
+            e -> {
+              String id = e.id();
+              JsonLongDocument brokerCounter =
+                  bucket.counter(orgId + DELIMITER + "BrokerIdCounter", 1, 1);
+              orgIdBrokerIdsMap.put(id.split(DELIMITER)[2], (int) (long) brokerCounter.content());
+
+              insert(orgIdBroker, id, brokerCounter);
+            });
+
+    return orgIdBrokerIdsMap;
+  }
+
+  private void insert(String orgIdEntity, String id, JsonLongDocument entityCounter) {
+    JsonArrayDocument jad = bucket.get(id, JsonArrayDocument.class);
+
+    if (id != null) {
+      bucket.insert(
+          JsonArrayDocument.create(
+              orgIdEntity + DELIMITER + entityCounter.content(), jad.content()));
+      bucket.remove(id);
+    }
   }
 
   /**
@@ -96,8 +131,6 @@ public class DBCalendarAndInstrumentMigrate {
     Map<String, Integer> orgIdInstrumentIdsMap = new HashMap<>();
 
     String orgIdInstrument = orgId + DELIMITER + "InstrumentsList";
-
-    bucket.listAppend("repos", orgIdInstrument);
 
     bucket
         .query(ViewQuery.from("keys", "by_keys").key(orgIdInstrument))
@@ -117,14 +150,21 @@ public class DBCalendarAndInstrumentMigrate {
                   .forEach(
                       el -> {
                         JsonObject arrElem = (JsonObject) el;
+
                         String oldCalendarId = (String) arrElem.get("calendarId");
-                        arrElem.put("calendarId", calendarIdsMap.get(oldCalendarId));
+                        if (oldCalendarId != null) {
+                          Integer newCalendarId =
+                              Optional.ofNullable(calendarIdsMap.get(oldCalendarId)).orElse(-1);
+                          arrElem.put("calendarId", newCalendarId);
+                        }
                       });
 
-              bucket.insert(
-                  JsonArrayDocument.create(
-                      orgIdInstrument + DELIMITER + entityCounter.content(), jad.content()));
-              bucket.remove(id);
+              if (id != null) {
+                bucket.insert(
+                    JsonArrayDocument.create(
+                        orgIdInstrument + DELIMITER + entityCounter.content(), jad.content()));
+                bucket.remove(id);
+              }
             });
 
     return orgIdInstrumentIdsMap;
@@ -136,6 +176,7 @@ public class DBCalendarAndInstrumentMigrate {
 
     for (String orgId : orgIdSet) {
       Map<String, Integer> calendarIdsMap = orgIdCalendarIdsMap(orgId);
+      orgIdBrokerIdsMap(orgId);
       orgIdInstrumentIdsMap(orgId, calendarIdsMap);
     }
   }
