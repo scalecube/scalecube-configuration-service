@@ -19,6 +19,7 @@ import io.scalecube.security.api.AccessControl;
 import io.scalecube.security.api.Authenticator;
 import io.scalecube.security.jwt.DefaultJwtAuthenticator;
 import io.scalecube.services.Microservices;
+import io.scalecube.services.ServiceEndpoint;
 import io.scalecube.services.ServiceInfo;
 import io.scalecube.services.ServiceProvider;
 import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
@@ -28,6 +29,7 @@ import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
+import reactor.netty.tcp.TcpClient;
 import reactor.netty.tcp.TcpServer;
 
 public class ConfigurationServiceRunner {
@@ -48,32 +50,37 @@ public class ConfigurationServiceRunner {
     DiscoveryOptions discoveryOptions = discoveryOptions();
     LOGGER.info("Starting configuration service on {}", discoveryOptions);
 
-    Microservices microservices =
-        Microservices.builder()
-            .discovery(
-                serviceEndpoint ->
-                    new ScalecubeServiceDiscovery(serviceEndpoint)
-                        .options(
-                            opts ->
-                                opts.membership(cfg -> cfg.seedMembers(discoveryOptions.seeds()))
-                                    .transport(cfg -> cfg.port(discoveryOptions.discoveryPort()))
-                                    .memberHost(discoveryOptions.memberHost())
-                                    .memberPort(discoveryOptions.memberPort())))
-            .transport(
-                () ->
-                    new RSocketServiceTransport()
-                        .tcpServer(
-                            loopResources ->
-                                TcpServer.create()
-                                    .port(discoveryOptions.servicePort())
-                                    .runOn(loopResources)))
-            .services(createConfigurationService())
-            .startAwait();
+    Microservices.builder()
+        .discovery((serviceEndpoint) -> serviceDiscovery(discoveryOptions, serviceEndpoint))
+        .transport(() -> serviceTransport(discoveryOptions))
+        .services(createConfigurationService())
+        .start()
+        .doOnNext(
+            microservices ->
+                Logo.from(new PackageInfo())
+                    .ip(microservices.discovery().address().host())
+                    .port("" + microservices.discovery().address().port())
+                    .draw())
+        .block()
+        .onShutdown()
+        .block();
+  }
 
-    Logo.from(new PackageInfo())
-        .ip(microservices.serviceAddress().host())
-        .port(microservices.serviceAddress().port() + "")
-        .draw();
+  private static RSocketServiceTransport serviceTransport(DiscoveryOptions options) {
+    return new RSocketServiceTransport()
+        .tcpClient(resources -> TcpClient.newConnection().runOn(resources))
+        .tcpServer(resources -> TcpServer.create().port(options.servicePort()).runOn(resources));
+  }
+
+  private static ScalecubeServiceDiscovery serviceDiscovery(
+      DiscoveryOptions discoveryOptions, ServiceEndpoint serviceEndpoint) {
+    return new ScalecubeServiceDiscovery(serviceEndpoint)
+        .options(
+            opts ->
+                opts.membership(m -> m.seedMembers(discoveryOptions.seeds()))
+                    .transport(t -> t.port(discoveryOptions.discoveryPort()))
+                    .memberHost(discoveryOptions.memberHost())
+                    .memberPort(discoveryOptions.memberPort()));
   }
 
   private static ServiceProvider createConfigurationService() {
