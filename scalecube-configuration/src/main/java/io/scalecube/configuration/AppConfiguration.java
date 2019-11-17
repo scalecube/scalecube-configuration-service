@@ -2,40 +2,64 @@ package io.scalecube.configuration;
 
 import io.scalecube.config.ConfigRegistry;
 import io.scalecube.config.ConfigRegistrySettings;
+import io.scalecube.config.ConfigRegistrySettings.Builder;
 import io.scalecube.config.audit.Slf4JConfigEventListener;
 import io.scalecube.config.source.ClassPathConfigSource;
 import io.scalecube.config.source.SystemEnvironmentConfigSource;
 import io.scalecube.config.source.SystemPropertiesConfigSource;
+import io.scalecube.config.vault.KubernetesVaultTokenSupplier;
 import io.scalecube.config.vault.VaultConfigSource;
+import io.scalecube.config.vault.VaultTokenSupplier;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /** Configures the ConfigRegistry with sources. */
-public final class AppConfiguration {
+public class AppConfiguration {
+
+  public static final int VAULT_ENGINE_VERSION = 1;
+
+  private static final String VAULT_ADDR_PROP_NAME = "VAULT_ADDR";
+  private static final String VAULT_TOKEN_PROP_NAME = "VAULT_TOKEN";
+  private static final String KUBERNETES_VAULT_ROLE_PROP_NAME = "VAULT_ROLE";
+  private static final String VAULT_SECRETS_PATH_PROP_NAME = "VAULT_SECRETS_PATH";
 
   private static final int RELOAD_INTERVAL_SEC = 300;
   private static final Pattern CONFIG_PATTERN = Pattern.compile("(.*)\\.config\\.properties");
   private static final Predicate<Path> PATH_PREDICATE =
       path -> CONFIG_PATTERN.matcher(path.toString()).matches();
 
-  private static final String VAULT_ADDR_PROP_KEY = "VAULT_ADDR";
-  private static final String VAULT_TOKEN_PROP_KEY = "VAULT_TOKEN";
-  private static final String VAULT_SECRETS_PATH_PROP_KEY = "VAULT_SECRETS_PATH";
-
   private static final ConfigRegistry configRegistry;
 
   static {
-    ConfigRegistrySettings.Builder builder =
+    Builder builder =
         ConfigRegistrySettings.builder()
             .reloadIntervalSec(RELOAD_INTERVAL_SEC)
             .addListener(new Slf4JConfigEventListener());
 
-    VaultConfigSource vaultConfigSource = buildVaultConfigSource();
+    String vaultAddr = System.getenv().get(VAULT_ADDR_PROP_NAME);
+    String secretsPath = System.getenv().get(VAULT_SECRETS_PATH_PROP_NAME);
+    // for test purposes without vault access
+    if (vaultAddr != null && secretsPath != null) {
+      VaultConfigSource.Builder vaultBuilder =
+          VaultConfigSource.builder().config(c -> c.engineVersion(VAULT_ENGINE_VERSION));
 
-    if (vaultConfigSource != null) {
-      builder.addLastSource("vault", vaultConfigSource);
+      String vaultToken = System.getenv().get(VAULT_TOKEN_PROP_NAME);
+      String kubernetesVaultRolePropName = System.getenv().get(KUBERNETES_VAULT_ROLE_PROP_NAME);
+      if (vaultToken == null && kubernetesVaultRolePropName == null) {
+        throw new IllegalArgumentException("Vault auth scheme is required");
+      }
+      if (vaultToken != null && kubernetesVaultRolePropName != null) {
+        throw new IllegalArgumentException("Vault auth scheme is unclear");
+      }
+      if (vaultToken != null) {
+        vaultBuilder.tokenSupplier(new VaultTokenSupplier() {});
+      }
+      if (kubernetesVaultRolePropName != null) {
+        vaultBuilder.tokenSupplier(new KubernetesVaultTokenSupplier());
+      }
+
+      builder.addLastSource("vault", vaultBuilder.secretsPath(secretsPath).build());
     }
     builder.addLastSource("sys_prop", new SystemPropertiesConfigSource());
     builder.addLastSource("env_var", new SystemEnvironmentConfigSource());
@@ -46,25 +70,5 @@ public final class AppConfiguration {
 
   public static ConfigRegistry configRegistry() {
     return configRegistry;
-  }
-
-  private static VaultConfigSource buildVaultConfigSource() {
-    String vaultAddr =
-        Optional.ofNullable(System.getenv(VAULT_ADDR_PROP_KEY))
-            .orElseGet(() -> System.getProperty(VAULT_ADDR_PROP_KEY, null));
-
-    String vaultToken =
-        Optional.ofNullable(System.getenv(VAULT_TOKEN_PROP_KEY))
-            .orElseGet(() -> System.getProperty(VAULT_TOKEN_PROP_KEY, null));
-
-    String vaultSecretsPath =
-        Optional.ofNullable(System.getenv(VAULT_SECRETS_PATH_PROP_KEY))
-            .orElseGet(() -> System.getProperty(VAULT_SECRETS_PATH_PROP_KEY, null));
-
-    if (vaultAddr == null || vaultToken == null || vaultSecretsPath == null) {
-      return null;
-    }
-
-    return VaultConfigSource.builder(vaultAddr, vaultToken, vaultSecretsPath).build();
   }
 }
