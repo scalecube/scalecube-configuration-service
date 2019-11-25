@@ -10,6 +10,7 @@ import io.scalecube.config.source.SystemPropertiesConfigSource;
 import io.scalecube.config.vault.EnvironmentVaultTokenSupplier;
 import io.scalecube.config.vault.KubernetesVaultTokenSupplier;
 import io.scalecube.config.vault.VaultConfigSource;
+import io.scalecube.config.vault.VaultInvoker;
 import java.nio.file.Path;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -42,9 +43,6 @@ public class AppConfiguration {
         Integer.parseInt(System.getenv().getOrDefault(VAULT_ENGINE_VERSION_PROP_NAME, "1"));
     // for test purposes without vault access
     if (vaultAddr != null && secretsPath != null) {
-      VaultConfigSource.Builder vaultBuilder =
-          VaultConfigSource.builder().config(c -> c.engineVersion(vaultEngineVersion));
-
       String vaultToken = System.getenv().get(VAULT_TOKEN_PROP_NAME);
       String kubernetesVaultRolePropName = System.getenv().get(KUBERNETES_VAULT_ROLE_PROP_NAME);
       if (vaultToken == null && kubernetesVaultRolePropName == null) {
@@ -53,14 +51,21 @@ public class AppConfiguration {
       if (vaultToken != null && kubernetesVaultRolePropName != null) {
         throw new IllegalArgumentException("Vault auth scheme is unclear");
       }
+
+      VaultInvoker.Builder vaultInvokerBuilder = VaultInvoker.builder();
+
       if (vaultToken != null) {
-        vaultBuilder.tokenSupplier(new EnvironmentVaultTokenSupplier());
+        vaultInvokerBuilder.tokenSupplier(new EnvironmentVaultTokenSupplier());
       }
       if (kubernetesVaultRolePropName != null) {
-        vaultBuilder.tokenSupplier(new KubernetesVaultTokenSupplier());
+        vaultInvokerBuilder.tokenSupplier(new KubernetesVaultTokenSupplier());
       }
+      VaultInvoker vaultInvoker =
+          vaultInvokerBuilder.options(c -> c.engineVersion(vaultEngineVersion)).build();
 
-      builder.addLastSource("vault", vaultBuilder.secretsPath(secretsPath).build());
+      builder.addLastSource(
+          "vault",
+          VaultConfigSource.builder().secretsPath(secretsPath).invoker(vaultInvoker).build());
     }
     builder.addLastSource("sys_prop", new SystemPropertiesConfigSource());
     builder.addLastSource("env_var", new SystemEnvironmentConfigSource());
