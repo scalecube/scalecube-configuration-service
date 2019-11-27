@@ -142,12 +142,6 @@
       <artifactId>scalecube-organization</artifactId>
       <version>${scalecube-organization.version}</version>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>com.bettercloud</groupId>
-          <artifactId>vault-java-driver</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
 
