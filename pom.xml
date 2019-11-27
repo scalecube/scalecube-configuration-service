@@ -23,11 +23,11 @@
   </scm>
 
   <properties>
-    <scalecube.config.version>0.3.12</scalecube.config.version>
+    <scalecube.config.version>0.3.14</scalecube.config.version>
     <scalecube-services.version>2.8.7</scalecube-services.version>
-    <scalecube-services-gateway.version>2.8.8</scalecube-services-gateway.version>
+    <scalecube-services-gateway.version>2.8.13</scalecube-services-gateway.version>
     <scalecube-security-jwt.version>1.0.9</scalecube-security-jwt.version>
-    <scalecube-organization.version>2.1.12</scalecube-organization.version>
+    <scalecube-organization.version>2.1.19</scalecube-organization.version>
     <reactor.version>Californium-SR8</reactor.version>
     <jackson.version>2.10.0.pr1</jackson.version>
     <netty.version>4.1.36.Final</netty.version>
@@ -40,12 +40,12 @@
     <log4j.version>2.11.1</log4j.version>
     <junit-jupiter.version>5.4.2</junit-jupiter.version>
     <mockito-core.version>2.24.5</mockito-core.version>
-    <scalecube-test-utils.version>0.0.7</scalecube-test-utils.version>
+    <scalecube-test-utils.version>0.0.13</scalecube-test-utils.version>
     <testcontainers.version>1.11.3</testcontainers.version>
 
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
 
-    <skipITests>false</skipITests>
+    <skipITests>true</skipITests>
   </properties>
 
   <modules>
