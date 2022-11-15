@@ -29,7 +29,7 @@
     <scalecube-security-jwt.version>1.0.9</scalecube-security-jwt.version>
     <scalecube-organization.version>2.1.19</scalecube-organization.version>
     <reactor.version>Californium-SR8</reactor.version>
-    <jackson.version>2.10.0.pr1</jackson.version>
+    <jackson.version>2.12.7.1</jackson.version>
     <netty.version>4.1.36.Final</netty.version>
     <couchbase-client-version>2.7.3</couchbase-client-version>
     <caffeine.version>2.6.2</caffeine.version>
